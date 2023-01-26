@@ -1,0 +1,49 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        app:title="@string/poem_preferences">
+
+        <EditTextPreference
+            app:key="author"
+            app:title="@string/poem_author"
+            app:defaultValue="Not Selected"
+            app:useSimpleSummaryProvider="true"/>
+
+        <ListPreference
+            app:key="coverPage"
+            app:title="@string/front_page_signature"
+            app:entries="@array/cover_page_entries"
+            app:entryValues="@array/cover_page_values"
+            app:defaultValue="true"
+            app:useSimpleSummaryProvider="true"/>
+
+        <EditTextPreference
+            app:key="appNickname"
+            app:title="@string/nickname_preferences"
+            android:maxLength="20"
+            app:entries="@array/cover_page_entries"
+            app:entryValues="@array/cover_page_values"
+            app:defaultValue="@string/nickname_placeholder"
+            app:useSimpleSummaryProvider="true"/>
+
+
+        <ListPreference
+            app:key="orientation"
+            app:title="@string/poem_orientation"
+            app:entries="@array/orientation_entries"
+            app:entryValues="@array/orientation_values"
+            app:defaultValue="portrait"
+            app:useSimpleSummaryProvider="true"/>
+
+        <EditTextPreference
+            app:key="signature"
+            app:title="@string/signature_title"
+            app:defaultValue="Not Selected"
+            app:useSimpleSummaryProvider="true"/>
+
+
+    </PreferenceCategory>
+
+
+</PreferenceScreen>

@@ -1,0 +1,66 @@
+<resources>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="heading_layout_normal">20sp</dimen>
+    <dimen name="action_bar_size">56dp</dimen>
+    <dimen name="my_images_image_size">75dp</dimen>
+    <dimen name="my_images_image_marginTop">5dp</dimen>
+    <dimen name="margin_top_action_bar_size">66dp</dimen>
+    <dimen name="normal_text_size">14sp</dimen>
+    <dimen name="imageHeightNormal">80dp</dimen>
+    <dimen name="imageRowMarginTop">5dp</dimen>
+    <dimen name="seek_bar_thickness">8dp</dimen>
+    <dimen name="seek_bar_thumb_size">20dp</dimen>
+    <color name="seek_bar_background">#ababab</color>
+    <dimen name="strokeSize">8dp</dimen>
+    <dimen name="strokeSizeMargin">7dp</dimen>
+    <dimen name="strokeSizeMarginText">9dp</dimen>
+    <dimen name="portraitStrokeSize">10dp</dimen>
+    <dimen name="portraitStrokeSizeMarginText">11dp</dimen>
+    <dimen name="portraitStrokeSizeMargin">8.9dp</dimen>
+    <item type="id" name="add_pages" />
+    <item type="id" name="textariana_violeta_font" />
+    <item type="id" name="textcabal_bold_font" />
+    <item type="id" name="textcabal_font" />
+    <item type="id" name="textlobster_regular_font" />
+    <item type="id" name="textadinekirnberg_font"/>
+    <item type="id" name="textbangers_font"/>
+    <item type="id" name="textflaemische_font"/>
+    <item type="id" name="textopensansregular_font"/>
+    <item type="id" name="textscriptin_font"/>
+    <item type="id" name="textsourcesansproregular_font"/>
+    <item type="id" name="textthesignature_font"/>
+    <item type="id" name="textayuma_font"/>
+    <item type="id" name="textclicker_script_font"/>
+    <item type="id" name="textcrimson_bold_font"/>
+    <item type="id" name="textdense_regular_font"/>
+    <item type="id" name="texthoney_script_font"/>
+    <item type="id" name="textlibre_baskerville_font"/>
+    <item type="id" name="textlucian_schoenschrift_font"/>
+    <item type="id" name="textmedula_one_font"/>
+    <item type="id" name="textnickainely_font"/>
+    <item type="id" name="textquattrocento_font"/>
+    <item type="id" name="textsexsmith_font"/>
+    <item type="id" name="textrighteous_regular_font"/>
+    <item type="id" name="textchopin_script_font"/>
+
+    <dimen name="previewWithOutlineTextMarginRectangle">9dp</dimen>
+    <dimen name="previewWithOutlineTextMarginTeardrop">14dp</dimen>
+
+    <!-- OUTLINE VARIABLES -->
+    <dimen name="rotatedTeardropCornerSizeTopLeft">0dp</dimen>
+    <dimen name="rotatedTeardropCornerSizeTopRight">55dp</dimen>
+    <dimen name="rotatedTeardropCornerSizeBottomRight">55dp</dimen>
+    <dimen name="rotatedTeardropCornerSizeBottomLeft">55dp</dimen>
+
+    <dimen name="teardropCornerSizeTopLeft">35dp</dimen>
+    <dimen name="teardropCornerSizeTopRight">2dp</dimen>
+    <dimen name="teardropCornerSizeBottomRight">35dp</dimen>
+    <dimen name="teardropCornerSizeBottomLeft">35dp</dimen>
+
+    <dimen name="roundedRectCornerSize">15dp</dimen>
+
+    <dimen name="lemonCornerSizeTopLeft">90dp</dimen>
+    <dimen name="lemonCornerSizeTopRight">5dp</dimen>
+    <dimen name="lemonCornerSizeBottomRight">90dp</dimen>
+    <dimen name="lemonCornerSizeBottomLeft">5dp</dimen>
+</resources>

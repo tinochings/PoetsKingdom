@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/parent"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:layout_marginStart="10dp"
+    android:layout_marginEnd="10dp"
+    >
+
+    <ImageView
+        android:elevation="5dp"
+        android:id="@+id/longClickImageView"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:src="@drawable/circle_svg"
+        android:visibility="gone"
+        android:contentDescription="@string/on_long_hold_image" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/listViewImage"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:scaleType="fitXY" />
+
+    <TextView
+        android:id="@+id/listViewText"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="150dp"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="@dimen/heading_layout_normal" />
+
+</FrameLayout>

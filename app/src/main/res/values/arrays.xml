@@ -1,0 +1,72 @@
+<resources>
+    <!-- Reply Preference -->
+    <string-array name="orientation_entries">
+        <item>Portrait</item>
+        <item>Landscape</item>
+    </string-array>
+
+    <string-array name="orientation_values">
+        <item>portrait</item>
+        <item>landscape</item>
+    </string-array>
+
+    <string-array name="cover_page_entries">
+        <item>True</item>
+        <item>False</item>
+    </string-array>
+
+    <string-array name="cover_page_values">
+        <item>true</item>
+        <item>false</item>
+    </string-array>
+
+    <string-array name="app_background_entries">
+        <item>Color</item>
+        <item>Image</item>
+    </string-array>
+
+    <string-array name="app_background_values">
+        <item>color</item>
+        <item>image</item>
+    </string-array>
+
+    <string-array name="customFontNames">
+        <item>adinekirnberg_font</item>
+        <item>ariana_violeta_font</item>
+        <item>bangers_font</item>
+        <item>cabal_bold_font</item>
+        <item>cabal_font</item>
+        <item>flaemische_font</item>
+        <item>lobster_regular_font</item>
+        <item>opensansregular_font</item>
+        <item>sacramento_font</item>
+        <item>scriptin_font</item>
+        <item>sourcesansproregular_font</item>
+        <item>thesignature_font</item>
+        <item>alegreya_sans_sc_medium_font</item>
+        <item>ayuma_font</item>
+        <item>bungasai_font</item>
+        <item>clicker_script_font</item>
+        <item>comfortaa_font</item>
+        <item>crimson_bold_font</item>
+        <item>crimson_roman_font</item>
+        <item>dense_regular_font</item>
+        <item>glass_antiqua_font</item>
+        <item>honey_script_font</item>
+        <item>josefin_sans_font</item>
+        <item>libre_baskerville_font</item>
+        <item>life_savers_font</item>
+        <item>lucian_schoenschrift_font</item>
+        <item>magnolia_script_font</item>
+        <item>medula_one_font</item>
+        <item>nautilus_font</item>
+        <item>nickainley_font</item>
+        <item>oldenglishfive_font</item>
+        <item>quattrocento_font</item>
+        <item>rogue_script_font</item>
+        <item>sexsmith_font</item>
+        <item>typerighter_medium_font</item>
+        <item>righteous_regular_font</item>
+        <item>chopin_script_font</item>
+    </string-array>
+</resources>

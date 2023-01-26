@@ -1,0 +1,231 @@
+<resources>
+    <string name="app_name">PoetsKingdom</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="title_activity_personalisation">PersonalisationActivity</string>
+    <string name="saved_images_folder_name">savedImages</string>
+    <string name="poems_folder_name">poems</string>
+    <string name="poem_themes_folder_name">poemThemes</string>
+    <string name="thumbnails_folder_name">thumbnails</string>
+
+    <!-- Preference Titles -->
+    <string name="poem_preferences">Poem Preferences</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Poem signature</string>
+    <string name="poem_orientation">Poem Orientation</string>
+    <string name="username_title">User Name</string>
+    <string name="front_page_signature">Cover Page</string>
+    <string name="poem_footer">Poem Footer</string>
+    <string name="app_preferences">App Preferences</string>
+    <string name="custom_theme">Customise Application</string>
+    <string name="app_background">App Background</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="create_poem">Create Poem</string>
+    <string name="my_poem">My Poems</string>
+    <string name="personalisation">Personalisation</string>
+    <string name="poem_title">Title</string>
+    <string name="poem_author">Author</string>
+    <string name="start_writing">Start Writing Here</string>
+    <string name="outline">Outline</string>
+    <string name="background">Background</string>
+    <string name="text">Text</string>
+    <string name="rounded_rectangle_outline_description">ROUNDED_RECTANGLE</string>
+    <string name="teardrop_description_outline">TEARDROP</string>
+    <string name="rotated_teardrop_outline">ROTATED_TEARDROP</string>
+    <string name="rectangle_outline_description">RECTANGLE</string>
+    <string name="lemon_outline_description">LEMON</string>
+    <string name="colors">Colors</string>
+    <string name="color_palette">Color Palette</string>
+    <string name="image">Image</string>
+    <string name="left_text_align">Left align image</string>
+    <string name="center_text_align">Center Text Image</string>
+    <string name="right_align_text">Right Align Text</string>
+    <string name="text_color">Text Color</string>
+    <string name="text_color_image">Text Color Image</string>
+    <string name="text_size_default">Text Size: 14sp</string>
+    <string name="text_size_changeable">Text Size: %0$dsp</string>
+    <string name="casual_font_family">Casual</string>
+    <string name="cursive_font_family">Cursive</string>
+    <string name="monospace_font_family">Monospace</string>
+    <string name="sans_serif_font_family">Sans-Serif</string>
+    <string name="adinekirnbirg_family">Adine Kirnbirg</string>
+    <string name="bangers_family">Bangers </string>
+    <string name="flaemische_family">Flaemische</string>
+    <string name="opensansregular_family">Open Sans Regular</string>
+    <string name="serif_font_family">Serif</string>
+    <string name="sacramento_family">Sacramento</string>
+    <string name="scriptin_family">Scriptin</string>
+    <string name="sourcesansproregular_family">Source Sans Regular</string>
+    <string name="thesignature_family">The Signature</string>
+    <string name="menu_button">Menu</string>
+    <string name="more_options">More Options</string>
+    <string name="view_type">View Type</string>
+    <string name="search">Search</string>
+    <string name="my_images">My Images</string>
+    <string name="builder_message">The selected file name is already stored in the local
+        application folder</string>
+    <string name="builder_understood">Understood</string>
+    <string name="builder_title">File already exists</string>
+    <string name="preview_text">This is line 1\nThis is line 2\nThis is line 3</string>
+    <string name="permission_request">Permission Request</string>
+    <string name="permission_request_message">This permission is used to copy image files that you
+        select into a specific folder that contains images you would like to use to create poems.
+        Without this permission you will not be able to set images as backgrounds for your poems</string>
+    <string name="permission_agreement">Agree</string>
+    <string name="permission_denial">Refuse</string>
+    <string name="nickname_placeholder">Nickname Placeholder</string>
+
+
+    <string name="ariana_violeta_font">Ariana Violeta</string>
+    <string name="cabal_font">Cabal</string>
+    <string name="cabal_bold_font">Cabal Bold</string>
+    <string name="lobster_regular_font">Lobster Regular</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="add_new_image">Add New Image</string>
+    <string name="color_picker_title">Select Color</string>
+    <string name="remove_background_color_outline_popup">Would you like to remove the outline or the background color</string>
+    <string name="remove_background_image_outline_popup">Would you like to remove the outline or the image</string>
+    <string name="remove_background_title">Remove Background Element</string>
+    <string name="positive_background_color_outline_button">Outline</string>
+    <string name="negative_background_color_outline_button">Color</string>
+    <string name="negative_background_image_outline_button">Image</string>
+    <string name="create_poem_title">Give Your Poem A Title :)</string>
+    <string name="confirm">Confirm</string>
+    <string name="retry">Retry</string>
+    <string name="invalid_input">Invalid input</string>
+    <string name="invalid_input_message">You have entered a name which does not contain letters
+    and or numbers. Please enter a valid name.</string>
+    <string name="image_for_result_key">selectImageForResult</string>
+    <string name="image_selection_title">Confirm App Background Image</string>
+    <string name="image_selection_message">Do you confirm that this is the image you would like to
+    use as the applications background</string>
+    <string name="error_title">Error</string>
+    <string name="error_image_backround_messsage">Unfortunately something went wrong trying to
+        obtain the image you want to make your background. Please try again</string>
+    <string name="nickname_preferences">Nickname</string>
+    <string name="background_chosen">Default Background</string>
+    <string name="switch_on_title">Theme Style</string>
+    <string name="switch_on_message">Would you like to keep your previously selected theme or would
+        you like to select a new one. Duly note that the application needs to
+        restart to apply the theme</string>
+    <string name="switch_on_positive_button">Previous Theme</string>
+    <string name="switch_on_negative_button">New Theme</string>
+    <string name="failed_poem_load_title">Failed To Load Poem</string>
+    <string name="failed_poem_load_message">An error occurred whilst loading your poem theme please
+        try again. If the problem persists file a bug report</string>
+    <string name="personalisation_sharedpreferences_key">personalisation_settings</string>
+    <string name="create_poem_text_view_hint">Start Writing here</string>
+    <string name="pages">Pages</string>
+    <string name="edit_theme">Edit</string>
+    <string name="file_already_exists">File already exists</string>
+    <string name="text_options_button">Text Options</string>
+    <string name="text_size_button">Text Size</string>
+    <string name="text_color_button">Text Color</string>
+    <string name="save_button">Save Options</string>
+    <string name="slider_description">Text Size Slider</string>
+    <string name="save_pdf">Save as PDF</string>
+    <string name="save_image">Save as an Image</string>
+    <string name="save_file">Save as a File</string>
+    <string name="category">Category</string>
+    <string name="file_exists_message">There exists a file with the same title as the current poem.
+        Would you like to overwrite this file?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="save_toast">%1$s has successfully been saved as %2$s</string>
+    <string name="error_toast">An error has occurred trying to create a %1$s</string>
+    <string name="delete_button_description">Delete Page Button</string>
+    <string name="on_exit_activity_toast">Attempting to save the current poem before exit</string>
+    <string name="on_long_hold_image">Image indicating if selected view is checked or not</string>
+
+    <string name="nav_open">Open</string>
+    <string name="nav_close">Close</string>
+    <string name="categories">Categories</string>
+    <string name="search_file_name_here">Search File Name Here</string>
+    <string name="delete_button">Delete Button</string>
+    <string name="pdf_icon">PDF icon</string>
+    <string name="image_icon">Image Icon</string>
+    <string name="share_as_image">Share as image</string>
+    <string name="share_as_image_toast">You can only share one poem at a time</string>
+    <string name="external_storage_dialog_title">External Storage Permission</string>
+    <string name="external_storage_dialog_message">In order to share images the application needs to
+        copy local folder files into a folder where all other applications can access them. Do you grant this permission?</string>
+    <string name="my_images_text">My Images</string>
+    <string name="my_poems_text">My Poems</string>
+    <string name="previous_image">Previous Image</string>
+    <string name="next_image">Next Image</string>
+    <string name="the_poets_kingdom_image">The Poets Kingdom Image</string>
+    <string name="invalid_number_of_characters">Too many characters input</string>
+    <string name="invalid_number_of_characters_message">The limit is 30 characters for a username please try again</string>
+    <string name="monospace">monospace</string>
+    <string name="sans_serif">sans-serif</string>
+    <string name="serif">serif</string>
+    <string name="defaulttext">default</string>
+    <string name="enter_poem_text">Enter Poem Text</string>
+    <string name="guide_title">Guide</string>
+    <string name="guide_outline">At the bottom you will see pre-made outlines. These outlines
+        encompass either an image or a color. By default it encompasses a white color.
+        You can change the outlines color by long pressing the desired outline. When you select
+    an outline a preview will be displayed at the top of the page</string>
+    <string name="guide_background">At the bottom you can either select a background color or a
+        background image. The images that will be shown are the images you have added to the
+        application. In order to add images kindly navigate to the main page and click my images.
+        At the bottom right there will be a button you can press. Once again when you click an image
+        or select a color it will be displayed on the top view</string>
+    <string name="guide_text">At the bottom you will see text options. You can choose different fonts.
+    You can change the color of the text and the size of the text. All clicks will be registered in the preview</string>
+    <string name="guide_create_poem">At the top you will see your poem title. At the bottom you will see buttons. You
+        can long press them to see what they do. There are buttons to edit text size and alignment.
+        There is a button that initiates a stanzas view. This page tries to emulate
+    stanzas by allowing a user to add many different page views. The number of stanzas is shown at the bottom right of each page view
+    To delete a stanza, long hold that stanza and it will delete the stanza. You can also save the
+        current stanza as an image, pdf or a local application file. By default when you leave
+        this page the application saves the current poem as a file</string>
+    <string name="guide_my_images">At the bottom right there is a button you can click to add images.
+        The button will launch your image viewer and you can select the images you wish to add.
+    If you have any poems that were saved as images you can view them by clicking "My Poems". You
+        can only delete them through the page My Poems by deleting the entire file. If you click on any image or a poem thumbnail an image viewer will be opene</string>
+    <string name="guide_my_poems">All your saved poems will be shown here. If you click them it will
+        take you to the page to edit your poem. You can long press a poem thumbnail and share that poem outside the application as an image.
+        You can delete a or many poems. You can only share a singular poem however. When you long click a thumbnail
+    a bottom drawer will appear. If you choose to share your poem the saved images are
+        automatically copied to the Downloads folder. The search button allows you to search for a poem.
+        This is a simplified search. All found files will be display below the text entered. When you click on a search item
+    The page to edit a poem will be opened.</string>
+    <string name="guide_first_fragment">Welcome to The Poets Kingdom. To get started you will be
+        taken to the personalisation page where you shall edit a few things before first use.
+    </string>
+    <string name="guide_personalisation">Here you can edit a few things. The author name is your
+        name and it will appear as the top text on a cover page for your poem. The cover page is the thumbnail
+        that will be used to save poems. Your nickname is the name you would like to see in the home
+        page of the application. It is limited to 30 characters. A poem can be in portrait or landscape mode.
+        The landscape mode is noticeably smaller than the portrait. The landscape images are by default saved with resolution
+        1920 x 1080. They will not however look like this when editing the poem. The poem signature is a mark or a trademark added
+        to the bottom of the cover page
+    </string>
+    <string name="guide_image_viewer">This page serves the simple purpose of viewing images. In order
+    to offer a unique experience the navigating through images, the buttons of a left and right arrow
+        that are slightly visible are just guidelines. In actuality the starting 20% of your screen
+        is clickable to go to the previous image. Subsequently the last 20% of your screen takes you
+        to the next image.</string>
+    <string name="edit_poem_theme">Edit Poem Theme</string>
+    <string name="edit_button_theme">Edit Theme</string>
+    <string name="center_horizontal_text">Center Verical Text</string>
+    <string name="title_change">Change Title</string>
+    <string name="title_change_confirm">Confirm change</string>
+    <string name="title_change_cancel">Cancel</string>
+</resources>

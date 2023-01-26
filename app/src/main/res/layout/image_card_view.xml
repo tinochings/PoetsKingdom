@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:layout_margin="3dp"
+    android:elevation="8dp"
+    app:cardCornerRadius="5dp">
+
+    <ImageView
+        android:elevation="5dp"
+        android:id="@+id/longClickImageView"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:src="@drawable/circle_svg"
+        android:visibility="gone"
+        android:contentDescription="@string/on_long_hold_image" />
+    <!--Image view for displaying the image
+        in our card layout in recycler view-->
+    <ImageView
+        android:id="@+id/idIVImage"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:scaleType="fitXY"
+         />
+
+</androidx.cardview.widget.CardView>
