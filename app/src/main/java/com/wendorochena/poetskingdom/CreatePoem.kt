@@ -11,14 +11,18 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.print.PrintManager
 import android.text.Editable
 import android.text.InputFilter
 import android.text.InputType
 import android.text.SpannableStringBuilder
 import android.util.Log
+import android.view.GestureDetector
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
+import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
@@ -27,6 +31,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.children
+import androidx.core.view.isVisible
 import androidx.core.view.setMargins
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -59,7 +64,7 @@ class CreatePoem : AppCompatActivity() {
     private var pages = 1
     private lateinit var currentPage: FrameLayout
     private var currentContainerView: View? = null
-    private var downSizedImage : Bitmap? = null
+    private var downSizedImage: Bitmap? = null
 
     //key is the page number value is the id
     private val pageNumberAndId: HashMap<Int, Int> = HashMap()
@@ -141,6 +146,7 @@ class CreatePoem : AppCompatActivity() {
         }
         return true
     }
+
     /**
      * Sets the title typeface
      */
@@ -170,8 +176,8 @@ class CreatePoem : AppCompatActivity() {
                     textview.text = editText.text
                     val decodedTitleName = editText.text.toString()
                     val encodedTitleName = editText.text.toString().replace(' ', '_')
-                    val oldTitleName = poemTheme.getTitle().replace(' ','_') + ".xml"
-                    val oldTitleFolderName = poemTheme.getTitle().replace(' ','_')
+                    val oldTitleName = poemTheme.getTitle().replace(' ', '_') + ".xml"
+                    val oldTitleFolderName = poemTheme.getTitle().replace(' ', '_')
                     try {
                         val directoryPath = getDir(
                             getString(R.string.poems_folder_name),
@@ -191,25 +197,36 @@ class CreatePoem : AppCompatActivity() {
                         ).absolutePath
                         val poemFile = File(directoryPath + File.separator + oldTitleName)
                         val poemThemeFile = File(poemThemePath + File.separator + oldTitleName)
-                        val poemSavedImagesFolder = File(savedImagesPath + File.separator + oldTitleFolderName)
-                        val poemThumbnail = File(thumbnailsPath + File.separator + oldTitleFolderName+ ".png")
+                        val poemSavedImagesFolder =
+                            File(savedImagesPath + File.separator + oldTitleFolderName)
+                        val poemThumbnail =
+                            File(thumbnailsPath + File.separator + oldTitleFolderName + ".png")
                         val newPoemFile =
                             File(directoryPath + File.separator + encodedTitleName + ".xml")
-                        val newThemeFile = File(poemThemePath + File.separator + encodedTitleName + ".xml")
-                        val newSavedImagesFile = File(savedImagesPath + File.separator + encodedTitleName)
-                        val newThumbnailsFile = File(thumbnailsPath + File.separator + encodedTitleName + ".png")
-                        if (poemFile.renameTo(newPoemFile) && poemThemeFile.renameTo(newThemeFile)){
+                        val newThemeFile =
+                            File(poemThemePath + File.separator + encodedTitleName + ".xml")
+                        val newSavedImagesFile =
+                            File(savedImagesPath + File.separator + encodedTitleName)
+                        val newThumbnailsFile =
+                            File(thumbnailsPath + File.separator + encodedTitleName + ".png")
+                        if (poemFile.renameTo(newPoemFile) && poemThemeFile.renameTo(newThemeFile)) {
                             if (poemSavedImagesFolder.exists()) {
                                 if (!poemSavedImagesFolder.renameTo(newSavedImagesFile))
-                                    Log.e("saved images folder failed to change name: ", poemSavedImagesFolder.name)
+                                    Log.e(
+                                        "saved images folder failed to change name: ",
+                                        poemSavedImagesFolder.name
+                                    )
                             }
                             if (poemThumbnail.exists()) {
                                 if (!poemThumbnail.renameTo(newThumbnailsFile))
-                                    Log.e("thumbnail failed to change name: ", poemSavedImagesFolder.name)
+                                    Log.e(
+                                        "thumbnail failed to change name: ",
+                                        poemSavedImagesFolder.name
+                                    )
                             }
                             poemTheme.setTitle(decodedTitleName)
                         }
-                    } catch (e : Exception) {
+                    } catch (e: Exception) {
                         e.printStackTrace()
                     }
                     dialog.dismiss()
@@ -327,7 +344,8 @@ class CreatePoem : AppCompatActivity() {
         toRetChildImage.shapeAppearanceModel = defaultImageView.shapeAppearanceModel
         if (defaultImageView.tag != null && defaultImageView.tag.toString().startsWith("/")) {
             toRetChildImage.tag = defaultImageView.tag
-            Glide.with(applicationContext).load(defaultImageView.tag.toString()).into(toRetChildImage)
+            Glide.with(applicationContext).load(defaultImageView.tag.toString())
+                .into(toRetChildImage)
         }
         toRetChildImage.scaleType = ImageView.ScaleType.FIT_XY
         frameToReturn.addView(toRetChildImage)
@@ -768,7 +786,7 @@ class CreatePoem : AppCompatActivity() {
 
     }
 
-    private fun initiateCoverPage(){
+    private fun initiateCoverPage() {
         val personalisationPreferences = getSharedPreferences(
             getString(R.string.personalisation_sharedpreferences_key),
             MODE_PRIVATE
@@ -785,6 +803,7 @@ class CreatePoem : AppCompatActivity() {
                 }
             }
     }
+
     /**
      *
      */
@@ -816,30 +835,31 @@ class CreatePoem : AppCompatActivity() {
                     ShapeAppearanceModelHelper.shapeImageView(poemTheme.getOutline(), resources)
                 val file = File(poemTheme.getImagePath())
                 if (file.exists()) {
-                    Glide.with(applicationContext).load(file.absolutePath).listener(object : RequestListener<Drawable>{
-                        override fun onLoadFailed(
-                            e: GlideException?,
-                            model: Any?,
-                            target: Target<Drawable>?,
-                            isFirstResource: Boolean
-                        ): Boolean {
-                            e?.printStackTrace()
-                            return false
-                        }
+                    Glide.with(applicationContext).load(file.absolutePath)
+                        .listener(object : RequestListener<Drawable> {
+                            override fun onLoadFailed(
+                                e: GlideException?,
+                                model: Any?,
+                                target: Target<Drawable>?,
+                                isFirstResource: Boolean
+                            ): Boolean {
+                                e?.printStackTrace()
+                                return false
+                            }
 
-                        override fun onResourceReady(
-                            resource: Drawable?,
-                            model: Any?,
-                            target: Target<Drawable>?,
-                            dataSource: DataSource?,
-                            isFirstResource: Boolean
-                        ): Boolean {
-                            downSizedImage = resource?.toBitmap(1080,1080)
-                            initiateCoverPage()
-                            return false
-                        }
+                            override fun onResourceReady(
+                                resource: Drawable?,
+                                model: Any?,
+                                target: Target<Drawable>?,
+                                dataSource: DataSource?,
+                                isFirstResource: Boolean
+                            ): Boolean {
+                                downSizedImage = resource?.toBitmap(1080, 1080)
+                                initiateCoverPage()
+                                return false
+                            }
 
-                    }).into(image)
+                        }).into(image)
                 }
                 val layoutParams = FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.MATCH_PARENT,
@@ -873,30 +893,31 @@ class CreatePoem : AppCompatActivity() {
             BackgroundType.IMAGE -> {
                 val file = File(poemTheme.getImagePath())
                 if (file.exists()) {
-                    Glide.with(applicationContext).load(file.absolutePath).listener(object : RequestListener<Drawable>{
-                        override fun onLoadFailed(
-                            e: GlideException?,
-                            model: Any?,
-                            target: Target<Drawable>?,
-                            isFirstResource: Boolean
-                        ): Boolean {
-                            e?.printStackTrace()
-                            return false
-                        }
+                    Glide.with(applicationContext).load(file.absolutePath)
+                        .listener(object : RequestListener<Drawable> {
+                            override fun onLoadFailed(
+                                e: GlideException?,
+                                model: Any?,
+                                target: Target<Drawable>?,
+                                isFirstResource: Boolean
+                            ): Boolean {
+                                e?.printStackTrace()
+                                return false
+                            }
 
-                        override fun onResourceReady(
-                            resource: Drawable?,
-                            model: Any?,
-                            target: Target<Drawable>?,
-                            dataSource: DataSource?,
-                            isFirstResource: Boolean
-                        ): Boolean {
-                            downSizedImage = resource?.toBitmap(1080,1080)
-                            initiateCoverPage()
-                            return false
-                        }
+                            override fun onResourceReady(
+                                resource: Drawable?,
+                                model: Any?,
+                                target: Target<Drawable>?,
+                                dataSource: DataSource?,
+                                isFirstResource: Boolean
+                            ): Boolean {
+                                downSizedImage = resource?.toBitmap(1080, 1080)
+                                initiateCoverPage()
+                                return false
+                            }
 
-                    }).into(image)
+                        }).into(image)
                     image.visibility = View.VISIBLE
                     image.tag = poemTheme.getImagePath()
                 }
@@ -917,8 +938,8 @@ class CreatePoem : AppCompatActivity() {
     private fun setupOrientation() {
         currentPage = if (orientation == "landscape")
             findViewById(R.id.landscapePoemContainer)
-            else
-                findViewById(R.id.portraitPoemContainer)
+        else
+            findViewById(R.id.portraitPoemContainer)
 
         prepareText()
 
@@ -1008,6 +1029,39 @@ class CreatePoem : AppCompatActivity() {
         findViewById<TextView>(R.id.titleTextView).text = poemTheme.getTitle()
 
         setupOrientation()
+        findViewById<ConstraintLayout>(R.id.parent).setOnTouchListener(object :
+            View.OnTouchListener {
+            val bottomDrawer = findViewById<ConstraintLayout>(R.id.bottomDrawer)
+            val gestureDetector = GestureDetector(this@CreatePoem, object :
+                GestureDetector.SimpleOnGestureListener() {
+                override fun onDoubleTap(e: MotionEvent): Boolean {
+                    if (bottomDrawer.isVisible) {
+                        val animation = AnimationUtils.loadAnimation(
+                            this@CreatePoem,
+                            com.google.android.apps.common.testing.accessibility.framework.R.anim.abc_slide_out_bottom
+                        )
+                        bottomDrawer.startAnimation(animation)
+                        bottomDrawer.visibility = View.GONE
+                    } else {
+                        val animation = AnimationUtils.loadAnimation(
+                            this@CreatePoem,
+                            com.google.android.apps.common.testing.accessibility.framework.R.anim.abc_slide_in_bottom
+                        )
+                        bottomDrawer.startAnimation(animation)
+                        bottomDrawer.visibility = View.VISIBLE
+                    }
+                    return super.onDoubleTap(e)
+                }
+            })
+
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                if (event != null) {
+                    gestureDetector.onTouchEvent(event)
+                }
+//                v?.performClick()
+                return true
+            }
+        })
     }
 
 
@@ -1657,12 +1711,13 @@ class CreatePoem : AppCompatActivity() {
     private fun initiateSavePagesAsImages() {
         val editableArrayList = getAllTypedText()
         val strokeSize: Int = getTextMarginSize()
-        val imageMargins = if (orientation == "portrait" && currentPage.background != null && currentPage.background !is ColorDrawable)
-            resources.getDimensionPixelSize(R.dimen.portraitStrokeSize)
-        else if (orientation == "landscape" && currentPage.background != null && currentPage.background !is ColorDrawable)
-            resources.getDimensionPixelSize(R.dimen.strokeSize)
-        else
-            0
+        val imageMargins =
+            if (orientation == "portrait" && currentPage.background != null && currentPage.background !is ColorDrawable)
+                resources.getDimensionPixelSize(R.dimen.portraitStrokeSize)
+            else if (orientation == "landscape" && currentPage.background != null && currentPage.background !is ColorDrawable)
+                resources.getDimensionPixelSize(R.dimen.strokeSize)
+            else
+                0
         val isLandscape = orientation == "landscape"
 
         val imageSaverUtil =
