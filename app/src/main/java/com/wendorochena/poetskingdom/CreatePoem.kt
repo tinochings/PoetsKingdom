@@ -1029,6 +1029,7 @@ class CreatePoem : AppCompatActivity() {
         findViewById<TextView>(R.id.titleTextView).text = poemTheme.getTitle()
 
         setupOrientation()
+
         findViewById<ConstraintLayout>(R.id.parent).setOnTouchListener(object :
             View.OnTouchListener {
             val bottomDrawer = findViewById<ConstraintLayout>(R.id.bottomDrawer)
@@ -1092,6 +1093,7 @@ class CreatePoem : AppCompatActivity() {
                 setEditText(currentPage, false)
                 dimmer.visibility = View.VISIBLE
                 dimmer.bringToFront()
+                dimmer.z = 5f
                 dimmer.foreground.alpha = 180
 
                 if (recyclerViewAdapter.itemCount > currentPage.tag as Int) {
@@ -1106,6 +1108,7 @@ class CreatePoem : AppCompatActivity() {
 
                 recyclerView.visibility = View.VISIBLE
                 recyclerView.bringToFront()
+                recyclerView.z = 5f
             }
 
         }
