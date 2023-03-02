@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.wendorochena.poetskingdom"
-        minSdk 23
+        minSdk 26
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -23,11 +23,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
     }
     buildFeatures {
         viewBinding true
@@ -50,9 +50,10 @@ dependencies {
     implementation 'androidx.test.espresso:espresso-contrib:3.5.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'
-    androidTestImplementation('androidx.test.espresso:espresso-core:3.5.0')
-    androidTestImplementation("androidx.test:runner:1.5.1")
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.5.1')
+    androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation('androidx.test:rules:1.5.0')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 //    implementation 'com.squareup.leakcanary:leakcanary-android:2.10'
     implementation 'com.github.bumptech.glide:glide:4.14.2'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'

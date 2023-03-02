@@ -3,7 +3,9 @@ package com.wendorochena.poetskingdom.poemdata
 import android.content.Context
 import android.util.Xml
 import com.wendorochena.poetskingdom.R
+import org.xmlpull.v1.XmlPullParser
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.StringWriter
 
@@ -76,5 +78,94 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
         }
 
         return -1
+    }
+
+    companion object PoemXMLFileParserHelper {
+
+        /**
+         * @param poemTitle : The title of the poem to obtain saved stanzas
+         * @param applicationContext : the context of the calling class
+         */
+        fun parseSavedPoem(poemTitle: String, applicationContext : Context) : ArrayList<String> {
+            val stanzas = ArrayList<String>()
+            val poemsFolder = applicationContext.getDir("poems", Context.MODE_PRIVATE)
+            val inputStream =
+                FileInputStream(
+                    File(
+                        poemsFolder?.absolutePath + File.separator + poemTitle.replace(
+                            ' ',
+                            '_'
+                        ) + ".xml"
+                    )
+                )
+
+            try {
+                inputStream.use { input ->
+                    val parser: XmlPullParser = Xml.newPullParser()
+                    parser.setInput(input, null)
+                    parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
+
+                    parser.nextTag()
+                    var numOfPages = 0
+                    parser.require(XmlPullParser.START_TAG, null, "root")
+                    while (parser.next() != XmlPullParser.END_TAG) {
+                        if (parser.eventType != XmlPullParser.START_TAG) {
+                            continue
+                        }
+                        when (parser.name) {
+                            "pages" -> {
+                                parser.require(XmlPullParser.START_TAG, null, "pages")
+                                if (parser.next() == XmlPullParser.TEXT) {
+                                    numOfPages = parser.text.toInt()
+                                }
+                                parser.nextTag()
+                                parser.require(XmlPullParser.END_TAG, null, "pages")
+                            }
+                            "category" -> {
+                                parser.require(XmlPullParser.START_TAG, null, "category")
+                                if (parser.next() == XmlPullParser.TEXT) {
+                                }
+                                parser.nextTag()
+                                parser.require(XmlPullParser.END_TAG, null, "category")
+                            }
+                            "title" -> {
+                                parser.require(XmlPullParser.START_TAG, null, "title")
+                                parser.next()
+                                parser.nextTag()
+                                parser.require(XmlPullParser.END_TAG, null, "title")
+                            }
+                            "stanza1" -> {
+                                parser.require(XmlPullParser.START_TAG, null, "stanza1")
+                                if (parser.next() == XmlPullParser.TEXT) {
+                                    stanzas.add(parser.text)
+                                    parser.nextTag()
+                                }
+                                parser.require(XmlPullParser.END_TAG, null, "stanza1")
+
+                                if (numOfPages > 1) {
+                                    parser.nextTag()
+                                    var counter = 2
+                                    while (counter <= numOfPages) {
+                                        parser.require(XmlPullParser.START_TAG, null, "stanza$counter")
+                                        if (parser.next() == XmlPullParser.TEXT) {
+                                            stanzas.add(parser.text)
+                                            parser.nextTag()
+                                        }
+                                        parser.require(XmlPullParser.END_TAG, null, "stanza$counter")
+                                        if (counter < numOfPages)
+                                            parser.nextTag()
+                                        counter++
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    parser.require(XmlPullParser.END_TAG, null, "root")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            return stanzas
+        }
     }
 }

@@ -6,8 +6,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
-import android.opengl.Visibility
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -15,6 +16,7 @@ import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.KeyEvent
 import android.view.View
 import android.widget.*
 import androidx.activity.OnBackPressedCallback
@@ -22,6 +24,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
@@ -29,6 +32,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
 import com.wendorochena.poetskingdom.recyclerViews.MyPoemsRecyclerViewAdapter
+import com.wendorochena.poetskingdom.utils.SearchUtil
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -68,29 +72,34 @@ class MyPoems : AppCompatActivity() {
         setupLongClickListener()
         setupToolBarButtons()
         setupBottomDrawer()
-        val sharedPreferences = applicationContext.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
-        if (!sharedPreferences.getBoolean("myPoemsFirstUse",false)) {
+        val sharedPreferences =
+            applicationContext.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
+        if (!sharedPreferences.getBoolean("myPoemsFirstUse", false)) {
             onFirstUse()
-            sharedPreferences.edit().putBoolean("myPoemsFirstUse",true).apply()
+            sharedPreferences.edit().putBoolean("myPoemsFirstUse", true).apply()
         }
     }
 
 
     private fun onFirstUse() {
         val alertDialogBuilder = AlertDialog.Builder(this)
-        alertDialogBuilder.setTitle(R.string.guide_title).setPositiveButton(R.string.builder_understood) { dialog, _ ->
-            dialog.dismiss()
-        }.setMessage(R.string.guide_my_poems).show()
+        alertDialogBuilder.setTitle(R.string.guide_title)
+            .setPositiveButton(R.string.builder_understood) { dialog, _ ->
+                dialog.dismiss()
+            }.setMessage(R.string.guide_my_poems).show()
     }
+
     /**
      *
      */
     private fun setupOnBackPressed() {
         val callBack = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                val autoCompleteTextView = findViewById<AutoCompleteTextView>(R.id.autoCompleteText)
-                if (autoCompleteTextView.isVisible) {
-                    autoCompleteTextView.visibility = View.GONE
+                val optionsContainer = findViewById<LinearLayout>(R.id.optionsContainer)
+                val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+                if (optionsContainer.isVisible) {
+                    optionsContainer.visibility = View.GONE
+                    recyclerView.visibility = View.VISIBLE
                 } else if (isLongClicked) {
                     recyclerViewAdapter.turnOffLongClick()
                     val bottomDrawer = findViewById<ConstraintLayout>(
@@ -282,7 +291,7 @@ class MyPoems : AppCompatActivity() {
                                 }
                                 startActivity(Intent.createChooser(shareIntent, null))
                             } else {
-                                    permissionsResultLauncher?.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                permissionsResultLauncher?.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                             }
                         }
                     }
@@ -339,7 +348,7 @@ class MyPoems : AppCompatActivity() {
      * Sets up the click listener
      */
     private fun setupClickListener() {
-        recyclerViewAdapter.onItemClick = { frameLayout , i->
+        recyclerViewAdapter.onItemClick = { frameLayout, i ->
             if (isLongClicked) {
                 selectedElements.add(frameLayout.tag as Int)
                 recyclerViewAdapter.updateLongImage(frameLayout.tag as Int, "check")
@@ -385,46 +394,108 @@ class MyPoems : AppCompatActivity() {
      *
      */
     private fun setupToolBarButtons() {
-        val searchButton = findViewById<ImageButton>(R.id.searchButton)
+        val searchOptionsImage = findViewById<ImageButton>(R.id.optionsButton)
+        val autoCompleteTextView = findViewById<AutoCompleteTextView>(R.id.autoCompleteText)
+        val advancedSearchEditText = findViewById<EditText>(R.id.advancedSearchText)
+        val advancedSearchCont = findViewById<FrameLayout>(R.id.advancedSearchContainer)
+        val searchCont = findViewById<FrameLayout>(R.id.searchButtonContainer)
+        val simpleSearchTextView = findViewById<TextView>(R.id.simpleTextSearchTextView)
+        val advancedSearchTextView = findViewById<TextView>(R.id.advancedSearchTextView)
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
 
-        searchButton.setOnClickListener {
-            val autoCompleteTextView = findViewById<AutoCompleteTextView>(R.id.autoCompleteText)
-            if (autoCompleteTextView.isVisible)
-                autoCompleteTextView.visibility = View.GONE
-            else {
-                autoCompleteTextView.visibility = View.VISIBLE
+        searchOptionsImage.setOnClickListener {
+            val optionsContainer = findViewById<LinearLayout>(R.id.optionsContainer)
 
-                autoCompleteTextView.addTextChangedListener(object : TextWatcher {
-                    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            if (recyclerView.isVisible)
+                recyclerView.visibility = View.GONE
+            else
+                recyclerView.visibility = View.VISIBLE
 
-                    }
+            if (!advancedSearchCont.isVisible)
+                advancedSearchCont.visibility = View.VISIBLE
 
-                    override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            if (!searchCont.isVisible)
+                searchCont.visibility = View.VISIBLE
 
-                    }
+            if (optionsContainer.isVisible)
+                optionsContainer.visibility = View.GONE
+            else
+                optionsContainer.visibility = View.VISIBLE
+            if (!advancedSearchTextView.isVisible)
+                advancedSearchTextView.visibility = View.VISIBLE
 
-                    override fun afterTextChanged(p0: Editable?) {
-                        if (p0 != null && p0.isNotEmpty()) {
-                            val arrayList = if (searchHashMap.containsKey(p0[0]))
-                                searchHashMap[p0[0]]!!
-                            else
-                                ArrayList()
-                            val arrayAdapter = ArrayAdapter(
-                                applicationContext,
-                                android.R.layout.simple_list_item_1,
-                                arrayList
-                            )
-                            autoCompleteTextView.setAdapter(arrayAdapter)
-                            autoCompleteTextView.onItemClickListener =
-                                AdapterView.OnItemClickListener { _, view, _, _ ->
-                                    val textView = view as TextView
-                                    launchCreatePoem(textView.text as String)
-                                }
-                        }
-                    }
+            if (!simpleSearchTextView.isVisible)
+                simpleSearchTextView.visibility = View.VISIBLE
 
-                })
+            if (advancedSearchCont.tag == "selected") {
+                advancedSearchCont.background = ColorDrawable(Color.WHITE)
+                advancedSearchCont.tag = "deselected"
             }
+        }
+
+        autoCompleteTextView.setOnClickListener {
+            advancedSearchCont.visibility = View.GONE
+            advancedSearchTextView.visibility = View.GONE
+
+            autoCompleteTextView.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+                }
+
+                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+                }
+
+                override fun afterTextChanged(p0: Editable?) {
+                    if (p0 != null && p0.isNotEmpty()) {
+                        val arrayList = if (searchHashMap.containsKey(p0[0]))
+                            searchHashMap[p0[0]]!!
+                        else
+                            ArrayList()
+                        val arrayAdapter = ArrayAdapter(
+                            applicationContext,
+                            android.R.layout.simple_list_item_1,
+                            arrayList
+                        )
+                        autoCompleteTextView.setAdapter(arrayAdapter)
+                        autoCompleteTextView.onItemClickListener =
+                            AdapterView.OnItemClickListener { _, view, _, _ ->
+                                val textView = view as TextView
+                                launchCreatePoem(textView.text as String)
+                            }
+                    }
+                }
+
+            })
+        }
+
+        advancedSearchEditText.setOnClickListener {
+            if (advancedSearchCont.tag != "selected") {
+                advancedSearchCont.background =
+                    AppCompatResources.getDrawable(this, R.drawable.selected_rounded_rectangle)
+                advancedSearchCont.tag = "selected"
+                simpleSearchTextView.visibility = View.GONE
+                searchCont.visibility = View.GONE
+            }
+        }
+
+        advancedSearchEditText.setOnKeyListener { _, _, event ->
+
+            if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
+                val searchUtil =
+                    SearchUtil(advancedSearchEditText.text.toString(), applicationContext)
+                searchUtil.initiateLuceneSearch()
+
+                if (!searchUtil.getSubStringLocations().isEmpty()) {
+                    val subStringLocations = searchUtil.getSubStringLocations()
+
+                    for (pair in subStringLocations) {
+                        val fileName = pair.first.split(".")[0]
+                        println(fileName)
+                    }
+                }
+            }
+            true
         }
     }
 
@@ -471,64 +542,4 @@ class MyPoems : AppCompatActivity() {
 
         populateRecyclerView()
     }
-
-//    /**
-//     *
-//     */
-//    private fun setupBurgerListener() {
-//        val burger = findViewById<ImageButton>(R.id.burger_button)
-//        val drawer = findViewById<DrawerLayout>(R.id.drawer)
-//
-//        drawer.addDrawerListener(object : DrawerListener {
-//            /**
-//             * Called when a drawer's position changes.
-//             * @param drawerView The child view that was moved
-//             * @param slideOffset The new offset of this drawer within its range, from 0-1
-//             */
-//            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-//
-//            }
-//
-//            /**
-//             * Called when a drawer has settled in a completely open state.
-//             * The drawer is interactive at this point.
-//             *
-//             * @param drawerView Drawer view that is now open
-//             */
-//            override fun onDrawerOpened(drawerView: View) {
-//                drawerView.elevation = 1f
-//                findViewById<LinearLayout>(R.id.drawer_background).bringToFront()
-//            }
-//
-//            /**
-//             * Called when a drawer has settled in a completely closed state.
-//             *
-//             * @param drawerView Drawer view that is now closed
-//             */
-//            override fun onDrawerClosed(drawerView: View) {
-//                drawerView.elevation = 0f
-//            }
-//
-//            /**
-//             * Called when the drawer motion state changes. The new state will
-//             * be one of [.STATE_IDLE], [.STATE_DRAGGING] or [.STATE_SETTLING].
-//             *
-//             * @param newState The new drawer motion state
-//             */
-//            override fun onDrawerStateChanged(newState: Int) {
-//                if (drawer.isOpen && newState == STATE_SETTLING)
-//                    drawer.elevation = 0f
-//            }
-//
-//        })
-//        burger.setOnClickListener {
-//            if (drawer.isOpen) {
-//                drawer.close()
-//            } else {
-//                drawer.elevation = 1f
-//                findViewById<LinearLayout>(R.id.drawer_background).bringToFront()
-//                drawer.open()
-//            }
-//        }
-//    }
 }

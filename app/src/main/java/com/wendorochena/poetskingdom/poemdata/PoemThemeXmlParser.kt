@@ -3,6 +3,7 @@ package com.wendorochena.poetskingdom.poemdata
 import android.content.Context
 import android.util.Xml
 import android.view.View
+import com.wendorochena.poetskingdom.R
 import org.xmlpull.v1.XmlPullParser
 import java.io.File
 import java.io.FileInputStream
@@ -237,15 +238,17 @@ class PoemThemeXmlParser(
         backgroundColorChosen: String?,
         outlineChosen: View?,
     ): Int {
-        val poemThemeFolder = applicationContext.getDir("poemThemes", Context.MODE_PRIVATE)
+        val poemThemeFolder = applicationContext.getDir(applicationContext.getString(R.string.poem_themes_folder_name), Context.MODE_PRIVATE)
+        val poemFolder = applicationContext.getDir(applicationContext.getString(R.string.poems_folder_name), Context.MODE_PRIVATE)
 
         if (poemThemeFolder != null) {
             if (poemThemeFolder.exists()) {
                 try {
                     val poemFileName = poemTheme.getTitle().replace(' ', '_') + ".xml"
+                    val savedPoem = File(poemFolder.absolutePath + File.separator + poemFileName)
                     val poemFile =
                         File(poemThemeFolder.absolutePath + File.separator + poemFileName)
-                    if (poemFile.exists() || poemFile.createNewFile()) {
+                    if (!savedPoem.exists() || poemFile.createNewFile()) {
                         val fileOutStream = FileOutputStream(poemFile)
 
                         val stringWriter = StringWriter()
@@ -374,82 +377,4 @@ class PoemThemeXmlParser(
         return -1
     }
 
-    fun parseSavedPoem() {
-        val poemsFolder = applicationContext.getDir("poems", Context.MODE_PRIVATE)
-        val inputStream =
-            FileInputStream(
-                File(
-                    poemsFolder?.absolutePath + File.separator + poemTheme.getTitle().replace(
-                        ' ',
-                        '_'
-                    ) + ".xml"
-                )
-            )
-        try {
-            inputStream.use { input ->
-                val parser: XmlPullParser = Xml.newPullParser()
-                parser.setInput(input, null)
-                parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
-
-                parser.nextTag()
-                var numOfPages = 0
-                parser.require(XmlPullParser.START_TAG, null, "root")
-                while (parser.next() != XmlPullParser.END_TAG) {
-                    if (parser.eventType != XmlPullParser.START_TAG) {
-                        continue
-                    }
-                    when (parser.name) {
-                        "pages" -> {
-                            parser.require(XmlPullParser.START_TAG, null, "pages")
-                            if (parser.next() == XmlPullParser.TEXT) {
-                                numOfPages = parser.text.toInt()
-                            }
-                            parser.nextTag()
-                            parser.require(XmlPullParser.END_TAG, null, "pages")
-                        }
-                        "category" -> {
-                            parser.require(XmlPullParser.START_TAG, null, "category")
-                            if (parser.next() == XmlPullParser.TEXT) {
-                            }
-                            parser.nextTag()
-                            parser.require(XmlPullParser.END_TAG, null, "category")
-                        }
-                        "title" -> {
-                            parser.require(XmlPullParser.START_TAG, null, "title")
-                            parser.next()
-                            parser.nextTag()
-                            parser.require(XmlPullParser.END_TAG, null, "title")
-                        }
-                        "stanza1" -> {
-                            parser.require(XmlPullParser.START_TAG, null, "stanza1")
-                            if (parser.next() == XmlPullParser.TEXT) {
-                                stanzas.add(parser.text)
-                                parser.nextTag()
-                            }
-                            parser.require(XmlPullParser.END_TAG, null, "stanza1")
-
-                            if (numOfPages > 1) {
-                                parser.nextTag()
-                                var counter = 2
-                                while (counter <= numOfPages) {
-                                    parser.require(XmlPullParser.START_TAG, null, "stanza$counter")
-                                    if (parser.next() == XmlPullParser.TEXT) {
-                                        stanzas.add(parser.text)
-                                        parser.nextTag()
-                                    }
-                                    parser.require(XmlPullParser.END_TAG, null, "stanza$counter")
-                                    if (counter < numOfPages)
-                                        parser.nextTag()
-                                    counter++
-                                }
-                            }
-                        }
-                    }
-                }
-                parser.require(XmlPullParser.END_TAG, null, "root")
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
 }

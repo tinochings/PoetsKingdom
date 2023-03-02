@@ -3,7 +3,6 @@ package com.wendorochena.poetskingdom
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
@@ -11,7 +10,6 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.print.PrintManager
 import android.text.Editable
 import android.text.InputFilter
@@ -84,8 +82,7 @@ class CreatePoem : AppCompatActivity() {
             if (poemParser.parseTheme(intentExtras.getString("poemTitle")) == 0) {
                 initialisePoemTheme(poemParser)
                 if (intentExtras.getBoolean("loadPoem", false)) {
-                    poemParser.parseSavedPoem()
-                    previousStanzas = poemParser.getStanzasArraylist()
+                    previousStanzas = PoemXMLParser.parseSavedPoem(poemTheme.getTitle(), this)
                 }
             } else {
                 val builder = MaterialAlertDialogBuilder(this)
@@ -152,9 +149,7 @@ class CreatePoem : AppCompatActivity() {
      */
     private fun setupTitle() {
         val textview = findViewById<TextView>(R.id.titleTextView)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            textview.typeface = ResourcesCompat.getFont(applicationContext, R.font.grand_hotel)
-        }
+        textview.typeface = ResourcesCompat.getFont(applicationContext, R.font.grand_hotel)
 
         textview.setOnLongClickListener {
             val customTitleView = TextView(this)

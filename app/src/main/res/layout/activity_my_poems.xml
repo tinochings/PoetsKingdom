@@ -2,65 +2,132 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/parent"
     tools:context=".MyPoems">
 
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:id="@+id/topMenuBar"
-            android:elevation="5dp"
-            android:background="@color/default_status_bar_color"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_height="@dimen/action_bar_size">
+    <RelativeLayout
+        android:id="@+id/topMenuBar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/action_bar_size"
+        android:background="@color/default_status_bar_color"
+        android:elevation="5dp"
+        app:layout_constraintTop_toTopOf="parent">
 
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@drawable/appbartitle"
-                android:layout_marginTop="10dp"
-                android:layout_gravity="center"
-                android:scaleType="fitCenter"
-                android:layout_alignParentStart="true"
-                />
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:contentDescription="App logo"
+            android:scaleType="fitCenter"
+            android:src="@drawable/appbartitle" />
+
+        <ImageButton
+            android:id="@+id/optionsButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerInParent="true"
+            android:background="@drawable/ic_baseline_manage_search_24"
+            android:clickable="true"
+            android:contentDescription="@string/search"
+            android:focusable="true" />
+    </RelativeLayout>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="61dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:id="@+id/optionsContainer"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="@dimen/action_bar_size"
+        android:background="@color/white"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/simpleTextSearchTextView"
+            android:textSize="@dimen/heading_layout_normal"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:text="@string/simple_file_name_search"/>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="68dp"
+            android:id="@+id/searchButtonContainer"
+            android:background="@drawable/selected_rounded_rectangle">
 
             <ImageButton
                 android:id="@+id/searchButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerInParent="true"
+                android:layout_gravity="center_vertical"
                 android:background="@drawable/ic_baseline_search_24"
-                android:clickable="true"
+                android:clickable="false"
                 android:contentDescription="@string/search"
                 android:focusable="true" />
-        </RelativeLayout>
 
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:hint="@string/search_file_name_here" />
+        </FrameLayout>
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/advancedSearchTextView"
+            android:textSize="@dimen/heading_layout_normal"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:text="@string/exact_phrase_search"/>
 
-<androidx.recyclerview.widget.RecyclerView
-    android:id="@+id/recyclerView"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent"
-    android:layout_marginTop="61dp"
-    />
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/advancedSearchContainer"
+            >
 
-<AutoCompleteTextView
-    android:layout_width="match_parent"
-    android:layout_height="45dp"
-    android:id="@+id/autoCompleteText"
-    app:layout_constraintTop_toTopOf="parent"
-    android:background="@color/white"
-    android:layout_marginTop="65dp"
-    android:layout_marginStart="10dp"
-    android:layout_marginEnd="10dp"
-    android:visibility="gone"
-    android:hint="@string/search_file_name_here"
-    />
+            <ImageButton
+                android:id="@+id/advancedSearchButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/ic_baseline_manage_search_24"
+                android:clickable="false"
+                android:contentDescription="@string/search"
+                android:focusable="true" />
+
+            <EditText
+                android:id="@+id/advancedSearchText"
+                android:layout_width="match_parent"
+                android:layout_height="68dp"
+                android:autofillHints="@string/search_exact_phrase"
+                android:gravity="center"
+                android:hint="@string/search_exact_phrase"
+                android:inputType="textMultiLine" />
+        </FrameLayout>
+
+    </LinearLayout>
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -103,24 +170,28 @@
             app:layout_constraintStart_toEndOf="@+id/shareAsPdf" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/startOfPoemGuide1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.05" />
+
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/endOfPoemGuide1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.45" />
+
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/startOfPoemGuide2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.55" />
+
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/endOfPoemGuide2"
         android:layout_width="wrap_content"
