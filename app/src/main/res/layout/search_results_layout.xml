@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:id="@+id/parent"
+    android:layout_marginTop="10dp"
+    android:layout_height="200dp">
+
+    <TextView
+        android:id="@+id/searchTitle"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:textColor="@color/black"
+        android:textSize="@dimen/heading_layout_normal"
+        android:textStyle="bold"
+        android:maxLines="1"
+        android:gravity="center"/>
+
+    <TextView
+        android:id="@+id/searchText"
+        android:layout_width="match_parent"
+        android:textColor="@color/black"
+        android:layout_height="100dp"
+        android:elevation="5dp"
+        />
+
+    <TextView
+        android:id="@+id/searchStanzas"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:maxLines="1"
+        android:elevation="5dp"/>
+
+</LinearLayout>

@@ -12,6 +12,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.StrictMode
+import android.os.strictmode.Violation
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
@@ -31,7 +33,11 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
+import com.wendorochena.poetskingdom.poemdata.BackgroundType
+import com.wendorochena.poetskingdom.poemdata.PoemTheme
+import com.wendorochena.poetskingdom.poemdata.PoemThemeXmlParser
 import com.wendorochena.poetskingdom.recyclerViews.MyPoemsRecyclerViewAdapter
+import com.wendorochena.poetskingdom.recyclerViews.SearchResultsRecyclerViewAdapter
 import com.wendorochena.poetskingdom.utils.SearchUtil
 import java.io.File
 import java.io.FileInputStream
@@ -47,6 +53,7 @@ import kotlin.collections.withIndex
 class MyPoems : AppCompatActivity() {
 
     private lateinit var recyclerViewAdapter: MyPoemsRecyclerViewAdapter
+    private lateinit var searchResultsViewAdapter: SearchResultsRecyclerViewAdapter
     private lateinit var poemsFolder: File
     private lateinit var thumbnailsFolder: File
     private var isLongClicked = false
@@ -55,6 +62,7 @@ class MyPoems : AppCompatActivity() {
     private lateinit var selectedElements: ArrayList<Int>
     private var permissionsResultLauncher: ActivityResultLauncher<String>? = null
 
+    @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_my_poems)
@@ -97,8 +105,17 @@ class MyPoems : AppCompatActivity() {
             override fun handleOnBackPressed() {
                 val optionsContainer = findViewById<LinearLayout>(R.id.optionsContainer)
                 val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+                val searchRecyclerView = findViewById<RecyclerView>(R.id.searchRecyclerView)
+
                 if (optionsContainer.isVisible) {
                     optionsContainer.visibility = View.GONE
+                    recyclerView.visibility = View.VISIBLE
+                } else if (searchRecyclerView.isVisible) {
+                    searchRecyclerView.visibility = View.GONE
+                    if (searchResultsViewAdapter.clearData() != 0)
+                        println("Error clearing data")
+                    else
+                        searchResultsViewAdapter.notifyItemRangeRemoved(0, searchResultsViewAdapter.itemCount)
                     recyclerView.visibility = View.VISIBLE
                 } else if (isLongClicked) {
                     recyclerViewAdapter.turnOffLongClick()
@@ -402,9 +419,10 @@ class MyPoems : AppCompatActivity() {
         val simpleSearchTextView = findViewById<TextView>(R.id.simpleTextSearchTextView)
         val advancedSearchTextView = findViewById<TextView>(R.id.advancedSearchTextView)
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+        val searchRecyclerView = findViewById<RecyclerView>(R.id.searchRecyclerView)
+        val optionsContainer = findViewById<LinearLayout>(R.id.optionsContainer)
 
         searchOptionsImage.setOnClickListener {
-            val optionsContainer = findViewById<LinearLayout>(R.id.optionsContainer)
 
             if (recyclerView.isVisible)
                 recyclerView.visibility = View.GONE
@@ -419,8 +437,12 @@ class MyPoems : AppCompatActivity() {
 
             if (optionsContainer.isVisible)
                 optionsContainer.visibility = View.GONE
-            else
-                optionsContainer.visibility = View.VISIBLE
+            else {
+                if (!searchRecyclerView.isVisible)
+                    optionsContainer.visibility = View.VISIBLE
+            }
+
+
             if (!advancedSearchTextView.isVisible)
                 advancedSearchTextView.visibility = View.VISIBLE
 
@@ -430,6 +452,14 @@ class MyPoems : AppCompatActivity() {
             if (advancedSearchCont.tag == "selected") {
                 advancedSearchCont.background = ColorDrawable(Color.WHITE)
                 advancedSearchCont.tag = "deselected"
+            }
+
+            if (searchRecyclerView.isVisible) {
+                searchRecyclerView.visibility = View.GONE
+                if (searchResultsViewAdapter.clearData() != 0)
+                    println("Error clearing data")
+                else
+                    searchResultsViewAdapter.notifyItemRangeRemoved(0, searchResultsViewAdapter.itemCount)
             }
         }
 
@@ -486,13 +516,43 @@ class MyPoems : AppCompatActivity() {
                     SearchUtil(advancedSearchEditText.text.toString(), applicationContext)
                 searchUtil.initiateLuceneSearch()
 
-                if (!searchUtil.getSubStringLocations().isEmpty()) {
+                if (searchUtil.getSubStringLocations().isNotEmpty()) {
+                    val poemThemeXmlParser =
+                        PoemThemeXmlParser(PoemTheme(BackgroundType.DEFAULT, this), this)
+                    optionsContainer.visibility = View.GONE
                     val subStringLocations = searchUtil.getSubStringLocations()
+                    val stanzaIndexAndText = searchUtil.getStanzaAndText()
+                    searchResultsViewAdapter = SearchResultsRecyclerViewAdapter(
+                        this,
+                        Pair(subStringLocations, stanzaIndexAndText)
+                    )
 
-                    for (pair in subStringLocations) {
-                        val fileName = pair.first.split(".")[0]
-                        println(fileName)
+//                    StrictMode.setVmPolicy(
+//                        StrictMode.VmPolicy.Builder()
+//                        .detectLeakedClosableObjects()
+//                        .penaltyListener(this.mainExecutor) { v: Violation ->
+//                            v.fillInStackTrace()
+//                            v.printStackTrace()
+//                        }
+//                        .build())
+
+                    for (fileNamePair in subStringLocations) {
+                        if (poemThemeXmlParser.parseTheme(fileNamePair.first.split(".")[0]) == 0) {
+                            searchResultsViewAdapter.addBackgroundTypePair(
+                                Pair(
+                                    poemThemeXmlParser.getPoemTheme().backgroundType,
+                                    poemThemeXmlParser.getPoemTheme().getTextColorAsInt()
+                                )
+                            )
+                        }
                     }
+
+                    initialiseSearchRecyclerView()
+
+                    searchResultsViewAdapter.notifyItemRangeInserted(
+                        0,
+                        searchResultsViewAdapter.itemCount
+                    )
                 }
             }
             true
@@ -535,11 +595,24 @@ class MyPoems : AppCompatActivity() {
         }
     }
 
+    /**
+     *
+     */
     private fun initialiseRecyclerView() {
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
-        recyclerView.layoutManager = GridLayoutManager(applicationContext, 2)
+        recyclerView.layoutManager = GridLayoutManager(this, 2)
         recyclerView.adapter = recyclerViewAdapter
 
         populateRecyclerView()
+    }
+
+    /**
+     *
+     */
+    private fun initialiseSearchRecyclerView() {
+        val searchRecyclerView = findViewById<RecyclerView>(R.id.searchRecyclerView)
+        searchRecyclerView.visibility = View.VISIBLE
+        searchRecyclerView.layoutManager = GridLayoutManager(this, 1)
+        searchRecyclerView.adapter = searchResultsViewAdapter
     }
 }

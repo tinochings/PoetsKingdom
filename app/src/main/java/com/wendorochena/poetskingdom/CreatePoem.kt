@@ -8,7 +8,6 @@ import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
-import android.os.Build
 import android.os.Bundle
 import android.print.PrintManager
 import android.text.Editable
@@ -800,7 +799,7 @@ class CreatePoem : AppCompatActivity() {
     }
 
     /**
-     *
+     * Sets the background of the poem
      */
     private fun setBackground() {
         val frame = currentPage
@@ -888,7 +887,7 @@ class CreatePoem : AppCompatActivity() {
             BackgroundType.IMAGE -> {
                 val file = File(poemTheme.getImagePath())
                 if (file.exists()) {
-                    Glide.with(applicationContext).load(file.absolutePath)
+                    Glide.with(this).load(file.absolutePath)
                         .listener(object : RequestListener<Drawable> {
                             override fun onLoadFailed(
                                 e: GlideException?,
@@ -1628,6 +1627,9 @@ class CreatePoem : AppCompatActivity() {
 
         createThumbnail(createThumbnail)
         val poemParser = PoemXMLParser(poemDataContainer, applicationContext)
+
+        if (!poemParser.saveBackgroundImageDrawable(currentPage.background.toBitmap(1920,1080, Bitmap.Config.ARGB_8888)))
+            println("Could not save image background Drawable error unknown")
 
         when (poemParser.saveToXmlFile()) {
             0 -> {

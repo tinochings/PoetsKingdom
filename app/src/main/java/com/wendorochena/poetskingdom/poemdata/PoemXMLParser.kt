@@ -1,6 +1,7 @@
 package com.wendorochena.poetskingdom.poemdata
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.util.Xml
 import com.wendorochena.poetskingdom.R
 import org.xmlpull.v1.XmlPullParser
@@ -78,6 +79,27 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
         }
 
         return -1
+    }
+
+    fun saveBackgroundImageDrawable(toBitmap: Bitmap) : Boolean {
+        val backgroundImageDrawableFolder = context.getDir(context.getString(R.string.background_image_drawable_folder), Context.MODE_PRIVATE)
+
+        if (backgroundImageDrawableFolder.exists()) {
+            val poemTitle = poem.poemTheme.getTitle().replace(" ","_")
+            try {
+                val fileToSave = File(backgroundImageDrawableFolder.absolutePath + File.separator + poemTitle + ".png")
+
+                if  (fileToSave.exists() || fileToSave.createNewFile()) {
+                    val outStream = FileOutputStream(fileToSave)
+                    val toRet = toBitmap.compress(Bitmap.CompressFormat.PNG,100,outStream)
+                    outStream.close()
+                    return toRet
+                }
+            } catch (e : Exception) {
+                e.printStackTrace()
+            }
+        }
+        return false
     }
 
     companion object PoemXMLFileParserHelper {
@@ -164,6 +186,8 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+            } finally {
+                inputStream.close()
             }
             return stanzas
         }

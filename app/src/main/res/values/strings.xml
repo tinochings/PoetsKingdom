@@ -14,6 +14,7 @@
     <string name="poems_folder_name">poems</string>
     <string name="poem_themes_folder_name">poemThemes</string>
     <string name="thumbnails_folder_name">thumbnails</string>
+    <string name="background_image_drawable_folder">background</string>
 
     <!-- Preference Titles -->
     <string name="poem_preferences">Poem Preferences</string>

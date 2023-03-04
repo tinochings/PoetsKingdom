@@ -48,7 +48,7 @@ class MyPoemsRecyclerViewAdapter(val context: android.content.Context) :
                     )
                 )
                 checkImageView.visibility = View.VISIBLE
-                checkImageView.z = 1f
+                checkImageView.z = 2f
                 onItemLongClick?.invoke(
                     listAdapterArrayList[absoluteAdapterPosition],
                     absoluteAdapterPosition
@@ -160,9 +160,8 @@ class MyPoemsRecyclerViewAdapter(val context: android.content.Context) :
                     )
                 }
             }
-
-            holder.checkImageView.z = 1f
             holder.checkImageView.visibility = View.VISIBLE
+            holder.checkImageView.z = 1f
         } else {
             holder.checkImageView.z = 0f
             holder.checkImageView.visibility = View.GONE

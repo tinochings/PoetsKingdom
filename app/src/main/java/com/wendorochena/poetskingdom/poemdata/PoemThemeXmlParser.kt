@@ -113,11 +113,14 @@ class PoemThemeXmlParser(
                 }
                 parser.require(XmlPullParser.END_TAG, null, "root")
                 poemTheme.setTitle(poemTheme.getTitle().replace('_', ' '))
+//                input.close()
                 return 0
             }
         } catch (exception: java.lang.Exception) {
             exception.printStackTrace()
             return -1
+        } finally {
+            inputStream.close()
         }
     }
 

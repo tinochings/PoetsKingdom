@@ -29,6 +29,7 @@ class SearchUtil(private val searchPhrase: String, val applicationContext: Conte
     private lateinit var indexWriter: IndexWriter
     private lateinit var titleSearchResults: ArrayList<String>
     private lateinit var subStringLocations : ArrayList<Pair<String, String>>
+    private lateinit var stanzaIndexAndText : HashMap<String, ArrayList<Pair<Int, String>>>
 
     /**
      * @return An arraylist containing sub-string locations of the search results
@@ -38,6 +39,18 @@ class SearchUtil(private val searchPhrase: String, val applicationContext: Conte
             return ArrayList()
 
         return subStringLocations
+    }
+
+    /**
+     * @return A Hash Map containing the name of the file as a key. The value is an arrayList where
+     * the first element is the stanza number and the second element is the actual stanza
+     */
+    fun getStanzaAndText() : HashMap<String, ArrayList<Pair<Int, String>>> {
+        if (!this::stanzaIndexAndText.isInitialized) {
+            return HashMap()
+        }
+
+        return stanzaIndexAndText
     }
     /**
      * This function creates meta data for each poem file. The file name is the key of the hash map
@@ -135,12 +148,13 @@ class SearchUtil(private val searchPhrase: String, val applicationContext: Conte
      */
     private fun locatePreciseLocation() {
         subStringLocations = ArrayList()
-
+        stanzaIndexAndText = HashMap()
         for (poemFileName in titleSearchResults) {
             val fileName = poemFileName.split(".")
             val stanzas = PoemXMLParser.parseSavedPoem(fileName[0], applicationContext)
+            var preciseLocation = ""
 
-            for ((stanzaCounter, stanza) in stanzas.withIndex()) {
+            for ((stanzaIndex, stanza) in stanzas.withIndex()) {
                 var counter = 0
                 var searchCharCounter = 0
 
@@ -159,10 +173,19 @@ class SearchUtil(private val searchPhrase: String, val applicationContext: Conte
                             // StanzaNum BeginningIndexNum EndIndexNum
                             if (searchCharCounter == searchPhrase.length) {
                                 isExactSubString = false
-                                val stanzaNum = stanzaCounter + 1
-                                val preciseLocation = "$stanzaNum $startIndex $counter"
-                                subStringLocations.add(Pair(poemFileName, preciseLocation))
+                                val stanzaNum = stanzaIndex + 1
+                                preciseLocation += "$stanzaNum $startIndex $counter\n"
                                 searchCharCounter = 0
+
+                                if (!stanzaIndexAndText.containsKey(poemFileName)){
+                                    val arrayListPair = ArrayList<Pair<Int, String>>()
+                                    arrayListPair.add(Pair(stanzaIndex + 1, stanza))
+                                    stanzaIndexAndText[poemFileName] = arrayListPair
+                                } else{
+                                    val arrayListPair = stanzaIndexAndText[poemFileName]
+                                    if (arrayListPair?.last()?.first != stanzaIndex + 1)
+                                        arrayListPair?.add(Pair(stanzaIndex + 1,stanza))
+                                }
                             }
                             else if (searchPhrase[searchCharCounter] == stanza[counter]) {
                                 searchCharCounter++
@@ -177,7 +200,10 @@ class SearchUtil(private val searchPhrase: String, val applicationContext: Conte
                     }
                 }
             }
+//            println(preciseLocation + " " + preciseLocation.lines().size)
+            subStringLocations.add(Pair(poemFileName, preciseLocation))
         }
-        println(subStringLocations)
+//        println(subStringLocations)
+//        println(stanzaIndexAndText)
     }
 }

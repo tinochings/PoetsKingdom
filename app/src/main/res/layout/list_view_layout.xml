@@ -5,14 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="200dp"
     android:layout_marginStart="10dp"
-    android:layout_marginEnd="10dp"
-    >
+    android:layout_marginEnd="10dp">
 
     <ImageView
         android:elevation="5dp"
+        android:translationZ="10dp"
+        android:layout_marginStart="2dp"
         android:id="@+id/longClickImageView"
-        android:layout_width="38dp"
-        android:layout_height="38dp"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
         android:src="@drawable/circle_svg"
         android:visibility="gone"
         android:contentDescription="@string/on_long_hold_image" />
