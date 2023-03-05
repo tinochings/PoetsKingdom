@@ -614,5 +614,9 @@ class MyPoems : AppCompatActivity() {
         searchRecyclerView.visibility = View.VISIBLE
         searchRecyclerView.layoutManager = GridLayoutManager(this, 1)
         searchRecyclerView.adapter = searchResultsViewAdapter
+
+        searchResultsViewAdapter.onItemClick =  { name ->
+            launchCreatePoem(name)
+        }
     }
 }

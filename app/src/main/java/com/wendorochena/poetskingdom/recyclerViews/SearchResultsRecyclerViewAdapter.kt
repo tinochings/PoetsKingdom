@@ -13,6 +13,7 @@ import android.text.style.UnderlineSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.graphics.drawable.toDrawable
@@ -31,6 +32,7 @@ class SearchResultsRecyclerViewAdapter(
         this.pair
 
     private val poemBackgroundTypeArrayList = ArrayList<Pair<BackgroundType, Int>>()
+    var onItemClick: ((String) -> Unit)? = null
 
     /**
      * Provide a reference to the type of views that you are using
@@ -47,6 +49,9 @@ class SearchResultsRecyclerViewAdapter(
             searchText = view.findViewById(R.id.searchText)
             searchStanzas = view.findViewById(R.id.searchStanzas)
             linearParent = view.findViewById(R.id.parent)
+            linearParent.setOnClickListener {
+                onItemClick?.invoke(linearParent.tag.toString())
+            }
         }
 
     }
@@ -152,6 +157,12 @@ class SearchResultsRecyclerViewAdapter(
                 holderText += spannableString
             }
             holder.searchText.setTextColor(poemBackgroundTypeArrayList[position].second)
+            if (poemBackgroundTypeArrayList[position].first.toString().contains("OUTLINE")){
+                val linearLayoutParams = holder.searchText.layoutParams as LinearLayout.LayoutParams
+                linearLayoutParams.marginStart = context.resources.getDimensionPixelSize(R.dimen.portraitStrokeSizeMargin)
+                linearLayoutParams.marginEnd = context.resources.getDimensionPixelSize(R.dimen.portraitStrokeSizeMargin)
+                holder.searchText.layoutParams = linearLayoutParams
+            }
             holder.searchText.text = holderText
         }
 
@@ -166,7 +177,7 @@ class SearchResultsRecyclerViewAdapter(
         }
 
         holder.searchStanzas.setTextColor(poemBackgroundTypeArrayList[position].second)
-        holder.searchStanzas.text = stanzaNumbersText
+        holder.searchStanzas.text = "Stanzas: " + stanzaNumbersText
 
         try {
             val backgroundImageDrawableFolder = context.getDir(
@@ -187,6 +198,7 @@ class SearchResultsRecyclerViewAdapter(
             e.printStackTrace()
         }
 
+        holder.linearParent.tag = searchTitle
     }
 
     /**
