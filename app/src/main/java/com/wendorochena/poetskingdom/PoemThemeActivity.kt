@@ -1237,6 +1237,8 @@ class PoemThemeActivity : AppCompatActivity() {
                 findViewById<RelativeLayout>(R.id.backgroundPreview).setBackgroundColor(
                     poemTheme.getBackgroundColorAsInt()
                 )
+                backgroundColorChosen = poemTheme.getBackgroundColor()
+                    backgroundColorChosenAsInt = poemTheme.getBackgroundColorAsInt()
             }
             BackgroundType.IMAGE -> {
                 backgroundImageChosen = poemTheme.getImagePath()

@@ -251,7 +251,7 @@ class PoemThemeXmlParser(
                     val savedPoem = File(poemFolder.absolutePath + File.separator + poemFileName)
                     val poemFile =
                         File(poemThemeFolder.absolutePath + File.separator + poemFileName)
-                    if (!savedPoem.exists() || poemFile.createNewFile()) {
+                    if (savedPoem.exists() || poemFile.createNewFile()) {
                         val fileOutStream = FileOutputStream(poemFile)
 
                         val stringWriter = StringWriter()

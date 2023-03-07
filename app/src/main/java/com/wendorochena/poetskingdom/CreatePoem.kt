@@ -1486,11 +1486,13 @@ class CreatePoem : AppCompatActivity() {
             currentEditText.textSize = poemTheme.getTextSize().toFloat()
             updateAllEditTextViews(newTextSize, "textSize", 0)
             val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
-            poemThemeXmlParser.savePoemThemeToLocalFile(
+           if(poemThemeXmlParser.savePoemThemeToLocalFile(
                 poemTheme.getImagePath(),
                 poemTheme.getBackgroundColor(),
                 null
-            )
+            ) != 0) {
+               println("Could not save poem theme")
+           }
         }
     }
 
