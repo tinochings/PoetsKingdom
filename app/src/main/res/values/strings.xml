@@ -232,6 +232,10 @@
     <string name="search_exact_phrase">Search exact phrase</string>
     <string name="simple_file_name_search">Simple File Name Search</string>
     <string name="exact_phrase_search">Advance Sub-Phrase Search</string>
-
+    <string name="search_here">Search Here</string>
+    <string name="recent_searches">Recent searches</string>
+    <string name="clear_all_searches">Clear All Searches</string>
+    <string name="no_results">No Results</string>
+    <string name="no_input_entered">No Input Entered</string>
 
 </resources>

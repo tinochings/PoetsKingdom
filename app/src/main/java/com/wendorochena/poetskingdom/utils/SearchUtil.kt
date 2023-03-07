@@ -200,10 +200,7 @@ class SearchUtil(private val searchPhrase: String, val applicationContext: Conte
                     }
                 }
             }
-//            println(preciseLocation + " " + preciseLocation.lines().size)
             subStringLocations.add(Pair(poemFileName, preciseLocation))
         }
-//        println(subStringLocations)
-//        println(stanzaIndexAndText)
     }
 }

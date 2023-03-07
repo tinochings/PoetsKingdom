@@ -3,6 +3,7 @@ package com.wendorochena.poetskingdom
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
@@ -28,6 +29,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.children
+import androidx.core.view.drawToBitmap
 import androidx.core.view.isVisible
 import androidx.core.view.setMargins
 import androidx.recyclerview.widget.GridLayoutManager
@@ -1628,7 +1630,15 @@ class CreatePoem : AppCompatActivity() {
         createThumbnail(createThumbnail)
         val poemParser = PoemXMLParser(poemDataContainer, applicationContext)
 
-        if (!poemParser.saveBackgroundImageDrawable(currentPage.background.toBitmap(1920,1080, Bitmap.Config.ARGB_8888)))
+        if (poemTheme.backgroundType.toString().contains("IMAGE")) {
+            for (child in currentPage.children) {
+                if (child is ShapeableImageView) {
+                    if (!poemParser.saveBackgroundImageDrawable(child.drawToBitmap(Bitmap.Config.ARGB_8888)))
+                        println("Could not save image background Drawable error unknown")
+                }
+            }
+        }
+        else if (!poemParser.saveBackgroundImageDrawable(currentPage.background.toBitmap(1920,1080, Bitmap.Config.ARGB_8888)))
             println("Could not save image background Drawable error unknown")
 
         when (poemParser.saveToXmlFile()) {

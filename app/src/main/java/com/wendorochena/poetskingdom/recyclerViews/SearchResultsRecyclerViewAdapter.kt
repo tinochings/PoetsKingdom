@@ -1,7 +1,6 @@
 package com.wendorochena.poetskingdom.recyclerViews
 
 import android.content.Context
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.text.Spannable
@@ -14,10 +13,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.graphics.drawable.toDrawable
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.poemdata.BackgroundType
 import java.io.File
@@ -42,16 +42,18 @@ class SearchResultsRecyclerViewAdapter(
         var searchTitle: TextView
         var searchText: TextView
         var searchStanzas: TextView
-        var linearParent: LinearLayout
+        var frameLayoutParent: FrameLayout
+        var backgroundImage : ImageView
 
         init {
             searchTitle = view.findViewById(R.id.searchTitle)
             searchText = view.findViewById(R.id.searchText)
             searchStanzas = view.findViewById(R.id.searchStanzas)
-            linearParent = view.findViewById(R.id.parent)
-            linearParent.setOnClickListener {
-                onItemClick?.invoke(linearParent.tag.toString())
+            frameLayoutParent = view.findViewById(R.id.parent)
+            frameLayoutParent.setOnClickListener {
+                onItemClick?.invoke(frameLayoutParent.tag.toString())
             }
+            backgroundImage = view.findViewById(R.id.backgroundImage)
         }
 
     }
@@ -158,7 +160,7 @@ class SearchResultsRecyclerViewAdapter(
             }
             holder.searchText.setTextColor(poemBackgroundTypeArrayList[position].second)
             if (poemBackgroundTypeArrayList[position].first.toString().contains("OUTLINE")){
-                val linearLayoutParams = holder.searchText.layoutParams as LinearLayout.LayoutParams
+                val linearLayoutParams = holder.searchText.layoutParams as FrameLayout.LayoutParams
                 linearLayoutParams.marginStart = context.resources.getDimensionPixelSize(R.dimen.portraitStrokeSizeMargin)
                 linearLayoutParams.marginEnd = context.resources.getDimensionPixelSize(R.dimen.portraitStrokeSizeMargin)
                 holder.searchText.layoutParams = linearLayoutParams
@@ -188,17 +190,20 @@ class SearchResultsRecyclerViewAdapter(
                 File(backgroundImageDrawableFolder.absolutePath + File.separator + searchTitle + ".png")
 
             if (backgroundFileImage.exists()) {
-                val bitmapImage = BitmapFactory.decodeFile(backgroundFileImage.absolutePath)
-                holder.linearParent.background = bitmapImage.toDrawable(context.resources)
+
+                Glide.with(context).load(backgroundFileImage.absolutePath).into(holder.backgroundImage)
+                holder.backgroundImage.contentDescription = holder.searchText.text.toString() + "background image"
+//                val bitmapImage = BitmapFactory.decodeFile(backgroundFileImage.absolutePath)
+//                holder.linearParent.background = bitmapImage.toDrawable(context.resources)
 
             } else {
-                holder.linearParent.background = ColorDrawable(Color.WHITE)
+                holder.frameLayoutParent.background = ColorDrawable(Color.WHITE)
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
-        holder.linearParent.tag = searchTitle
+        holder.frameLayoutParent.tag = searchTitle
     }
 
     /**
@@ -228,6 +233,7 @@ class SearchResultsRecyclerViewAdapter(
         try {
             searchResultsAdapter.first.clear()
             searchResultsAdapter.second.clear()
+            poemBackgroundTypeArrayList.clear()
         } catch (e: Exception) {
             e.printStackTrace()
             return -1

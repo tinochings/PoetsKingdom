@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:orientation="vertical"
     android:id="@+id/parent"
     android:layout_marginTop="10dp"
     android:layout_marginStart="10dp"
     android:layout_marginEnd="10dp"
     android:layout_height="200dp">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:id="@+id/backgroundImage"/>
 
     <TextView
         android:id="@+id/searchTitle"
@@ -23,6 +28,7 @@
         android:id="@+id/searchText"
         android:layout_width="match_parent"
         android:textColor="@color/black"
+        android:layout_marginTop="50dp"
         android:layout_height="100dp"
         android:elevation="5dp"
         />
@@ -31,10 +37,11 @@
         android:id="@+id/searchStanzas"
         android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:layout_marginTop="150dp"
         android:textColor="@color/black"
         android:textStyle="bold"
         android:gravity="center"
         android:maxLines="1"
         android:elevation="5dp"/>
 
-</LinearLayout>
+</FrameLayout>

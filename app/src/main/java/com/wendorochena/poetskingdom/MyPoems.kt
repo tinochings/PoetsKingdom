@@ -12,10 +12,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.os.StrictMode
-import android.os.strictmode.Violation
 import android.provider.MediaStore
 import android.text.Editable
+import android.text.SpannableString
 import android.text.TextWatcher
 import android.util.Log
 import android.view.KeyEvent
@@ -43,12 +42,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 import kotlin.collections.set
-import kotlin.collections.sortByDescending
-import kotlin.collections.toMutableList
-import kotlin.collections.withIndex
 
 class MyPoems : AppCompatActivity() {
 
@@ -62,7 +56,6 @@ class MyPoems : AppCompatActivity() {
     private lateinit var selectedElements: ArrayList<Int>
     private var permissionsResultLauncher: ActivityResultLauncher<String>? = null
 
-    @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_my_poems)
@@ -98,24 +91,27 @@ class MyPoems : AppCompatActivity() {
     }
 
     /**
-     *
+     * Sets up a callback when back is pressed
      */
     private fun setupOnBackPressed() {
         val callBack = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                val optionsContainer = findViewById<LinearLayout>(R.id.optionsContainer)
+                val advancedSearchContainer = findViewById<LinearLayout>(R.id.advancedSearchContainer)
                 val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
                 val searchRecyclerView = findViewById<RecyclerView>(R.id.searchRecyclerView)
 
-                if (optionsContainer.isVisible) {
-                    optionsContainer.visibility = View.GONE
+                if (advancedSearchContainer.isVisible) {
+                    advancedSearchContainer.visibility = View.GONE
                     recyclerView.visibility = View.VISIBLE
                 } else if (searchRecyclerView.isVisible) {
                     searchRecyclerView.visibility = View.GONE
                     if (searchResultsViewAdapter.clearData() != 0)
                         println("Error clearing data")
                     else
-                        searchResultsViewAdapter.notifyItemRangeRemoved(0, searchResultsViewAdapter.itemCount)
+                        searchResultsViewAdapter.notifyItemRangeRemoved(
+                            0,
+                            searchResultsViewAdapter.itemCount
+                        )
                     recyclerView.visibility = View.VISIBLE
                 } else if (isLongClicked) {
                     recyclerViewAdapter.turnOffLongClick()
@@ -170,6 +166,9 @@ class MyPoems : AppCompatActivity() {
         }
     }
 
+    /**
+     * Starts a share intent
+     */
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun shareIntentAndroidQPlus(filesToShare: Array<File>, poemName: String) {
 //
@@ -211,6 +210,9 @@ class MyPoems : AppCompatActivity() {
 
     }
 
+    /**
+     *
+     */
     private fun setupBottomDrawer() {
         val shareAsImage = findViewById<ImageButton>(R.id.shareAsImage)
         val shareAsPdf = findViewById<ImageButton>(R.id.shareAsPdf)
@@ -317,6 +319,9 @@ class MyPoems : AppCompatActivity() {
         }
     }
 
+    /**
+     *
+     */
     private fun permissionsActivityResult(): ActivityResultLauncher<String> =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
             if (isGranted) {
@@ -336,7 +341,7 @@ class MyPoems : AppCompatActivity() {
         val bottomDrawer = findViewById<ConstraintLayout>(
             R.id.bottomDrawer
         )
-        recyclerViewAdapter.onItemLongClick = { frameLayout, i ->
+        recyclerViewAdapter.onItemLongClick = { frameLayout, _ ->
             if (!bottomDrawer.isVisible)
                 bottomDrawer.visibility = View.VISIBLE
             recyclerViewAdapter.updateLongImage(frameLayout.tag as Int, "check")
@@ -365,7 +370,7 @@ class MyPoems : AppCompatActivity() {
      * Sets up the click listener
      */
     private fun setupClickListener() {
-        recyclerViewAdapter.onItemClick = { frameLayout, i ->
+        recyclerViewAdapter.onItemClick = { frameLayout, _ ->
             if (isLongClicked) {
                 selectedElements.add(frameLayout.tag as Int)
                 recyclerViewAdapter.updateLongImage(frameLayout.tag as Int, "check")
@@ -411,121 +416,57 @@ class MyPoems : AppCompatActivity() {
      *
      */
     private fun setupToolBarButtons() {
-        val searchOptionsImage = findViewById<ImageButton>(R.id.optionsButton)
-        val autoCompleteTextView = findViewById<AutoCompleteTextView>(R.id.autoCompleteText)
+        val searchOptionsImage = findViewById<ImageButton>(R.id.searchButton)
         val advancedSearchEditText = findViewById<EditText>(R.id.advancedSearchText)
-        val advancedSearchCont = findViewById<FrameLayout>(R.id.advancedSearchContainer)
-        val searchCont = findViewById<FrameLayout>(R.id.searchButtonContainer)
-        val simpleSearchTextView = findViewById<TextView>(R.id.simpleTextSearchTextView)
-        val advancedSearchTextView = findViewById<TextView>(R.id.advancedSearchTextView)
+        val advancedSearchCont = findViewById<LinearLayout>(R.id.advancedSearchContainer)
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         val searchRecyclerView = findViewById<RecyclerView>(R.id.searchRecyclerView)
-        val optionsContainer = findViewById<LinearLayout>(R.id.optionsContainer)
 
         searchOptionsImage.setOnClickListener {
 
-            if (recyclerView.isVisible)
+            if (recyclerView.isVisible) {
                 recyclerView.visibility = View.GONE
-            else
-                recyclerView.visibility = View.VISIBLE
-
-            if (!advancedSearchCont.isVisible)
                 advancedSearchCont.visibility = View.VISIBLE
-
-            if (!searchCont.isVisible)
-                searchCont.visibility = View.VISIBLE
-
-            if (optionsContainer.isVisible)
-                optionsContainer.visibility = View.GONE
-            else {
-                if (!searchRecyclerView.isVisible)
-                    optionsContainer.visibility = View.VISIBLE
             }
 
-
-            if (!advancedSearchTextView.isVisible)
-                advancedSearchTextView.visibility = View.VISIBLE
-
-            if (!simpleSearchTextView.isVisible)
-                simpleSearchTextView.visibility = View.VISIBLE
-
-            if (advancedSearchCont.tag == "selected") {
-                advancedSearchCont.background = ColorDrawable(Color.WHITE)
-                advancedSearchCont.tag = "deselected"
-            }
 
             if (searchRecyclerView.isVisible) {
+                advancedSearchCont.visibility = View.VISIBLE
                 searchRecyclerView.visibility = View.GONE
+
                 if (searchResultsViewAdapter.clearData() != 0)
                     println("Error clearing data")
                 else
-                    searchResultsViewAdapter.notifyItemRangeRemoved(0, searchResultsViewAdapter.itemCount)
-            }
-        }
-
-        autoCompleteTextView.setOnClickListener {
-            advancedSearchCont.visibility = View.GONE
-            advancedSearchTextView.visibility = View.GONE
-
-            autoCompleteTextView.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-                }
-
-                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-                }
-
-                override fun afterTextChanged(p0: Editable?) {
-                    if (p0 != null && p0.isNotEmpty()) {
-                        val arrayList = if (searchHashMap.containsKey(p0[0]))
-                            searchHashMap[p0[0]]!!
-                        else
-                            ArrayList()
-                        val arrayAdapter = ArrayAdapter(
-                            applicationContext,
-                            android.R.layout.simple_list_item_1,
-                            arrayList
-                        )
-                        autoCompleteTextView.setAdapter(arrayAdapter)
-                        autoCompleteTextView.onItemClickListener =
-                            AdapterView.OnItemClickListener { _, view, _, _ ->
-                                val textView = view as TextView
-                                launchCreatePoem(textView.text as String)
-                            }
-                    }
-                }
-
-            })
-        }
-
-        advancedSearchEditText.setOnClickListener {
-            if (advancedSearchCont.tag != "selected") {
-                advancedSearchCont.background =
-                    AppCompatResources.getDrawable(this, R.drawable.selected_rounded_rectangle)
-                advancedSearchCont.tag = "selected"
-                simpleSearchTextView.visibility = View.GONE
-                searchCont.visibility = View.GONE
+                    searchResultsViewAdapter.notifyItemRangeRemoved(
+                        0,
+                        searchResultsViewAdapter.itemCount
+                    )
             }
         }
 
         advancedSearchEditText.setOnKeyListener { _, _, event ->
 
-            if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
-                val searchUtil =
-                    SearchUtil(advancedSearchEditText.text.toString(), applicationContext)
-                searchUtil.initiateLuceneSearch()
+            if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_BACK)
+                onBackPressedDispatcher.onBackPressed()
 
-                if (searchUtil.getSubStringLocations().isNotEmpty()) {
-                    val poemThemeXmlParser =
-                        PoemThemeXmlParser(PoemTheme(BackgroundType.DEFAULT, this), this)
-                    optionsContainer.visibility = View.GONE
-                    val subStringLocations = searchUtil.getSubStringLocations()
-                    val stanzaIndexAndText = searchUtil.getStanzaAndText()
-                    searchResultsViewAdapter = SearchResultsRecyclerViewAdapter(
-                        this,
-                        Pair(subStringLocations, stanzaIndexAndText)
-                    )
+            if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
+
+                if (advancedSearchEditText.text.isNotEmpty()) {
+                    val searchUtil =
+                        SearchUtil(advancedSearchEditText.text.toString(), applicationContext)
+                    searchUtil.initiateLuceneSearch()
+
+                    if (searchUtil.getSubStringLocations().isNotEmpty()) {
+                        advancedSearchEditText.setText("", TextView.BufferType.EDITABLE)
+                        val poemThemeXmlParser =
+                            PoemThemeXmlParser(PoemTheme(BackgroundType.DEFAULT, this), this)
+                        advancedSearchCont.visibility = View.GONE
+                        val subStringLocations = searchUtil.getSubStringLocations()
+                        val stanzaIndexAndText = searchUtil.getStanzaAndText()
+                        searchResultsViewAdapter = SearchResultsRecyclerViewAdapter(
+                            this,
+                            Pair(subStringLocations, stanzaIndexAndText)
+                        )
 
 //                    StrictMode.setVmPolicy(
 //                        StrictMode.VmPolicy.Builder()
@@ -536,23 +477,31 @@ class MyPoems : AppCompatActivity() {
 //                        }
 //                        .build())
 
-                    for (fileNamePair in subStringLocations) {
-                        if (poemThemeXmlParser.parseTheme(fileNamePair.first.split(".")[0]) == 0) {
-                            searchResultsViewAdapter.addBackgroundTypePair(
-                                Pair(
-                                    poemThemeXmlParser.getPoemTheme().backgroundType,
-                                    poemThemeXmlParser.getPoemTheme().getTextColorAsInt()
+                        for (fileNamePair in subStringLocations) {
+                            if (poemThemeXmlParser.parseTheme(fileNamePair.first.split(".")[0]) == 0) {
+                                searchResultsViewAdapter.addBackgroundTypePair(
+                                    Pair(
+                                        poemThemeXmlParser.getPoemTheme().backgroundType,
+                                        poemThemeXmlParser.getPoemTheme().getTextColorAsInt()
+                                    )
                                 )
-                            )
+                            }
                         }
+
+                        initialiseSearchRecyclerView()
+
+                        searchResultsViewAdapter.notifyItemRangeInserted(
+                            0,
+                            searchResultsViewAdapter.itemCount
+                        )
                     }
-
-                    initialiseSearchRecyclerView()
-
-                    searchResultsViewAdapter.notifyItemRangeInserted(
-                        0,
-                        searchResultsViewAdapter.itemCount
-                    )
+                    else {
+                        advancedSearchEditText.hint = resources.getString(R.string.no_results)
+                        advancedSearchEditText.setText("", TextView.BufferType.EDITABLE)
+                    }
+                } else {
+                    advancedSearchEditText.hint = resources.getString(R.string.no_input_entered)
+                    advancedSearchEditText.setText("", TextView.BufferType.EDITABLE)
                 }
             }
             true
@@ -615,7 +564,7 @@ class MyPoems : AppCompatActivity() {
         searchRecyclerView.layoutManager = GridLayoutManager(this, 1)
         searchRecyclerView.adapter = searchResultsViewAdapter
 
-        searchResultsViewAdapter.onItemClick =  { name ->
+        searchResultsViewAdapter.onItemClick = { name ->
             launchCreatePoem(name)
         }
     }

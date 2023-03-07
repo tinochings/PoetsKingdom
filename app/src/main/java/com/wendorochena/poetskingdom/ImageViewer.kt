@@ -147,7 +147,6 @@ class ImageViewer : AppCompatActivity() {
         val file = imagePath?.let { File(it) }
         try {
             if (file?.exists() == true) {
-//                mainImage.setImageBitmap(BitmapFactory.decodeFile(file.absolutePath))
                 Glide.with(applicationContext).load(file.absolutePath).into(mainImage)
             }
         } catch (e: Exception) {

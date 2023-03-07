@@ -91,7 +91,7 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
 
                 if  (fileToSave.exists() || fileToSave.createNewFile()) {
                     val outStream = FileOutputStream(fileToSave)
-                    val toRet = toBitmap.compress(Bitmap.CompressFormat.PNG,100,outStream)
+                    val toRet = toBitmap.compress(Bitmap.CompressFormat.PNG,100, outStream)
                     outStream.close()
                     return toRet
                 }
