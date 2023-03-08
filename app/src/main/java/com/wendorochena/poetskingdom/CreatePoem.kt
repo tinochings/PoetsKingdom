@@ -437,11 +437,14 @@ class CreatePoem : AppCompatActivity() {
         frameToReturn.setOnClickListener{
             for (child in frameToReturn.children) {
                 if (child is EditText) {
+                    val keyboard = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                     if (!child.isFocused) {
                         if (child.requestFocus()) {
-                            val keyboard = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                             keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
                             child.setSelection(child.length())
+                        }
+                        else {
+                            keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
                         }
                     }
                 }
@@ -972,12 +975,14 @@ class CreatePoem : AppCompatActivity() {
         currentPage.setOnClickListener {
             for (child in currentPage.children) {
                 if (child is EditText) {
+                    val keyboard = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                     if (!child.isFocused) {
                         if (child.requestFocus()) {
-                            val keyboard = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                             keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
                             child.setSelection(child.length())
                         }
+                    } else {
+                        keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
                     }
                 }
             }
