@@ -70,6 +70,7 @@ class CreatePoem : AppCompatActivity() {
 
     //key is the page number value is the id
     private val pageNumberAndId: HashMap<Int, Int> = HashMap()
+    private val pageNumberAndText : HashMap<Int, String> = HashMap()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -364,7 +365,7 @@ class CreatePoem : AppCompatActivity() {
 
         toRetEditTextBox.isSingleLine = false
 
-        toRetEditTextBox.addTextChangedListener (object : TextWatcher{
+        toRetEditTextBox.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(
                 s: CharSequence?,
                 start: Int,
@@ -383,8 +384,8 @@ class CreatePoem : AppCompatActivity() {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                if (s != null) {
-                    if (s != toRetEditTextBox.text)
+                if (!hasFileBeenEdited && s != null && pageNumberAndText[frameToReturn.tag as Int] != null) {
+                    if (s.toString() != pageNumberAndText[frameToReturn.tag as Int])
                         hasFileBeenEdited = true
                 }
             }
@@ -435,16 +436,16 @@ class CreatePoem : AppCompatActivity() {
                 toRetEditTextBox.textAlignment = View.TEXT_ALIGNMENT_VIEW_END
             }
         }
-        frameToReturn.setOnClickListener{
+        frameToReturn.setOnClickListener {
             for (child in frameToReturn.children) {
                 if (child is EditText) {
-                    val keyboard = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    val keyboard =
+                        getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                     if (!child.isFocused) {
                         if (child.requestFocus()) {
                             keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
                             child.setSelection(child.length())
-                        }
-                        else {
+                        } else {
                             keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
                         }
                     }
@@ -976,7 +977,8 @@ class CreatePoem : AppCompatActivity() {
         currentPage.setOnClickListener {
             for (child in currentPage.children) {
                 if (child is EditText) {
-                    val keyboard = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    val keyboard =
+                        getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                     if (!child.isFocused) {
                         if (child.requestFocus()) {
                             keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
@@ -991,7 +993,7 @@ class CreatePoem : AppCompatActivity() {
 
         for (child in currentPage.children) {
             if (child is EditText) {
-                child.addTextChangedListener (object : TextWatcher{
+                child.addTextChangedListener(object : TextWatcher {
                     override fun beforeTextChanged(
                         s: CharSequence?,
                         start: Int,
@@ -1010,16 +1012,16 @@ class CreatePoem : AppCompatActivity() {
                     }
 
                     override fun afterTextChanged(s: Editable?) {
-                       if (s != null) {
-                           if (s != child.text)
-                               hasFileBeenEdited = true
-
-                       }
+                        if (!hasFileBeenEdited && s != null && pageNumberAndText[currentPage.tag as Int] != null) {
+                            println(pageNumberAndText[currentPage.tag as Int])
+                            if (s.toString() != pageNumberAndText[currentPage.tag as Int])
+                                hasFileBeenEdited = true
+                        }
                     }
                 })
             }
-            }
         }
+    }
 
     /**
      *
@@ -1939,6 +1941,7 @@ class CreatePoem : AppCompatActivity() {
     private fun loadSavedPoem(stanzas: ArrayList<String>) {
         val firstPageEditText = currentPage.getChildAt(1) as EditText
         firstPageEditText.text = SpannableStringBuilder(stanzas[0])
+        pageNumberAndText[currentPage.tag as Int] = stanzas[0]
         recyclerViewAdapter.addElement(currentPage, currentPage.tag as Int)
         var counter = 1
 
@@ -1948,11 +1951,14 @@ class CreatePoem : AppCompatActivity() {
             val frameEditText = frameLayout.getChildAt(1) as EditText
             frameEditText.textSize = poemTheme.getTextSize().toFloat()
             frameEditText.text = SpannableStringBuilder(stanzas[counter])
+            pageNumberAndText[frameLayout.tag as Int] = stanzas[counter]
             recyclerViewAdapter.addElement(frameLayout, frameLayout.tag as Int)
             frameLayout.visibility = View.GONE
             counter++
         }
         currentPage.bringToFront()
+
+        println(pageNumberAndText)
     }
 
     /**

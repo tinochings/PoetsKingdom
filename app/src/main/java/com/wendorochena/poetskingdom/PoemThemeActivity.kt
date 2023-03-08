@@ -51,7 +51,7 @@ class PoemThemeActivity : AppCompatActivity() {
     private var backgroundColorChosenAsInt: Int? = null
     private lateinit var recyclerViewAdapter: ImageRecyclerViewAdapter
     private lateinit var poemTheme: PoemTheme
-    private val outlinesChanged : ArrayList<Int> = ArrayList()
+    private val outlinesChanged: ArrayList<Int> = ArrayList()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,7 +81,10 @@ class PoemThemeActivity : AppCompatActivity() {
         val intentExtras = intent.extras
         if (intentExtras?.getString("poemThemeName") != null) {
             val poemName = intentExtras.getString("poemThemeName")
-           val poemThemeXmlParser = PoemThemeXmlParser(PoemTheme(BackgroundType.DEFAULT, applicationContext),applicationContext)
+            val poemThemeXmlParser = PoemThemeXmlParser(
+                PoemTheme(BackgroundType.DEFAULT, applicationContext),
+                applicationContext
+            )
             if (poemThemeXmlParser.parseTheme(poemName) == 0) {
                 initialisePoemTheme(poemThemeXmlParser)
                 findViewById<Button>(R.id.startPoemCreation).setText(R.string.edit_button_theme)
@@ -96,18 +99,52 @@ class PoemThemeActivity : AppCompatActivity() {
             }
         }
         setupSliderListener()
-        val sharedPreferences = applicationContext.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
+        val sharedPreferences =
+            applicationContext.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
         if (!sharedPreferences.getBoolean("outlineFirstUse", false)) {
             onFirstUseGuide("outline")
-            sharedPreferences.edit().putBoolean("outlineFirstUse",true).apply()
+            sharedPreferences.edit().putBoolean("outlineFirstUse", true).apply()
         }
     }
 
-    private fun onFirstUseGuide(headerName : String) {
+    /**
+     * This is for testing purposes I REPEAT DO NOT UNCOMMENT IT IS HIGHLY INSECURE
+     */
+//    fun setBackground(string: String) {
+//        backgroundImageChosen = string
+//    }
+//
+//    fun getBackgroundImage(): String? {
+//        return backgroundImageChosen
+//    }
+//
+//    fun getAdapter(): ImageRecyclerViewAdapter {
+//        return recyclerViewAdapter
+//    }
+//
+//    //These getters are here for testing purposes
+//    fun getOutlineChosen(): View? {
+//        return outlineChosen
+//    }
+//
+//    fun getBackgroundColorChosen(): Int? {
+//        return backgroundColorChosenAsInt
+//    }
+//
+//    fun getPoemTheme(): PoemTheme {
+//        return poemTheme
+//    }
+//
+//    fun getCurrentView(): String {
+//        return currentView
+//    }
+
+    private fun onFirstUseGuide(headerName: String) {
         val alertDialogBuilder = AlertDialog.Builder(this)
-        alertDialogBuilder.setTitle(R.string.guide_title).setPositiveButton(R.string.builder_understood) { dialog, _ ->
-            dialog.dismiss()
-        }
+        alertDialogBuilder.setTitle(R.string.guide_title)
+            .setPositiveButton(R.string.builder_understood) { dialog, _ ->
+                dialog.dismiss()
+            }
         when (headerName) {
             "outline" -> {
                 alertDialogBuilder.setMessage(R.string.guide_outline)
@@ -121,6 +158,7 @@ class PoemThemeActivity : AppCompatActivity() {
         }
         alertDialogBuilder.show()
     }
+
     /**
      * Simple algorithm that checks whether the string typed by a user is safe
      */
@@ -242,41 +280,14 @@ class PoemThemeActivity : AppCompatActivity() {
             }
         }
     }
-//    fun setBackground(string: String) {
-//        backgroundImageChosen = string
-//    }
-//
-//    fun getBackgroundImage(): String? {
-//        return backgroundImageChosen
-//    }
-//
-//    fun getAdapter() : CustomRecyclerViewAdapter{
-//        return recyclerViewAdapter
-//    }
-//
-//    //These getters are here for testing purposes
-//    fun getOutlineChosen(): View? {
-//        return outlineChosen
-//    }
-//
-//    fun getBackgroundColorChosen(): Int? {
-//        return backgroundColorChosenAsInt
-//    }
-//
-//    fun getPoemTheme(): PoemTheme {
-//        return poemTheme
-//    }
-//
-//    fun getCurrentView(): String {
-//        return currentView
-//    }
 
     /**
      *
      */
     private fun populateView(viewToPopulate: String, idPrefix: String): View.OnClickListener {
         return View.OnClickListener {
-            val sharedPreferences = applicationContext.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
+            val sharedPreferences =
+                applicationContext.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
             if (currentView != viewToPopulate) {
                 when (currentView) {
                     "Outline" -> {
@@ -296,7 +307,7 @@ class PoemThemeActivity : AppCompatActivity() {
                 when (viewToPopulate) {
                     "Background" -> {
                         if (!sharedPreferences.getBoolean("backgroundFirstUse", false)) {
-                            sharedPreferences.edit().putBoolean("backgroundFirstUse",true).apply()
+                            sharedPreferences.edit().putBoolean("backgroundFirstUse", true).apply()
                             onFirstUseGuide("background")
 
                         }
@@ -317,7 +328,7 @@ class PoemThemeActivity : AppCompatActivity() {
                     }
                     "Text" -> {
                         if (!sharedPreferences.getBoolean("textFirstUse", false)) {
-                            sharedPreferences.edit().putBoolean("textFirstUse",true).apply()
+                            sharedPreferences.edit().putBoolean("textFirstUse", true).apply()
                             onFirstUseGuide("text")
                         }
                         val drawable = ResourcesCompat.getDrawable(
@@ -398,7 +409,11 @@ class PoemThemeActivity : AppCompatActivity() {
                     imagesFolder?.sortByDescending { it.lastModified() }
                     if (imagesFolder != null) {
                         recyclerViewAdapter =
-                            ImageRecyclerViewAdapter(this.javaClass.name, imagesFolder.toCollection(ArrayList()),applicationContext)
+                            ImageRecyclerViewAdapter(
+                                this.javaClass.name,
+                                imagesFolder.toCollection(ArrayList()),
+                                applicationContext
+                            )
                     }
 //                    recyclerViewAdapter =
 //                        myImagesFolder.listFiles()
@@ -505,7 +520,8 @@ class PoemThemeActivity : AppCompatActivity() {
                                 )
 //                            imageBackground.setImageBitmap(bitmap)
                             Glide.with(applicationContext).load(bitmap).into(imageBackground)
-                            val colorDrawable = ColorDrawable(getColor(R.color.default_background_color))
+                            val colorDrawable =
+                                ColorDrawable(getColor(R.color.default_background_color))
 
                             val layoutParams = FrameLayout.LayoutParams(
                                 FrameLayout.LayoutParams.MATCH_PARENT,
@@ -514,7 +530,7 @@ class PoemThemeActivity : AppCompatActivity() {
                             layoutParams.setMargins(resources.getDimensionPixelSize(R.dimen.strokeSizeMargin))
                             imageBackground.layoutParams = layoutParams
                             previewCardView.background = colorDrawable
-                        } catch (e : Exception) {
+                        } catch (e: Exception) {
                             e.printStackTrace()
                         }
                     }
@@ -550,7 +566,8 @@ class PoemThemeActivity : AppCompatActivity() {
                                 )
                                 layoutParams.setMargins(resources.getDimensionPixelSize(R.dimen.strokeSizeMargin))
                                 imageBackground.layoutParams = layoutParams
-                                val colorDrawable = ColorDrawable(getColor(R.color.default_background_color))
+                                val colorDrawable =
+                                    ColorDrawable(getColor(R.color.default_background_color))
                                 previewCardView.background = colorDrawable
                             } else
                                 resetImageView()
@@ -784,7 +801,7 @@ class PoemThemeActivity : AppCompatActivity() {
             "sexsmith_font" -> {
                 linearToRet.id = R.id.textsexsmith_font
             }
-            "righteous_regular_font"-> {
+            "righteous_regular_font" -> {
                 linearToRet.id = R.id.textrighteous_regular_font
             }
             "chopin_script_font" -> {
@@ -816,14 +833,14 @@ class PoemThemeActivity : AppCompatActivity() {
         textViewChild.layoutParams = textViewLayoutParams
         val typefaceNameArr = fontFamily.split('_')
         var fontText = ""
-        for ((index,word) in typefaceNameArr.withIndex()) {
+        for ((index, word) in typefaceNameArr.withIndex()) {
             if (index != typefaceNameArr.size - 1) {
-                val wordToAdd = word[0].uppercase() + word.substring(1,word.length)
+                val wordToAdd = word[0].uppercase() + word.substring(1, word.length)
                 fontText += "$wordToAdd "
             }
         }
         textViewChild.setTextSize(TypedValue.COMPLEX_UNIT_SP, 25f)
-        textViewChild.typeface = TypefaceHelper.getTypeFace(fontFamily,applicationContext)
+        textViewChild.typeface = TypefaceHelper.getTypeFace(fontFamily, applicationContext)
         textViewChild.text = fontText
         textViewChild.gravity = Gravity.CENTER
         layoutParams.weight = 1f
@@ -935,25 +952,37 @@ class PoemThemeActivity : AppCompatActivity() {
         }
 
         leftAlign.setOnClickListener {
-            val layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
+            val layoutParams = RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT
+            )
             previewText.layoutParams = layoutParams
             previewText.gravity = Gravity.START
             poemTheme.setTextAlignment(TextAlignment.LEFT)
         }
         centreAlign.setOnClickListener {
-            val layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
+            val layoutParams = RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT
+            )
             previewText.layoutParams = layoutParams
             previewText.gravity = Gravity.CENTER
             poemTheme.setTextAlignment(TextAlignment.CENTRE)
         }
         rightAlign.setOnClickListener {
-            val layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
+            val layoutParams = RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT
+            )
             previewText.layoutParams = layoutParams
             previewText.gravity = Gravity.END
             poemTheme.setTextAlignment(TextAlignment.RIGHT)
         }
-        centreVerticalAlign.setOnClickListener{
-            val layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
+        centreVerticalAlign.setOnClickListener {
+            val layoutParams = RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT
+            )
             layoutParams.addRule(RelativeLayout.CENTER_VERTICAL)
             previewText.layoutParams = layoutParams
             previewText.gravity = Gravity.CENTER
@@ -1192,6 +1221,7 @@ class PoemThemeActivity : AppCompatActivity() {
             }
         }
     }
+
     /**
      * Create  memory for current data container
      */
@@ -1213,11 +1243,12 @@ class PoemThemeActivity : AppCompatActivity() {
 
         val previewText = findViewById<TextView>(R.id.previewText)
         previewText.setTextColor(poemTheme.getTextColorAsInt())
-            previewText.textSize = poemTheme.getTextSize().toFloat()
+        previewText.textSize = poemTheme.getTextSize().toFloat()
 
-        previewText.typeface = TypefaceHelper.getTypeFace(poemTheme.getTextFont(), applicationContext)
+        previewText.typeface =
+            TypefaceHelper.getTypeFace(poemTheme.getTextFont(), applicationContext)
 
-        when(poemTheme.getTextAlignment()) {
+        when (poemTheme.getTextAlignment()) {
             TextAlignment.CENTRE -> {
                 previewText.gravity = Gravity.CENTER
             }
@@ -1241,7 +1272,7 @@ class PoemThemeActivity : AppCompatActivity() {
                     poemTheme.getBackgroundColorAsInt()
                 )
                 backgroundColorChosen = poemTheme.getBackgroundColor()
-                    backgroundColorChosenAsInt = poemTheme.getBackgroundColorAsInt()
+                backgroundColorChosenAsInt = poemTheme.getBackgroundColorAsInt()
             }
             BackgroundType.IMAGE -> {
                 backgroundImageChosen = poemTheme.getImagePath()

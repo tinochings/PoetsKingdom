@@ -38,13 +38,13 @@ class PoemThemeActivityTest {
     @get:Rule
     val activityRule = ActivityScenarioRule(PoemThemeActivity::class.java)
 
-//    @Test
-//    fun testCorrectInitialHeading() {
-//        activityRule.scenario.onActivity {
-//            assertEquals(it.getCurrentView(), "Outline")
-//        }
-//    }
-//
+    @Test
+    fun testCorrectInitialHeading() {
+        activityRule.scenario.onActivity {
+            assertEquals(it.getCurrentView(), "Outline")
+        }
+    }
+
 //    /**
 //     * Test the unhiding of views
 //     */
@@ -255,7 +255,7 @@ class PoemThemeActivityTest {
 //    fun testOutlineBackgroundPoemTheme() {
 //        onView(withId(R.id.rectangle_outline)).perform(click())
 //        activityRule.scenario.onActivity { activity ->
-//            assert(activity.getPoemTheme().getBackGroundType() == BackgroundType.OUTLINE)
+//            assert(activity.getPoemTheme().backgroundType == BackgroundType.OUTLINE)
 //        }
 //    }
 //
@@ -268,7 +268,7 @@ class PoemThemeActivityTest {
 //    fun testRecyclerView() {
 //        onView(withId(R.id.background)).perform(click())
 //        activityRule.scenario.onActivity { activity ->
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(1))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(1), 1)
 //        }
 //        onView(withId(R.id.imagePreviewCard)).check(matches(isDisplayed()))
 //    }
@@ -279,12 +279,12 @@ class PoemThemeActivityTest {
 //    @Test fun testChangeImageTwice() {
 //        onView(withId(R.id.background)).perform(click())
 //        activityRule.scenario.onActivity { activity ->
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(0))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(0),0)
 //        }
 //        onView(withId(R.id.imagePreviewCard)).check(matches(isDisplayed()))
 //        activityRule.scenario.onActivity { activity ->
 //            assert(activity.getBackgroundImage() == activity.getAdapter().getElement(0).absolutePath)
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(1))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(1),1)
 //        }
 //        onView(withId(R.id.imagePreviewCard)).check(matches(isDisplayed()))
 //        onView(withId(R.id.imagePreviewCard)).check(matches(isDisplayed()))
@@ -300,53 +300,53 @@ class PoemThemeActivityTest {
 //    @Test fun testChangeImageTwelveTimes() {
 //        onView(withId(R.id.background)).perform(click())
 //        activityRule.scenario.onActivity { activity ->
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(0))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(0),0)
 //        }
 //        onView(withId(R.id.imagePreviewCard)).check(matches(isDisplayed()))
 //        activityRule.scenario.onActivity { activity ->
 //            assert(activity.getBackgroundImage() == activity.getAdapter().getElement(0).absolutePath)
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(1))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(1), 1)
 //        }
 //        onView(withId(R.id.imagePreviewCard)).check(matches(isDisplayed()))
 //        activityRule.scenario.onActivity { activity ->
 //            assert(activity.getBackgroundImage() == activity.getAdapter().getElement(1).absolutePath)
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(2))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(2), 2)
 //        }
 //        activityRule.scenario.onActivity { activity ->
 //            assert(activity.getBackgroundImage() == activity.getAdapter().getElement(2).absolutePath)
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(3))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(3), 3)
 //        }
 //        activityRule.scenario.onActivity { activity ->
 //            assert(activity.getBackgroundImage() == activity.getAdapter().getElement(3).absolutePath)
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(4))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(4), 4)
 //        }
 //        activityRule.scenario.onActivity { activity ->
 //            assert(activity.getBackgroundImage() == activity.getAdapter().getElement(4).absolutePath)
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(5))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(5),5)
 //        }
 //        activityRule.scenario.onActivity { activity ->
 //            assert(activity.getBackgroundImage() == activity.getAdapter().getElement(5).absolutePath)
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(6))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(6),6)
 //        }
 //        activityRule.scenario.onActivity { activity ->
 //            assert(activity.getBackgroundImage() == activity.getAdapter().getElement(6).absolutePath)
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(7))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(7),7)
 //        }
 //        activityRule.scenario.onActivity { activity ->
 //            assert(activity.getBackgroundImage() == activity.getAdapter().getElement(7).absolutePath)
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(8))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(8),8)
 //        }
 //        activityRule.scenario.onActivity { activity ->
 //            assert(activity.getBackgroundImage() == activity.getAdapter().getElement(8).absolutePath)
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(9))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(9),9)
 //        }
 //        activityRule.scenario.onActivity { activity ->
 //            assert(activity.getBackgroundImage() == activity.getAdapter().getElement(9).absolutePath)
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(10))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(10),10)
 //        }
 //        activityRule.scenario.onActivity { activity ->
 //            assert(activity.getBackgroundImage() == activity.getAdapter().getElement(10).absolutePath)
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(11))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(11),11)
 //        }
 //        activityRule.scenario.onActivity { activity ->
 //            assert(activity.getBackgroundImage() == activity.getAdapter().getElement(11).absolutePath)
@@ -360,7 +360,7 @@ class PoemThemeActivityTest {
 //    @Test fun testRemoveFiveImage() {
 //        onView(withId(R.id.background)).perform(click())
 //        activityRule.scenario.onActivity { activity ->
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(0))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(0),0)
 //        }
 //        onView(withId(R.id.imagePreviewCard)).check(matches(isDisplayed()))
 //        onView(withId(R.id.imagePreviewCard)).perform(longClick())
@@ -370,7 +370,7 @@ class PoemThemeActivityTest {
 //        onView(withId(R.id.imagePreviewCard)).check(matches(not(isDisplayed())))
 //
 //        activityRule.scenario.onActivity { activity ->
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(1))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(1),1)
 //        }
 //        onView(withId(R.id.imagePreviewCard)).check(matches(isDisplayed()))
 //        onView(withId(R.id.imagePreviewCard)).perform(longClick())
@@ -380,7 +380,7 @@ class PoemThemeActivityTest {
 //        onView(withId(R.id.imagePreviewCard)).check(matches(not(isDisplayed())))
 //
 //        activityRule.scenario.onActivity { activity ->
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(2))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(2),1)
 //        }
 //        onView(withId(R.id.imagePreviewCard)).check(matches(isDisplayed()))
 //        onView(withId(R.id.imagePreviewCard)).perform(longClick())
@@ -390,7 +390,7 @@ class PoemThemeActivityTest {
 //        onView(withId(R.id.imagePreviewCard)).check(matches(not(isDisplayed())))
 //
 //        activityRule.scenario.onActivity { activity ->
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(3))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(3),2)
 //        }
 //        onView(withId(R.id.imagePreviewCard)).check(matches(isDisplayed()))
 //        onView(withId(R.id.imagePreviewCard)).perform(longClick())
@@ -400,7 +400,7 @@ class PoemThemeActivityTest {
 //        onView(withId(R.id.imagePreviewCard)).check(matches(not(isDisplayed())))
 //
 //        activityRule.scenario.onActivity { activity ->
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(4))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(4),3)
 //        }
 //        onView(withId(R.id.imagePreviewCard)).check(matches(isDisplayed()))
 //        onView(withId(R.id.imagePreviewCard)).perform(longClick())
@@ -416,7 +416,7 @@ class PoemThemeActivityTest {
 //    @Test fun testPoemThemeBackgroundImage() {
 //        onView(withId(R.id.background)).perform(click())
 //        activityRule.scenario.onActivity { activity ->
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(0))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(0),0)
 //            assert(activity.getPoemTheme().backgroundType == BackgroundType.IMAGE)
 //        }
 //        onView(withId(R.id.imagePreviewCard)).check(matches(isDisplayed()))
@@ -439,7 +439,7 @@ class PoemThemeActivityTest {
 //        onView(withId(R.id.background)).perform(click())
 //
 //        activityRule.scenario.onActivity { activity ->
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(0))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(0),0)
 //            assert(activity.getPoemTheme().backgroundType == BackgroundType.OUTLINE_WITH_IMAGE)
 //            assert(activity.getBackgroundImage() != null)
 //        }
@@ -452,7 +452,7 @@ class PoemThemeActivityTest {
 //        onView(withId(R.id.rectangle_outline)).perform(click())
 //        onView(withId(R.id.background)).perform(click())
 //        activityRule.scenario.onActivity { activity ->
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(0))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(0),0)
 //            assert(activity.getPoemTheme().backgroundType == BackgroundType.OUTLINE_WITH_IMAGE)
 //        }
 //        onView(withId(R.id.imagePreviewCard)).check(matches(isDisplayed()))
@@ -475,7 +475,7 @@ class PoemThemeActivityTest {
 //        onView(withId(R.id.rectangle_outline)).perform(click())
 //        onView(withId(R.id.background)).perform(click())
 //        activityRule.scenario.onActivity { activity ->
-//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(1))
+//            activity.getAdapter().onItemClick?.invoke(activity.getAdapter().getElement(1),0)
 //            assert(activity.getPoemTheme().backgroundType == BackgroundType.OUTLINE_WITH_IMAGE)
 //        }
 //        onView(withId(R.id.imagePreviewCard)).check(matches(isDisplayed()))
