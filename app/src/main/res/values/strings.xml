@@ -237,5 +237,6 @@
     <string name="clear_all_searches">Clear All Searches</string>
     <string name="no_results">No Results</string>
     <string name="no_input_entered">No Input Entered</string>
+    <string name="search_stanza_text">Stanzas : %1$s</string>
 
 </resources>

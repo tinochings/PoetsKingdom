@@ -224,6 +224,7 @@ class CreatePoem : AppCompatActivity() {
                                     )
                             }
                             poemTheme.setTitle(decodedTitleName)
+                            hasFileBeenEdited = true
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -1875,6 +1876,7 @@ class CreatePoem : AppCompatActivity() {
                 .setSingleChoiceItems(categoryChoices, 3) { dialog, chosenInt ->
                     dialog.dismiss()
                     createDataContainer(categoryChoices[chosenInt], true)
+                    hasFileBeenEdited = false
                 }.show()
         }
 

@@ -115,11 +115,14 @@ class SearchResultsRecyclerViewAdapter(
         underlineSpan.setSpan(UnderlineSpan(), 0, underlineSpan.length, 0)
         holder.searchTitle.text = underlineSpan
         holder.searchTitle.setTextColor(poemBackgroundTypeArrayList[position].second)
+
         //take into account the newline character
         var stanzaNumbersText = ""
         val stanzaIndexAndText = searchResultsAdapter.second[subStringLocations.first]
 
         if (stanzaIndexAndText != null) {
+            // when there are many stanzas with the search sub phrase use a triple to store information
+            // highlight the subsequent items and append to the text
             val tripleArrayList = HashMap<Int, ArrayList<Pair<Int, Int>>>()
             for (substringLocation in subStringLocations.second.lines()) {
                 val delimitedString = substringLocation.split(" ")
@@ -168,7 +171,7 @@ class SearchResultsRecyclerViewAdapter(
             holder.searchText.text = holderText
         }
 
-        // obtain locations
+        // obtain locations and format as string
         for (line in subStringLocations.second.lines()) {
             val number = line.split(" ")[0].toIntOrNull()
             if (number != null) {
@@ -179,8 +182,9 @@ class SearchResultsRecyclerViewAdapter(
         }
 
         holder.searchStanzas.setTextColor(poemBackgroundTypeArrayList[position].second)
-        holder.searchStanzas.text = "Stanzas: " + stanzaNumbersText
+        holder.searchStanzas.text = context.getString(R.string.search_stanza_text, stanzaNumbersText)
 
+        // obtain the background of the poem and apply it
         try {
             val backgroundImageDrawableFolder = context.getDir(
                 context.getString(R.string.background_image_drawable_folder),
@@ -193,9 +197,6 @@ class SearchResultsRecyclerViewAdapter(
 
                 Glide.with(context).load(backgroundFileImage.absolutePath).into(holder.backgroundImage)
                 holder.backgroundImage.contentDescription = holder.searchText.text.toString() + "background image"
-//                val bitmapImage = BitmapFactory.decodeFile(backgroundFileImage.absolutePath)
-//                holder.linearParent.background = bitmapImage.toDrawable(context.resources)
-
             } else {
                 holder.frameLayoutParent.background = ColorDrawable(Color.WHITE)
             }

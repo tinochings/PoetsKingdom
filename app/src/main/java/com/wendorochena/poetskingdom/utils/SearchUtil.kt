@@ -118,7 +118,8 @@ class SearchUtil(private val searchPhrase: String, val applicationContext: Conte
                             for (hit in scoreDocHits) {
                                 val currDocument = indexSearcher.doc(hit.doc)
 
-                                if (hit.score >= 0.4) {
+                                // if convoluted with a lot of text a result of 0.1 should be sufficient
+                                if (hit.score >= 0.1) {
                                     if (!this::titleSearchResults.isInitialized)
                                         titleSearchResults = ArrayList()
 
