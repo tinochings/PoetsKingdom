@@ -413,8 +413,10 @@ class MyPoems : AppCompatActivity() {
             e.printStackTrace()
         }
         textView.text = fileName.replace('_', ' ').replace(".xml", "")
+        val locale = Locale("en")
+        val simpleDateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", locale)
         val date = Date(dateModified)
-        dateTextView.text = date.toString()
+        dateTextView.text = simpleDateFormat.format(date)
 
         return frameToRet
     }
