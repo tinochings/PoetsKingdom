@@ -32,6 +32,7 @@ class MyPoemsRecyclerViewAdapter(val context: android.content.Context) :
         var checkImageView: ImageView
         var imageView: ShapeableImageView
         var textView: TextView
+        var dateTextView : TextView
 
         init {
             checkImageView = view.findViewById(R.id.longClickImageView)
@@ -56,6 +57,7 @@ class MyPoemsRecyclerViewAdapter(val context: android.content.Context) :
                 true
             }
             textView = view.findViewById(R.id.listViewText)
+            dateTextView = view.findViewById(R.id.listViewDateText)
         }
 
     }
@@ -123,6 +125,7 @@ class MyPoemsRecyclerViewAdapter(val context: android.content.Context) :
         val longClickImageView = frameLayout.getChildAt(0) as ImageView
         val shapeableImageView = frameLayout.getChildAt(1) as ShapeableImageView
         val textView = frameLayout.getChildAt(2) as TextView
+        val dateTextView = frameLayout.getChildAt(3) as TextView
         if (shapeableImageView.tag != null && shapeableImageView.tag.toString().startsWith("/")) {
             val file = File(shapeableImageView.tag as String)
             if (file.exists()) {
@@ -166,6 +169,8 @@ class MyPoemsRecyclerViewAdapter(val context: android.content.Context) :
             holder.checkImageView.z = 0f
             holder.checkImageView.visibility = View.GONE
         }
+
+        holder.dateTextView.text = dateTextView.text
     }
 
     /**

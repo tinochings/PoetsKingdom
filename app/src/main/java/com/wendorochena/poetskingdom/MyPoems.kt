@@ -28,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.FileProvider
+import androidx.core.view.get
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -41,6 +42,9 @@ import com.wendorochena.poetskingdom.utils.SearchUtil
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.nio.file.Files
+import java.nio.file.attribute.BasicFileAttributes
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.set
 
@@ -385,11 +389,12 @@ class MyPoems : AppCompatActivity() {
     /**
      *
      */
-    private fun createFrameLayout(fileName: String): FrameLayout {
+    private fun createFrameLayout(fileName: String, dateModified : Long): FrameLayout {
         val frameToRet = layoutInflater.inflate(R.layout.list_view_layout, null) as FrameLayout
         frameToRet.id = View.generateViewId()
         val shapeableImageView = frameToRet.getChildAt(1) as ShapeableImageView
         val textView = frameToRet.getChildAt(2) as TextView
+        val dateTextView = frameToRet.getChildAt(3) as TextView
 
         try {
             val thumbnailFile = File(
@@ -408,6 +413,8 @@ class MyPoems : AppCompatActivity() {
             e.printStackTrace()
         }
         textView.text = fileName.replace('_', ' ').replace(".xml", "")
+        val date = Date(dateModified)
+        dateTextView.text = date.toString()
 
         return frameToRet
     }
@@ -508,21 +515,21 @@ class MyPoems : AppCompatActivity() {
         }
     }
 
-    /**
-     * Creates a hashmap with the first letter as a key and the file name as a value
-     */
-    private fun populateSearchHashMap(fileName: String) {
-        val key = fileName[0].lowercaseChar()
-
-        val fileNameToAdd = fileName.replace(".xml", "").replace('_', ' ')
-        if (searchHashMap.containsKey(key)) {
-            searchHashMap[key]?.add(fileNameToAdd)
-        } else {
-            val arrayListToAdd = ArrayList<String>()
-            arrayListToAdd.add(fileNameToAdd)
-            searchHashMap[key] = arrayListToAdd
-        }
-    }
+//    /**
+//     * Creates a hashmap with the first letter as a key and the file name as a value
+//     */
+//    private fun populateSearchHashMap(fileName: String) {
+//        val key = fileName[0].lowercaseChar()
+//
+//        val fileNameToAdd = fileName.replace(".xml", "").replace('_', ' ')
+//        if (searchHashMap.containsKey(key)) {
+//            searchHashMap[key]?.add(fileNameToAdd)
+//        } else {
+//            val arrayListToAdd = ArrayList<String>()
+//            arrayListToAdd.add(fileNameToAdd)
+//            searchHashMap[key] = arrayListToAdd
+//        }
+//    }
 
     /**
      *
@@ -533,8 +540,7 @@ class MyPoems : AppCompatActivity() {
             if (poemFiles != null) {
                 poemFiles.sortByDescending { it.lastModified() }
                 for ((index, file) in poemFiles.withIndex()) {
-                    populateSearchHashMap(file.name)
-                    val frameLayout = createFrameLayout(file.name)
+                    val frameLayout = createFrameLayout(file.name, file.lastModified())
                     frameLayout.tag = index
                     recyclerViewAdapter.addItem(frameLayout)
                 }

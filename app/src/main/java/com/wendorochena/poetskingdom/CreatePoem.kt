@@ -15,12 +15,14 @@ import android.text.Editable
 import android.text.InputFilter
 import android.text.InputType
 import android.text.SpannableStringBuilder
+import android.text.TextWatcher
 import android.util.Log
 import android.view.GestureDetector
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AnimationUtils
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
@@ -62,6 +64,7 @@ class CreatePoem : AppCompatActivity() {
     private var orientation: String? = null
     private var pages = 1
     private lateinit var currentPage: FrameLayout
+    private var hasFileBeenEdited = false
     private var currentContainerView: View? = null
     private var downSizedImage: Bitmap? = null
 
@@ -256,15 +259,17 @@ class CreatePoem : AppCompatActivity() {
                     turnOffCurrentView()
                     findViewById<LinearLayout>(R.id.allOptionsContainer).visibility = View.GONE
                 } else {
-                    val thumbnailsFolder = applicationContext.getDir(
-                        getString(R.string.thumbnails_folder_name),
-                        MODE_PRIVATE
-                    )
-                    val encodedTitle = poemTheme.getTitle().replace(' ', '_') + ".png"
-                    if (!File(thumbnailsFolder.absolutePath + File.separator + encodedTitle).exists())
-                        createDataContainer(Category.NONE.toString(), true)
-                    else
-                        createDataContainer(Category.NONE.toString(), false)
+                    if (hasFileBeenEdited) {
+                        val thumbnailsFolder = applicationContext.getDir(
+                            getString(R.string.thumbnails_folder_name),
+                            MODE_PRIVATE
+                        )
+                        val encodedTitle = poemTheme.getTitle().replace(' ', '_') + ".png"
+                        if (!File(thumbnailsFolder.absolutePath + File.separator + encodedTitle).exists())
+                            createDataContainer(Category.NONE.toString(), true)
+                        else
+                            createDataContainer(Category.NONE.toString(), false)
+                    }
                     finish()
                 }
             }
@@ -351,14 +356,38 @@ class CreatePoem : AppCompatActivity() {
         toRetEditTextBox.background = null
         toRetEditTextBox.setTextColor(poemTheme.getTextColorAsInt())
         toRetEditTextBox.textSize = poemTheme.getTextSize().toFloat()
-        toRetEditTextBox.inputType =
-            InputType.TYPE_TEXT_FLAG_AUTO_CORRECT or InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE or
-                    InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+        toRetEditTextBox.inputType = defaultText.inputType
         toRetEditTextBox.isVerticalScrollBarEnabled = true
         toRetEditTextBox.setHint(R.string.start_writing)
         toRetEditTextBox.setHintTextColor(poemTheme.getTextColorAsInt())
 
         toRetEditTextBox.isSingleLine = false
+
+        toRetEditTextBox.addTextChangedListener (object : TextWatcher{
+            override fun beforeTextChanged(
+                s: CharSequence?,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {
+
+            }
+
+            override fun onTextChanged(
+                s: CharSequence?,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if (s != null) {
+                    if (s != toRetEditTextBox.text)
+                        hasFileBeenEdited = true
+                }
+            }
+        })
 
         if (poemTheme.backgroundType.toString().contains("OUTLINE")) {
             toRetEditTextBox.layoutParams =
@@ -405,7 +434,19 @@ class CreatePoem : AppCompatActivity() {
                 toRetEditTextBox.textAlignment = View.TEXT_ALIGNMENT_VIEW_END
             }
         }
-
+        frameToReturn.setOnClickListener{
+            for (child in frameToReturn.children) {
+                if (child is EditText) {
+                    if (!child.isFocused) {
+                        if (child.requestFocus()) {
+                            val keyboard = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                            keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
+                            child.setSelection(child.length())
+                        }
+                    }
+                }
+            }
+        }
         findViewById<ConstraintLayout>(R.id.parent).addView(frameToReturn)
         return frameToReturn
     }
@@ -806,6 +847,7 @@ class CreatePoem : AppCompatActivity() {
     private fun setBackground() {
         val frame = currentPage
         frame.elevation = 5f
+
         val image: ShapeableImageView = currentPage.getChildAt(0) as ShapeableImageView
 
         when (poemTheme.backgroundType) {
@@ -926,7 +968,52 @@ class CreatePoem : AppCompatActivity() {
                 initiateCoverPage()
             }
         }
-    }
+
+        currentPage.setOnClickListener {
+            for (child in currentPage.children) {
+                if (child is EditText) {
+                    if (!child.isFocused) {
+                        if (child.requestFocus()) {
+                            val keyboard = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                            keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
+                            child.setSelection(child.length())
+                        }
+                    }
+                }
+            }
+        }
+
+        for (child in currentPage.children) {
+            if (child is EditText) {
+                child.addTextChangedListener (object : TextWatcher{
+                    override fun beforeTextChanged(
+                        s: CharSequence?,
+                        start: Int,
+                        count: Int,
+                        after: Int
+                    ) {
+
+                    }
+
+                    override fun onTextChanged(
+                        s: CharSequence?,
+                        start: Int,
+                        before: Int,
+                        count: Int
+                    ) {
+                    }
+
+                    override fun afterTextChanged(s: Editable?) {
+                       if (s != null) {
+                           if (s != child.text)
+                               hasFileBeenEdited = true
+
+                       }
+                    }
+                })
+            }
+            }
+        }
 
     /**
      *
@@ -1486,13 +1573,14 @@ class CreatePoem : AppCompatActivity() {
             currentEditText.textSize = poemTheme.getTextSize().toFloat()
             updateAllEditTextViews(newTextSize, "textSize", 0)
             val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
-           if(poemThemeXmlParser.savePoemThemeToLocalFile(
-                poemTheme.getImagePath(),
-                poemTheme.getBackgroundColor(),
-                null
-            ) != 0) {
-               println("Could not save poem theme")
-           }
+            if (poemThemeXmlParser.savePoemThemeToLocalFile(
+                    poemTheme.getImagePath(),
+                    poemTheme.getBackgroundColor(),
+                    null
+                ) != 0
+            ) {
+                println("Could not save poem theme")
+            }
         }
     }
 
@@ -1639,8 +1727,14 @@ class CreatePoem : AppCompatActivity() {
                         println("Could not save image background Drawable error unknown")
                 }
             }
-        }
-        else if (!poemParser.saveBackgroundImageDrawable(currentPage.background.toBitmap(1920,1080, Bitmap.Config.ARGB_8888)))
+        } else if (!poemParser.saveBackgroundImageDrawable(
+                currentPage.background.toBitmap(
+                    1920,
+                    1080,
+                    Bitmap.Config.ARGB_8888
+                )
+            )
+        )
             println("Could not save image background Drawable error unknown")
 
         when (poemParser.saveToXmlFile()) {
