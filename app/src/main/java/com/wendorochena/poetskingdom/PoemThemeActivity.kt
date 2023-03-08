@@ -178,7 +178,10 @@ class PoemThemeActivity : AppCompatActivity() {
                 builder.setCustomTitle(textView)
                 //user input
                 val editText = EditText(this)
-                editText.inputType = InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+                if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q)
+                    editText.textCursorDrawable = null
+
+                editText.setRawInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES or InputType.TYPE_CLASS_TEXT)
                 editText.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(60))
                 editText.setTextColor(resources.getColor(R.color.white, null))
                 builder.setView(editText)
