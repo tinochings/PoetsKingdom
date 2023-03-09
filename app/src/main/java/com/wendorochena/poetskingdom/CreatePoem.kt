@@ -77,16 +77,18 @@ class CreatePoem : AppCompatActivity() {
         poemTheme = PoemTheme(BackgroundType.DEFAULT, applicationContext)
         val intentExtras = intent.extras
         var previousStanzas = ArrayList<String>()
+        val loadPoemArg = getString(R.string.load_poem_argument_name)
+        val poemTitleArg = getString(R.string.poem_title_argument_name)
         // parse users theme. If we cant parse it terminate the activity
-        if (intentExtras?.getString("poemTitle") != null) {
+        if (intentExtras?.getString(poemTitleArg) != null) {
             val poemParser =
                 PoemThemeXmlParser(
                     PoemTheme(BackgroundType.DEFAULT, applicationContext),
                     applicationContext
                 )
-            if (poemParser.parseTheme(intentExtras.getString("poemTitle")) == 0) {
+            if (poemParser.parseTheme(intentExtras.getString(poemTitleArg)) == 0) {
                 initialisePoemTheme(poemParser)
-                if (intentExtras.getBoolean("loadPoem", false)) {
+                if (intentExtras.getBoolean(loadPoemArg, false)) {
                     previousStanzas = PoemXMLParser.parseSavedPoem(poemTheme.getTitle(), this)
                 }
             } else {
@@ -112,8 +114,13 @@ class CreatePoem : AppCompatActivity() {
         setupTitle()
         inflateUserTheme()
         setupRecyclerView()
+
+        // load saved poem if there is one
         if (previousStanzas.size > 0)
             loadSavedPoem(previousStanzas)
+        else
+            pageNumberAndText[1] = ""
+
         initialiseBottomDrawer()
         setupOnBackPressed()
         val sharedPreferences =
@@ -312,7 +319,7 @@ class CreatePoem : AppCompatActivity() {
      * Replicates the user theme and creates a new frame layout which serves the purpose of a new page
      * @return the newly created frame layout
      */
-    private fun createNewPage(): FrameLayout {
+    private fun createNewPage(initialLoad : Boolean): FrameLayout {
         val frameToReturn = FrameLayout(this)
         val defaultLayout: FrameLayout = if (orientation == "portrait")
             findViewById(R.id.portraitPoemContainer)
@@ -341,6 +348,8 @@ class CreatePoem : AppCompatActivity() {
         frameToReturn.tag = pages
         pageNumberAndId[frameToReturn.tag as Int] = frameId
 
+        if (!initialLoad)
+            pageNumberAndText[frameToReturn.tag as Int] = ""
 
         val toRetChildImage = ShapeableImageView(this)
         toRetChildImage.layoutParams = defaultImageView.layoutParams
@@ -593,7 +602,7 @@ class CreatePoem : AppCompatActivity() {
             if (clickedLayout.id == R.id.addPage) {
                 currentPage.visibility = View.GONE
                 pages++
-                val newPage = createNewPage()
+                val newPage = createNewPage(false)
                 recyclerViewAdapter.addElement(newPage, newPage.tag as Int)
                 recyclerView.visibility = View.GONE
                 dimmer.visibility = View.GONE
@@ -1013,7 +1022,6 @@ class CreatePoem : AppCompatActivity() {
 
                     override fun afterTextChanged(s: Editable?) {
                         if (!hasFileBeenEdited && s != null && pageNumberAndText[currentPage.tag as Int] != null) {
-                            println(pageNumberAndText[currentPage.tag as Int])
                             if (s.toString() != pageNumberAndText[currentPage.tag as Int])
                                 hasFileBeenEdited = true
                         }
@@ -1718,6 +1726,7 @@ class CreatePoem : AppCompatActivity() {
         for (keys in pageNumberAndId.keys) {
             val frame = pageNumberAndId[keys]?.let { findViewById<FrameLayout>(it) }
             val editText = frame?.getChildAt(1) as EditText
+            pageNumberAndText[keys] = editText.text.toString()
             entirePoem.add(editText.text)
         }
 
@@ -1947,7 +1956,7 @@ class CreatePoem : AppCompatActivity() {
 
         while (counter < stanzas.size) {
             pages++
-            val frameLayout = createNewPage()
+            val frameLayout = createNewPage(true)
             val frameEditText = frameLayout.getChildAt(1) as EditText
             frameEditText.textSize = poemTheme.getTextSize().toFloat()
             frameEditText.text = SpannableStringBuilder(stanzas[counter])
@@ -1957,8 +1966,6 @@ class CreatePoem : AppCompatActivity() {
             counter++
         }
         currentPage.bringToFront()
-
-        println(pageNumberAndText)
     }
 
     /**

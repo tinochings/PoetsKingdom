@@ -172,6 +172,8 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
                                         if (parser.next() == XmlPullParser.TEXT) {
                                             stanzas.add(parser.text)
                                             parser.nextTag()
+                                        } else {
+                                            stanzas.add("")
                                         }
                                         parser.require(XmlPullParser.END_TAG, null, "stanza$counter")
                                         if (counter < numOfPages)

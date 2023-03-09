@@ -238,5 +238,8 @@
     <string name="no_results">No Results</string>
     <string name="no_input_entered">No Input Entered</string>
     <string name="search_stanza_text">Stanzas : %1$s</string>
+    <string name="create_poem_edit_text_hint">Enter Poem Name Here</string>
+    <string name="load_poem_argument_name">loadPoem</string>
+    <string name="poem_title_argument_name">poemTitle</string>
 
 </resources>

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
@@ -216,6 +217,8 @@ class PoemThemeActivity : AppCompatActivity() {
                 builder.setCustomTitle(textView)
                 //user input
                 val editText = EditText(this)
+                editText.setHint(R.string.create_poem_edit_text_hint)
+                editText.setHintTextColor(Color.WHITE)
                 if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q)
                     editText.textCursorDrawable = null
 
@@ -253,9 +256,9 @@ class PoemThemeActivity : AppCompatActivity() {
                                 dialog.dismiss()
                                 val newActivityIntent =
                                     Intent(applicationContext, CreatePoem::class.java)
-                                newActivityIntent.putExtra("loadPoem", false)
+                                newActivityIntent.putExtra(getString(R.string.load_poem_argument_name), false)
                                 newActivityIntent.putExtra(
-                                    "poemTitle",
+                                    getString(R.string.poem_title_argument_name),
                                     poemTheme.getTitle()
                                 )
                                 finish()

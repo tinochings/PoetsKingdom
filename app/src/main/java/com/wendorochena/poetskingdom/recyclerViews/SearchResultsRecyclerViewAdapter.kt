@@ -149,7 +149,7 @@ class SearchResultsRecyclerViewAdapter(
                     SpannableString(pair.second + "\n\n")
                 else
                     SpannableString(pair.second)
-                val foregroundColor = BackgroundColorSpan(Color.YELLOW)
+                val foregroundColor = BackgroundColorSpan(Color.WHITE)
 
                 for (indices in tripleArrayList[pair.first]!!) {
                     spannableString.setSpan(

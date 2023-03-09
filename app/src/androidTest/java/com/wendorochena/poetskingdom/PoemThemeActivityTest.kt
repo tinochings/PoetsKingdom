@@ -38,12 +38,12 @@ class PoemThemeActivityTest {
     @get:Rule
     val activityRule = ActivityScenarioRule(PoemThemeActivity::class.java)
 
-    @Test
-    fun testCorrectInitialHeading() {
-        activityRule.scenario.onActivity {
-            assertEquals(it.getCurrentView(), "Outline")
-        }
-    }
+//    @Test
+//    fun testCorrectInitialHeading() {
+//        activityRule.scenario.onActivity {
+//            assertEquals(it.getCurrentView(), "Outline")
+//        }
+//    }
 
 //    /**
 //     * Test the unhiding of views

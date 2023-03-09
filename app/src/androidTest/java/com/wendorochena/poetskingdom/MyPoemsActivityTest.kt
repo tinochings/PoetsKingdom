@@ -2,7 +2,6 @@ package com.wendorochena.poetskingdom
 
 import android.content.Context
 import android.widget.FrameLayout
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.children
 import androidx.core.view.get
@@ -10,21 +9,18 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.*
-import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.espresso.matcher.ViewMatchers.*
+import com.google.android.material.imageview.ShapeableImageView
+import org.hamcrest.CoreMatchers.not
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.test.espresso.matcher.ViewMatchers.*
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import com.google.android.material.imageview.ShapeableImageView
-import org.hamcrest.CoreMatchers.not
 import java.io.File
-import kotlin.random.Random
 
 @RunWith(AndroidJUnit4::class)
 class MyPoemsActivityTest {
