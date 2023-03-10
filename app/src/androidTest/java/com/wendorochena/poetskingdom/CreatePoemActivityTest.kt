@@ -126,6 +126,6 @@ class CreatePoemActivityTest {
         }
 
         onView(withId(R.id.parent)).perform(doubleClick())
-//        onView(withId(R.id.bottomDrawer)).check(matches(isDisplayed()))
+        onView(withId(R.id.bottomDrawer)).check(matches(isDisplayed()))
     }
 }

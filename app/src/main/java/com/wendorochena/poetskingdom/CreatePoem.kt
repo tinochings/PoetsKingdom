@@ -3,7 +3,6 @@ package com.wendorochena.poetskingdom
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
@@ -11,11 +10,7 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.print.PrintManager
-import android.text.Editable
-import android.text.InputFilter
-import android.text.InputType
-import android.text.SpannableStringBuilder
-import android.text.TextWatcher
+import android.text.*
 import android.util.Log
 import android.view.GestureDetector
 import android.view.Gravity
@@ -445,22 +440,61 @@ class CreatePoem : AppCompatActivity() {
                 toRetEditTextBox.textAlignment = View.TEXT_ALIGNMENT_VIEW_END
             }
         }
-        frameToReturn.setOnClickListener {
-            for (child in frameToReturn.children) {
-                if (child is EditText) {
-                    val keyboard =
-                        getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    if (!child.isFocused) {
-                        if (child.requestFocus()) {
-                            keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
-                            child.setSelection(child.length())
+
+            frameToReturn.setOnTouchListener(object :
+                View.OnTouchListener {
+                val bottomDrawer = findViewById<ConstraintLayout>(R.id.bottomDrawer)
+                val gestureDetector = GestureDetector(this@CreatePoem, object :
+                    GestureDetector.SimpleOnGestureListener() {
+
+                    override fun onDoubleTap(e: MotionEvent): Boolean {
+                        if (bottomDrawer.isVisible) {
+                            val animation = AnimationUtils.loadAnimation(
+                                this@CreatePoem,
+                                com.google.android.apps.common.testing.accessibility.framework.R.anim.abc_slide_out_bottom
+                            )
+                            bottomDrawer.startAnimation(animation)
+                            bottomDrawer.visibility = View.GONE
+                            if (currentContainerView != null)
+                                turnOffCurrentView()
                         } else {
-                            keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
+                            val animation = AnimationUtils.loadAnimation(
+                                this@CreatePoem,
+                                com.google.android.apps.common.testing.accessibility.framework.R.anim.abc_slide_in_bottom
+                            )
+                            bottomDrawer.startAnimation(animation)
+                            bottomDrawer.visibility = View.VISIBLE
                         }
+                        return true
                     }
+
+                    override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+                        for (child in frameToReturn.children) {
+                            if (child is EditText) {
+                                val keyboard =
+                                    getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                                if (!child.isFocused) {
+                                    if (child.requestFocus()) {
+                                        keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
+                                        child.setSelection(child.length())
+                                    }
+                                } else {
+                                    keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
+                                }
+                            }
+                        }
+                        return true
+                    }
+                })
+
+                override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                    if (event != null) {
+                        v?.performClick()
+                        gestureDetector.onTouchEvent(event)
+                    }
+                    return true
                 }
-            }
-        }
+            })
         findViewById<ConstraintLayout>(R.id.parent).addView(frameToReturn)
         return frameToReturn
     }
@@ -476,7 +510,7 @@ class CreatePoem : AppCompatActivity() {
     }
 
     /**
-     * Removes a view and its children
+     * Removes a view and its children and re-orders the current layout if necessary
      */
     private fun deleteLayout(pageNumberToDelete: Int) {
         val frameToDelete =
@@ -498,6 +532,7 @@ class CreatePoem : AppCompatActivity() {
                 pageNumberAndId.remove(pageNumberToDelete)
                 pages--
             } else {
+                //update indexes
                 var indexCounter = pageNumberToDelete + 1
                 val indexesToReplace = ArrayList<Pair<Int, Int>>()
                 while (indexCounter <= pages) {
@@ -541,7 +576,6 @@ class CreatePoem : AppCompatActivity() {
             val editText = currentPage.getChildAt(1) as EditText
             editText.text = SpannableStringBuilder("")
             setDefaultCurrentPage()
-
         } else if (pageNumber == 1 && pages > 1) {
             setDefaultCurrentPage()
         } else {
@@ -588,6 +622,7 @@ class CreatePoem : AppCompatActivity() {
                 deleteLayout(pageToDelete)
                 updateRecyclerViewPageNumber(pageToDelete)
                 recyclerViewAdapter.removeElement(pageToDelete)
+                hasFileBeenEdited = true
             }
         }
     }
@@ -984,21 +1019,76 @@ class CreatePoem : AppCompatActivity() {
         }
 
         currentPage.setOnClickListener {
-            for (child in currentPage.children) {
-                if (child is EditText) {
-                    val keyboard =
-                        getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    if (!child.isFocused) {
-                        if (child.requestFocus()) {
-                            keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
-                            child.setSelection(child.length())
-                        }
-                    } else {
-                        keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
-                    }
-                }
-            }
+//            for (child in currentPage.children) {
+//                if (child is EditText) {
+//                    val keyboard =
+//                        getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+//                    if (!child.isFocused) {
+//                        if (child.requestFocus()) {
+//                            keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
+//                            child.setSelection(child.length())
+//                        }
+//                    } else {
+//                        keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
+//                    }
+//                }
+//            }
         }
+
+        currentPage.setOnTouchListener(object :
+            View.OnTouchListener {
+            val bottomDrawer = findViewById<ConstraintLayout>(R.id.bottomDrawer)
+            val gestureDetector = GestureDetector(this@CreatePoem, object :
+                GestureDetector.SimpleOnGestureListener() {
+
+                override fun onDoubleTap(e: MotionEvent): Boolean {
+                    if (bottomDrawer.isVisible) {
+                        val animation = AnimationUtils.loadAnimation(
+                            this@CreatePoem,
+                            com.google.android.apps.common.testing.accessibility.framework.R.anim.abc_slide_out_bottom
+                        )
+                        bottomDrawer.startAnimation(animation)
+                        bottomDrawer.visibility = View.GONE
+                        if (currentContainerView != null)
+                            turnOffCurrentView()
+                    } else {
+                        val animation = AnimationUtils.loadAnimation(
+                            this@CreatePoem,
+                            com.google.android.apps.common.testing.accessibility.framework.R.anim.abc_slide_in_bottom
+                        )
+                        bottomDrawer.startAnimation(animation)
+                        bottomDrawer.visibility = View.VISIBLE
+                    }
+                    return true
+                }
+
+                override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+                    for (child in currentPage.children) {
+                        if (child is EditText) {
+                            val keyboard =
+                                getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                            if (!child.isFocused) {
+                                if (child.requestFocus()) {
+                                    keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
+                                    child.setSelection(child.length())
+                                }
+                            } else {
+                                keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
+                            }
+                        }
+                    }
+                    return true
+                }
+            })
+
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                if (event != null) {
+                    v?.performClick()
+                    gestureDetector.onTouchEvent(event)
+                }
+                return true
+            }
+        })
 
         for (child in currentPage.children) {
             if (child is EditText) {
@@ -1134,6 +1224,7 @@ class CreatePoem : AppCompatActivity() {
             val bottomDrawer = findViewById<ConstraintLayout>(R.id.bottomDrawer)
             val gestureDetector = GestureDetector(this@CreatePoem, object :
                 GestureDetector.SimpleOnGestureListener() {
+
                 override fun onDoubleTap(e: MotionEvent): Boolean {
                     if (bottomDrawer.isVisible) {
                         val animation = AnimationUtils.loadAnimation(
@@ -1142,6 +1233,8 @@ class CreatePoem : AppCompatActivity() {
                         )
                         bottomDrawer.startAnimation(animation)
                         bottomDrawer.visibility = View.GONE
+                        if (currentContainerView != null)
+                            turnOffCurrentView()
                     } else {
                         val animation = AnimationUtils.loadAnimation(
                             this@CreatePoem,
@@ -1150,20 +1243,19 @@ class CreatePoem : AppCompatActivity() {
                         bottomDrawer.startAnimation(animation)
                         bottomDrawer.visibility = View.VISIBLE
                     }
-                    return super.onDoubleTap(e)
+                    return true
                 }
             })
 
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
                 if (event != null) {
+                    v?.performClick()
                     gestureDetector.onTouchEvent(event)
                 }
-//                v?.performClick()
                 return true
             }
         })
     }
-
 
     /**
      * Initialises the listener for the pages button
@@ -1780,6 +1872,9 @@ class CreatePoem : AppCompatActivity() {
         return editableArrayList
     }
 
+    /**
+     * Initiates the saving of pages as PDF
+     */
     private fun initiateSavePagesAsPdf() {
         val textMargin: Int = if (orientation == "portrait" && poemTheme.backgroundType.toString()
                 .contains("OUTLINE")
@@ -1829,7 +1924,7 @@ class CreatePoem : AppCompatActivity() {
     }
 
     /**
-     *
+     * Initiates the process of saving an image
      */
     private fun initiateSavePagesAsImages() {
         val editableArrayList = getAllTypedText()
@@ -1945,7 +2040,8 @@ class CreatePoem : AppCompatActivity() {
     }
 
     /**
-     *
+     * Loads the corresponding frame layout views for each stanza
+     * @param stanzas The arrayList containing the each stanzas saved text
      */
     private fun loadSavedPoem(stanzas: ArrayList<String>) {
         val firstPageEditText = currentPage.getChildAt(1) as EditText
@@ -1969,7 +2065,8 @@ class CreatePoem : AppCompatActivity() {
     }
 
     /**
-     * Create  memory for current data container
+     * Create  memory for current poem theme container
+     * @param poemThemeXmlParser The poem theme parser with users saved theme preference
      */
     private fun initialisePoemTheme(poemThemeXmlParser: PoemThemeXmlParser) {
         poemTheme.setTitle(poemThemeXmlParser.getPoemTheme().getTitle())

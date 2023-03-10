@@ -324,10 +324,17 @@ class PdfPrintAdapter(
         }
     }
 
+    /**
+     * Determines the beginning Y point
+     */
     private fun determineYPoint(pageHeight : Int, numOfLines: Int, landscapeLineHeight: Float): Float {
         val halfOfPage = (pageHeight / 2).toFloat()
         val topHalf = (numOfLines / 2) + 0.5
+        val result = (halfOfPage - (landscapeLineHeight * topHalf)).roundToInt().toFloat()
 
-        return (halfOfPage - (landscapeLineHeight * topHalf)).roundToInt().toFloat()
+        return if (result < 0)
+            0F
+        else
+            result
     }
 }
