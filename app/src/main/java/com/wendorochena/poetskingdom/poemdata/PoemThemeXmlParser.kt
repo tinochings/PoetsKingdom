@@ -15,6 +15,7 @@ class PoemThemeXmlParser(
     private val applicationContext: Context
 ) {
     private val stanzas = ArrayList<String>()
+    private var isEditTheme : Boolean = false
 
     private lateinit var backgroundTypeAsString: String
 
@@ -24,6 +25,13 @@ class PoemThemeXmlParser(
 
     fun getStanzasArraylist(): ArrayList<String> {
         return stanzas
+    }
+
+    /**
+     *
+     */
+    fun setIsEditTheme(boolean: Boolean) {
+       isEditTheme =  boolean
     }
 
     /**
@@ -251,7 +259,7 @@ class PoemThemeXmlParser(
                     val savedPoem = File(poemFolder.absolutePath + File.separator + poemFileName)
                     val poemFile =
                         File(poemThemeFolder.absolutePath + File.separator + poemFileName)
-                    if (savedPoem.exists() || poemFile.createNewFile()) {
+                    if (isEditTheme || (!savedPoem.exists() || poemFile.createNewFile())) {
                         val fileOutStream = FileOutputStream(poemFile)
 
                         val stringWriter = StringWriter()

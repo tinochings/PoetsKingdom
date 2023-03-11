@@ -186,6 +186,7 @@ class PoemThemeActivity : AppCompatActivity() {
             if (currButton.text == getString(R.string.edit_button_theme)) {
                 val poemThemeXmlParser =
                     PoemThemeXmlParser(poemTheme, applicationContext)
+                poemThemeXmlParser.setIsEditTheme(true)
                 if (poemThemeXmlParser.savePoemThemeToLocalFile(
                         backgroundImageChosen,
                         backgroundColorChosen,

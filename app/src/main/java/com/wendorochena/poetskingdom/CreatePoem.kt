@@ -114,8 +114,10 @@ class CreatePoem : AppCompatActivity() {
         // load saved poem if there is one
         if (previousStanzas.size > 0)
             loadSavedPoem(previousStanzas)
-        else
+        else {
             pageNumberAndText[1] = ""
+            hasFileBeenEdited = true
+        }
 
         initialiseBottomDrawer()
         setupOnBackPressed()
@@ -1396,6 +1398,7 @@ class CreatePoem : AppCompatActivity() {
             poemTheme.setTextAlignment(TextAlignment.LEFT)
             setEditTextAlignment(TextView.TEXT_ALIGNMENT_TEXT_START, Gravity.START)
             val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
+            poemThemeXmlParser.setIsEditTheme(true)
             poemThemeXmlParser.savePoemThemeToLocalFile(
                 poemTheme.getImagePath(),
                 poemTheme.getBackgroundColor(),
@@ -1415,6 +1418,7 @@ class CreatePoem : AppCompatActivity() {
             poemTheme.setTextAlignment(TextAlignment.CENTRE)
             setEditTextAlignment(TextView.TEXT_ALIGNMENT_CENTER, Gravity.CENTER)
             val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
+            poemThemeXmlParser.setIsEditTheme(true)
             poemThemeXmlParser.savePoemThemeToLocalFile(
                 poemTheme.getImagePath(),
                 poemTheme.getBackgroundColor(),
@@ -1435,6 +1439,7 @@ class CreatePoem : AppCompatActivity() {
             poemTheme.setTextAlignment(TextAlignment.RIGHT)
             setEditTextAlignment(TextView.TEXT_ALIGNMENT_TEXT_END, Gravity.END)
             val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
+            poemThemeXmlParser.setIsEditTheme(true)
             poemThemeXmlParser.savePoemThemeToLocalFile(
                 poemTheme.getImagePath(),
                 poemTheme.getBackgroundColor(),
@@ -1455,6 +1460,7 @@ class CreatePoem : AppCompatActivity() {
             poemTheme.setTextAlignment(TextAlignment.CENTRE_VERTICAL)
             setEditTextAlignment(TextView.TEXT_ALIGNMENT_CENTER, Gravity.CENTER_VERTICAL)
             val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
+            poemThemeXmlParser.setIsEditTheme(true)
             poemThemeXmlParser.savePoemThemeToLocalFile(
                 poemTheme.getImagePath(),
                 poemTheme.getBackgroundColor(),
@@ -1478,6 +1484,7 @@ class CreatePoem : AppCompatActivity() {
                 Gravity.CENTER_VERTICAL or Gravity.END
             )
             val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
+            poemThemeXmlParser.setIsEditTheme(true)
             poemThemeXmlParser.savePoemThemeToLocalFile(
                 poemTheme.getImagePath(),
                 poemTheme.getBackgroundColor(),
@@ -1501,6 +1508,7 @@ class CreatePoem : AppCompatActivity() {
                 Gravity.CENTER_VERTICAL or Gravity.START
             )
             val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
+            poemThemeXmlParser.setIsEditTheme(true)
             poemThemeXmlParser.savePoemThemeToLocalFile(
                 poemTheme.getImagePath(),
                 poemTheme.getBackgroundColor(),
@@ -1990,6 +1998,8 @@ class CreatePoem : AppCompatActivity() {
             initiateSavePagesAsPdf()
         }
         editPoemTheme.setOnClickListener {
+            //to fix when categories are necessary
+            createDataContainer(Category.NONE.toString(), true)
             val activityIntent = Intent(applicationContext, PoemThemeActivity::class.java)
             activityIntent.putExtra("poemThemeName", poemTheme.getTitle())
             finish()
