@@ -16,4 +16,5 @@ Poets Kingdom is a passion project I started for myself. I am a lover of poetry 
 
 #### Screenshots
 
-<img src="app/Application Screenshots/Create Poem.png" width="170">
+<img src="app/Application Screenshots/Home Screen.png" width="170"><img src="app/Application Screenshots/Create Poem.png" width="170">
+<img src="app/Application Screenshots/My Images.png" width="170"><img src="app/Application Screenshots/My Poems.png" width="170">
