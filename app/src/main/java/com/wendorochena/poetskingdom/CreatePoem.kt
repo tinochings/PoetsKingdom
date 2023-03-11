@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
@@ -168,6 +169,8 @@ class CreatePoem : AppCompatActivity() {
             val editText = EditText(this)
             editText.inputType = InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
             editText.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(60))
+            editText.setHint(R.string.change_title_hint)
+            editText.setHintTextColor(Color.WHITE)
             editText.setTextColor(resources.getColor(R.color.white, null))
             val alertDialogBuilder = AlertDialog.Builder(this)
             alertDialogBuilder.setCustomTitle(customTitleView)
@@ -198,6 +201,8 @@ class CreatePoem : AppCompatActivity() {
                             MODE_PRIVATE
                         ).absolutePath
                         val poemFile = File(directoryPath + File.separator + oldTitleName)
+                        if (!poemFile.exists())
+                            createDataContainer(Category.NONE.toString(), true)
                         val poemThemeFile = File(poemThemePath + File.separator + oldTitleName)
                         val poemSavedImagesFolder =
                             File(savedImagesPath + File.separator + oldTitleFolderName)
@@ -364,7 +369,7 @@ class CreatePoem : AppCompatActivity() {
         toRetEditTextBox.textSize = poemTheme.getTextSize().toFloat()
         toRetEditTextBox.inputType = defaultText.inputType
         toRetEditTextBox.isVerticalScrollBarEnabled = true
-        toRetEditTextBox.setHint(R.string.start_writing)
+        toRetEditTextBox.setHint(R.string.create_poem_text_view_hint)
         toRetEditTextBox.setHintTextColor(poemTheme.getTextColorAsInt())
 
         toRetEditTextBox.isSingleLine = false
@@ -601,6 +606,9 @@ class CreatePoem : AppCompatActivity() {
             recyclerView.findViewHolderForLayoutPosition(counter)?.itemView?.findViewById<TextView>(
                 R.id.pageNumberTextView
             )?.text = (counter - 1).toString()
+//            recyclerView.findViewHolderForLayoutPosition(counter)?.itemView?.findViewById<EditText>(
+//                R.id.frameLayoutTextView
+//            )?.text = SpannableStringBuilder(pageNumberAndText[counter - 1])
             counter++
         }
         recyclerViewAdapter.notifyItemRangeChanged(
@@ -614,7 +622,7 @@ class CreatePoem : AppCompatActivity() {
      */
     private fun setupOnPageLongClickListener() {
         recyclerViewAdapter.onItemLongClick = { clickedLayout ->
-            if (clickedLayout.id != R.id.addPage) {
+            if (clickedLayout.id != R.id.addPageRecyclerViewId) {
                 val pageToDelete = clickedLayout.tag as Int
                 if (currentPage.tag as Int == pageToDelete || pages == 2) {
                     replaceCurrentView(pageToDelete)
@@ -642,6 +650,7 @@ class CreatePoem : AppCompatActivity() {
                 recyclerView.visibility = View.GONE
                 dimmer.visibility = View.GONE
                 currentPage = newPage
+                currentPage.bringToFront()
             } else {
                 currentPage.visibility = View.GONE
                 currentPage = pageNumberAndId[clickedLayout.tag as Int]?.let { findViewById(it) }!!
@@ -1018,23 +1027,6 @@ class CreatePoem : AppCompatActivity() {
             }
         }
 
-        currentPage.setOnClickListener {
-//            for (child in currentPage.children) {
-//                if (child is EditText) {
-//                    val keyboard =
-//                        getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//                    if (!child.isFocused) {
-//                        if (child.requestFocus()) {
-//                            keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
-//                            child.setSelection(child.length())
-//                        }
-//                    } else {
-//                        keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
-//                    }
-//                }
-//            }
-        }
-
         currentPage.setOnTouchListener(object :
             View.OnTouchListener {
             val bottomDrawer = findViewById<ConstraintLayout>(R.id.bottomDrawer)
@@ -1402,7 +1394,7 @@ class CreatePoem : AppCompatActivity() {
             coverPageTitle.gravity = Gravity.START
             coverPageSignature.gravity = Gravity.START
             poemTheme.setTextAlignment(TextAlignment.LEFT)
-            setEditTextAlignment(TextView.TEXT_ALIGNMENT_TEXT_START, Gravity.LEFT)
+            setEditTextAlignment(TextView.TEXT_ALIGNMENT_TEXT_START, Gravity.START)
             val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
             poemThemeXmlParser.savePoemThemeToLocalFile(
                 poemTheme.getImagePath(),

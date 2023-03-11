@@ -125,7 +125,7 @@ class CreatePoemRecyclerViewAdapter(
         }
 
         if (currentFrameLayout.id == R.id.addPage) {
-            holder.frameLayout.id = R.id.addPage
+            holder.frameLayout.id = R.id.addPageRecyclerViewId
             holder.frameLayout.background = currentFrameLayout.background.mutate()
             holder.imageView.layoutParams = currentImageLayout?.layoutParams
             holder.imageView.setImageDrawable(ResourcesCompat.getDrawable(
@@ -152,6 +152,7 @@ class CreatePoemRecyclerViewAdapter(
                 holder.imageView.tag = currentImageLayout.tag
             }
             holder.textView.text = editText?.text
+            println(editText?.text)
             editText?.currentTextColor?.let { holder.textView.setTextColor(it) }
             holder.textView.typeface = editText?.typeface
             holder.textView.textAlignment = editText?.textAlignment!!
@@ -334,5 +335,10 @@ class CreatePoemRecyclerViewAdapter(
             frameLayoutArrayList.removeAt(index)
             notifyItemRemoved(index)
         }
+    }
+
+    //testing purposes
+    fun getElement(index: Int) : FrameLayout {
+        return frameLayoutArrayList[index]
     }
 }

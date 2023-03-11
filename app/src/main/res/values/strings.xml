@@ -241,5 +241,6 @@
     <string name="create_poem_edit_text_hint">Enter Poem Name Here</string>
     <string name="load_poem_argument_name">loadPoem</string>
     <string name="poem_title_argument_name">poemTitle</string>
+    <string name="change_title_hint">Enter New Title</string>
 
 </resources>
