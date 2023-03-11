@@ -224,11 +224,9 @@ class MyImages : Fragment() {
     }
 
     /**
-     * This function sets two on click instances for the recycler view
-     * The first onClick event is when the PersonalisationActivity is looking for an image path result
-     * When a confirmation happens we return the path and control resumes in Personalisation Activity
      *
-     * The second onClick is used to display an image when it is clicked TODO
+     * The onClick is used to display an image when it is clicked
+     * The long item click is used to delete images
      */
     private fun prepareRecyclerView() {
 

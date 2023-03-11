@@ -33,6 +33,8 @@ class ImageSaverUtil(
 
     /**
      * Sets the text alignment to be drawn on bitmap
+     *
+     * @param textAlignment the text alignment of the poem
      */
     fun setPaintAlignment(textAlignment: TextAlignment) {
         textPaintAlignment = when (textAlignment) {
@@ -61,6 +63,9 @@ class ImageSaverUtil(
 
     /**
      *  Creates an EditText object that is to be added to an arraylist
+     *
+     *  @param editText the editTextBox to be added
+     *  @param editable the text to be added
      */
     private fun editTextToRet(editText: EditText, editable: Editable): EditText {
         val editTextToAdd = EditText(context)
@@ -74,6 +79,12 @@ class ImageSaverUtil(
     /**
      * One entire edit line could be an extremely long word or just gibberish therefore it needs to be
      * split this method returns the split lines
+     *
+     * @param longWord the word to be split if necessary
+     * @param paint the paint of the text
+     * @param width width of the screen
+     *
+     * @return an arrayList containing lines to be saved as an image
      */
     private fun updateLongWordBounds(
         longWord: String,
@@ -84,7 +95,7 @@ class ImageSaverUtil(
         val bounds = Rect()
 
         paint.getTextBounds(longWord, 0, longWord.length, bounds)
-//        val firstEditText = currentPage.getChildAt(1) as EditText
+
         if (bounds.width() > width) {
             var charIndex = 0
             var accumulatedChars = ""
@@ -111,6 +122,18 @@ class ImageSaverUtil(
     }
 
     //use this as a helper function to adjust text bounds so that it fits
+
+    /**
+     * Helper function that adjusts text bounds and makes sure that it fits
+     *
+     * @param lineToSplit the line to split
+     * @param width width of the screen
+     * @param lineHeight the height of a given line
+     * @param height height of the viewport
+     * @param isLastLine true if it is last line false if not
+     *
+     * @return an editable arrayList that has properly split lines that fit viewport width
+     */
     private fun updateTextBounds(
         lineToSplit: String,
         width: Int,
@@ -195,12 +218,14 @@ class ImageSaverUtil(
         }
         if (tempSpannableString != "")
             editableArrayListToReturn.add(SpannableStringBuilder(tempSpannableString))
+
         return editableArrayListToReturn
     }
 
 
     /**
-     * Returns the lapping lines that lead to an entire page not being filled
+     * @param lastEditText
+     * @return the lapping lines that lead to an entire page not being filled
      */
     private fun lappingLines(lastEditText: EditText): String {
         var tempSpannableString = ""
@@ -216,6 +241,10 @@ class ImageSaverUtil(
 
     /**
      * Appends the new lines to the previous lapping lines
+     *
+     * @param tempSpannableString the string con
+     * @param linesToFill a list containing the lines to fill in
+     * @return new lines to append to an arrayList that didn't fill the viewport
      */
     private fun newLinesToAdd(tempSpannableString: String, linesToFill: List<String>): String {
         var stringToRet = tempSpannableString
@@ -231,7 +260,12 @@ class ImageSaverUtil(
     }
 
     /**
+     * Formats the pages to save by formatting text to make sure it fits on the page
      *
+     * @param editableArrayList an arrayList with all the text to be printed
+     * @param height the height of the view port in PX
+     * @param width the width of the view port in PX
+     * @param lineHeight the height of the line in PX
      */
     fun formatPagesToSave(
         editableArrayList: Editable,
@@ -388,7 +422,11 @@ class ImageSaverUtil(
     }
 
     /**
+     * Determines the YPoint of where the text should start
      *
+     * @param pageHeight the height of page to be printed on in pixels
+     * @param numOfLines the number of lines on the page
+     * @param lineHeight the height of each line
      */
     private fun determineYPoint(
         pageHeight: Int,

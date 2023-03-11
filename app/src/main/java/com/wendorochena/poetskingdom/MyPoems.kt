@@ -6,16 +6,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.text.Editable
-import android.text.SpannableString
-import android.text.TextWatcher
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
@@ -25,10 +20,8 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.FileProvider
-import androidx.core.view.get
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -42,11 +35,8 @@ import com.wendorochena.poetskingdom.utils.SearchUtil
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.nio.file.Files
-import java.nio.file.attribute.BasicFileAttributes
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.set
 
 class MyPoems : AppCompatActivity() {
 
@@ -86,6 +76,9 @@ class MyPoems : AppCompatActivity() {
     }
 
 
+    /**
+     *
+     */
     private fun onFirstUse() {
         val alertDialogBuilder = AlertDialog.Builder(this)
         alertDialogBuilder.setTitle(R.string.guide_title)
@@ -215,7 +208,7 @@ class MyPoems : AppCompatActivity() {
     }
 
     /**
-     *
+     * Sets up the bottom drawer when the a thumbnail has been long selected
      */
     private fun setupBottomDrawer() {
         val shareAsImage = findViewById<ImageButton>(R.id.shareAsImage)
@@ -477,15 +470,6 @@ class MyPoems : AppCompatActivity() {
                             Pair(subStringLocations, stanzaIndexAndText)
                         )
 
-//                    StrictMode.setVmPolicy(
-//                        StrictMode.VmPolicy.Builder()
-//                        .detectLeakedClosableObjects()
-//                        .penaltyListener(this.mainExecutor) { v: Violation ->
-//                            v.fillInStackTrace()
-//                            v.printStackTrace()
-//                        }
-//                        .build())
-
                         for (fileNamePair in subStringLocations) {
                             if (poemThemeXmlParser.parseTheme(fileNamePair.first.split(".")[0]) == 0) {
                                 searchResultsViewAdapter.addBackgroundTypePair(
@@ -516,22 +500,6 @@ class MyPoems : AppCompatActivity() {
             true
         }
     }
-
-//    /**
-//     * Creates a hashmap with the first letter as a key and the file name as a value
-//     */
-//    private fun populateSearchHashMap(fileName: String) {
-//        val key = fileName[0].lowercaseChar()
-//
-//        val fileNameToAdd = fileName.replace(".xml", "").replace('_', ' ')
-//        if (searchHashMap.containsKey(key)) {
-//            searchHashMap[key]?.add(fileNameToAdd)
-//        } else {
-//            val arrayListToAdd = ArrayList<String>()
-//            arrayListToAdd.add(fileNameToAdd)
-//            searchHashMap[key] = arrayListToAdd
-//        }
-//    }
 
     /**
      *

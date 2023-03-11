@@ -12,7 +12,6 @@ import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.google.android.material.imageview.ShapeableImageView
 import com.wendorochena.poetskingdom.R
 import java.io.File
@@ -175,13 +174,16 @@ class MyPoemsRecyclerViewAdapter(val context: android.content.Context) :
 
     /**
      * Add an element to the list adapter
+     *
+     * @param frameToAdd the frame to add
      */
     fun addItem(frameToAdd: FrameLayout) {
         listAdapterArrayList.add(frameToAdd)
     }
 
     /**
-     *
+     * @param index the index to update when there is a long click
+     * @param string the tag to be updated can be "circle" or "check"
      */
     fun updateLongImage(index: Int, string: String) {
         val longClickImage = listAdapterArrayList[index].getChildAt(0)
@@ -190,6 +192,9 @@ class MyPoemsRecyclerViewAdapter(val context: android.content.Context) :
         notifyItemChanged(index)
     }
 
+    /**
+     * Removes all image buttons when longClick is no longer needed
+     */
     fun turnOffLongClick() {
         for ((index, frame) in listAdapterArrayList.withIndex()) {
             val imageView = frame.getChildAt(0) as ImageView
@@ -202,6 +207,8 @@ class MyPoemsRecyclerViewAdapter(val context: android.content.Context) :
 
     /**
      * Initiates the image views that indicate selected images and non selected images
+     *
+     * @param id the id that is to be selected
      */
     fun initiateOnLongClickImage(id: Int) {
 
@@ -216,15 +223,24 @@ class MyPoemsRecyclerViewAdapter(val context: android.content.Context) :
         }
     }
 
+    /**
+     * @param index index to obtain
+     */
     fun getFrameAtIndex(index: Int): FrameLayout {
         return listAdapterArrayList[index]
     }
 
+    /**
+     * @param index index to remove
+     */
     fun removeAtIndex(index: Int) {
         listAdapterArrayList.removeAt(index)
         notifyItemRemoved(index)
     }
 
+    /**
+     * @param index the index to be deleted
+     */
     fun deleteElem(index: Int) {
         listAdapterArrayList.removeAt(index)
     }

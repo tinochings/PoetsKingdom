@@ -52,7 +52,6 @@ class PoemThemeActivity : AppCompatActivity() {
     private var backgroundColorChosenAsInt: Int? = null
     private lateinit var recyclerViewAdapter: ImageRecyclerViewAdapter
     private lateinit var poemTheme: PoemTheme
-    private val outlinesChanged: ArrayList<Int> = ArrayList()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -419,14 +418,6 @@ class PoemThemeActivity : AppCompatActivity() {
                                 applicationContext
                             )
                     }
-//                    recyclerViewAdapter =
-//                        myImagesFolder.listFiles()
-//                            ?.let {
-//                                ImageRecyclerViewAdapter(
-//                                    this.javaClass.name,
-//                                    it.toCollection(ArrayList())
-//                                )
-//                            }!!
 
                     val gridLayoutManager = GridLayoutManager(applicationContext, 4)
                     recyclerView?.layoutManager = gridLayoutManager
@@ -857,7 +848,7 @@ class PoemThemeActivity : AppCompatActivity() {
 
     /**
      * We systemically add text views in orders of two. If we reach a case where the amount of array
-     * elements is odd we singularly add it to the dom
+     * elements is odd we singularly add it to the DOM
      * The variable counter is used to keep track of the odd element to set as parent. When counter
      * + 1 is equal to the array size it means counter is the last element in the array
      * When the variable createParentNextIteration is true it means we have reached the odd element
@@ -865,60 +856,58 @@ class PoemThemeActivity : AppCompatActivity() {
      * @param idPrefix
      */
     private fun setupFontFamilyListeners(idPrefix: String) {
-        if (Build.VERSION.SDK_INT >= 26) {
-            if (findViewById<LinearLayout>(R.id.textariana_violeta_font) == null) {
-                var counter = 0
-                val totalSize = resources.getStringArray(R.array.customFontNames).size
-                var createParentNextIteration = false
-                val viewsToAdd = ArrayList<View>()
-                for (fontName in resources.getStringArray(R.array.customFontNames)) {
-                    if ((counter + 1) % 2 != 0 && (counter + 1) < totalSize) {
-                        createParentNextIteration = true
-                        counter++
-                    } else if (createParentNextIteration) {
-                        val createChild1 =
-                            createFontChild(resources.getStringArray(R.array.customFontNames)[counter - 1])
-                        val createChild2 =
-                            createFontChild(fontName)
-                        val linearLayoutParentOfChildren =
-                            createFontParent(fontName)
-                        linearLayoutParentOfChildren.addView(createChild1)
-                        linearLayoutParentOfChildren.addView(createChild2)
-                        linearLayoutParentOfChildren.visibility = View.GONE
-                        viewsToAdd.add(linearLayoutParentOfChildren)
-                        createParentNextIteration = false
-                        counter++
-                        mainLinearLayout.addView(linearLayoutParentOfChildren)
-                    } else if ((counter + 1) == totalSize) {
-                        val createChild1 =
-                            createFontChild(fontName)
-                        val linearLayoutParentOfChildren =
-                            createFontParent(fontName)
-                        linearLayoutParentOfChildren.addView(createChild1)
-                        linearLayoutParentOfChildren.visibility = View.GONE
-                        viewsToAdd.add(linearLayoutParentOfChildren)
-                        mainLinearLayout.addView(linearLayoutParentOfChildren)
-                    }
+        if (findViewById<LinearLayout>(R.id.textariana_violeta_font) == null) {
+            var counter = 0
+            val totalSize = resources.getStringArray(R.array.customFontNames).size
+            var createParentNextIteration = false
+            val viewsToAdd = ArrayList<View>()
+            for (fontName in resources.getStringArray(R.array.customFontNames)) {
+                if ((counter + 1) % 2 != 0 && (counter + 1) < totalSize) {
+                    createParentNextIteration = true
+                    counter++
+                } else if (createParentNextIteration) {
+                    val createChild1 =
+                        createFontChild(resources.getStringArray(R.array.customFontNames)[counter - 1])
+                    val createChild2 =
+                        createFontChild(fontName)
+                    val linearLayoutParentOfChildren =
+                        createFontParent(fontName)
+                    linearLayoutParentOfChildren.addView(createChild1)
+                    linearLayoutParentOfChildren.addView(createChild2)
+                    linearLayoutParentOfChildren.visibility = View.GONE
+                    viewsToAdd.add(linearLayoutParentOfChildren)
+                    createParentNextIteration = false
+                    counter++
+                    mainLinearLayout.addView(linearLayoutParentOfChildren)
+                } else if ((counter + 1) == totalSize) {
+                    val createChild1 =
+                        createFontChild(fontName)
+                    val linearLayoutParentOfChildren =
+                        createFontParent(fontName)
+                    linearLayoutParentOfChildren.addView(createChild1)
+                    linearLayoutParentOfChildren.visibility = View.GONE
+                    viewsToAdd.add(linearLayoutParentOfChildren)
+                    mainLinearLayout.addView(linearLayoutParentOfChildren)
                 }
             }
+        }
 
-            for (child in mainLinearLayout.children) {
-                if (resources.getResourceName(child.id).startsWith(idPrefix)) {
-                    if (child is LinearLayout) {
-                        for (frameChild in child.children) {
-                            if (frameChild is FrameLayout) {
-                                frameChild.setOnClickListener {
-                                    findViewById<TextView>(R.id.previewText).typeface =
-                                        (frameChild.contentDescription as String?)?.let { it1 ->
-                                            TypefaceHelper.getTypeFace(
-                                                it1, applicationContext
-                                            )
-                                        }
+        for (child in mainLinearLayout.children) {
+            if (resources.getResourceName(child.id).startsWith(idPrefix)) {
+                if (child is LinearLayout) {
+                    for (frameChild in child.children) {
+                        if (frameChild is FrameLayout) {
+                            frameChild.setOnClickListener {
+                                findViewById<TextView>(R.id.previewText).typeface =
                                     (frameChild.contentDescription as String?)?.let { it1 ->
-                                        poemTheme.setTextFont(
-                                            it1
+                                        TypefaceHelper.getTypeFace(
+                                            it1, applicationContext
                                         )
                                     }
+                                (frameChild.contentDescription as String?)?.let { it1 ->
+                                    poemTheme.setTextFont(
+                                        it1
+                                    )
                                 }
                             }
                         }
@@ -1141,7 +1130,7 @@ class PoemThemeActivity : AppCompatActivity() {
     }
 
     /**
-     *
+     * Restores image view to default settings
      */
     private fun resetImageView() {
         val layoutParams = FrameLayout.LayoutParams(
@@ -1203,6 +1192,9 @@ class PoemThemeActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Sets the outline chosen by user
+     */
     private fun setOutlineChosen() {
         var shouldBreak = false
         for (child in mainLinearLayout.children) {

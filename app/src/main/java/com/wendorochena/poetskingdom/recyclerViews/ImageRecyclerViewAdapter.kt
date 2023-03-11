@@ -4,14 +4,11 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.google.android.material.imageview.ShapeableImageView
-import com.squareup.picasso.Picasso
 import com.wendorochena.poetskingdom.R
 import java.io.File
 
@@ -87,8 +84,6 @@ class ImageRecyclerViewAdapter(
             if (currentImageLocation.exists()) {
                 viewHolder.imageView.scaleType = ImageView.ScaleType.FIT_XY
                 Glide.with(context).load(currentImageLocation).placeholder(R.drawable.ic_launcher_background).into(viewHolder.imageView)
-//                Picasso.get().load(currentImageLocation).fit().placeholder(R.drawable.ic_launcher_background)
-//                    .into(viewHolder.imageView)
             }
 
             val splitString = callingClassName.split(".")
@@ -118,6 +113,11 @@ class ImageRecyclerViewAdapter(
     // Return the size of your dataset (invoked by the layout manager)
     override fun getItemCount() = imageLocations.size
 
+    /**
+     * Add file element to adapter
+     *
+     * @param file the file to add
+     */
     fun addElement(file: File) {
         imageLocations.add(file)
     }
@@ -130,6 +130,12 @@ class ImageRecyclerViewAdapter(
         notifyItemChanged(index)
     }
 
+    /**
+     * Updates long image
+     *
+     * @param index the index to be updated
+     * @param string the tag name update it can either be "circle" or "check"
+     */
     fun updateLongImage(index : Int, string: String) {
         val longClickImage = longClickImageViews[index]
         longClickImage.tag = string
@@ -137,7 +143,7 @@ class ImageRecyclerViewAdapter(
         notifyItemChanged(index)
     }
     /**
-     *
+     * @param index index that is selected
      */
     fun initiateOnLongClickImage(index : Int) {
         for ((currIndex,imageView) in longClickImageViews.withIndex()) {
@@ -148,6 +154,10 @@ class ImageRecyclerViewAdapter(
             }
         }
     }
+
+    /**
+     * Turns of the selected elements image buttons
+     */
     fun turnOffLongClick() {
         for ((index,imageView) in longClickImageViews.withIndex()) {
             imageView.tag = "circle"
@@ -156,11 +166,17 @@ class ImageRecyclerViewAdapter(
         }
     }
 
+    /**
+     * @param index the index to delete
+     */
     fun deleteElem(index: Int) {
         longClickImageViews.removeAt(index)
         imageLocations.removeAt(index)
     }
 
+    /**
+     * @return the images that are currently selected
+     */
     fun getLongClickImages() : ArrayList<ImageView> {
         return longClickImageViews
     }

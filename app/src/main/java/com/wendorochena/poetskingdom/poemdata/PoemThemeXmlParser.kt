@@ -14,17 +14,12 @@ class PoemThemeXmlParser(
     private var poemTheme: PoemTheme,
     private val applicationContext: Context
 ) {
-    private val stanzas = ArrayList<String>()
     private var isEditTheme : Boolean = false
 
     private lateinit var backgroundTypeAsString: String
 
     fun getPoemTheme(): PoemTheme {
         return poemTheme
-    }
-
-    fun getStanzasArraylist(): ArrayList<String> {
-        return stanzas
     }
 
     /**
@@ -35,6 +30,9 @@ class PoemThemeXmlParser(
     }
 
     /**
+     * Parses the XML file
+     *
+     * @param poemTitle the title of the poem to parse
      * @return 0 if successful -1 otherwise
      */
     fun parseTheme(poemTitle: String?): Int {
@@ -134,6 +132,8 @@ class PoemThemeXmlParser(
 
     /**
      * Parses the background type
+     *
+     * @param parser the parser currently parsing the poem theme
      */
     private fun parseBackgroundType(parser: XmlPullParser) {
         try {
@@ -242,6 +242,9 @@ class PoemThemeXmlParser(
 
     /**
      * Encodes an xml file with the entire poem theme
+     *
+     * @param backgroundColorChosen the color of the background if any else this is null
+     * @param backgroundImageChosen the image of the background if any else it is null
      * @return returns 0 on success and -1 otherwise
      */
     fun savePoemThemeToLocalFile(

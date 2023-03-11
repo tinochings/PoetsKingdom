@@ -13,10 +13,9 @@ import java.io.StringWriter
 class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
 
     /**
+     * Saves the poem as an XML file
      *
-     * @param overwrite true if we want to create a new file and false if we want to overwrite a file
      * @return 0 is returned if operation was successful
-     * @return 1 if file exist
      * @return -1 if operation failed
      */
     fun saveToXmlFile(): Int {
@@ -27,9 +26,7 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
                 val fileName = poem.poemTheme.getTitle().replace(' ', '_')
                 val fileToCreate =
                     File(poemFolder.absolutePath + File.separator + fileName + ".xml")
-//                if (overwrite && fileToCreate.exists()) {
-//                    return 1
-//                } else if ((overwrite && fileToCreate.createNewFile()) || !overwrite) {
+
                 val outputStream = FileOutputStream(fileToCreate)
 
                 val stringWriter = StringWriter()
@@ -72,7 +69,6 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
                 outputStream.close()
                 return 0
             }
-//            }
         } catch (exception: Exception) {
             exception.printStackTrace()
             return -1
@@ -81,6 +77,12 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
         return -1
     }
 
+    /**
+     * Saves the background image as a bitmap. This is necessary for the search poem recycler view
+     *
+     * @param toBitmap the bitmap to save
+     * @return true if it was saved false if it was not
+     */
     fun saveBackgroundImageDrawable(toBitmap: Bitmap) : Boolean {
         val backgroundImageDrawableFolder = context.getDir(context.getString(R.string.background_image_drawable_folder), Context.MODE_PRIVATE)
 
@@ -107,6 +109,8 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
         /**
          * @param poemTitle : The title of the poem to obtain saved stanzas
          * @param applicationContext : the context of the calling class
+         *
+         * @return the arraylist containing each stanza as an element
          */
         fun parseSavedPoem(poemTitle: String, applicationContext : Context) : ArrayList<String> {
             val stanzas = ArrayList<String>()

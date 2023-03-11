@@ -9,12 +9,14 @@ class TypefaceHelper {
 
     companion object {
         /**
-         * Unfortunately I have decided to hard code this for performance reasons. This class is already
+         * Unfortunately I have decided to hard code this for performance reasons. The class PoemThemeActivity is already
          * too complex and dynamic. Any more dynamic strain is not efficient and might hinder user satisfaction
          * @param typeFaceName The name of the typeface
+         * @param applicationContext the context of the calling application
+         * @return the typeface if it was found. If none was found the default typeface is returned
          */
         fun getTypeFace(typeFaceName: String, applicationContext : Context): Typeface? {
-//            println(typeFaceName)
+
             when (typeFaceName) {
                 "ariana_violeta_font" -> {
                     return ResourcesCompat.getFont(applicationContext, R.font.ariana_violeta_font)

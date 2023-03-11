@@ -53,8 +53,7 @@ class SearchUtil(private val searchPhrase: String, val applicationContext: Conte
         return stanzaIndexAndText
     }
     /**
-     * This function creates meta data for each poem file. The file name is the key of the hash map
-     * the value is the stanzas to be iterated over.
+     * This function initiates Lucene to search
      */
     fun initiateLuceneSearch() {
         val poemFolder = applicationContext.getDir(

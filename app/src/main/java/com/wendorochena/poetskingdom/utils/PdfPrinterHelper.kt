@@ -17,7 +17,13 @@ class PdfPrinterHelper(
 ) {
 
     /**
+     * Initiates the calculating of pages of a PDF document
      *
+     * @param editables the arrayList containing all the text in the poem
+     * @param context the context of the calling poem
+     * @param currentPage the layout of the currently selected page in the calling Activity
+     *
+     * @return the number of pages
      */
     fun calculatePages(
         editables: ArrayList<Editable>,
@@ -39,10 +45,12 @@ class PdfPrinterHelper(
             editTextsToPrint.addAll(editTexts)
         }
 
-//        editTextsToPrint = editTexts
         return editTextsToPrint.size
     }
 
+    /**
+     * @return the EditTextBoxes to print where each element represents a page
+     */
     fun getEditTextsToPrint() : ArrayList<EditText> {
         return this.editTextsToPrint
     }

@@ -319,6 +319,8 @@ class CreatePoem : AppCompatActivity() {
 
     /**
      * Replicates the user theme and creates a new frame layout which serves the purpose of a new page
+     *
+     * @param initialLoad true if the poem is being loaded false if not
      * @return the newly created frame layout
      */
     private fun createNewPage(initialLoad : Boolean): FrameLayout {
@@ -518,6 +520,8 @@ class CreatePoem : AppCompatActivity() {
 
     /**
      * Removes a view and its children and re-orders the current layout if necessary
+     *
+     * @param pageNumberToDelete the page number to delete
      */
     private fun deleteLayout(pageNumberToDelete: Int) {
         val frameToDelete =
@@ -608,9 +612,6 @@ class CreatePoem : AppCompatActivity() {
             recyclerView.findViewHolderForLayoutPosition(counter)?.itemView?.findViewById<TextView>(
                 R.id.pageNumberTextView
             )?.text = (counter - 1).toString()
-//            recyclerView.findViewHolderForLayoutPosition(counter)?.itemView?.findViewById<EditText>(
-//                R.id.frameLayoutTextView
-//            )?.text = SpannableStringBuilder(pageNumberAndText[counter - 1])
             counter++
         }
         recyclerViewAdapter.notifyItemRangeChanged(
@@ -883,6 +884,9 @@ class CreatePoem : AppCompatActivity() {
 
     }
 
+    /**
+     * Sets up the cover page
+     */
     private fun initiateCoverPage() {
         val personalisationPreferences = getSharedPreferences(
             getString(R.string.personalisation_sharedpreferences_key),
@@ -1548,7 +1552,7 @@ class CreatePoem : AppCompatActivity() {
     }
 
     /**
-     * sets up the
+     * Sets up the slider that allows for text size change
      */
     private fun setupTextSizeContainer() {
         val textSize = findViewById<ImageButton>(R.id.textSize)
@@ -1575,7 +1579,7 @@ class CreatePoem : AppCompatActivity() {
     }
 
     /**
-     *
+     * Sets up a dialog to choose text color
      */
     private fun setupTextColor() {
         val textColor = findViewById<ImageButton>(R.id.textColor)
@@ -1615,7 +1619,9 @@ class CreatePoem : AppCompatActivity() {
     }
 
     /**
+     * Updates all stanzas in the current poem
      *
+     * @param textSize The new size of text
      */
     private fun updateAllEditTextViews(textSize: Float, action: String, color: Int) {
         when (action) {
@@ -1722,7 +1728,8 @@ class CreatePoem : AppCompatActivity() {
     }
 
     /**
-     *
+     * Creates a thumbnail for a poem
+     * @param createThumbnail if true a thumbnail is created, if false it is not created.
      */
     private fun createThumbnail(createThumbnail: Boolean) {
         if (createThumbnail) {

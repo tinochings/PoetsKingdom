@@ -9,7 +9,7 @@ import android.provider.DocumentsContract
 import android.provider.MediaStore
 import java.io.File
 
-class UriUtils(val context: Context, val uri: Uri) {
+class UriUtils(val context: Context, private val uri: Uri) {
 
     fun getRealPathFromURI(): String? {
         when {

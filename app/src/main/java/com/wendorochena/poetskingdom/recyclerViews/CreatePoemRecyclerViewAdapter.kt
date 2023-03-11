@@ -1,7 +1,6 @@
 package com.wendorochena.poetskingdom.recyclerViews
 
 import android.content.Context
-import android.graphics.BitmapFactory
 import android.text.Editable
 import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
@@ -280,6 +279,8 @@ class CreatePoemRecyclerViewAdapter(
 
     /**
      * Changes the color of all preview pages
+     *
+     * @param color the updated color to add to all elements
      */
     fun addElement(color: Int) {
         for (frame in frameLayoutArrayList) {
@@ -294,6 +295,8 @@ class CreatePoemRecyclerViewAdapter(
 
     /**
      * Updates the page indexes of each frame layout
+     *
+     * @param index the index to update
      */
     private fun updatePageNumbersAfterIndex(index: Int) {
         if (frameLayoutArrayList.lastIndex != index) {
@@ -337,7 +340,9 @@ class CreatePoemRecyclerViewAdapter(
         }
     }
 
-    //testing purposes
+    /**
+     * This is for testing purposes I REPEAT DO NOT UNCOMMENT IT IS HIGHLY INSECURE
+     */
     fun getElement(index: Int) : FrameLayout {
         return frameLayoutArrayList[index]
     }
