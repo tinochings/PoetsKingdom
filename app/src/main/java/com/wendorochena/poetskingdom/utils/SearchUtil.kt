@@ -222,6 +222,13 @@ class SearchUtil(private val searchPhrase: String, val applicationContext: Conte
                         }
                     }
                 }
+                if (preciseLocation.isEmpty()) {
+                    val toAdd  = Pair(1, fileNameAndStanzas.second[0])
+                    val arrayListPair = ArrayList<Pair<Int, String>>()
+                    arrayListPair.add(toAdd)
+                    stanzaIndexAndText[poemFileName] = arrayListPair
+                    preciseLocation = "1 -1 -1"
+                }
                 temp.add(Pair(poemFileName, preciseLocation))
             }
             subStringLocations.addAll(temp)

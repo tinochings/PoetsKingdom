@@ -119,7 +119,7 @@ class SearchResultsRecyclerViewAdapter(
         var stanzaNumbersText = ""
         val stanzaIndexAndText = searchResultsAdapter.second[subStringLocations.first]
 
-        if (stanzaIndexAndText != null && searchResultsAdapter.first.size > position) {
+        if (stanzaIndexAndText != null) {
             // when there are many stanzas with the search sub phrase use a triple to store information
             // highlight the subsequent items and append to the text
             val tripleArrayList = HashMap<Int, ArrayList<Pair<Int, Int>>>()
@@ -151,12 +151,14 @@ class SearchResultsRecyclerViewAdapter(
                 val backgroundColorSpan = BackgroundColorSpan(Color.LTGRAY)
 
                 for (indices in tripleArrayList[pair.first]!!) {
-                    spannableString.setSpan(
-                        CharacterStyle.wrap(backgroundColorSpan),
-                        indices.first,
-                        indices.second,
-                        0
-                    )
+                    if (indices.first > -1) {
+                        spannableString.setSpan(
+                            CharacterStyle.wrap(backgroundColorSpan),
+                            indices.first,
+                            indices.second,
+                            0
+                        )
+                    }
                 }
                 holderText += spannableString
             }
@@ -176,10 +178,15 @@ class SearchResultsRecyclerViewAdapter(
 
         // obtain locations and format as string
         for (line in subStringLocations.second.lines()) {
-            val number = line.split(" ")[0].toIntOrNull()
-            if (number != null) {
-                if (stanzaNumbersText.isEmpty() || stanzaNumbersText[stanzaNumbersText.length - 2].digitToInt() != number) {
-                    stanzaNumbersText += "$number "
+            if (line.split(" ").size == 3) {
+                val number = line.split(" ")[0].toIntOrNull()
+                val secondNumber = line.split(" ")[1].toIntOrNull()
+                if (secondNumber != null) {
+                    if (number != null && secondNumber > -1) {
+                        if (stanzaNumbersText.isEmpty() || stanzaNumbersText[stanzaNumbersText.length - 2].digitToInt() != number) {
+                            stanzaNumbersText += "$number "
+                        }
+                    }
                 }
             }
         }
