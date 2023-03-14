@@ -42,7 +42,7 @@ class SearchResultsRecyclerViewAdapter(
         var searchText: TextView
         var searchStanzas: TextView
         var frameLayoutParent: FrameLayout
-        var backgroundImage : ImageView
+        var backgroundImage: ImageView
 
         init {
             searchTitle = view.findViewById(R.id.searchTitle)
@@ -113,8 +113,7 @@ class SearchResultsRecyclerViewAdapter(
         val underlineSpan = SpannableString(searchTitle.replace('_', ' '))
         underlineSpan.setSpan(UnderlineSpan(), 0, underlineSpan.length, 0)
         holder.searchTitle.text = underlineSpan
-        if (!poemBackgroundTypeArrayList.isEmpty())
-            holder.searchTitle.setTextColor(poemBackgroundTypeArrayList[position].second)
+        holder.searchTitle.setTextColor(poemBackgroundTypeArrayList[position].second)
 
         //take into account the newline character
         var stanzaNumbersText = ""
@@ -161,17 +160,16 @@ class SearchResultsRecyclerViewAdapter(
                 }
                 holderText += spannableString
             }
-            if (!poemBackgroundTypeArrayList.isEmpty()) {
-                holder.searchText.setTextColor(poemBackgroundTypeArrayList[position].second)
-                if (poemBackgroundTypeArrayList[position].first.toString().contains("OUTLINE")) {
-                    val linearLayoutParams =
-                        holder.searchText.layoutParams as FrameLayout.LayoutParams
-                    linearLayoutParams.marginStart =
-                        context.resources.getDimensionPixelSize(R.dimen.portraitStrokeSizeMargin)
-                    linearLayoutParams.marginEnd =
-                        context.resources.getDimensionPixelSize(R.dimen.portraitStrokeSizeMargin)
-                    holder.searchText.layoutParams = linearLayoutParams
-                }
+
+            holder.searchText.setTextColor(poemBackgroundTypeArrayList[position].second)
+            if (poemBackgroundTypeArrayList[position].first.toString().contains("OUTLINE")) {
+                val linearLayoutParams =
+                    holder.searchText.layoutParams as FrameLayout.LayoutParams
+                linearLayoutParams.marginStart =
+                    context.resources.getDimensionPixelSize(R.dimen.portraitStrokeSizeMargin)
+                linearLayoutParams.marginEnd =
+                    context.resources.getDimensionPixelSize(R.dimen.portraitStrokeSizeMargin)
+                holder.searchText.layoutParams = linearLayoutParams
             }
             holder.searchText.text = holderText
         }
@@ -186,9 +184,9 @@ class SearchResultsRecyclerViewAdapter(
             }
         }
 
-        if (!poemBackgroundTypeArrayList.isEmpty())
-            holder.searchStanzas.setTextColor(poemBackgroundTypeArrayList[position].second)
-        holder.searchStanzas.text = context.getString(R.string.search_stanza_text, stanzaNumbersText)
+        holder.searchStanzas.setTextColor(poemBackgroundTypeArrayList[position].second)
+        holder.searchStanzas.text =
+            context.getString(R.string.search_stanza_text, stanzaNumbersText)
 
         // obtain the background of the poem and apply it
         try {
@@ -201,8 +199,10 @@ class SearchResultsRecyclerViewAdapter(
 
             if (backgroundFileImage.exists()) {
 
-                Glide.with(context).load(backgroundFileImage.absolutePath).into(holder.backgroundImage)
-                holder.backgroundImage.contentDescription = holder.searchText.text.toString() + "background image"
+                Glide.with(context).load(backgroundFileImage.absolutePath)
+                    .into(holder.backgroundImage)
+                holder.backgroundImage.contentDescription =
+                    holder.searchText.text.toString() + "background image"
             } else {
                 holder.frameLayoutParent.background = ColorDrawable(Color.WHITE)
             }

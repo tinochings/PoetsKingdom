@@ -164,10 +164,10 @@ class PoemThemeXmlParser(
 
             for (fileNamePair in poemFileNamePair) {
                 if (parseTheme(fileNamePair.first.split(".")[0]) == 0) {
-                    Pair(
+                    poemThemes.add(Pair(
                         poemTheme.backgroundType,
                         poemTheme.getTextColorAsInt()
-                    )
+                    ))
                 }
             }
 
