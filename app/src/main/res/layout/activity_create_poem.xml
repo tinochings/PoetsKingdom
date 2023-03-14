@@ -96,6 +96,17 @@
         android:foreground="@drawable/background_dim"
         android:visibility="gone" />
 
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:id="@+id/progessBar"
+        android:visibility="gone"
+        android:indeterminate="true" />
+
     <FrameLayout
         android:id="@+id/addPage"
         android:layout_width="match_parent"

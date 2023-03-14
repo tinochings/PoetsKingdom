@@ -19,6 +19,8 @@ import androidx.core.view.drawToBitmap
 import com.google.android.material.imageview.ShapeableImageView
 import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.poemdata.TextAlignment
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import kotlin.math.roundToInt
@@ -273,6 +275,7 @@ class ImageSaverUtil(
         width: Int,
         lineHeight: Int
     ): ArrayList<EditText> {
+        println(Thread.currentThread().name)
         val editText = currentPage.getChildAt(1) as EditText
         val linesPerPage = (height / lineHeight)
 
@@ -452,7 +455,7 @@ class ImageSaverUtil(
      * @return 0 when we successfully generated images
      * @return -1 when we failed to
      */
-    fun savePagesAsImages(
+    suspend fun savePagesAsImages(
         editableArrayList: ArrayList<Editable>,
         title: String,
         textMarginPixels: Int,
@@ -460,6 +463,7 @@ class ImageSaverUtil(
         isLandscape: Boolean,
         isCentreVertical: Boolean
     ): Int {
+        return withContext(Dispatchers.IO){
         val firstEditText = currentPage.getChildAt(1) as EditText
         val textPixelSize = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_SP,
@@ -616,13 +620,14 @@ class ImageSaverUtil(
                             }
                         }
                     }
-                    return 0
+                    return@withContext 0
                 }
             }
         } catch (exception: Exception) {
             exception.printStackTrace()
-            return -1
+            return@withContext -1
         }
-        return -1
+        return@withContext -1
+    }
     }
 }

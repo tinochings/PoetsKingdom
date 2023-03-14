@@ -45,6 +45,7 @@ import com.google.android.material.slider.Slider
 import com.wendorochena.poetskingdom.poemdata.*
 import com.wendorochena.poetskingdom.recyclerViews.CreatePoemRecyclerViewAdapter
 import com.wendorochena.poetskingdom.utils.*
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import kotlin.math.roundToInt
@@ -66,15 +67,16 @@ class CreatePoem : AppCompatActivity() {
 
     //key is the page number value is the id
     private val pageNumberAndId: HashMap<Int, Int> = HashMap()
-    private val pageNumberAndText : HashMap<Int, String> = HashMap()
+    private val pageNumberAndText: HashMap<Int, String> = HashMap()
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         poemTheme = PoemTheme(BackgroundType.DEFAULT, applicationContext)
         val intentExtras = intent.extras
-        var previousStanzas = ArrayList<String>()
         val loadPoemArg = getString(R.string.load_poem_argument_name)
         val poemTitleArg = getString(R.string.poem_title_argument_name)
+
         // parse users theme. If we cant parse it terminate the activity
         if (intentExtras?.getString(poemTitleArg) != null) {
             val poemParser =
@@ -82,13 +84,11 @@ class CreatePoem : AppCompatActivity() {
                     PoemTheme(BackgroundType.DEFAULT, applicationContext),
                     applicationContext
                 )
-            if (poemParser.parseTheme(intentExtras.getString(poemTitleArg)) == 0) {
-                initialisePoemTheme(poemParser)
-                if (intentExtras.getBoolean(loadPoemArg, false)) {
-                    previousStanzas = PoemXMLParser.parseSavedPoem(poemTheme.getTitle(), this)
-                }
-            } else {
-                val builder = MaterialAlertDialogBuilder(this)
+
+            val exceptionHandler = CoroutineExceptionHandler { _, exception ->
+                exception.printStackTrace()
+
+                val builder = MaterialAlertDialogBuilder(this@CreatePoem)
                 builder.setTitle(R.string.failed_poem_load_title)
                     .setMessage(R.string.failed_poem_load_message)
                     .setPositiveButton(R.string.builder_understood) { dialog, _ ->
@@ -96,30 +96,60 @@ class CreatePoem : AppCompatActivity() {
                         finish()
                     }.show()
             }
+
+            val isLoadPoem = intentExtras.getBoolean(loadPoemArg, false)
+
+            // load file on background thread and then populate UI
+            GlobalScope.launch(Dispatchers.Main + exceptionHandler) {
+                val poemThemeResult = poemParser.parseTheme(intentExtras.getString(poemTitleArg))
+                val poemLoadResult =
+                    if (isLoadPoem) PoemXMLParser.parseSavedPoem(
+                        poemParser.getPoemTheme().getTitle(),
+                        applicationContext
+                    )
+                    else
+                        null
+
+                if (poemThemeResult == 0) {
+                    initialisePoemTheme(poemParser)
+                    inflateUserTheme()
+                    initialiseBottomDrawer()
+                    if (isLoadPoem) {
+                        if (poemLoadResult!!.size > 0)
+                            loadSavedPoem(poemLoadResult)
+                        else {
+                            pageNumberAndText[1] = ""
+                            hasFileBeenEdited = true
+                        }
+                    } else {
+                        pageNumberAndText[1] = ""
+                        hasFileBeenEdited = true
+                    }
+                } else {
+                    val builder = MaterialAlertDialogBuilder(this@CreatePoem)
+                    builder.setTitle(R.string.failed_poem_load_title)
+                        .setMessage(R.string.failed_poem_load_message)
+                        .setPositiveButton(R.string.builder_understood) { dialog, _ ->
+                            dialog.dismiss()
+                            finish()
+                        }.show()
+                }
+            }
         }
         setContentView(R.layout.activity_create_poem)
         orientation = getSharedPreferences(
             getString(R.string.personalisation_sharedpreferences_key),
             MODE_PRIVATE
         ).getString("orientation", null)
+
         if (orientation == "portrait") {
             pageNumberAndId[1] = R.id.portraitPoemContainer
         } else {
             pageNumberAndId[1] = R.id.landscapePoemContainer
         }
         setupTitle()
-        inflateUserTheme()
         setupRecyclerView()
 
-        // load saved poem if there is one
-        if (previousStanzas.size > 0)
-            loadSavedPoem(previousStanzas)
-        else {
-            pageNumberAndText[1] = ""
-            hasFileBeenEdited = true
-        }
-
-        initialiseBottomDrawer()
         setupOnBackPressed()
         val sharedPreferences =
             applicationContext.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
@@ -154,6 +184,27 @@ class CreatePoem : AppCompatActivity() {
         return true
     }
 
+    /**
+     * Initiates a save as file in a coroutine
+     */
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun actuateSaveAsFile(category: String, createThumbnail: Boolean) {
+
+        turnOnDimmerProgressBar()
+        val exceptionHandler = CoroutineExceptionHandler { _, exception ->
+            exception.printStackTrace()
+
+            showErrorToast(getString(R.string.error_type_file))
+            turnOffDimmerProgressBar()
+        }
+
+        GlobalScope.launch(Dispatchers.Main + exceptionHandler) {
+            createDataContainer(category,createThumbnail)
+            turnOffDimmerProgressBar()
+            if (createThumbnail)
+                currentPage.visibility = View.VISIBLE
+        }
+    }
     /**
      * Sets the title typeface
      */
@@ -204,7 +255,7 @@ class CreatePoem : AppCompatActivity() {
                         ).absolutePath
                         val poemFile = File(directoryPath + File.separator + oldTitleName)
                         if (!poemFile.exists())
-                            createDataContainer(Category.NONE.toString(), true)
+                            actuateSaveAsFile(Category.NONE.toString(), true)
                         val poemThemeFile = File(poemThemePath + File.separator + oldTitleName)
                         val poemSavedImagesFolder =
                             File(savedImagesPath + File.separator + oldTitleFolderName)
@@ -277,9 +328,9 @@ class CreatePoem : AppCompatActivity() {
                         )
                         val encodedTitle = poemTheme.getTitle().replace(' ', '_') + ".png"
                         if (!File(thumbnailsFolder.absolutePath + File.separator + encodedTitle).exists())
-                            createDataContainer(Category.NONE.toString(), true)
+                            actuateSaveAsFile(Category.NONE.toString(), true)
                         else
-                            createDataContainer(Category.NONE.toString(), false)
+                            actuateSaveAsFile(Category.NONE.toString(), false)
                     }
                     finish()
                 }
@@ -323,7 +374,7 @@ class CreatePoem : AppCompatActivity() {
      * @param initialLoad true if the poem is being loaded false if not
      * @return the newly created frame layout
      */
-    private fun createNewPage(initialLoad : Boolean): FrameLayout {
+    private fun createNewPage(initialLoad: Boolean): FrameLayout {
         val frameToReturn = FrameLayout(this)
         val defaultLayout: FrameLayout = if (orientation == "portrait")
             findViewById(R.id.portraitPoemContainer)
@@ -450,60 +501,60 @@ class CreatePoem : AppCompatActivity() {
             }
         }
 
-            frameToReturn.setOnTouchListener(object :
-                View.OnTouchListener {
-                val bottomDrawer = findViewById<ConstraintLayout>(R.id.bottomDrawer)
-                val gestureDetector = GestureDetector(this@CreatePoem, object :
-                    GestureDetector.SimpleOnGestureListener() {
+        frameToReturn.setOnTouchListener(object :
+            View.OnTouchListener {
+            val bottomDrawer = findViewById<ConstraintLayout>(R.id.bottomDrawer)
+            val gestureDetector = GestureDetector(this@CreatePoem, object :
+                GestureDetector.SimpleOnGestureListener() {
 
-                    override fun onDoubleTap(e: MotionEvent): Boolean {
-                        if (bottomDrawer.isVisible) {
-                            val animation = AnimationUtils.loadAnimation(
-                                this@CreatePoem,
-                                com.google.android.apps.common.testing.accessibility.framework.R.anim.abc_slide_out_bottom
-                            )
-                            bottomDrawer.startAnimation(animation)
-                            bottomDrawer.visibility = View.GONE
-                            if (currentContainerView != null)
-                                turnOffCurrentView()
-                        } else {
-                            val animation = AnimationUtils.loadAnimation(
-                                this@CreatePoem,
-                                com.google.android.apps.common.testing.accessibility.framework.R.anim.abc_slide_in_bottom
-                            )
-                            bottomDrawer.startAnimation(animation)
-                            bottomDrawer.visibility = View.VISIBLE
-                        }
-                        return true
+                override fun onDoubleTap(e: MotionEvent): Boolean {
+                    if (bottomDrawer.isVisible) {
+                        val animation = AnimationUtils.loadAnimation(
+                            this@CreatePoem,
+                            com.google.android.apps.common.testing.accessibility.framework.R.anim.abc_slide_out_bottom
+                        )
+                        bottomDrawer.startAnimation(animation)
+                        bottomDrawer.visibility = View.GONE
+                        if (currentContainerView != null)
+                            turnOffCurrentView()
+                    } else {
+                        val animation = AnimationUtils.loadAnimation(
+                            this@CreatePoem,
+                            com.google.android.apps.common.testing.accessibility.framework.R.anim.abc_slide_in_bottom
+                        )
+                        bottomDrawer.startAnimation(animation)
+                        bottomDrawer.visibility = View.VISIBLE
                     }
+                    return true
+                }
 
-                    override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                        for (child in frameToReturn.children) {
-                            if (child is EditText) {
-                                val keyboard =
-                                    getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                                if (!child.isFocused) {
-                                    if (child.requestFocus()) {
-                                        keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
-                                        child.setSelection(child.length())
-                                    }
-                                } else {
+                override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+                    for (child in frameToReturn.children) {
+                        if (child is EditText) {
+                            val keyboard =
+                                getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                            if (!child.isFocused) {
+                                if (child.requestFocus()) {
                                     keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
+                                    child.setSelection(child.length())
                                 }
+                            } else {
+                                keyboard.showSoftInput(child, InputMethodManager.SHOW_IMPLICIT)
                             }
                         }
-                        return true
-                    }
-                })
-
-                override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-                    if (event != null) {
-                        v?.performClick()
-                        gestureDetector.onTouchEvent(event)
                     }
                     return true
                 }
             })
+
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                if (event != null) {
+                    v?.performClick()
+                    gestureDetector.onTouchEvent(event)
+                }
+                return true
+            }
+        })
         findViewById<ConstraintLayout>(R.id.parent).addView(frameToReturn)
         return frameToReturn
     }
@@ -1378,6 +1429,29 @@ class CreatePoem : AppCompatActivity() {
     }
 
     /**
+     *
+     * Saves poem as a theme on IO thread
+     */
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun actuateSavePoemTheme() {
+        val exceptionHandler = CoroutineExceptionHandler { _, exception ->
+            exception.printStackTrace()
+
+            showErrorToast(getString(R.string.error_type_poem_theme))
+        }
+
+        GlobalScope.launch (Dispatchers.Main + exceptionHandler){
+            val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
+            poemThemeXmlParser.setIsEditTheme(true)
+
+            poemThemeXmlParser.savePoemThemeToLocalFile(
+                poemTheme.getImagePath(),
+                poemTheme.getBackgroundColor(),
+                null
+            )
+        }
+    }
+    /**
      * Sets up listeners for the text options events
      */
     private fun setupTextOptionsContainerButtons() {
@@ -1401,13 +1475,14 @@ class CreatePoem : AppCompatActivity() {
             coverPageSignature.gravity = Gravity.START
             poemTheme.setTextAlignment(TextAlignment.LEFT)
             setEditTextAlignment(TextView.TEXT_ALIGNMENT_TEXT_START, Gravity.START)
-            val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
-            poemThemeXmlParser.setIsEditTheme(true)
-            poemThemeXmlParser.savePoemThemeToLocalFile(
-                poemTheme.getImagePath(),
-                poemTheme.getBackgroundColor(),
-                null
-            )
+//            val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
+//            poemThemeXmlParser.setIsEditTheme(true)
+            actuateSavePoemTheme()
+//            poemThemeXmlParser.savePoemThemeToLocalFile(
+//                poemTheme.getImagePath(),
+//                poemTheme.getBackgroundColor(),
+//                null
+//            )
         }
         centreAlign.setOnClickListener {
             val coverPageAuthor = findViewById<TextView>(R.id.coverPageAuthor)
@@ -1421,13 +1496,14 @@ class CreatePoem : AppCompatActivity() {
             coverPageSignature.gravity = Gravity.CENTER
             poemTheme.setTextAlignment(TextAlignment.CENTRE)
             setEditTextAlignment(TextView.TEXT_ALIGNMENT_CENTER, Gravity.CENTER)
-            val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
-            poemThemeXmlParser.setIsEditTheme(true)
-            poemThemeXmlParser.savePoemThemeToLocalFile(
-                poemTheme.getImagePath(),
-                poemTheme.getBackgroundColor(),
-                null
-            )
+            actuateSavePoemTheme()
+//            val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
+//            poemThemeXmlParser.setIsEditTheme(true)
+//            poemThemeXmlParser.savePoemThemeToLocalFile(
+//                poemTheme.getImagePath(),
+//                poemTheme.getBackgroundColor(),
+//                null
+//            )
         }
         rightAlign.setOnClickListener {
             val coverPageAuthor = findViewById<TextView>(R.id.coverPageAuthor)
@@ -1442,13 +1518,14 @@ class CreatePoem : AppCompatActivity() {
             adjustCoverPageBounds()
             poemTheme.setTextAlignment(TextAlignment.RIGHT)
             setEditTextAlignment(TextView.TEXT_ALIGNMENT_TEXT_END, Gravity.END)
-            val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
-            poemThemeXmlParser.setIsEditTheme(true)
-            poemThemeXmlParser.savePoemThemeToLocalFile(
-                poemTheme.getImagePath(),
-                poemTheme.getBackgroundColor(),
-                null
-            )
+            actuateSavePoemTheme()
+//            val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
+//            poemThemeXmlParser.setIsEditTheme(true)
+//            poemThemeXmlParser.savePoemThemeToLocalFile(
+//                poemTheme.getImagePath(),
+//                poemTheme.getBackgroundColor(),
+//                null
+//            )
         }
         centreVerticalAlign.setOnClickListener {
             val coverPageAuthor = findViewById<TextView>(R.id.coverPageAuthor)
@@ -1463,13 +1540,14 @@ class CreatePoem : AppCompatActivity() {
             adjustCoverPageBounds()
             poemTheme.setTextAlignment(TextAlignment.CENTRE_VERTICAL)
             setEditTextAlignment(TextView.TEXT_ALIGNMENT_CENTER, Gravity.CENTER_VERTICAL)
-            val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
-            poemThemeXmlParser.setIsEditTheme(true)
-            poemThemeXmlParser.savePoemThemeToLocalFile(
-                poemTheme.getImagePath(),
-                poemTheme.getBackgroundColor(),
-                null
-            )
+            actuateSavePoemTheme()
+//            val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
+//            poemThemeXmlParser.setIsEditTheme(true)
+//            poemThemeXmlParser.savePoemThemeToLocalFile(
+//                poemTheme.getImagePath(),
+//                poemTheme.getBackgroundColor(),
+//                null
+//            )
         }
         centreVerticalRightAlign.setOnClickListener {
             val coverPageAuthor = findViewById<TextView>(R.id.coverPageAuthor)
@@ -1487,13 +1565,14 @@ class CreatePoem : AppCompatActivity() {
                 TextView.TEXT_ALIGNMENT_TEXT_END,
                 Gravity.CENTER_VERTICAL or Gravity.END
             )
-            val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
-            poemThemeXmlParser.setIsEditTheme(true)
-            poemThemeXmlParser.savePoemThemeToLocalFile(
-                poemTheme.getImagePath(),
-                poemTheme.getBackgroundColor(),
-                null
-            )
+            actuateSavePoemTheme()
+//            val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
+//            poemThemeXmlParser.setIsEditTheme(true)
+//            poemThemeXmlParser.savePoemThemeToLocalFile(
+//                poemTheme.getImagePath(),
+//                poemTheme.getBackgroundColor(),
+//                null
+//            )
         }
         centreVerticalLeftAlign.setOnClickListener {
             val coverPageAuthor = findViewById<TextView>(R.id.coverPageAuthor)
@@ -1511,13 +1590,14 @@ class CreatePoem : AppCompatActivity() {
                 TextView.TEXT_ALIGNMENT_TEXT_START,
                 Gravity.CENTER_VERTICAL or Gravity.START
             )
-            val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
-            poemThemeXmlParser.setIsEditTheme(true)
-            poemThemeXmlParser.savePoemThemeToLocalFile(
-                poemTheme.getImagePath(),
-                poemTheme.getBackgroundColor(),
-                null
-            )
+            actuateSavePoemTheme()
+//            val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
+//            poemThemeXmlParser.setIsEditTheme(true)
+//            poemThemeXmlParser.savePoemThemeToLocalFile(
+//                poemTheme.getImagePath(),
+//                poemTheme.getBackgroundColor(),
+//                null
+//            )
         }
     }
 
@@ -1606,12 +1686,13 @@ class CreatePoem : AppCompatActivity() {
                     poemTheme.setTextColor(colorHex)
                     poemTheme.setTextColorAsInt(color)
                     updateAllEditTextViews(Float.NaN, "textColor", color)
-                    val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
-                    poemThemeXmlParser.savePoemThemeToLocalFile(
-                        poemTheme.getImagePath(),
-                        poemTheme.getBackgroundColor(),
-                        null
-                    )
+                    actuateSavePoemTheme()
+//                    val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
+//                    poemThemeXmlParser.savePoemThemeToLocalFile(
+//                        poemTheme.getImagePath(),
+//                        poemTheme.getBackgroundColor(),
+//                        null
+//                    )
                 }.setDismissListener {
                     currentContainerView = null
                 }.show()
@@ -1686,15 +1767,16 @@ class CreatePoem : AppCompatActivity() {
             val newTextSize = poemTheme.getTextSize().toFloat()
             currentEditText.textSize = poemTheme.getTextSize().toFloat()
             updateAllEditTextViews(newTextSize, "textSize", 0)
-            val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
-            if (poemThemeXmlParser.savePoemThemeToLocalFile(
-                    poemTheme.getImagePath(),
-                    poemTheme.getBackgroundColor(),
-                    null
-                ) != 0
-            ) {
-                println("Could not save poem theme")
-            }
+            actuateSavePoemTheme()
+//            val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
+//            if (poemThemeXmlParser.savePoemThemeToLocalFile(
+//                    poemTheme.getImagePath(),
+//                    poemTheme.getBackgroundColor(),
+//                    null
+//                ) != 0
+//            ) {
+//                println("Could not save poem theme")
+//            }
         }
     }
 
@@ -1731,7 +1813,7 @@ class CreatePoem : AppCompatActivity() {
      * Creates a thumbnail for a poem
      * @param createThumbnail if true a thumbnail is created, if false it is not created.
      */
-    private fun createThumbnail(createThumbnail: Boolean) {
+    private fun createThumbnail(createThumbnail: Boolean, isProgressBarActive: Boolean) {
         if (createThumbnail) {
             currentPage.visibility = View.GONE
             turnOffCurrentView()
@@ -1779,13 +1861,16 @@ class CreatePoem : AppCompatActivity() {
                         }
                     }
                     coverPage.visibility = View.GONE
-                    currentPage.visibility = View.VISIBLE
+
+                    if (!isProgressBarActive)
+                        currentPage.visibility = View.VISIBLE
 
                 } catch (e: Exception) {
                     e.printStackTrace()
                     coverPage.visibility = View.GONE
+                    turnOffDimmerProgressBar()
                     currentPage.visibility = View.VISIBLE
-                    showErrorToast("thumbnail")
+                    showErrorToast(getString(R.string.error_type_thumbnail))
                 }
             }
         }
@@ -1819,7 +1904,7 @@ class CreatePoem : AppCompatActivity() {
      * Creates a poem data structure and writes to a file together with the thumbnail
      *
      */
-    private fun createDataContainer(category: String, createThumbnail: Boolean) {
+    private suspend fun createDataContainer(category: String, createThumbnail: Boolean) {
         val entirePoem = ArrayList<Editable>()
 
         for (keys in pageNumberAndId.keys) {
@@ -1833,7 +1918,7 @@ class CreatePoem : AppCompatActivity() {
         val poemDataContainer = PoemDataContainer(categoryToAdd, entirePoem, poemTheme)
         poemDataContainer.setPages(pages)
 
-        createThumbnail(createThumbnail)
+        createThumbnail(createThumbnail, true)
         val poemParser = PoemXMLParser(poemDataContainer, applicationContext)
 
         if (poemTheme.backgroundType.toString().contains("IMAGE")) {
@@ -1855,11 +1940,11 @@ class CreatePoem : AppCompatActivity() {
 
         when (poemParser.saveToXmlFile()) {
             0 -> {
-                showSuccessToast("file")
+                showSuccessToast(getString(R.string.error_type_file))
             }
             -1 -> {
                 turnOffCurrentView()
-                showErrorToast("file")
+                showErrorToast(getString(R.string.error_type_file))
             }
 
         }
@@ -1933,7 +2018,7 @@ class CreatePoem : AppCompatActivity() {
     /**
      * Initiates the process of saving an image
      */
-    private fun initiateSavePagesAsImages() {
+    private suspend fun initiateSavePagesAsImages() {
         val editableArrayList = getAllTypedText()
         val strokeSize: Int = getTextMarginSize()
         val imageMargins =
@@ -1960,14 +2045,36 @@ class CreatePoem : AppCompatActivity() {
                 isCenterVertical
             ) == 0
         )
-            showSuccessToast("Image")
+            showSuccessToast(getString(R.string.error_type_image))
         else
-            showErrorToast("Image")
+            showErrorToast(getString(R.string.error_type_image))
     }
 
     /**
+     * Turns on Dimmer with progress bar
+     */
+    private fun turnOnDimmerProgressBar() {
+        val progressBar = findViewById<ProgressBar>(R.id.progessBar)
+        val dimmer = findViewById<FrameLayout>(R.id.backgroundDim)
+        dimmer.visibility = View.VISIBLE
+        dimmer.bringToFront()
+        dimmer.z = 5f
+        progressBar.z = 5f
+        progressBar.visibility = View.VISIBLE
+        progressBar.bringToFront()
+    }
+
+    private fun turnOffDimmerProgressBar(){
+        val progressBar = findViewById<ProgressBar>(R.id.progessBar)
+        val dimmer = findViewById<FrameLayout>(R.id.backgroundDim)
+
+        progressBar.visibility = View.GONE
+        dimmer.visibility = View.GONE
+    }
+    /**
      * Initialises the listeners for the save container
      */
+    @OptIn(DelicateCoroutinesApi::class)
     private fun setupSaveContainerButtons() {
         val categoryChoices = arrayOf(
             Category.ADVENTURE.toString(),
@@ -1988,25 +2095,36 @@ class CreatePoem : AppCompatActivity() {
             AlertDialog.Builder(this).setTitle(R.string.category)
                 .setSingleChoiceItems(categoryChoices, 3) { dialog, chosenInt ->
                     dialog.dismiss()
-                    createDataContainer(categoryChoices[chosenInt], true)
+                    actuateSaveAsFile(categoryChoices[chosenInt], true)
                     hasFileBeenEdited = false
                 }.show()
         }
 
         saveAsImage.setOnClickListener {
             turnOffCurrentView()
-            createThumbnail(true)
-            initiateSavePagesAsImages()
+            val exceptionHandler = CoroutineExceptionHandler { _, exception ->
+                exception.printStackTrace()
+
+                showErrorToast(getString(R.string.error_type_image))
+                turnOffDimmerProgressBar()
+            }
+            GlobalScope.launch(Dispatchers.Main + exceptionHandler) {
+                turnOnDimmerProgressBar()
+                createThumbnail(createThumbnail = true, isProgressBarActive = true)
+                initiateSavePagesAsImages()
+                turnOffDimmerProgressBar()
+                currentPage.visibility = View.VISIBLE
+            }
         }
 
         saveAsPdf.setOnClickListener {
             turnOffCurrentView()
-            createThumbnail(true)
+            createThumbnail(createThumbnail = true, isProgressBarActive = false)
             initiateSavePagesAsPdf()
         }
         editPoemTheme.setOnClickListener {
             //to fix when categories are necessary
-            createDataContainer(Category.NONE.toString(), true)
+            actuateSaveAsFile(Category.NONE.toString(), true)
             val activityIntent = Intent(applicationContext, PoemThemeActivity::class.java)
             activityIntent.putExtra("poemThemeName", poemTheme.getTitle())
             finish()
@@ -2023,6 +2141,7 @@ class CreatePoem : AppCompatActivity() {
         }
         if (currentContainerView is RecyclerView) {
             findViewById<FrameLayout>(R.id.backgroundDim).visibility = View.GONE
+            findViewById<ProgressBar>(R.id.progessBar).visibility =View.GONE
             findViewById<RecyclerView>(R.id.recyclerPagesContainer).visibility = View.GONE
             setEditText(currentPage, true)
         }

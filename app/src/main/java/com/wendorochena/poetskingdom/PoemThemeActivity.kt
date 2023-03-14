@@ -38,6 +38,7 @@ import com.wendorochena.poetskingdom.poemdata.TextAlignment
 import com.wendorochena.poetskingdom.recyclerViews.ImageRecyclerViewAdapter
 import com.wendorochena.poetskingdom.utils.ShapeAppearanceModelHelper
 import com.wendorochena.poetskingdom.utils.TypefaceHelper
+import kotlinx.coroutines.*
 import java.io.File
 import kotlin.math.round
 import kotlin.math.roundToInt
@@ -54,6 +55,7 @@ class PoemThemeActivity : AppCompatActivity() {
     private lateinit var poemTheme: PoemTheme
 
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_poem_theme)
@@ -85,17 +87,30 @@ class PoemThemeActivity : AppCompatActivity() {
                 PoemTheme(BackgroundType.DEFAULT, applicationContext),
                 applicationContext
             )
-            if (poemThemeXmlParser.parseTheme(poemName) == 0) {
-                initialisePoemTheme(poemThemeXmlParser)
-                findViewById<Button>(R.id.startPoemCreation).setText(R.string.edit_button_theme)
-            } else {
-                val builder = MaterialAlertDialogBuilder(this)
+            val handler = CoroutineExceptionHandler { _, exception ->
+                exception.printStackTrace()
+                val builder = MaterialAlertDialogBuilder(this@PoemThemeActivity)
                 builder.setTitle(R.string.failed_poem_load_title)
                     .setMessage(R.string.failed_poem_load_message)
                     .setPositiveButton(R.string.builder_understood) { dialog, _ ->
                         dialog.dismiss()
                         finish()
                     }.show()
+            }
+
+            GlobalScope.launch(Dispatchers.Main + handler) {
+                if (poemThemeXmlParser.parseTheme(poemName) == 0) {
+                    initialisePoemTheme(poemThemeXmlParser)
+                    findViewById<Button>(R.id.startPoemCreation).setText(R.string.edit_button_theme)
+                } else {
+                    val builder = MaterialAlertDialogBuilder(this@PoemThemeActivity)
+                    builder.setTitle(R.string.failed_poem_load_title)
+                        .setMessage(R.string.failed_poem_load_message)
+                        .setPositiveButton(R.string.builder_understood) { dialog, _ ->
+                            dialog.dismiss()
+                            finish()
+                        }.show()
+                }
             }
         }
         setupSliderListener()
@@ -178,6 +193,7 @@ class PoemThemeActivity : AppCompatActivity() {
     /**
      * This function launches a new activity but firsts writes poem data to a local file
      */
+    @OptIn(DelicateCoroutinesApi::class)
     private fun setupCreatePoemListener() {
 
         findViewById<Button>(R.id.startPoemCreation).setOnClickListener { newButton ->
@@ -186,7 +202,15 @@ class PoemThemeActivity : AppCompatActivity() {
                 val poemThemeXmlParser =
                     PoemThemeXmlParser(poemTheme, applicationContext)
                 poemThemeXmlParser.setIsEditTheme(true)
-                if (poemThemeXmlParser.savePoemThemeToLocalFile(
+
+                val exceptionHandler = CoroutineExceptionHandler { _, exception ->
+                    exception.printStackTrace()
+                    //add a better wayy to manage failure
+                    println("Error saving file")
+                }
+
+                GlobalScope.launch(Dispatchers.Main + exceptionHandler) {
+                    if (poemThemeXmlParser.savePoemThemeToLocalFile(
                         backgroundImageChosen,
                         backgroundColorChosen,
                         outlineChosen
@@ -202,6 +226,7 @@ class PoemThemeActivity : AppCompatActivity() {
                     finish()
                     startActivity(newActivityIntent)
 
+                }
                 }
             } else {
                 val builder: AlertDialog.Builder = this@PoemThemeActivity.let {
@@ -247,28 +272,37 @@ class PoemThemeActivity : AppCompatActivity() {
                             poemTheme.setTitle(editText.text.toString())
                             val poemThemeXmlParser =
                                 PoemThemeXmlParser(poemTheme, applicationContext)
-                            if (poemThemeXmlParser.savePoemThemeToLocalFile(
-                                    backgroundImageChosen,
-                                    backgroundColorChosen,
-                                    outlineChosen
-                                ) == 0
-                            ) {
-                                dialog.dismiss()
-                                val newActivityIntent =
-                                    Intent(applicationContext, CreatePoem::class.java)
-                                newActivityIntent.putExtra(getString(R.string.load_poem_argument_name), false)
-                                newActivityIntent.putExtra(
-                                    getString(R.string.poem_title_argument_name),
-                                    poemTheme.getTitle()
-                                )
-                                finish()
-                                startActivity(newActivityIntent)
 
-                            } else {
-                                textView.text = resources.getString(R.string.invalid_input)
-                                button.text = resources.getString(R.string.retry)
-                                editText.isEnabled = false
-                                editText.setText(resources.getString(R.string.file_already_exists))
+                            val exceptionHandler = CoroutineExceptionHandler { _, exception ->
+                                exception.printStackTrace()
+                                // add a better wayy to manage failure
+                                println("Error saving file")
+                            }
+
+                            GlobalScope.launch(Dispatchers.Main + exceptionHandler) {
+                                if (poemThemeXmlParser.savePoemThemeToLocalFile(
+                                        backgroundImageChosen,
+                                        backgroundColorChosen,
+                                        outlineChosen
+                                    ) == 0
+                                ) {
+                                    dialog.dismiss()
+                                    val newActivityIntent =
+                                        Intent(applicationContext, CreatePoem::class.java)
+                                    newActivityIntent.putExtra(getString(R.string.load_poem_argument_name), false)
+                                    newActivityIntent.putExtra(
+                                        getString(R.string.poem_title_argument_name),
+                                        poemTheme.getTitle()
+                                    )
+                                    finish()
+                                    startActivity(newActivityIntent)
+
+                                } else {
+                                    textView.text = resources.getString(R.string.invalid_input)
+                                    button.text = resources.getString(R.string.retry)
+                                    editText.isEnabled = false
+                                    editText.setText(resources.getString(R.string.file_already_exists))
+                                }
                             }
                         } else {
                             textView.text = resources.getString(R.string.invalid_input)

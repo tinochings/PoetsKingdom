@@ -22,7 +22,7 @@
             android:layout_alignParentStart="true"
             android:layout_gravity="center"
             android:layout_marginTop="10dp"
-            android:contentDescription="App logo"
+            android:contentDescription="@string/app_logo"
             android:scaleType="fitCenter"
             android:src="@drawable/appbartitle" />
 
@@ -78,149 +78,18 @@
             android:imeOptions="actionSearch"
             android:textColorHint="@color/white" />
 
-        <!--                <TextView-->
-        <!--                    android:layout_width="match_parent"-->
-        <!--                    android:layout_height="wrap_content"-->
-        <!--                    android:layout_marginTop="10dp"-->
-        <!--                    android:textColor="@color/grey_50"-->
-        <!--                    android:text="@string/recent_searches"-->
-        <!--                    android:textSize="@dimen/heading_layout_normal"/>-->
-
-        <!--                <LinearLayout-->
-        <!--                    android:layout_width="match_parent"-->
-        <!--                    android:orientation="vertical"-->
-        <!--                    android:layout_marginTop="10dp"-->
-        <!--                    android:layout_height="wrap_content">-->
-
-        <!--                    <TextView-->
-        <!--                        android:layout_width="match_parent"-->
-        <!--                        android:layout_height="wrap_content"-->
-        <!--                        android:textColor="@color/grey_50"-->
-        <!--                        android:text="@string/recent_searches"-->
-        <!--                        android:textSize="@dimen/heading_layout_normal"/>-->
-
-        <!--&lt;!&ndash;                    <androidx.constraintlayout.widget.ConstraintLayout&ndash;&gt;-->
-        <!--&lt;!&ndash;                        android:layout_width="match_parent"&ndash;&gt;-->
-        <!--&lt;!&ndash;                        android:layout_height="wrap_content">&ndash;&gt;-->
-
-        <!--&lt;!&ndash;                        <TextView&ndash;&gt;-->
-        <!--&lt;!&ndash;                            android:layout_width="0dp"&ndash;&gt;-->
-        <!--&lt;!&ndash;                            android:layout_height="match_parent"&ndash;&gt;-->
-        <!--&lt;!&ndash;                            android:id="@+id/search1"&ndash;&gt;-->
-        <!--&lt;!&ndash;                            android:textColor="@color/grey_50"&ndash;&gt;-->
-        <!--&lt;!&ndash;                            android:textSize="@dimen/normal_text_size"&ndash;&gt;-->
-        <!--&lt;!&ndash;                            app:layout_constraintStart_toStartOf="parent"&ndash;&gt;-->
-        <!--&lt;!&ndash;                            app:layout_constraintEnd_toStartOf="@+id/deleteSearch1"&ndash;&gt;-->
-        <!--&lt;!&ndash;                            app:layout_constraintHorizontal_weight="9"&ndash;&gt;-->
-        <!--&lt;!&ndash;                            />&ndash;&gt;-->
-
-        <!--&lt;!&ndash;                        <ImageButton&ndash;&gt;-->
-        <!--&lt;!&ndash;                            android:layout_width="0dp"&ndash;&gt;-->
-        <!--&lt;!&ndash;                            android:layout_height="match_parent"&ndash;&gt;-->
-        <!--&lt;!&ndash;                            android:id="@+id/deleteSearch1"&ndash;&gt;-->
-        <!--&lt;!&ndash;                            app:layout_constraintStart_toEndOf="@id/search1"&ndash;&gt;-->
-        <!--&lt;!&ndash;                            app:layout_constraintEnd_toEndOf="parent"&ndash;&gt;-->
-        <!--&lt;!&ndash;                            app:layout_constraintHorizontal_weight="1"&ndash;&gt;-->
-        <!--&lt;!&ndash;                            android:src="@drawable/cancel_button"&ndash;&gt;-->
-        <!--&lt;!&ndash;                            android:background="@null"&ndash;&gt;-->
-        <!--&lt;!&ndash;                            />&ndash;&gt;-->
-        <!--&lt;!&ndash;                    </androidx.constraintlayout.widget.ConstraintLayout>&ndash;&gt;-->
-
-        <!--&lt;!&ndash;                    <TextView&ndash;&gt;-->
-        <!--&lt;!&ndash;                        android:layout_width="match_parent"&ndash;&gt;-->
-        <!--&lt;!&ndash;                        android:layout_height="wrap_content"&ndash;&gt;-->
-        <!--&lt;!&ndash;                        android:layout_marginTop="10dp"&ndash;&gt;-->
-        <!--&lt;!&ndash;                        android:text="@string/clear_all_searches"&ndash;&gt;-->
-        <!--&lt;!&ndash;                        android:textStyle="bold"&ndash;&gt;-->
-        <!--&lt;!&ndash;                        android:gravity="center"&ndash;&gt;-->
-        <!--&lt;!&ndash;                        android:textColor="@color/grey_50"&ndash;&gt;-->
-        <!--&lt;!&ndash;                        android:textSize="@dimen/heading_layout_normal"/>&ndash;&gt;-->
-
-        <!--                </LinearLayout>-->
     </LinearLayout>
 
-    <!--    <LinearLayout-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:id="@+id/optionsContainer"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:visibility="gone"-->
-    <!--        android:layout_marginTop="@dimen/action_bar_size"-->
-    <!--        android:background="@color/white"-->
-    <!--        android:orientation="vertical"-->
-    <!--        app:layout_constraintTop_toTopOf="parent">-->
-
-    <!--        <TextView-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:id="@+id/simpleTextSearchTextView"-->
-    <!--            android:textSize="@dimen/heading_layout_normal"-->
-    <!--            android:gravity="center"-->
-    <!--            android:textStyle="bold"-->
-    <!--            android:textColor="@color/black"-->
-    <!--            android:text="@string/simple_file_name_search"/>-->
-
-    <!--        <FrameLayout-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="68dp"-->
-    <!--            android:id="@+id/searchButtonContainer"-->
-    <!--            android:background="@drawable/selected_rounded_rectangle">-->
-
-    <!--            <ImageButton-->
-    <!--                android:id="@+id/searchButton"-->
-    <!--                android:layout_width="48dp"-->
-    <!--                android:layout_height="48dp"-->
-    <!--                android:layout_gravity="center_vertical"-->
-    <!--                android:background="@drawable/ic_baseline_search_24"-->
-    <!--                android:clickable="false"-->
-    <!--                android:contentDescription="@string/search"-->
-    <!--                android:focusable="true" />-->
-
-    <!--            <AutoCompleteTextView-->
-    <!--                android:id="@+id/autoCompleteText"-->
-    <!--                android:layout_width="match_parent"-->
-    <!--                android:layout_height="match_parent"-->
-    <!--                android:gravity="center"-->
-    <!--                android:hint="@string/search_file_name_here" />-->
-    <!--        </FrameLayout>-->
-
-    <!--        <TextView-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:id="@+id/advancedSearchTextView"-->
-    <!--            android:textSize="@dimen/heading_layout_normal"-->
-    <!--            android:gravity="center"-->
-    <!--            android:textStyle="bold"-->
-    <!--            android:textColor="@color/black"-->
-    <!--            android:text="@string/exact_phrase_search"/>-->
-
-    <!--        <FrameLayout-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:id="@+id/advancedSearchContainer"-->
-    <!--            >-->
-
-    <!--            <ImageButton-->
-    <!--                android:id="@+id/advancedSearchButton"-->
-    <!--                android:layout_width="48dp"-->
-    <!--                android:layout_height="48dp"-->
-    <!--                android:layout_gravity="center_vertical"-->
-    <!--                android:background="@drawable/ic_baseline_manage_search_24"-->
-    <!--                android:clickable="false"-->
-    <!--                android:contentDescription="@string/search"-->
-    <!--                android:focusable="true" />-->
-
-    <!--            <EditText-->
-    <!--                android:id="@+id/advancedSearchText"-->
-    <!--                android:layout_width="match_parent"-->
-    <!--                android:layout_height="68dp"-->
-    <!--                android:autofillHints="@string/search_exact_phrase"-->
-    <!--                android:gravity="center"-->
-    <!--                android:hint="@string/search_exact_phrase"-->
-    <!--                android:inputType="textMultiLine" />-->
-    <!--        </FrameLayout>-->
-
-    <!--    </LinearLayout>-->
-
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:id="@+id/progessBar"
+        android:visibility="gone"
+        android:indeterminate="true" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottomDrawer"

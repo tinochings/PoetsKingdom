@@ -113,13 +113,14 @@ class SearchResultsRecyclerViewAdapter(
         val underlineSpan = SpannableString(searchTitle.replace('_', ' '))
         underlineSpan.setSpan(UnderlineSpan(), 0, underlineSpan.length, 0)
         holder.searchTitle.text = underlineSpan
-        holder.searchTitle.setTextColor(poemBackgroundTypeArrayList[position].second)
+        if (!poemBackgroundTypeArrayList.isEmpty())
+            holder.searchTitle.setTextColor(poemBackgroundTypeArrayList[position].second)
 
         //take into account the newline character
         var stanzaNumbersText = ""
         val stanzaIndexAndText = searchResultsAdapter.second[subStringLocations.first]
 
-        if (stanzaIndexAndText != null) {
+        if (stanzaIndexAndText != null && searchResultsAdapter.first.size > position) {
             // when there are many stanzas with the search sub phrase use a triple to store information
             // highlight the subsequent items and append to the text
             val tripleArrayList = HashMap<Int, ArrayList<Pair<Int, Int>>>()
@@ -148,11 +149,11 @@ class SearchResultsRecyclerViewAdapter(
                     SpannableString(pair.second + "\n\n")
                 else
                     SpannableString(pair.second)
-                val foregroundColor = BackgroundColorSpan(Color.WHITE)
+                val backgroundColorSpan = BackgroundColorSpan(Color.LTGRAY)
 
                 for (indices in tripleArrayList[pair.first]!!) {
                     spannableString.setSpan(
-                        CharacterStyle.wrap(foregroundColor),
+                        CharacterStyle.wrap(backgroundColorSpan),
                         indices.first,
                         indices.second,
                         0
@@ -160,12 +161,17 @@ class SearchResultsRecyclerViewAdapter(
                 }
                 holderText += spannableString
             }
-            holder.searchText.setTextColor(poemBackgroundTypeArrayList[position].second)
-            if (poemBackgroundTypeArrayList[position].first.toString().contains("OUTLINE")){
-                val linearLayoutParams = holder.searchText.layoutParams as FrameLayout.LayoutParams
-                linearLayoutParams.marginStart = context.resources.getDimensionPixelSize(R.dimen.portraitStrokeSizeMargin)
-                linearLayoutParams.marginEnd = context.resources.getDimensionPixelSize(R.dimen.portraitStrokeSizeMargin)
-                holder.searchText.layoutParams = linearLayoutParams
+            if (!poemBackgroundTypeArrayList.isEmpty()) {
+                holder.searchText.setTextColor(poemBackgroundTypeArrayList[position].second)
+                if (poemBackgroundTypeArrayList[position].first.toString().contains("OUTLINE")) {
+                    val linearLayoutParams =
+                        holder.searchText.layoutParams as FrameLayout.LayoutParams
+                    linearLayoutParams.marginStart =
+                        context.resources.getDimensionPixelSize(R.dimen.portraitStrokeSizeMargin)
+                    linearLayoutParams.marginEnd =
+                        context.resources.getDimensionPixelSize(R.dimen.portraitStrokeSizeMargin)
+                    holder.searchText.layoutParams = linearLayoutParams
+                }
             }
             holder.searchText.text = holderText
         }
@@ -180,7 +186,8 @@ class SearchResultsRecyclerViewAdapter(
             }
         }
 
-        holder.searchStanzas.setTextColor(poemBackgroundTypeArrayList[position].second)
+        if (!poemBackgroundTypeArrayList.isEmpty())
+            holder.searchStanzas.setTextColor(poemBackgroundTypeArrayList[position].second)
         holder.searchStanzas.text = context.getString(R.string.search_stanza_text, stanzaNumbersText)
 
         // obtain the background of the poem and apply it
@@ -220,6 +227,7 @@ class SearchResultsRecyclerViewAdapter(
      */
     fun addBackgroundTypePair(pair: Pair<BackgroundType, Int>) {
         poemBackgroundTypeArrayList.add(pair)
+        notifyItemChanged(poemBackgroundTypeArrayList.lastIndex)
     }
 
     operator fun Spannable.plus(other: Spannable): Spannable {

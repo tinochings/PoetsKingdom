@@ -151,7 +151,7 @@ class CreatePoemRecyclerViewAdapter(
                 holder.imageView.tag = currentImageLayout.tag
             }
             holder.textView.text = editText?.text
-            println(editText?.text)
+
             editText?.currentTextColor?.let { holder.textView.setTextColor(it) }
             holder.textView.typeface = editText?.typeface
             holder.textView.textAlignment = editText?.textAlignment!!

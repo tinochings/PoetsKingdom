@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="app_name">PoetsKingdom</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
@@ -242,5 +242,10 @@
     <string name="load_poem_argument_name">loadPoem</string>
     <string name="poem_title_argument_name">poemTitle</string>
     <string name="change_title_hint">Enter New Title</string>
+    <string name="error_type_file">file</string>
+    <string name="error_type_image">image</string>
+    <string name="error_type_thumbnail">thumbnail</string>
+    <string name="error_type_poem_theme">poem theme</string>
+    <string name="app_logo">App logo</string>
 
 </resources>

@@ -23,6 +23,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
+import androidx.databinding.ObservableArrayList
+import androidx.databinding.ObservableList
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
@@ -32,6 +34,7 @@ import com.wendorochena.poetskingdom.poemdata.PoemThemeXmlParser
 import com.wendorochena.poetskingdom.recyclerViews.MyPoemsRecyclerViewAdapter
 import com.wendorochena.poetskingdom.recyclerViews.SearchResultsRecyclerViewAdapter
 import com.wendorochena.poetskingdom.utils.SearchUtil
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -93,7 +96,8 @@ class MyPoems : AppCompatActivity() {
     private fun setupOnBackPressed() {
         val callBack = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                val advancedSearchContainer = findViewById<LinearLayout>(R.id.advancedSearchContainer)
+                val advancedSearchContainer =
+                    findViewById<LinearLayout>(R.id.advancedSearchContainer)
                 val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
                 val searchRecyclerView = findViewById<RecyclerView>(R.id.searchRecyclerView)
 
@@ -382,7 +386,7 @@ class MyPoems : AppCompatActivity() {
     /**
      *
      */
-    private fun createFrameLayout(fileName: String, dateModified : Long): FrameLayout {
+    private fun createFrameLayout(fileName: String, dateModified: Long): FrameLayout {
         val frameToRet = layoutInflater.inflate(R.layout.list_view_layout, null) as FrameLayout
         frameToRet.id = View.generateViewId()
         val shapeableImageView = frameToRet.getChildAt(1) as ShapeableImageView
@@ -417,14 +421,24 @@ class MyPoems : AppCompatActivity() {
     /**
      *
      */
+    @OptIn(DelicateCoroutinesApi::class)
     private fun setupToolBarButtons() {
         val searchOptionsImage = findViewById<ImageButton>(R.id.searchButton)
         val advancedSearchEditText = findViewById<EditText>(R.id.advancedSearchText)
         val advancedSearchCont = findViewById<LinearLayout>(R.id.advancedSearchContainer)
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         val searchRecyclerView = findViewById<RecyclerView>(R.id.searchRecyclerView)
+        val progressBar = findViewById<ProgressBar>(R.id.progessBar)
 
         searchOptionsImage.setOnClickListener {
+
+            if (advancedSearchEditText.tag != null && advancedSearchEditText.tag == resources.getString(
+                    R.string.no_results
+                )
+            ) {
+                advancedSearchEditText.setHint(R.string.search_here)
+                advancedSearchEditText.tag = null
+            }
 
             if (recyclerView.isVisible) {
                 recyclerView.visibility = View.GONE
@@ -448,8 +462,17 @@ class MyPoems : AppCompatActivity() {
 
         advancedSearchEditText.setOnKeyListener { _, _, event ->
 
-            if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_BACK)
+            if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_BACK) {
+                if (advancedSearchEditText.tag != null && advancedSearchEditText.tag == resources.getString(
+                        R.string.no_results
+                    )
+                ) {
+                    advancedSearchEditText.setHint(R.string.search_here)
+                    advancedSearchEditText.tag = null
+                }
                 onBackPressedDispatcher.onBackPressed()
+                return@setOnKeyListener true
+            }
 
             if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
 
@@ -458,46 +481,146 @@ class MyPoems : AppCompatActivity() {
                         SearchUtil(advancedSearchEditText.text.toString(), applicationContext)
                     searchUtil.initiateLuceneSearch()
 
-                    if (searchUtil.getSubStringLocations().isNotEmpty()) {
+
+                    if (searchUtil.getItemCount() > -1) {
+                        progressBar.visibility = View.VISIBLE
+                        if (advancedSearchEditText.tag != null && advancedSearchEditText.tag == resources.getString(
+                                R.string.no_results
+                            )
+                        ) {
+                            advancedSearchEditText.setHint(R.string.search_here)
+                            advancedSearchEditText.tag = null
+                        }
+
                         advancedSearchEditText.setText("", TextView.BufferType.EDITABLE)
                         val poemThemeXmlParser =
                             PoemThemeXmlParser(PoemTheme(BackgroundType.DEFAULT, this), this)
                         advancedSearchCont.visibility = View.GONE
                         val subStringLocations = searchUtil.getSubStringLocations()
-                        val stanzaIndexAndText = searchUtil.getStanzaAndText()
-                        searchResultsViewAdapter = SearchResultsRecyclerViewAdapter(
-                            this,
-                            Pair(subStringLocations, stanzaIndexAndText)
-                        )
 
-                        for (fileNamePair in subStringLocations) {
-                            if (poemThemeXmlParser.parseTheme(fileNamePair.first.split(".")[0]) == 0) {
-                                searchResultsViewAdapter.addBackgroundTypePair(
-                                    Pair(
-                                        poemThemeXmlParser.getPoemTheme().backgroundType,
-                                        poemThemeXmlParser.getPoemTheme().getTextColorAsInt()
-                                    )
-                                )
-                            }
+                        val handler = CoroutineExceptionHandler { _, exception ->
+                            exception.printStackTrace()
                         }
 
-                        initialiseSearchRecyclerView()
+                        subStringLocations.addOnListChangedCallback(object :
+                            ObservableList.OnListChangedCallback<ObservableList<Pair<String, String>>>() {
+                            override fun onChanged(sender: ObservableList<Pair<String, String>>?) {
+                            }
 
-                        searchResultsViewAdapter.notifyItemRangeInserted(
-                            0,
-                            searchResultsViewAdapter.itemCount
-                        )
-                    }
-                    else {
+                            override fun onItemRangeChanged(
+                                sender: ObservableList<Pair<String, String>>?,
+                                positionStart: Int,
+                                itemCount: Int
+                            ) {
+                            }
+
+                            override fun onItemRangeInserted(
+                                sender: ObservableList<Pair<String, String>>?,
+                                positionStart: Int,
+                                itemCount: Int
+                            ) {
+                                // in Search Util we use an addAll to the observed item so we ony iterate once
+                                GlobalScope.launch(Dispatchers.Main + handler) {
+                                    if (sender != null) {
+                                        val stanzaIndexAndText = searchUtil.getStanzaAndText()
+                                        searchResultsViewAdapter = SearchResultsRecyclerViewAdapter(
+                                            this@MyPoems,
+                                            Pair(sender as ObservableArrayList, stanzaIndexAndText)
+                                        )
+
+                                        val results =
+                                            poemThemeXmlParser.parseMultipleThemes(sender)
+
+                                        for (result in results) {
+                                            searchResultsViewAdapter.addBackgroundTypePair(
+                                                Pair(
+                                                    result.first,
+                                                    result.second
+                                                )
+                                            )
+                                        }
+
+
+                                        initialiseSearchRecyclerView()
+
+                                        searchResultsViewAdapter.notifyItemRangeInserted(
+                                            0,
+                                            searchResultsViewAdapter.itemCount
+                                        )
+                                        progressBar.visibility = View.GONE
+                                    }
+                                }
+                            }
+
+                            override fun onItemRangeMoved(
+                                sender: ObservableList<Pair<String, String>>?,
+                                fromPosition: Int,
+                                toPosition: Int,
+                                itemCount: Int
+                            ) {
+
+                            }
+
+                            override fun onItemRangeRemoved(
+                                sender: ObservableList<Pair<String, String>>?,
+                                positionStart: Int,
+                                itemCount: Int
+                            ) {
+                                subStringLocations.removeOnListChangedCallback(this)
+                            }
+
+                        })
+//                        val stanzaIndexAndText = searchUtil.getStanzaAndText()
+//                        searchResultsViewAdapter = SearchResultsRecyclerViewAdapter(
+//                            this,
+//                            Pair(subStringLocations, stanzaIndexAndText)
+//                        )
+
+//                        GlobalScope.launch(Dispatchers.Main + handler) {
+//                            val results = poemThemeXmlParser.parseMultipleThemes(subStringLocations)
+//
+//                            for (result in results) {
+//                                searchResultsViewAdapter.addBackgroundTypePair(
+//                                    Pair(
+//                                        result.first,
+//                                        result.second
+//                                    )
+//                                )
+//                            }
+//                        }
+//                        for (fileNamePair in subStringLocations) {
+//                            if (poemThemeXmlParser.parseTheme(fileNamePair.first.split(".")[0]) == 0) {
+//                                println(Thread.currentThread().name)
+//                                searchResultsViewAdapter.addBackgroundTypePair(
+//                                    Pair(
+//                                        poemThemeXmlParser.getPoemTheme().backgroundType,
+//                                        poemThemeXmlParser.getPoemTheme().getTextColorAsInt()
+//                                    )
+//                                )
+//                            }
+//                        }
+//                        initialiseSearchRecyclerView()
+//
+//                        searchResultsViewAdapter.notifyItemRangeInserted(
+//                            0,
+//                            searchResultsViewAdapter.itemCount
+//                        )
+                    } else {
+                        advancedSearchEditText.tag = resources.getString(R.string.no_results)
                         advancedSearchEditText.hint = resources.getString(R.string.no_results)
                         advancedSearchEditText.setText("", TextView.BufferType.EDITABLE)
                     }
                 } else {
+                    advancedSearchEditText.tag = resources.getString(R.string.no_results)
                     advancedSearchEditText.hint = resources.getString(R.string.no_input_entered)
                     advancedSearchEditText.setText("", TextView.BufferType.EDITABLE)
                 }
+                return@setOnKeyListener true
             }
-            true
+            if (event.action == KeyEvent.ACTION_DOWN)
+                advancedSearchEditText.onKeyDown(event.keyCode, event)
+            else
+                advancedSearchEditText.onKeyUp(event.keyCode, event)
         }
     }
 
