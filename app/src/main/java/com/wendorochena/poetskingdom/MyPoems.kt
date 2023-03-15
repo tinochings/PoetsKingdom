@@ -216,7 +216,7 @@ class MyPoems : AppCompatActivity() {
      */
     private fun setupBottomDrawer() {
         val shareAsImage = findViewById<ImageButton>(R.id.shareAsImage)
-        val shareAsPdf = findViewById<ImageButton>(R.id.shareAsPdf)
+//        val shareAsPdf = findViewById<ImageButton>(R.id.shareAsPdf)
         val deleteButton = findViewById<ImageButton>(R.id.deleteButton)
 
         deleteButton.setOnClickListener {
@@ -429,7 +429,9 @@ class MyPoems : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         val searchRecyclerView = findViewById<RecyclerView>(R.id.searchRecyclerView)
         val progressBar = findViewById<ProgressBar>(R.id.progessBar)
+        val checkBoxContainer = findViewById<HorizontalScrollView>(R.id.checkBoxContainer)
 
+        setupCheckBoxListeners()
         searchOptionsImage.setOnClickListener {
 
             if (advancedSearchEditText.tag != null && advancedSearchEditText.tag == resources.getString(
@@ -478,7 +480,7 @@ class MyPoems : AppCompatActivity() {
 
                 if (advancedSearchEditText.text.isNotEmpty()) {
                     val searchUtil =
-                        SearchUtil(advancedSearchEditText.text.toString(), applicationContext)
+                        SearchUtil(advancedSearchEditText.text.toString(), applicationContext, checkBoxContainer.tag as String)
                     searchUtil.initiateLuceneSearch()
 
 
@@ -570,41 +572,6 @@ class MyPoems : AppCompatActivity() {
                             }
 
                         })
-//                        val stanzaIndexAndText = searchUtil.getStanzaAndText()
-//                        searchResultsViewAdapter = SearchResultsRecyclerViewAdapter(
-//                            this,
-//                            Pair(subStringLocations, stanzaIndexAndText)
-//                        )
-
-//                        GlobalScope.launch(Dispatchers.Main + handler) {
-//                            val results = poemThemeXmlParser.parseMultipleThemes(subStringLocations)
-//
-//                            for (result in results) {
-//                                searchResultsViewAdapter.addBackgroundTypePair(
-//                                    Pair(
-//                                        result.first,
-//                                        result.second
-//                                    )
-//                                )
-//                            }
-//                        }
-//                        for (fileNamePair in subStringLocations) {
-//                            if (poemThemeXmlParser.parseTheme(fileNamePair.first.split(".")[0]) == 0) {
-//                                println(Thread.currentThread().name)
-//                                searchResultsViewAdapter.addBackgroundTypePair(
-//                                    Pair(
-//                                        poemThemeXmlParser.getPoemTheme().backgroundType,
-//                                        poemThemeXmlParser.getPoemTheme().getTextColorAsInt()
-//                                    )
-//                                )
-//                            }
-//                        }
-//                        initialiseSearchRecyclerView()
-//
-//                        searchResultsViewAdapter.notifyItemRangeInserted(
-//                            0,
-//                            searchResultsViewAdapter.itemCount
-//                        )
                     } else {
                         advancedSearchEditText.tag = resources.getString(R.string.no_results)
                         advancedSearchEditText.hint = resources.getString(R.string.no_results)
@@ -623,6 +590,58 @@ class MyPoems : AppCompatActivity() {
                 advancedSearchEditText.onKeyUp(event.keyCode, event)
         }
     }
+
+    private fun turnOffCheckBox(currentCheckBox: String) {
+
+        when (currentCheckBox) {
+            getString(R.string.exact_phrase_search) -> {
+                findViewById<CheckBox>(R.id.exactSearchCheckBox).isChecked = false
+            }
+            getString(R.string.approximate_phrase_search) -> {
+                findViewById<CheckBox>(R.id.approximateSearchCheckBox).isChecked = false
+            }
+            getString(R.string.contains_phrase_search) -> {
+                findViewById<CheckBox>(R.id.containsSearchCheckBox).isChecked = false
+            }
+        }
+        }
+
+    /**
+     *
+     */
+        private fun setupCheckBoxListeners() {
+            val exactSearchCheckBox = findViewById<CheckBox>(R.id.exactSearchCheckBox)
+            val approximateSearchBox = findViewById<CheckBox>(R.id.approximateSearchCheckBox)
+            val containsSearchBox = findViewById<CheckBox>(R.id.containsSearchCheckBox)
+            val checkBoxContainer = findViewById<HorizontalScrollView>(R.id.checkBoxContainer)
+
+            exactSearchCheckBox.setOnClickListener {
+                if (checkBoxContainer.tag != exactSearchCheckBox.text.toString()) {
+                    turnOffCheckBox(checkBoxContainer.tag as String)
+                    checkBoxContainer.tag = exactSearchCheckBox.text.toString()
+                } else {
+                    exactSearchCheckBox.isChecked = true
+                }
+            }
+
+            approximateSearchBox.setOnClickListener {
+                if (checkBoxContainer.tag != approximateSearchBox.text.toString()) {
+                    turnOffCheckBox(checkBoxContainer.tag as String)
+                    checkBoxContainer.tag = approximateSearchBox.text.toString()
+                }else {
+                    approximateSearchBox.isChecked = true
+                }
+            }
+
+            containsSearchBox.setOnClickListener {
+                if (checkBoxContainer.tag != containsSearchBox.text.toString()) {
+                    turnOffCheckBox(checkBoxContainer.tag as String)
+                    checkBoxContainer.tag = containsSearchBox.text.toString()
+                }else {
+                    containsSearchBox.isChecked = true
+                }
+            }
+        }
 
     /**
      *

@@ -61,9 +61,50 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/action_bar_size"
-        android:visibility="gone"
         android:orientation="vertical"
+        android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent">
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:id="@+id/checkBoxContainer"
+            android:tag="@string/exact_phrase_search"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:checked="true"
+                    android:textColor="@color/black"
+                    android:id="@+id/exactSearchCheckBox"
+                    android:textStyle="bold"
+                    android:text="@string/exact_phrase_search"/>
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:checked="false"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:id="@+id/approximateSearchCheckBox"
+                    android:text="@string/approximate_phrase_search"/>
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:checked="false"
+                    android:id="@+id/containsSearchCheckBox"
+                    android:text="@string/contains_phrase_search"/>
+            </LinearLayout>
+        </HorizontalScrollView>
 
         <EditText
             android:id="@+id/advancedSearchText"

@@ -363,7 +363,7 @@ class CreatePoem : AppCompatActivity() {
         recyclerView.layoutManager = gridLayoutManager
         recyclerViewAdapter = CreatePoemRecyclerViewAdapter(
             arrayOf(findViewById<FrameLayout>(R.id.addPage)).toCollection(ArrayList()),
-            applicationContext
+            this
         )
         recyclerView.adapter = recyclerViewAdapter
     }

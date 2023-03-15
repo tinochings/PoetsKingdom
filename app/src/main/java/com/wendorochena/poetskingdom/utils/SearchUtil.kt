@@ -26,9 +26,16 @@ import java.io.FileReader
  * The subset of files containing the search phrase is further passed down the pipeline to hit highlight
  * and present to the user
  *
- * NOTE SCORING NEEDS TO BE LOOKED INTO
+ * NOTE Lucene uses keyword AND to make sure an exact sub-phrase is matched together, without it the
+ * default is the OR operator where it returns results for a document that could contain any of the
+ * keywords
+ *
+ *
+ * NOTE SPECIAL CHARS ARE NOT ESCAPED
+ *
+ * @see <a href="http://web.cs.ucla.edu/classes/winter15/cs144/projects/lucene/index.html">Lucene Intro</a>
  */
-class SearchUtil(private val searchPhrase: String, val applicationContext: Context) {
+class SearchUtil(private val searchPhrase: String, val applicationContext: Context, private val searchType : String) {
     private val analyzer: StandardAnalyzer = StandardAnalyzer(Version.LUCENE_43)
     private lateinit var indexWriter: IndexWriter
     private lateinit var titleSearchResults: ArrayList<String>
@@ -116,10 +123,28 @@ class SearchUtil(private val searchPhrase: String, val applicationContext: Conte
                         val collector = TopScoreDocCollector.create(10, true)
 
                         try {
-                            val query = QueryParser(Version.LUCENE_43, "xmlFile", analyzer).parse(
-                                searchPhrase
-                            )
-                            indexSearcher.search(query, collector)
+
+
+                            val queryParser = QueryParser(Version.LUCENE_43, "xmlFile", analyzer)
+
+                            when (searchType) {
+                                applicationContext.getString(R.string.exact_phrase_search) ->{
+                                    val exactSearchSubPhrase = "\"$searchPhrase\""
+                                    val query = queryParser.parse(exactSearchSubPhrase)
+                                    indexSearcher.search(query, collector)
+                                }
+                                applicationContext.getString(R.string.approximate_phrase_search) -> {
+                                    val approximatePhrase = "\"$searchPhrase\"~"
+                                    val query = queryParser.parse(approximatePhrase)
+                                    indexSearcher.search(query, collector)
+                                    println(approximatePhrase)
+                                }
+                                else -> {
+                                    val query = queryParser.parse(searchPhrase)
+                                    indexSearcher.search(query, collector)
+                                }
+                            }
+
                             val scoreDocHits = collector.topDocs().scoreDocs
 
                             println("${scoreDocHits.size} hits have been found")
@@ -127,14 +152,10 @@ class SearchUtil(private val searchPhrase: String, val applicationContext: Conte
                             for (hit in scoreDocHits) {
                                 val currDocument = indexSearcher.doc(hit.doc)
 
-                                // if convoluted with a lot of text a result of 0.1 should be sufficient
-                                if (hit.score >= 0.1) {
                                     if (!this::titleSearchResults.isInitialized)
                                         titleSearchResults = ArrayList()
 
                                     titleSearchResults.add(currDocument.get("fileName"))
-                                }
-
                                 println(currDocument.get("fileName") + " score= ${hit.score}")
                             }
                         } catch (e: Exception) {
@@ -223,11 +244,13 @@ class SearchUtil(private val searchPhrase: String, val applicationContext: Conte
                     }
                 }
                 if (preciseLocation.isEmpty()) {
-                    val toAdd  = Pair(1, fileNameAndStanzas.second[0])
-                    val arrayListPair = ArrayList<Pair<Int, String>>()
-                    arrayListPair.add(toAdd)
-                    stanzaIndexAndText[poemFileName] = arrayListPair
-                    preciseLocation = "1 -1 -1"
+                    if (fileNameAndStanzas.second.size >= 1) {
+                        val toAdd = Pair(1, fileNameAndStanzas.second[0])
+                        val arrayListPair = ArrayList<Pair<Int, String>>()
+                        arrayListPair.add(toAdd)
+                        stanzaIndexAndText[poemFileName] = arrayListPair
+                        preciseLocation = "1 -1 -1"
+                    }
                 }
                 temp.add(Pair(poemFileName, preciseLocation))
             }

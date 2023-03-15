@@ -231,7 +231,9 @@
     <string name="title_change_cancel">Cancel</string>
     <string name="search_exact_phrase">Search exact phrase</string>
     <string name="simple_file_name_search">Simple File Name Search</string>
-    <string name="exact_phrase_search">Advance Sub-Phrase Search</string>
+    <string name="exact_phrase_search">Exact Search</string>
+    <string name="approximate_phrase_search">Approximate Search</string>
+    <string name="contains_phrase_search">Contains Search</string>
     <string name="search_here">Search Here</string>
     <string name="recent_searches">Recent searches</string>
     <string name="clear_all_searches">Clear All Searches</string>

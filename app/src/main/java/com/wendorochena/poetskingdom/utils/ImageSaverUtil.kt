@@ -275,7 +275,6 @@ class ImageSaverUtil(
         width: Int,
         lineHeight: Int
     ): ArrayList<EditText> {
-        println(Thread.currentThread().name)
         val editText = currentPage.getChildAt(1) as EditText
         val linesPerPage = (height / lineHeight)
 
