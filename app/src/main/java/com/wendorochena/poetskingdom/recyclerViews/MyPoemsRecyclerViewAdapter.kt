@@ -143,7 +143,7 @@ class MyPoemsRecyclerViewAdapter(val context: android.content.Context) :
         holder.textView.text = textView.text
         if (longClickImageView.tag != null && longClickImageView.isVisible) {
             when (longClickImageView.tag as String) {
-                "circle" -> {
+                context.getString(R.string.circle) -> {
                     holder.checkImageView.setImageDrawable(
                         ResourcesCompat.getDrawable(
                             context.resources,
@@ -152,7 +152,7 @@ class MyPoemsRecyclerViewAdapter(val context: android.content.Context) :
                         )
                     )
                 }
-                "check" -> {
+                context.getString(R.string.check) -> {
                     holder.checkImageView.setImageDrawable(
                         ResourcesCompat.getDrawable(
                             context.resources,
@@ -184,12 +184,24 @@ class MyPoemsRecyclerViewAdapter(val context: android.content.Context) :
     /**
      * @param index the index to update when there is a long click
      * @param string the tag to be updated can be "circle" or "check"
+     *
+     * @return 0 if tag was circle before -1 if tag was check
      */
-    fun updateLongImage(index: Int, string: String) {
+    fun updateLongImage(index: Int, string: String) : Int {
+        var toRet = 0
         val longClickImage = listAdapterArrayList[index].getChildAt(0)
-        longClickImage.tag = string
-        longClickImage.visibility = View.VISIBLE
+        if (longClickImage.tag != null) {
+            if (longClickImage.tag == context.getString(R.string.check) && string ==  context.getString(R.string.check)) {
+                longClickImage.tag = context.getString(R.string.circle)
+                toRet =  -1
+            }
+        }
+        if (toRet != -1) {
+            longClickImage.tag = string
+            longClickImage.visibility = View.VISIBLE
+        }
         notifyItemChanged(index)
+        return toRet
     }
 
     /**

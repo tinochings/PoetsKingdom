@@ -133,14 +133,27 @@ class ImageRecyclerViewAdapter(
     /**
      * Updates long image
      *
-     * @param index the index to be updated
-     * @param string the tag name update it can either be "circle" or "check"
+     * @param index the index to update when there is a long click
+     * @param string the tag to be updated can be "circle" or "check"
+     *
+     * @return 0 if tag was circle before -1 if tag was check
      */
-    fun updateLongImage(index : Int, string: String) {
+    fun updateLongImage(index : Int, string: String) : Int {
+        var toRet = 0
         val longClickImage = longClickImageViews[index]
-        longClickImage.tag = string
-        longClickImage.visibility = View.VISIBLE
+        if (longClickImage.tag != null) {
+            if (longClickImage.tag == context.getString(R.string.check) && string ==  context.getString(R.string.check)) {
+                longClickImage.tag = context.getString(R.string.circle)
+                toRet =  -1
+            }
+        }
+        if (toRet != -1) {
+            longClickImage.tag = string
+            longClickImage.visibility = View.VISIBLE
+        }
         notifyItemChanged(index)
+
+        return toRet
     }
     /**
      * @param index index that is selected

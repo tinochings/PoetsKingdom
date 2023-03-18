@@ -39,7 +39,7 @@
             android:layout_height="match_parent"
             app:contentPadding="0.1dp"
             android:scaleType="fitXY"
-            app:srcCompat="@drawable/mypoems1"
+            app:srcCompat="@drawable/mypoems"
             android:id="@+id/myPoemImage"
             app:shapeAppearanceOverlay="@style/rounded_rect" />
 

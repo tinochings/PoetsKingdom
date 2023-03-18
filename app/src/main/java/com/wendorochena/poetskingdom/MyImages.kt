@@ -199,9 +199,17 @@ class MyImages : Fragment() {
             } else {
                 val shapeableImageView = frameLayout.getChildAt(1) as ShapeableImageView
                 val file = File(shapeableImageView.tag.toString())
-                if (file.exists())
-                    selectedImages.add(Pair(file, i))
-                myPoemsRecyclerViewAdapter.updateLongImage(i, "check")
+                if (file.exists()) {
+                    if (myPoemsRecyclerViewAdapter.updateLongImage(
+                            i,
+                            getString(R.string.check)
+                        ) == 0
+                    )
+                        selectedImages.add(Pair(file, i))
+                    else {
+                        selectedImages.remove(Pair(file, i))
+                    }
+                }
             }
         }
 
@@ -240,8 +248,11 @@ class MyImages : Fragment() {
                 imageIntent.putExtra("imagePath", file.absolutePath)
                 startActivity(imageIntent)
             } else {
-                selectedImages.add(Pair(file, index))
-                recyclerViewAdapter.updateLongImage(index, "check")
+                if (recyclerViewAdapter.updateLongImage(index, getString(R.string.check)) == 0)
+                    selectedImages.add(Pair(file, index))
+                else {
+                    selectedImages.remove(Pair(file, index))
+                }
             }
         }
 
@@ -252,27 +263,27 @@ class MyImages : Fragment() {
             if (!binding.deleteImageButton.isVisible)
                 binding.deleteImageButton.visibility = View.VISIBLE
 
-            recyclerViewAdapter.updateLongImage(index, "check")
+            recyclerViewAdapter.updateLongImage(index, getString(R.string.check))
             if (!isLongClicked) {
                 recyclerViewAdapter.initiateOnLongClickImage(index)
             }
-            if (selectedImages.isNotEmpty()) {
-                val lastElem = selectedImages[selectedImages.size - 1]
-                if (lastElem.second > index) {
-                    var counter = selectedImages.size - 1
-
-                    while (counter >= 0) {
-                        val lastElement = selectedImages[counter]
-                        if (lastElement.second < index) {
-                            selectedImages.add(counter + 1, Pair(file, index))
-                            break
-                        }
-                        counter--
-                    }
-                    if (counter == -1)
-                        selectedImages.add(0, Pair(file, index))
-                }
-            } else
+//            if (selectedImages.isNotEmpty()) {
+//                val lastElem = selectedImages[selectedImages.size - 1]
+//                if (lastElem.second > index) {
+//                    var counter = selectedImages.size - 1
+//
+//                    while (counter >= 0) {
+//                        val lastElement = selectedImages[counter]
+//                        if (lastElement.second < index) {
+//                            selectedImages.add(counter + 1, Pair(file, index))
+//                            break
+//                        }
+//                        counter--
+//                    }
+//                    if (counter == -1)
+//                        selectedImages.add(0, Pair(file, index))
+//                }
+//            } else
                 selectedImages.add(Pair(file, index))
             isLongClicked = true
         }

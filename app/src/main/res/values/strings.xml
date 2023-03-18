@@ -249,5 +249,7 @@
     <string name="error_type_thumbnail">thumbnail</string>
     <string name="error_type_poem_theme">poem theme</string>
     <string name="app_logo">App logo</string>
+    <string name="check">check</string>
+    <string name="circle">circle</string>
 
 </resources>

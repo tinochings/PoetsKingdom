@@ -35,25 +35,29 @@ import java.io.FileReader
  *
  * @see <a href="http://web.cs.ucla.edu/classes/winter15/cs144/projects/lucene/index.html">Lucene Intro</a>
  */
-class SearchUtil(private val searchPhrase: String, val applicationContext: Context, private val searchType : String) {
+class SearchUtil(
+    private val searchPhrase: String,
+    val applicationContext: Context,
+    private val searchType: String
+) {
     private val analyzer: StandardAnalyzer = StandardAnalyzer(Version.LUCENE_43)
     private lateinit var indexWriter: IndexWriter
     private lateinit var titleSearchResults: ArrayList<String>
-    private lateinit var subStringLocations : ObservableArrayList<Pair<String, String>>
-    private lateinit var stanzaIndexAndText : HashMap<String, ArrayList<Pair<Int, String>>>
+    private lateinit var subStringLocations: ObservableArrayList<Pair<String, String>>
+    private lateinit var stanzaIndexAndText: HashMap<String, ArrayList<Pair<Int, String>>>
     private var itemCount = -1
 
     /**
      * @return An arraylist containing sub-string locations of the search results
      */
-    fun getSubStringLocations() : ObservableArrayList<Pair<String, String>> {
+    fun getSubStringLocations(): ObservableArrayList<Pair<String, String>> {
         if (!this::subStringLocations.isInitialized)
             return ObservableArrayList()
 
         return subStringLocations
     }
 
-    fun getItemCount () : Int {
+    fun getItemCount(): Int {
 
         return itemCount
     }
@@ -62,13 +66,14 @@ class SearchUtil(private val searchPhrase: String, val applicationContext: Conte
      * @return A Hash Map containing the name of the file as a key. The value is an arrayList where
      * the first element is the stanza number and the second element is the actual stanza
      */
-    fun getStanzaAndText() : HashMap<String, ArrayList<Pair<Int, String>>> {
+    fun getStanzaAndText(): HashMap<String, ArrayList<Pair<Int, String>>> {
         if (!this::stanzaIndexAndText.isInitialized) {
             return HashMap()
         }
 
         return stanzaIndexAndText
     }
+
     /**
      * This function initiates Lucene to search
      */
@@ -128,7 +133,7 @@ class SearchUtil(private val searchPhrase: String, val applicationContext: Conte
                             val queryParser = QueryParser(Version.LUCENE_43, "xmlFile", analyzer)
 
                             when (searchType) {
-                                applicationContext.getString(R.string.exact_phrase_search) ->{
+                                applicationContext.getString(R.string.exact_phrase_search) -> {
                                     val exactSearchSubPhrase = "\"$searchPhrase\""
                                     val query = queryParser.parse(exactSearchSubPhrase)
                                     indexSearcher.search(query, collector)
@@ -152,10 +157,10 @@ class SearchUtil(private val searchPhrase: String, val applicationContext: Conte
                             for (hit in scoreDocHits) {
                                 val currDocument = indexSearcher.doc(hit.doc)
 
-                                    if (!this::titleSearchResults.isInitialized)
-                                        titleSearchResults = ArrayList()
+                                if (!this::titleSearchResults.isInitialized)
+                                    titleSearchResults = ArrayList()
 
-                                    titleSearchResults.add(currDocument.get("fileName"))
+                                titleSearchResults.add(currDocument.get("fileName"))
                                 println(currDocument.get("fileName") + " score= ${hit.score}")
                             }
                         } catch (e: Exception) {
@@ -190,7 +195,8 @@ class SearchUtil(private val searchPhrase: String, val applicationContext: Conte
         }
 
         GlobalScope.launch(Dispatchers.Main + handler) {
-            val stanzasArrayList = PoemXMLParser.parseMultiplePoems(titleSearchResults, applicationContext)
+            val stanzasArrayList =
+                PoemXMLParser.parseMultiplePoems(titleSearchResults, applicationContext)
 
             for (fileNameAndStanzas in stanzasArrayList) {
                 val poemFileName = fileNameAndStanzas.first.split(".")[0]
@@ -220,17 +226,16 @@ class SearchUtil(private val searchPhrase: String, val applicationContext: Conte
                                     preciseLocation += "$stanzaNum $startIndex $counter\n"
                                     searchCharCounter = 0
 
-                                    if (!stanzaIndexAndText.containsKey(poemFileName)){
+                                    if (!stanzaIndexAndText.containsKey(poemFileName)) {
                                         val arrayListPair = ArrayList<Pair<Int, String>>()
                                         arrayListPair.add(Pair(stanzaIndex + 1, stanza))
                                         stanzaIndexAndText[poemFileName] = arrayListPair
-                                    } else{
+                                    } else {
                                         val arrayListPair = stanzaIndexAndText[poemFileName]
                                         if (arrayListPair?.last()?.first != stanzaIndex + 1)
-                                            arrayListPair?.add(Pair(stanzaIndex + 1,stanza))
+                                            arrayListPair?.add(Pair(stanzaIndex + 1, stanza))
                                     }
-                                }
-                                else if (searchPhrase[searchCharCounter] == stanza[counter]) {
+                                } else if (searchPhrase[searchCharCounter] == stanza[counter]) {
                                     searchCharCounter++
                                     counter++
                                 } else {

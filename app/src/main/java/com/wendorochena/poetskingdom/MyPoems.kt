@@ -40,6 +40,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.HashSet
 
 class MyPoems : AppCompatActivity() {
 
@@ -50,14 +51,14 @@ class MyPoems : AppCompatActivity() {
     private var isLongClicked = false
     private var numberOfPoems: Int = 0
     private lateinit var searchHashMap: HashMap<Char, ArrayList<String>>
-    private lateinit var selectedElements: ArrayList<Int>
+    private lateinit var selectedElements: HashSet<Int>
     private var permissionsResultLauncher: ActivityResultLauncher<String>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_my_poems)
+        selectedElements = HashSet()
         permissionsResultLauncher = permissionsActivityResult()
-        selectedElements = ArrayList()
         poemsFolder = applicationContext.getDir(getString(R.string.poems_folder_name), MODE_PRIVATE)
         thumbnailsFolder =
             applicationContext.getDir(getString(R.string.thumbnails_folder_name), MODE_PRIVATE)
@@ -248,7 +249,7 @@ class MyPoems : AppCompatActivity() {
                         getString(R.string.saved_images_folder_name),
                         MODE_PRIVATE
                     )
-                val frameLayout = recyclerViewAdapter.getFrameAtIndex(selectedElements[0])
+                val frameLayout = recyclerViewAdapter.getFrameAtIndex(selectedElements.first())
                 val textView = frameLayout.getChildAt(2) as TextView
                 val poemName = textView.text.toString().replace(' ', '_')
                 val poemSavedImagesFolder =
@@ -373,8 +374,20 @@ class MyPoems : AppCompatActivity() {
     private fun setupClickListener() {
         recyclerViewAdapter.onItemClick = { frameLayout, _ ->
             if (isLongClicked) {
-                selectedElements.add(frameLayout.tag as Int)
-                recyclerViewAdapter.updateLongImage(frameLayout.tag as Int, "check")
+                val indexNum = frameLayout.tag as Int
+                if (!selectedElements.contains(indexNum)){
+                    selectedElements.add(indexNum)
+                recyclerViewAdapter.updateLongImage(
+                    indexNum,
+                    getString(R.string.check)
+                )
+            } else {
+                selectedElements.remove(indexNum)
+                    recyclerViewAdapter.updateLongImage(
+                        indexNum,
+                        getString(R.string.circle)
+                    )
+                }
             } else {
                 val poemTitleTextView = frameLayout.getChildAt(2) as TextView
                 val poemTitle = poemTitleTextView.text
