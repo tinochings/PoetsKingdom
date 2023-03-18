@@ -8,13 +8,17 @@ All loaded information stays within the app and is never shared except for store
 
 Poets Kingdom is a passion project I started for myself. I am a lover of poetry and I love writing poetry myself. Poets Kingdom is an application I made to help me design, view and write poems in a manner I see fit. Poets Kingdom can create a poem with a color background, image background, image background with an outline and a color background with an outline.
 
-### Features
+## Features
 - Save poem as an image or PDF file
 - Dynamic theme styling for a poem
 - Exact phrase searching and highlighting using Lucene
 - Poem image viewer for viewing saved poems
 
-#### Screenshots
+## Screenshots
 
 <img src="app/Application Screenshots/Home Screen.png" width="170"> <img src="app/Application Screenshots/Create Poem.png" width="170">
 <img src="app/Application Screenshots/My Images.png" width="170"> <img src="app/Application Screenshots/My Poems.png" width="170">
+
+## Debug APK File
+
+[APK File](https://github.com/tinochings/PoetsKingdom/blob/master/app/Debug%20APK/app-debug.apk)
