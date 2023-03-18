@@ -134,7 +134,6 @@ class MyPoemsRecyclerViewAdapter(val context: android.content.Context) :
                     drawable,
                     null
                 )
-//                Picasso.get().load(file).into(holder.imageView)
                 holder.imageView.setImageDrawable(rippledImage)
                 holder.imageView.tag = shapeableImageView.tag
             }

@@ -34,6 +34,9 @@ import com.wendorochena.poetskingdom.utils.UriUtils
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 /**
@@ -151,7 +154,7 @@ class MyImages : Fragment() {
             if (savedImageFiles != null) {
                 savedImageFiles.sortByDescending { it.lastModified() }
                 for (file in savedImageFiles) {
-                    val frameLayout = createFrameLayout(file.name)
+                    val frameLayout = createFrameLayout(file.name, file.lastModified())
                     myPoemsRecyclerViewAdapter.addItem(frameLayout)
                 }
             }
@@ -163,11 +166,12 @@ class MyImages : Fragment() {
     /**
      *
      */
-    private fun createFrameLayout(fileName: String): FrameLayout {
+    private fun createFrameLayout(fileName: String, dateModified : Long): FrameLayout {
         val frameToRet = layoutInflater.inflate(R.layout.list_view_layout, null) as FrameLayout
         frameToRet.id = View.generateViewId()
         val shapeableImageView = frameToRet.getChildAt(1) as ShapeableImageView
         val textView = frameToRet.getChildAt(2) as TextView
+        val dateTextView = frameToRet.getChildAt(3) as TextView
         val thumbnailsFolder =
             context?.getDir(getString(R.string.thumbnails_folder_name), Context.MODE_PRIVATE)
         try {
@@ -184,6 +188,10 @@ class MyImages : Fragment() {
             e.printStackTrace()
         }
         textView.text = fileName.replace('_', ' ')
+        val locale = Locale("en")
+        val simpleDateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", locale)
+        val date = Date(dateModified)
+        dateTextView.text = simpleDateFormat.format(date)
 
         return frameToRet
     }
