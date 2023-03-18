@@ -26,6 +26,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.android.material.imageview.ShapeableImageView
 import com.wendorochena.poetskingdom.databinding.FragmentMyImagesBinding
 import com.wendorochena.poetskingdom.recyclerViews.ImageRecyclerViewAdapter
@@ -166,7 +167,7 @@ class MyImages : Fragment() {
     /**
      *
      */
-    private fun createFrameLayout(fileName: String, dateModified : Long): FrameLayout {
+    private fun createFrameLayout(fileName: String, dateModified: Long): FrameLayout {
         val frameToRet = layoutInflater.inflate(R.layout.list_view_layout, null) as FrameLayout
         frameToRet.id = View.generateViewId()
         val shapeableImageView = frameToRet.getChildAt(1) as ShapeableImageView
@@ -179,7 +180,8 @@ class MyImages : Fragment() {
                 thumbnailsFolder?.absolutePath + File.separator + fileName + ".png"
             )
             if (thumbnailFile.exists()) {
-                shapeableImageView.setImageBitmap(BitmapFactory.decodeFile(thumbnailFile.absolutePath))
+//                Glide.with(requireContext()).load(thumbnailFile.absolutePath).into(shapeableImageView)
+//                shapeableImageView.setImageBitmap(BitmapFactory.decodeFile(thumbnailFile.absolutePath))
                 shapeableImageView.tag = thumbnailFile.absolutePath
             } else {
                 Log.e("No Such Thumbnail", fileName)
@@ -197,7 +199,7 @@ class MyImages : Fragment() {
     }
 
     private fun setupMyPoemsRVOnClick() {
-        myPoemsRecyclerViewAdapter.onItemClick = { frameLayout, i ->
+        myPoemsRecyclerViewAdapter.onItemClick = { frameLayout, index ->
             if (!isLongClicked) {
                 val imageIntent = Intent(context, ImageViewer::class.java)
                 val poemTitleTextView = frameLayout.getChildAt(2) as TextView
@@ -209,13 +211,30 @@ class MyImages : Fragment() {
                 val file = File(shapeableImageView.tag.toString())
                 if (file.exists()) {
                     if (myPoemsRecyclerViewAdapter.updateLongImage(
-                            i,
+                            index,
                             getString(R.string.check)
                         ) == 0
-                    )
-                        selectedImages.add(Pair(file, i))
-                    else {
-                        selectedImages.remove(Pair(file, i))
+                    ) {
+                        if (selectedImages.isNotEmpty()) {
+                            val lastElem = selectedImages[selectedImages.size - 1]
+                            if (lastElem.second > index) {
+                                var counter = selectedImages.size - 1
+
+                                while (counter >= 0) {
+                                    val lastElement = selectedImages[counter]
+                                    if (lastElement.second < index) {
+                                        selectedImages.add(counter + 1, Pair(file, index))
+                                        break
+                                    }
+                                    counter--
+                                }
+                                if (counter == -1)
+                                    selectedImages.add(0, Pair(file, index))
+                            }
+                        } else
+                            selectedImages.add(Pair(file, index))
+                    } else {
+                        selectedImages.remove(Pair(file, index))
                     }
                 }
             }
@@ -232,8 +251,12 @@ class MyImages : Fragment() {
 //            }
             val shapeableImageView = frameLayout.getChildAt(1) as ShapeableImageView
             val file = File(shapeableImageView.tag.toString())
-            if (file.exists())
-                selectedImages.add(Pair(file, i))
+            if (file.exists()) {
+                if (myPoemsRecyclerViewAdapter.updateLongImage(i, getString(R.string.check)) == 0)
+                    selectedImages.add(Pair(file, i))
+                else
+                    selectedImages.remove(Pair(file, i))
+            }
 
             isLongClicked = true
         }
@@ -256,9 +279,26 @@ class MyImages : Fragment() {
                 imageIntent.putExtra("imagePath", file.absolutePath)
                 startActivity(imageIntent)
             } else {
-                if (recyclerViewAdapter.updateLongImage(index, getString(R.string.check)) == 0)
-                    selectedImages.add(Pair(file, index))
-                else {
+                if (recyclerViewAdapter.updateLongImage(index, getString(R.string.check)) == 0) {
+                    if (selectedImages.isNotEmpty()) {
+                        val lastElem = selectedImages[selectedImages.size - 1]
+                        if (lastElem.second > index) {
+                            var counter = selectedImages.size - 1
+
+                            while (counter >= 0) {
+                                val lastElement = selectedImages[counter]
+                                if (lastElement.second < index) {
+                                    selectedImages.add(counter + 1, Pair(file, index))
+                                    break
+                                }
+                                counter--
+                            }
+                            if (counter == -1)
+                                selectedImages.add(0, Pair(file, index))
+                        }
+                    } else
+                        selectedImages.add(Pair(file, index))
+                } else {
                     selectedImages.remove(Pair(file, index))
                 }
             }
@@ -271,7 +311,11 @@ class MyImages : Fragment() {
             if (!binding.deleteImageButton.isVisible)
                 binding.deleteImageButton.visibility = View.VISIBLE
 
-            recyclerViewAdapter.updateLongImage(index, getString(R.string.check))
+            if (recyclerViewAdapter.updateLongImage(index, getString(R.string.check)) == 0) {
+                selectedImages.add(Pair(file, index))
+            } else {
+                selectedImages.remove(Pair(file, index))
+            }
             if (!isLongClicked) {
                 recyclerViewAdapter.initiateOnLongClickImage(index)
             }
@@ -292,7 +336,6 @@ class MyImages : Fragment() {
 //                        selectedImages.add(0, Pair(file, index))
 //                }
 //            } else
-                selectedImages.add(Pair(file, index))
             isLongClicked = true
         }
 
@@ -391,37 +434,43 @@ class MyImages : Fragment() {
     private fun setupDeleteImages() {
         binding.deleteImageButton.setOnClickListener {
             if (selectedImages.isNotEmpty()) {
+                val indexesToDelete = ArrayList<Int>()
                 try {
-                    for (pair in selectedImages) {
-                        if (pair.first.delete()) {
-                            if (recyclerView?.isVisible == true) {
+                    for (pair in selectedImages.reversed()) {
+                        if (recyclerView?.isVisible == true) {
+                            if (pair.first.delete()) {
                                 recyclerViewAdapter.deleteElem(pair.second)
                                 recyclerViewAdapter.notifyItemRemoved(pair.second)
                             } else {
-                                try {
-                                    val file = pair.first
-                                    val splitString = file.name.split(File.separator)
-                                    val poemName = splitString[splitString.size - 1]
-                                    val savedImagesFilePath = requireContext().getDir(
-                                        getString(R.string.saved_images_folder_name),
-                                        Context.MODE_PRIVATE
-                                    )
-                                    val fullPathToDelete = File(
-                                        savedImagesFilePath.absolutePath + File.separator + poemName.replace(
-                                            ".png",
-                                            ""
-                                        )
-                                    )
-                                    if (fullPathToDelete.exists())
-                                        fullPathToDelete.deleteRecursively()
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                }
-                                myPoemsRecyclerViewAdapter.deleteElem(pair.second)
-                                myPoemsRecyclerViewAdapter.notifyItemRemoved(pair.second)
+                                Log.e("Failed to remove file: ", pair.first.name)
                             }
                         } else {
-                            Log.e("Failed to remove file: ", pair.first.name)
+                            try {
+                                val file = pair.first
+                                val splitString = file.name.split(File.separator)
+                                val poemName = splitString[splitString.size - 1]
+                                val savedImagesFilePath = requireContext().getDir(
+                                    getString(R.string.saved_images_folder_name),
+                                    Context.MODE_PRIVATE
+                                )
+                                val fullPathToDelete = File(
+                                    savedImagesFilePath.absolutePath + File.separator + poemName.replace(
+                                        ".png",
+                                        ""
+                                    )
+                                )
+                                if (fullPathToDelete.exists())
+                                    fullPathToDelete.deleteRecursively()
+                                else {
+                                    Log.e("Failed to remove file: ", pair.first.name)
+                                }
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                Log.e("Failed to remove file: ", pair.first.name)
+                            }
+                            myPoemsRecyclerViewAdapter.deleteElem(pair.second)
+                            myPoemsRecyclerViewAdapter.notifyItemRemoved(pair.second)
+                            indexesToDelete.add(pair.second)
                         }
                     }
                     clearDeleteButton()

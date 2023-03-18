@@ -199,12 +199,13 @@ class CreatePoem : AppCompatActivity() {
         }
 
         GlobalScope.launch(Dispatchers.Main + exceptionHandler) {
-            createDataContainer(category,createThumbnail)
+            createDataContainer(category, createThumbnail)
             turnOffDimmerProgressBar()
             if (createThumbnail)
                 currentPage.visibility = View.VISIBLE
         }
     }
+
     /**
      * Sets the title typeface
      */
@@ -317,22 +318,24 @@ class CreatePoem : AppCompatActivity() {
     private fun setupOnBackPressed() {
         val callBack = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (currentContainerView != null) {
-                    turnOffCurrentView()
-                    findViewById<LinearLayout>(R.id.allOptionsContainer).visibility = View.GONE
-                } else {
-                    if (hasFileBeenEdited) {
-                        val thumbnailsFolder = applicationContext.getDir(
-                            getString(R.string.thumbnails_folder_name),
-                            MODE_PRIVATE
-                        )
-                        val encodedTitle = poemTheme.getTitle().replace(' ', '_') + ".png"
-                        if (!File(thumbnailsFolder.absolutePath + File.separator + encodedTitle).exists())
-                            actuateSaveAsFile(Category.NONE.toString(), true)
-                        else
-                            actuateSaveAsFile(Category.NONE.toString(), false)
+                if (!findViewById<ProgressBar>(R.id.progessBar).isVisible) {
+                    if (currentContainerView != null) {
+                        turnOffCurrentView()
+                        findViewById<LinearLayout>(R.id.allOptionsContainer).visibility = View.GONE
+                    } else {
+                        if (hasFileBeenEdited) {
+                            val thumbnailsFolder = applicationContext.getDir(
+                                getString(R.string.thumbnails_folder_name),
+                                MODE_PRIVATE
+                            )
+                            val encodedTitle = poemTheme.getTitle().replace(' ', '_') + ".png"
+                            if (!File(thumbnailsFolder.absolutePath + File.separator + encodedTitle).exists())
+                                actuateSaveAsFile(Category.NONE.toString(), true)
+                            else
+                                actuateSaveAsFile(Category.NONE.toString(), false)
+                        }
+                        finish()
                     }
-                    finish()
                 }
             }
         }
@@ -1440,7 +1443,7 @@ class CreatePoem : AppCompatActivity() {
             showErrorToast(getString(R.string.error_type_poem_theme))
         }
 
-        GlobalScope.launch (Dispatchers.Main + exceptionHandler){
+        GlobalScope.launch(Dispatchers.Main + exceptionHandler) {
             val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
             poemThemeXmlParser.setIsEditTheme(true)
 
@@ -1451,6 +1454,7 @@ class CreatePoem : AppCompatActivity() {
             )
         }
     }
+
     /**
      * Sets up listeners for the text options events
      */
@@ -2064,13 +2068,14 @@ class CreatePoem : AppCompatActivity() {
         progressBar.bringToFront()
     }
 
-    private fun turnOffDimmerProgressBar(){
+    private fun turnOffDimmerProgressBar() {
         val progressBar = findViewById<ProgressBar>(R.id.progessBar)
         val dimmer = findViewById<FrameLayout>(R.id.backgroundDim)
 
         progressBar.visibility = View.GONE
         dimmer.visibility = View.GONE
     }
+
     /**
      * Initialises the listeners for the save container
      */
@@ -2141,7 +2146,7 @@ class CreatePoem : AppCompatActivity() {
         }
         if (currentContainerView is RecyclerView) {
             findViewById<FrameLayout>(R.id.backgroundDim).visibility = View.GONE
-            findViewById<ProgressBar>(R.id.progessBar).visibility =View.GONE
+            findViewById<ProgressBar>(R.id.progessBar).visibility = View.GONE
             findViewById<RecyclerView>(R.id.recyclerPagesContainer).visibility = View.GONE
             setEditText(currentPage, true)
         }
