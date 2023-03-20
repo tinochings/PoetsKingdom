@@ -123,7 +123,8 @@ class CreatePoemRecyclerViewAdapter(
             }
         }
 
-        if (currentFrameLayout.id == R.id.addPage) {
+        if (currentFrameLayout.id == R.id.addPage || currentFrameLayout.id == R.id.addPageRecyclerViewId) {
+
             holder.frameLayout.id = R.id.addPageRecyclerViewId
             holder.frameLayout.background = currentFrameLayout.background.mutate()
             holder.imageView.layoutParams = currentImageLayout?.layoutParams
@@ -147,7 +148,6 @@ class CreatePoemRecyclerViewAdapter(
                 holder.imageView.layoutParams = currentImageLayout?.layoutParams
                 holder.imageView.shapeAppearanceModel = currentImageLayout?.shapeAppearanceModel!!
                 Glide.with(context).load(currentImageLayout.tag.toString()).into(holder.imageView)
-//                holder.imageView.setImageBitmap(BitmapFactory.decodeFile(currentImageLayout.tag.toString()))
                 holder.imageView.tag = currentImageLayout.tag
             }
             holder.textView.text = editText?.text
@@ -189,6 +189,8 @@ class CreatePoemRecyclerViewAdapter(
 
         val currentImageLayout = newFrameLayout.getChildAt(0) as ShapeableImageView
         val editText = newFrameLayout.getChildAt(1) as EditText
+
+        frameToRet.id = newFrameLayout.tag as Int
 
         if (newFrameLayout.background != null) {
             val drawable = newFrameLayout.background.constantState?.newDrawable()

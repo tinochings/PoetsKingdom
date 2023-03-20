@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<root>
+  <backgroundType>OUTLINE_WITH_IMAGE</backgroundType>
+  <imagePath>app/src/test/java/com/wendorochena/poetskingdom/MockFiles/test_images/createpoem.jpg</imagePath>
+  <backgroundOutline>ROUNDED_RECTANGLE</backgroundOutline>
+  <backgroundOutlineColor>-7821273</backgroundOutlineColor>
+  <textSize>14</textSize>
+  <textColor>#fdfcff</textColor>
+  <textColorAsInt>-131841</textColorAsInt>
+  <textAlignment>LEFT</textAlignment>
+  <textFont>Default</textFont>
+</root>

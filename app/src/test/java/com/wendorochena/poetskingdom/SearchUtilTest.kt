@@ -4,14 +4,13 @@ import android.content.Context
 import com.wendorochena.poetskingdom.utils.SearchUtil
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.*
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
+import org.robolectric.RobolectricTestRunner
 import java.io.File
 
 
@@ -26,7 +25,7 @@ import java.io.File
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 
-@RunWith(MockitoJUnitRunner::class)
+@RunWith(RobolectricTestRunner::class)
 class SearchUtilTest {
 
     @Mock
@@ -34,13 +33,8 @@ class SearchUtilTest {
 
     private lateinit var searchUtil: SearchUtil
     private val exactSearch = "Exact Search"
-    private val approximateSearch = "Approximate Search"
-    val scope = TestScope()
 
-    @OptIn(DelicateCoroutinesApi::class)
-    private val mainThreadSurrogate = newSingleThreadContext("UI thread")
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setUp() {
         mockContext = mock {
@@ -57,16 +51,7 @@ class SearchUtilTest {
                 )
             } doReturn File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/poems")
             on { getString(R.string.exact_phrase_search) } doReturn exactSearch
-            on { getString(R.string.approximate_phrase_search) } doReturn approximateSearch
         }
-        Dispatchers.setMain(mainThreadSurrogate)
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain() // reset the main dispatcher to the original Main dispatcher
-        mainThreadSurrogate.close()
     }
 
     /**
@@ -85,9 +70,13 @@ class SearchUtilTest {
         val dispatcher = StandardTestDispatcher(testScheduler)
         searchUtil = SearchUtil("I want you", mockContext, exactSearch, dispatcher, dispatcher)
         searchUtil.initiateLuceneSearch()
+        advanceUntilIdle()
         val results: ArrayList<String> = searchUtil.getTitleSearchResults()
+        val substringLocation = searchUtil.getSubStringLocations()
 
         assert(results.isNotEmpty())
+
+        assert(substringLocation.isNotEmpty())
 
         assert(results.size == 3)
 
@@ -95,11 +84,52 @@ class SearchUtilTest {
         assert(results.contains("Search_Test_2.xml"))
         assert(results.contains("Search_Test_3.xml"))
 
+        for (pair in substringLocation) {
+
+            when (pair.first) {
+                "Search_Test_1" -> {
+                    val location = pair.second.split(" ")
+                    val stanzaNum = location[0].toInt()
+                    val startIndex = location[1].toInt()
+                    val endIndex = location[2].split("\n")[0].toInt()
+
+                    assert(stanzaNum == 1)
+                    assert(startIndex == 0)
+                    assert(endIndex == 10)
+                }
+                "Search_Test_2" -> {
+                    val location = pair.second.split(" ")
+                    val stanzaNum = location[0].toInt()
+                    val startIndex = location[1].toInt()
+                    val endIndex = location[2].split("\n")[0].toInt()
+                    // there are 35 lines in each stanza with the search keyword and a line is a character
+                    val lines = 35
+
+                    assert(stanzaNum == 10)
+                    assert(startIndex == 936 + lines)
+                    assert(endIndex == 946 + lines)
+                }
+                "Search_Test_3" -> {
+                    val location = pair.second.split(" ")
+                    val stanzaNum = location[0].toInt()
+                    val startIndex = location[1].toInt()
+                    val endIndex = location[2].split("\n")[0].toInt()
+                    // there are 35 lines in each stanza with the search keyword and a line is a character
+                    val lines = 35
+
+                    assert(stanzaNum == 5)
+                    assert(startIndex == 936 + lines)
+                    assert(endIndex == 946 + lines)
+                }
+            }
+        }
+
     }
 
     /**
      * Search keyword "This is an example of a very long exact search string that will be tested in the same manner as the previous tests"
      */
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun testLongStringExactMatch(): Unit = runTest {
 
@@ -112,20 +142,64 @@ class SearchUtilTest {
             dispatcher
         )
         searchUtil.initiateLuceneSearch()
+        advanceUntilIdle()
         val results: ArrayList<String> = searchUtil.getTitleSearchResults()
+        val substringLocation = searchUtil.getSubStringLocations()
 
         assert(results.isNotEmpty())
 
+        assert(substringLocation.isNotEmpty())
         assert(results.size == 3)
 
         assert(results.contains("This_is_search_1.xml"))
         assert(results.contains("This_is_search_2.xml"))
         assert(results.contains("This_is_search_3.xml"))
+
+        for (pair in substringLocation) {
+
+            when (pair.first) {
+                "This_is_search_1" -> {
+                    val location = pair.second.split(" ")
+                    val stanzaNum = location[0].toInt()
+                    val startIndex = location[1].toInt()
+                    val endIndex = location[2].split("\n")[0].toInt()
+
+                    assert(stanzaNum == 1)
+                    assert(startIndex == 0)
+                    assert(endIndex == 114)
+                }
+                "This_is_search_2" -> {
+                    val location = pair.second.split(" ")
+                    val stanzaNum = location[0].toInt()
+                    val startIndex = location[1].toInt()
+                    val endIndex = location[2].split("\n")[0].toInt()
+                    // there are 35 lines in each stanza with the search keyword and a line is a character
+                    val lines = 35
+
+                    assert(stanzaNum == 10)
+                    assert(startIndex == 936 + lines)
+                    assert(endIndex == 1050 + lines)
+                }
+                "This_is_search_3" -> {
+                    val location = pair.second.split(" ")
+                    val stanzaNum = location[0].toInt()
+                    val startIndex = location[1].toInt()
+                    val endIndex = location[2].split("\n")[0].toInt()
+                    // there are 35 lines in each stanza with the search keyword and a line is a character
+                    val lines = 35
+
+                    assert(stanzaNum == 5)
+                    assert(startIndex == 936 + lines)
+                    assert(endIndex == 1050 + lines)
+                }
+            }
+        }
     }
 
     /**
      *
      */
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun testExtremeBoundary(): Unit = runTest {
 
@@ -138,14 +212,58 @@ class SearchUtilTest {
             dispatcher
         )
         searchUtil.initiateLuceneSearch()
+        advanceUntilIdle()
         val results: ArrayList<String> = searchUtil.getTitleSearchResults()
 
+        val substringLocation = searchUtil.getSubStringLocations()
+
         assert(results.isNotEmpty())
+
+        assert(substringLocation.isNotEmpty())
 
         assert(results.size == 3)
 
         assert(results.contains("Boundary_Test_1.xml"))
         assert(results.contains("Boundary_Test_2.xml"))
         assert(results.contains("Boundary_Test_3.xml"))
+        for (pair in substringLocation) {
+
+            when (pair.first) {
+                "Boundary_Test_1" -> {
+                    val location = pair.second.split(" ")
+                    val stanzaNum = location[0].toInt()
+                    val startIndex = location[1].toInt()
+                    val endIndex = location[2].split("\n")[0].toInt()
+
+                    assert(stanzaNum == 1)
+                    assert(startIndex == 0)
+                    assert(endIndex == 981)
+                }
+                "Boundary_Test_2" -> {
+                    val location = pair.second.split(" ")
+                    val stanzaNum = location[0].toInt()
+                    val startIndex = location[1].toInt()
+                    val endIndex = location[2].split("\n")[0].toInt()
+                    // there are 35 lines in each stanza with the search keyword and a line is a character
+                    val lines = 35
+
+                    assert(stanzaNum == 10)
+                    assert(startIndex == 936 + lines)
+                    assert(endIndex == 1917 + lines)
+                }
+                "Boundary_Test_3" -> {
+                    val location = pair.second.split(" ")
+                    val stanzaNum = location[0].toInt()
+                    val startIndex = location[1].toInt()
+                    val endIndex = location[2].split("\n")[0].toInt()
+                    // there are 35 lines in each stanza with the search keyword and a line is a character
+                    val lines = 35
+
+                    assert(stanzaNum == 5)
+                    assert(startIndex == 936 + lines)
+                    assert(endIndex == 1917 + lines)
+                }
+            }
+        }
     }
 }
