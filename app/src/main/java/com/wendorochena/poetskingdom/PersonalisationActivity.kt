@@ -54,7 +54,7 @@ class PersonalisationActivity : AppCompatActivity() {
             nicknamePref?.setOnBindEditTextListener {
                 it.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(30))
             }
-            nicknamePref?.setOnPreferenceChangeListener { pref,p ->
+            nicknamePref?.setOnPreferenceChangeListener { _, _ ->
                 restartApp()
                 true
             }

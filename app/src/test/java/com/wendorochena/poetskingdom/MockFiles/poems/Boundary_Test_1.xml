@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<root>
+  <pages>1</pages>
+  <category>SOUL</category>
+  <title>Boundary Test 1</title>
+  <stanza1>K-nearest neighbors, abbreviated to KNN for future mentions is a classification technique that assigns a class to the k nearest points in regards to a point x. The prevailing class in all chosen k points is the class that is assigned. Before we start attempting to classify with the KNN method we split training data and test data. This helps us avoid over-fitting, in this way when we test the data it is tested on data that has never been seen before and as such gives us more conclusive results. For our KNN classifier we split the data to 70% training data and 30% test data. Generally to find the most optimal value of k to use we use the formula k = n0.5, where k is the number of nearest points and n is the number of instances. However for our hyper parameter k we decided for a much lower value than such k that would have been deduced by square rooting the number of our instances. Due to a general higher bias the larger the value k is we decided to go with the value 5.</stanza1>
+</root>

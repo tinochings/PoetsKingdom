@@ -38,7 +38,9 @@ import java.io.FileReader
 class SearchUtil(
     private val searchPhrase: String,
     val applicationContext: Context,
-    private val searchType: String
+    private val searchType: String,
+    private val mainDispatcher: CoroutineDispatcher,
+    private val ioDispatcher: CoroutineDispatcher
 ) {
     private val analyzer: StandardAnalyzer = StandardAnalyzer(Version.LUCENE_43)
     private lateinit var indexWriter: IndexWriter
@@ -58,8 +60,17 @@ class SearchUtil(
     }
 
     fun getItemCount(): Int {
-
         return itemCount
+    }
+
+    /**
+     * @return the title names of all search docs
+     */
+    fun getTitleSearchResults() : ArrayList<String> {
+        if (!this::titleSearchResults.isInitialized)
+            return ArrayList()
+
+        return titleSearchResults
     }
 
     /**
@@ -194,9 +205,9 @@ class SearchUtil(
             exception.printStackTrace()
         }
 
-        GlobalScope.launch(Dispatchers.Main + handler) {
+        GlobalScope.launch(mainDispatcher + handler) {
             val stanzasArrayList =
-                PoemXMLParser.parseMultiplePoems(titleSearchResults, applicationContext)
+                PoemXMLParser.parseMultiplePoems(titleSearchResults, applicationContext, ioDispatcher)
 
             for (fileNameAndStanzas in stanzasArrayList) {
                 val poemFileName = fileNameAndStanzas.first.split(".")[0]
