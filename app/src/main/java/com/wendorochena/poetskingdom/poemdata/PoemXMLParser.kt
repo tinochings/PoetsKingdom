@@ -131,9 +131,10 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
          */
         suspend fun parseSavedPoem(
             poemTitle: String,
-            applicationContext: Context
+            applicationContext: Context,
+            ioDispatcher: CoroutineDispatcher
         ): ArrayList<String> {
-            return withContext(Dispatchers.IO) {
+            return withContext(ioDispatcher) {
                 val stanzas = ArrayList<String>()
                 val poemsFolder = applicationContext.getDir(applicationContext.getString(R.string.poems_folder_name), Context.MODE_PRIVATE)
                 val fileToUse = File(
@@ -251,7 +252,7 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
                     stanzasArrayList.add(
                         Pair(
                             fileNameSplit,
-                            parseSavedPoem(fileNameSplit, applicationContext)
+                            parseSavedPoem(fileNameSplit, applicationContext, ioDispatcher)
                         )
                     )
                 }
