@@ -105,7 +105,8 @@ class CreatePoem : AppCompatActivity() {
                 val poemLoadResult =
                     if (isLoadPoem) PoemXMLParser.parseSavedPoem(
                         poemParser.getPoemTheme().getTitle(),
-                        applicationContext
+                        applicationContext,
+                        Dispatchers.IO
                     )
                     else
                         null
@@ -679,7 +680,7 @@ class CreatePoem : AppCompatActivity() {
      */
     private fun setupOnPageLongClickListener() {
         recyclerViewAdapter.onItemLongClick = { clickedLayout ->
-            if (clickedLayout.id != R.id.addPageRecyclerViewId) {
+            if (clickedLayout.id != R.id.addPageRecyclerViewId || clickedLayout.id != R.id.addPage) {
                 val pageToDelete = clickedLayout.tag as Int
                 if (currentPage.tag as Int == pageToDelete || pages == 2) {
                     replaceCurrentView(pageToDelete)
@@ -699,7 +700,7 @@ class CreatePoem : AppCompatActivity() {
 
         recyclerViewAdapter.onItemClick = { clickedLayout ->
             val dimmer = findViewById<FrameLayout>(R.id.backgroundDim)
-            if (clickedLayout.id == R.id.addPage) {
+            if (clickedLayout.id == R.id.addPageRecyclerViewId || clickedLayout.id == R.id.addPage) {
                 currentPage.visibility = View.GONE
                 pages++
                 val newPage = createNewPage(false)
@@ -1344,7 +1345,6 @@ class CreatePoem : AppCompatActivity() {
                         if (child is EditText)
                             recyclerViewAdapter.addElement(child.text, currentPage.tag as Int)
                     }
-
                 } else {
                     recyclerViewAdapter.addElement(currentPage, currentPage.tag as Int)
                 }

@@ -36,8 +36,7 @@ sdfdsfds DF jdjd do do do do do do do d
  do do do do do do do do d
 fgf
 gfg
-fgfgfgfgfg
-</stanza1>
+fgfgfgfgfg</stanza1>
   <stanza2>Bcvbvnbsdfdsfdsfdsfdsfdsf
 kkkdsfdsfdsfdsfsfsd fss
 ksdfdsfdsfsdfdsfsdfsdfdsfsdfdsfsdfsdfsdfsdfsdfsdfdsdfsdfsdfdsf
@@ -71,8 +70,7 @@ sdfdsfds DF jdjd do do do do do do do d
  do do do do do do do do d
 fgf
 gfg
-fgfgfgfgfg
-</stanza2>
+fgfgfgfgfg</stanza2>
   <stanza3>Bcvbvnbsdfdsfdsfdsfdsfdsf
 kkkdsfdsfdsfdsfsfsd fss
 ksdfdsfdsfsdfdsfsdfsdfdsfsdfdsfsdfsdfsdfsdfsdfsdfdsdfsdfsdfdsf
@@ -106,8 +104,7 @@ sdfdsfds DF jdjd do do do do do do do d
  do do do do do do do do d
 fgf
 gfg
-fgfgfgfgfg
-</stanza3>
+fgfgfgfgfg</stanza3>
   <stanza4>Bcvbvnbsdfdsfdsfdsfdsfdsf
 kkkdsfdsfdsfdsfsfsd fss
 ksdfdsfdsfsdfdsfsdfsdfdsfsdfdsfsdfsdfsdfsdfsdfsdfdsdfsdfsdfdsf
@@ -141,8 +138,7 @@ sdfdsfds DF jdjd do do do do do do do d
  do do do do do do do do d
 fgf
 gfg
-fgfgfgfgfg
-</stanza4>
+fgfgfgfgfg</stanza4>
   <stanza5>Bcvbvnbsdfdsfdsfdsfdsfdsf
 kkkdsfdsfdsfdsfsfsd fss
 ksdfdsfdsfsdfdsfsdfsdfdsfsdfdsfsdfsdfsdfsdfsdfsdfdsdfsdfsdfdsf
@@ -176,7 +172,7 @@ sdfdsfds DF jdjd do do do do do do do d
  do do do do do do do do d
 fgf
 gfg
-fgfgfgfgfg
+fgfgfgfgfg 
 K-nearest neighbors, abbreviated to KNN for future mentions is a classification technique that assigns a class to the k nearest points in regards to a point x. The prevailing class in all chosen k points is the class that is assigned. Before we start attempting to classify with the KNN method we split training data and test data. This helps us avoid over-fitting, in this way when we test the data it is tested on data that has never been seen before and as such gives us more conclusive results. For our KNN classifier we split the data to 70% training data and 30% test data. Generally to find the most optimal value of k to use we use the formula k = n0.5, where k is the number of nearest points and n is the number of instances. However for our hyper parameter k we decided for a much lower value than such k that would have been deduced by square rooting the number of our instances. Due to a general higher bias the larger the value k is we decided to go with the value 5.</stanza5>
   <stanza6>Bcvbvnbsdfdsfdsfdsfdsfdsf
 kkkdsfdsfdsfdsfsfsd fss
@@ -211,8 +207,7 @@ sdfdsfds DF jdjd do do do do do do do d
  do do do do do do do do d
 fgf
 gfg
-fgfgfgfgfg
-</stanza6>
+fgfgfgfgfg</stanza6>
   <stanza7>Bcvbvnbsdfdsfdsfdsfdsfdsf
 kkkdsfdsfdsfdsfsfsd fss
 ksdfdsfdsfsdfdsfsdfsdfdsfsdfdsfsdfsdfsdfsdfsdfsdfdsdfsdfsdfdsf
@@ -246,8 +241,7 @@ sdfdsfds DF jdjd do do do do do do do d
  do do do do do do do do d
 fgf
 gfg
-fgfgfgfgfg
-</stanza7>
+fgfgfgfgfg</stanza7>
   <stanza8>Bcvbvnbsdfdsfdsfdsfdsfdsf
 kkkdsfdsfdsfdsfsfsd fss
 ksdfdsfdsfsdfdsfsdfsdfdsfsdfdsfsdfsdfsdfsdfsdfsdfdsdfsdfsdfdsf
@@ -281,8 +275,7 @@ sdfdsfds DF jdjd do do do do do do do d
  do do do do do do do do d
 fgf
 gfg
-fgfgfgfgfg
-</stanza8>
+fgfgfgfgfg</stanza8>
   <stanza9>Bcvbvnbsdfdsfdsfdsfdsfdsf
 kkkdsfdsfdsfdsfsfsd fss
 ksdfdsfdsfsdfdsfsdfsdfdsfsdfdsfsdfsdfsdfsdfsdfsdfdsdfsdfsdfdsf
@@ -316,8 +309,7 @@ sdfdsfds DF jdjd do do do do do do do d
  do do do do do do do do d
 fgf
 gfg
-fgfgfgfgfg
-</stanza9>
+fgfgfgfgfg</stanza9>
   <stanza10>Bcvbvnbsdfdsfdsfdsfdsfdsf
 kkkdsfdsfdsfdsfsfsd fss
 ksdfdsfdsfsdfdsfsdfsdfdsfsdfdsfsdfsdfsdfsdfsdfsdfdsdfsdfsdfdsf
@@ -351,6 +343,5 @@ sdfdsfds DF jdjd do do do do do do do d
  do do do do do do do do d
 fgf
 gfg
-fgfgfgfgfg
-</stanza10>
+fgfgfgfgfg</stanza10>
 </root>

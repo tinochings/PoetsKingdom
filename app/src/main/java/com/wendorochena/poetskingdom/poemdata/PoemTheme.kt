@@ -1,7 +1,6 @@
 package com.wendorochena.poetskingdom.poemdata
 
 import android.content.Context
-import com.wendorochena.poetskingdom.R
 
 data class PoemTheme(var backgroundType: BackgroundType, private val applicationContext: Context) {
     private  var backgroundColor: String = "#FFFFFFFF"
@@ -9,11 +8,14 @@ data class PoemTheme(var backgroundType: BackgroundType, private val application
     private  var outline: String =""
     private var textSize = 14
     private var textColor: String = "#000000"
-    private var textColorAsInt = applicationContext.getColor(R.color.black)
-    private var backgroundColorAsInt = applicationContext.getColor(R.color.white)
+    private var textColorAsInt = -16777216
+//        applicationContext.resources.getColor(R.color.black, null)
+    private var backgroundColorAsInt = -1
+//        applicationContext.resources.getColor(R.color.white,null)
     private var textAlignment: TextAlignment = TextAlignment.LEFT
     private var textFontFamily: String = "Default"
-    private var outlineColor: Int = applicationContext.getColor(R.color.madzinza_green)
+    private var outlineColor: Int = -7821273
+//        applicationContext.resources.getColor(R.color.madzinza_green, null)
     private var poemTitle: String = ""
 
 
