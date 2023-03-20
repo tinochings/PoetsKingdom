@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.util.Xml
 import com.wendorochena.poetskingdom.R
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.xmlpull.v1.XmlPullParser
@@ -134,7 +135,7 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
         ): ArrayList<String> {
             return withContext(Dispatchers.IO) {
                 val stanzas = ArrayList<String>()
-                val poemsFolder = applicationContext.getDir("poems", Context.MODE_PRIVATE)
+                val poemsFolder = applicationContext.getDir(applicationContext.getString(R.string.poems_folder_name), Context.MODE_PRIVATE)
                 val fileToUse = File(
                     poemsFolder?.absolutePath + File.separator + poemTitle.replace(
                         ' ',
@@ -239,9 +240,10 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
          */
         suspend fun parseMultiplePoems(
             fileNames: ArrayList<String>,
-            applicationContext: Context
+            applicationContext: Context,
+            ioDispatcher: CoroutineDispatcher
         ): ArrayList<Pair<String, ArrayList<String>>> {
-            return withContext(Dispatchers.IO) {
+            return withContext(ioDispatcher) {
                 val stanzasArrayList = ArrayList<Pair<String, ArrayList<String>>>()
 
                 for (fileName in fileNames) {
