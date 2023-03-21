@@ -680,7 +680,7 @@ class CreatePoem : AppCompatActivity() {
      */
     private fun setupOnPageLongClickListener() {
         recyclerViewAdapter.onItemLongClick = { clickedLayout ->
-            if (clickedLayout.id != R.id.addPageRecyclerViewId || clickedLayout.id != R.id.addPage) {
+            if (clickedLayout.id != R.id.addPage) {
                 val pageToDelete = clickedLayout.tag as Int
                 if (currentPage.tag as Int == pageToDelete || pages == 2) {
                     replaceCurrentView(pageToDelete)
@@ -700,7 +700,7 @@ class CreatePoem : AppCompatActivity() {
 
         recyclerViewAdapter.onItemClick = { clickedLayout ->
             val dimmer = findViewById<FrameLayout>(R.id.backgroundDim)
-            if (clickedLayout.id == R.id.addPageRecyclerViewId || clickedLayout.id == R.id.addPage) {
+            if (clickedLayout.id == R.id.addPage) {
                 currentPage.visibility = View.GONE
                 pages++
                 val newPage = createNewPage(false)
@@ -1479,14 +1479,7 @@ class CreatePoem : AppCompatActivity() {
             coverPageSignature.gravity = Gravity.START
             poemTheme.setTextAlignment(TextAlignment.LEFT)
             setEditTextAlignment(TextView.TEXT_ALIGNMENT_TEXT_START, Gravity.START)
-//            val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
-//            poemThemeXmlParser.setIsEditTheme(true)
             actuateSavePoemTheme()
-//            poemThemeXmlParser.savePoemThemeToLocalFile(
-//                poemTheme.getImagePath(),
-//                poemTheme.getBackgroundColor(),
-//                null
-//            )
         }
         centreAlign.setOnClickListener {
             val coverPageAuthor = findViewById<TextView>(R.id.coverPageAuthor)
@@ -1501,13 +1494,6 @@ class CreatePoem : AppCompatActivity() {
             poemTheme.setTextAlignment(TextAlignment.CENTRE)
             setEditTextAlignment(TextView.TEXT_ALIGNMENT_CENTER, Gravity.CENTER)
             actuateSavePoemTheme()
-//            val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
-//            poemThemeXmlParser.setIsEditTheme(true)
-//            poemThemeXmlParser.savePoemThemeToLocalFile(
-//                poemTheme.getImagePath(),
-//                poemTheme.getBackgroundColor(),
-//                null
-//            )
         }
         rightAlign.setOnClickListener {
             val coverPageAuthor = findViewById<TextView>(R.id.coverPageAuthor)
@@ -1523,13 +1509,6 @@ class CreatePoem : AppCompatActivity() {
             poemTheme.setTextAlignment(TextAlignment.RIGHT)
             setEditTextAlignment(TextView.TEXT_ALIGNMENT_TEXT_END, Gravity.END)
             actuateSavePoemTheme()
-//            val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
-//            poemThemeXmlParser.setIsEditTheme(true)
-//            poemThemeXmlParser.savePoemThemeToLocalFile(
-//                poemTheme.getImagePath(),
-//                poemTheme.getBackgroundColor(),
-//                null
-//            )
         }
         centreVerticalAlign.setOnClickListener {
             val coverPageAuthor = findViewById<TextView>(R.id.coverPageAuthor)
@@ -1545,13 +1524,6 @@ class CreatePoem : AppCompatActivity() {
             poemTheme.setTextAlignment(TextAlignment.CENTRE_VERTICAL)
             setEditTextAlignment(TextView.TEXT_ALIGNMENT_CENTER, Gravity.CENTER_VERTICAL)
             actuateSavePoemTheme()
-//            val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
-//            poemThemeXmlParser.setIsEditTheme(true)
-//            poemThemeXmlParser.savePoemThemeToLocalFile(
-//                poemTheme.getImagePath(),
-//                poemTheme.getBackgroundColor(),
-//                null
-//            )
         }
         centreVerticalRightAlign.setOnClickListener {
             val coverPageAuthor = findViewById<TextView>(R.id.coverPageAuthor)
@@ -1570,13 +1542,6 @@ class CreatePoem : AppCompatActivity() {
                 Gravity.CENTER_VERTICAL or Gravity.END
             )
             actuateSavePoemTheme()
-//            val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
-//            poemThemeXmlParser.setIsEditTheme(true)
-//            poemThemeXmlParser.savePoemThemeToLocalFile(
-//                poemTheme.getImagePath(),
-//                poemTheme.getBackgroundColor(),
-//                null
-//            )
         }
         centreVerticalLeftAlign.setOnClickListener {
             val coverPageAuthor = findViewById<TextView>(R.id.coverPageAuthor)
@@ -1595,13 +1560,6 @@ class CreatePoem : AppCompatActivity() {
                 Gravity.CENTER_VERTICAL or Gravity.START
             )
             actuateSavePoemTheme()
-//            val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
-//            poemThemeXmlParser.setIsEditTheme(true)
-//            poemThemeXmlParser.savePoemThemeToLocalFile(
-//                poemTheme.getImagePath(),
-//                poemTheme.getBackgroundColor(),
-//                null
-//            )
         }
     }
 
@@ -1691,12 +1649,6 @@ class CreatePoem : AppCompatActivity() {
                     poemTheme.setTextColorAsInt(color)
                     updateAllEditTextViews(Float.NaN, "textColor", color)
                     actuateSavePoemTheme()
-//                    val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
-//                    poemThemeXmlParser.savePoemThemeToLocalFile(
-//                        poemTheme.getImagePath(),
-//                        poemTheme.getBackgroundColor(),
-//                        null
-//                    )
                 }.setDismissListener {
                     currentContainerView = null
                 }.show()
@@ -1772,15 +1724,6 @@ class CreatePoem : AppCompatActivity() {
             currentEditText.textSize = poemTheme.getTextSize().toFloat()
             updateAllEditTextViews(newTextSize, "textSize", 0)
             actuateSavePoemTheme()
-//            val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
-//            if (poemThemeXmlParser.savePoemThemeToLocalFile(
-//                    poemTheme.getImagePath(),
-//                    poemTheme.getBackgroundColor(),
-//                    null
-//                ) != 0
-//            ) {
-//                println("Could not save poem theme")
-//            }
         }
     }
 
@@ -1929,7 +1872,7 @@ class CreatePoem : AppCompatActivity() {
             for (child in currentPage.children) {
                 if (child is ShapeableImageView) {
                     if (!poemParser.saveBackgroundImageDrawable(child.drawToBitmap(Bitmap.Config.ARGB_8888)))
-                        println("Could not save image background Drawable error unknown")
+                        println("Could not save image background Drawable, failed to draw and store bitmap")
                 }
             }
         } else if (!poemParser.saveBackgroundImageDrawable(
@@ -1940,7 +1883,7 @@ class CreatePoem : AppCompatActivity() {
                 )
             )
         )
-            println("Could not save image background Drawable error unknown")
+            println("Could not save image background Drawable, failed to draw and store bitmap")
 
         when (poemParser.saveToXmlFile()) {
             0 -> {

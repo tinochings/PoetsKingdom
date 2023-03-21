@@ -44,12 +44,10 @@ class CreatePoemRecyclerViewAdapter(
             view.findViewById<FrameLayout>(R.id.clickableArea).setOnClickListener {
                 onItemClick?.invoke(frameLayoutArrayList[absoluteAdapterPosition])
             }
-            if (frameLayout.id != R.id.addPage) {
                 view.findViewById<FrameLayout>(R.id.clickableArea).setOnLongClickListener {
                     onItemLongClick?.invoke(frameLayoutArrayList[absoluteAdapterPosition])
                     true
                 }
-            }
         }
 
     }
@@ -123,16 +121,16 @@ class CreatePoemRecyclerViewAdapter(
             }
         }
 
-        if (currentFrameLayout.id == R.id.addPage || currentFrameLayout.id == R.id.addPageRecyclerViewId) {
-
-            holder.frameLayout.id = R.id.addPageRecyclerViewId
+        if (position == 0) {
             holder.frameLayout.background = currentFrameLayout.background.mutate()
             holder.imageView.layoutParams = currentImageLayout?.layoutParams
-            holder.imageView.setImageDrawable(ResourcesCompat.getDrawable(
-                context.resources,
-                R.drawable.baseline_add_circle_outline_24,
-                null
-            ))
+            holder.imageView.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    context.resources,
+                    R.drawable.baseline_add_circle_outline_24,
+                    null
+                )
+            )
         } else {
             if (currentFrameLayout.background != null) {
                 val drawable = currentFrameLayout.background.constantState?.newDrawable()
@@ -344,7 +342,15 @@ class CreatePoemRecyclerViewAdapter(
     /**
      * This is for testing purposes I REPEAT DO NOT UNCOMMENT IT IS HIGHLY INSECURE
      */
-    fun getElement(index: Int) : FrameLayout {
+    fun getElement(index: Int): FrameLayout {
         return frameLayoutArrayList[index]
+    }
+
+    override fun onViewRecycled(holder: ViewHolder) {
+        super.onViewRecycled(holder)
+        holder.imageView.setImageDrawable(null)
+        holder.textView.text = SpannableStringBuilder("")
+        if (holder.imageView.tag != null && holder.imageView.tag.toString().startsWith("/"))
+            Glide.with(context).clear(holder.imageView)
     }
 }
