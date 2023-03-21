@@ -12,6 +12,7 @@ import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.android.material.imageview.ShapeableImageView
 import com.wendorochena.poetskingdom.R
 import java.io.File
@@ -254,5 +255,11 @@ class MyPoemsRecyclerViewAdapter(val context: android.content.Context) :
      */
     fun deleteElem(index: Int) {
         listAdapterArrayList.removeAt(index)
+    }
+
+    override fun onViewRecycled(holder: ViewHolder) {
+        super.onViewRecycled(holder)
+        if (holder.imageView.tag != null && holder.imageView.tag.toString().startsWith("/"))
+            Glide.with(context).clear(holder.imageView)
     }
 }

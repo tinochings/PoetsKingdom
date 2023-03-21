@@ -208,6 +208,7 @@ class SearchResultsRecyclerViewAdapter(
 
                 Glide.with(context).load(backgroundFileImage.absolutePath)
                     .into(holder.backgroundImage)
+                holder.backgroundImage.tag = backgroundFileImage.absolutePath
                 holder.backgroundImage.contentDescription =
                     holder.searchText.text.toString() + "background image"
             } else {
@@ -254,5 +255,11 @@ class SearchResultsRecyclerViewAdapter(
             return -1
         }
         return 0
+    }
+
+    override fun onViewRecycled(holder: ViewHolder) {
+        super.onViewRecycled(holder)
+        if (holder.backgroundImage.tag != null && holder.backgroundImage.tag.toString().startsWith("/"))
+            Glide.with(context).clear(holder.backgroundImage)
     }
 }
