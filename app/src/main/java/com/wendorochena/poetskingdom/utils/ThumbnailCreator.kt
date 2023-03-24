@@ -287,7 +287,8 @@ class ThumbnailCreator(
             else
                 paint.descent() - paint.ascent() + paint.fontMetrics.leading
 
-            val isCentreVertical = poemTheme.getTextAlignment().toString().contains("CENTRE")
+            val isCentreVertical =
+                poemTheme.getTextAlignment() == TextAlignment.CENTRE_VERTICAL || poemTheme.getTextAlignment() == TextAlignment.CENTRE
             val poemNameSplit = poemName.split("\\p")
             val poetsNameSplit = poetsName.split("\\p")
             val poetsSignatureSplit = poetsSignature.split("\\p")
@@ -338,8 +339,7 @@ class ThumbnailCreator(
 
                 if (isCentreVertical)
                     xPoint = width / 2f
-            }
-            else {
+            } else {
                 if (isCentreVertical) {
                     val bounds = Rect()
                     paint.getTextBounds(poetsNameSplit[0], 0, poetsNameSplit[0].length, bounds)
