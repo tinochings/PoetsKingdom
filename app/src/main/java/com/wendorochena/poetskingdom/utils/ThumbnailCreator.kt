@@ -130,6 +130,19 @@ class ThumbnailCreator(
         drawToBitmap()
     }
 
+    private fun centreAlign(string: String) {
+        val bounds = Rect()
+        paint.getTextBounds(string, 0, string.length, bounds)
+        xPoint = ((width / 2) -  (bounds.width() / 2)).toFloat()
+    }
+
+
+    private fun rightAlign(string: String) {
+        val bounds = Rect()
+        paint.getTextBounds(string, 0, string.length, bounds)
+        xPoint = (width - textMarginUtil.marginRight - bounds.width()).toFloat()
+    }
+
     /**
      * Sets up the thumbnail information
      */
@@ -289,41 +302,40 @@ class ThumbnailCreator(
 
             val isCentreVertical =
                 poemTheme.getTextAlignment() == TextAlignment.CENTRE_VERTICAL || poemTheme.getTextAlignment() == TextAlignment.CENTRE
+            val isRightAlign =
+                poemTheme.getTextAlignment() == TextAlignment.CENTRE_VERTICAL_RIGHT || poemTheme.getTextAlignment() == TextAlignment.RIGHT
+
             val poemNameSplit = poemName.split("\\p")
             val poetsNameSplit = poetsName.split("\\p")
             val poetsSignatureSplit = poetsSignature.split("\\p")
 
             if (poemNameSplit.size == 1) {
                 if (isCentreVertical) {
-                    val bounds = Rect()
-                    paint.getTextBounds(poemName, 0, poemName.length, bounds)
-                    xPoint -= bounds.width() / 2
+                    centreAlign(poemName)
                 }
+                if (isRightAlign)
+                    rightAlign(poemName)
+
                 canvas.drawText(poemName, xPoint, yPoint, paint)
-                if (isCentreVertical)
-                    xPoint = width / 2f
             } else {
                 if (isCentreVertical) {
-                    val bounds = Rect()
-                    paint.getTextBounds(poemNameSplit[0], 0, poemNameSplit[0].length, bounds)
-                    xPoint -= bounds.width() / 2
+                    centreAlign(poetsNameSplit[0])
                 }
+                if (isRightAlign)
+                    rightAlign(poetsNameSplit[0])
                 canvas.drawText(poemNameSplit[0], xPoint, yPoint, paint)
 
-                if (isCentreVertical)
-                    xPoint = width / 2f
 
                 yPoint += (paint.descent() - paint.ascent() + paint.fontMetrics.leading)
+
                 if (isCentreVertical) {
-                    val bounds = Rect()
-                    paint.getTextBounds(poemNameSplit[1], 0, poemNameSplit[1].length, bounds)
-                    xPoint -= bounds.width() / 2
+                    centreAlign(poetsNameSplit[1])
                 }
 
+                if (isRightAlign)
+                    rightAlign(poemNameSplit[1])
                 canvas.drawText(poemNameSplit[1], xPoint, yPoint, paint)
 
-                if (isCentreVertical)
-                    xPoint = width / 2f
             }
 
 
@@ -331,82 +343,61 @@ class ThumbnailCreator(
 
             if (poetsNameSplit.size == 1) {
                 if (isCentreVertical) {
-                    val bounds = Rect()
-                    paint.getTextBounds(poetsName, 0, poetsName.length, bounds)
-                    xPoint -= bounds.width() / 2
+                    centreAlign(poetsName)
                 }
+                if (isRightAlign)
+                    rightAlign(poetsName)
+
                 canvas.drawText(poetsName, xPoint, yPoint, paint)
 
-                if (isCentreVertical)
-                    xPoint = width / 2f
             } else {
                 if (isCentreVertical) {
-                    val bounds = Rect()
-                    paint.getTextBounds(poetsNameSplit[0], 0, poetsNameSplit[0].length, bounds)
-                    xPoint -= bounds.width() / 2
+                    centreAlign(poetsNameSplit[0])
                 }
-                canvas.drawText(poetsNameSplit[0], xPoint, yPoint, paint)
+                if (isRightAlign)
+                    rightAlign(poetsNameSplit[0])
 
-                if (isCentreVertical)
-                    xPoint = width / 2f
+                canvas.drawText(poetsNameSplit[0], xPoint, yPoint, paint)
 
                 yPoint += (paint.descent() - paint.ascent() + paint.fontMetrics.leading)
 
                 if (isCentreVertical) {
-                    val bounds = Rect()
-                    paint.getTextBounds(poetsNameSplit[1], 0, poetsNameSplit[1].length, bounds)
-                    xPoint -= bounds.width() / 2
+                    centreAlign(poetsNameSplit[1])
                 }
-                canvas.drawText(poetsNameSplit[1], xPoint, yPoint, paint)
+                if (isRightAlign)
+                    rightAlign(poetsNameSplit[1])
 
-                if (isCentreVertical)
-                    xPoint = width / 2f
+                canvas.drawText(poetsNameSplit[1], xPoint, yPoint, paint)
             }
 
             yPoint = height - (paint.descent() - paint.ascent() + paint.fontMetrics.leading)
 
             if (poetsSignatureSplit.size == 1) {
                 if (isCentreVertical) {
-                    val bounds = Rect()
-                    paint.getTextBounds(poetsSignature, 0, poetsSignature.length, bounds)
-                    xPoint -= bounds.width() / 2
+                    centreAlign(poetsSignature)
                 }
+                if (isRightAlign)
+                    rightAlign(poetsSignature)
                 canvas.drawText(poetsSignature, xPoint, yPoint, paint)
-
-                if (isCentreVertical)
-                    xPoint = width / 2f
             } else {
                 if (isCentreVertical) {
-                    val bounds = Rect()
-                    paint.getTextBounds(
-                        poetsSignatureSplit[0],
-                        0,
-                        poetsSignatureSplit[0].length,
-                        bounds
-                    )
-                    xPoint -= bounds.width() / 2
+                    centreAlign(poetsSignatureSplit[0])
                 }
-
+                if (isRightAlign)
+                    rightAlign(poetsSignatureSplit[0])
                 yPoint =
                     height - ((paint.descent() - paint.ascent() + paint.fontMetrics.leading) * 2)
 
                 canvas.drawText(poetsSignatureSplit[0], xPoint, yPoint, paint)
 
-                if (isCentreVertical)
-                    xPoint = width / 2f
-
                 yPoint += (paint.descent() - paint.ascent() + paint.fontMetrics.leading)
 
                 if (isCentreVertical) {
-                    val bounds = Rect()
-                    paint.getTextBounds(
-                        poetsSignatureSplit[1],
-                        0,
-                        poetsSignatureSplit[1].length,
-                        bounds
-                    )
-                    xPoint -= bounds.width() / 2
+                    centreAlign(poetsSignatureSplit[1])
                 }
+                if (isRightAlign)
+                    rightAlign(poetsSignatureSplit[1])
+
                 canvas.drawText(poetsSignatureSplit[1], xPoint, yPoint, paint)
             }
 
