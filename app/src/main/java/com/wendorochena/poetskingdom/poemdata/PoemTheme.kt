@@ -39,6 +39,9 @@ data class PoemTheme(var backgroundType: BackgroundType, private val application
         this.imagePath = imagePath
     }
 
+    /**
+     * Returns the exact outline for the poem
+     */
     fun getOutline(): String {
         return outline
     }

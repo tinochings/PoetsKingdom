@@ -13,7 +13,8 @@ class PdfPrinterHelper(
     private val pageWidth: Int,
     private val textSize: Int,
     private var editTextsToPrint: ArrayList<EditText>,
-    private val textSizeMargin : Int
+    private val textSizeMargin : Int,
+    private val outline : String
 ) {
 
     /**
@@ -30,7 +31,7 @@ class PdfPrinterHelper(
         context: Context,
         currentPage: FrameLayout
     ): Int {
-        val imageSaverUtil = ImageSaverUtil(context, currentPage, textSize * 4/3)
+        val imageSaverUtil = ImageSaverUtil(context, currentPage, textSize * 4/3, outline)
         val textPixelSize = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_SP,
             textSize.toFloat(),

@@ -25,7 +25,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.drawToBitmap
 import com.google.android.material.imageview.ShapeableImageView
-import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.poemdata.TextAlignment
 import java.io.File
 import java.io.FileOutputStream
@@ -42,7 +41,8 @@ class PdfPrintAdapter(
     //first is margin size for stroke
     //second is margin size for text
     private val layoutMarginAndTextMargin: Pair<Int, Int>,
-    private val textAlignment: TextAlignment
+    private val textAlignment: TextAlignment,
+    private val outline : String
 ) : PrintDocumentAdapter() {
     private var editTextToPrint = ArrayList<EditText>()
     private var pdfDocument: PrintedPdfDocument? = null
@@ -70,7 +70,8 @@ class PdfPrintAdapter(
                 (width * 4 / 3) - (layoutMarginAndTextMargin.second * 2 * 4 / 3),
                 textSize,
                 ArrayList(),
-                layoutMarginAndTextMargin.second
+                layoutMarginAndTextMargin.second,
+                outline
             )
         val pages = pdfPrinterHelper.calculatePages(editableArrayList, context, currentPage) + 1
         editTextToPrint = pdfPrinterHelper.getEditTextsToPrint()

@@ -2,10 +2,7 @@ package com.wendorochena.poetskingdom
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Typeface
+import android.graphics.*
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
@@ -87,7 +84,7 @@ class CreatePoem : AppCompatActivity() {
 
             val exceptionHandler = CoroutineExceptionHandler { _, exception ->
                 exception.printStackTrace()
-
+                turnOnDimmerProgressBar()
                 val builder = MaterialAlertDialogBuilder(this@CreatePoem)
                 builder.setTitle(R.string.failed_poem_load_title)
                     .setMessage(R.string.failed_poem_load_message)
@@ -97,10 +94,12 @@ class CreatePoem : AppCompatActivity() {
                     }.show()
             }
 
-            val isLoadPoem = intentExtras.getBoolean(loadPoemArg, false)
-
             // load file on background thread and then populate UI
             GlobalScope.launch(Dispatchers.Main + exceptionHandler) {
+                val isLoadPoem = intentExtras.getBoolean(loadPoemArg, false)
+                if (isLoadPoem)
+                    turnOnDimmerProgressBar()
+
                 val poemThemeResult = poemParser.parseTheme(intentExtras.getString(poemTitleArg))
                 val poemLoadResult =
                     if (isLoadPoem) PoemXMLParser.parseSavedPoem(
@@ -126,7 +125,9 @@ class CreatePoem : AppCompatActivity() {
                         pageNumberAndText[1] = ""
                         hasFileBeenEdited = true
                     }
+                    turnOffDimmerProgressBar()
                 } else {
+                    turnOnDimmerProgressBar()
                     val builder = MaterialAlertDialogBuilder(this@CreatePoem)
                     builder.setTitle(R.string.failed_poem_load_title)
                         .setMessage(R.string.failed_poem_load_message)
@@ -347,15 +348,16 @@ class CreatePoem : AppCompatActivity() {
      * Returns the margin size for text
      */
     private fun getTextMarginSize(): Int {
-        return if (orientation == "portrait" && poemTheme.getOutline().contains("TEARDROP"))
+        return if (poemTheme.getOutline() == OutlineTypes.ROTATED_TEARDROP.toString())
             resources.getDimensionPixelSize(R.dimen.previewWithOutlineTextMarginTeardrop)
-        else if (orientation == "portrait" && poemTheme.backgroundType.toString()
+        else if (poemTheme.getOutline() == OutlineTypes.TEARDROP.toString())
+            resources.getDimensionPixelSize(R.dimen.rotatedTeardropCornerSizeTopLeft)
+        else if (poemTheme.backgroundType.toString()
                 .contains("OUTLINE")
         )
             resources.getDimensionPixelSize(R.dimen.portraitStrokeSizeMarginText)
         else
             0
-
     }
 
     /**
@@ -461,7 +463,7 @@ class CreatePoem : AppCompatActivity() {
 
         if (poemTheme.backgroundType.toString().contains("OUTLINE")) {
             toRetEditTextBox.layoutParams =
-                adjustTextBounds(poemTheme.getOutline())
+                adjustTextBounds()
         }
 
         frameToReturn.addView(toRetEditTextBox)
@@ -725,40 +727,33 @@ class CreatePoem : AppCompatActivity() {
     /**
      * Adjust the bounds of the text view so it does not intrude into the boarder of the outline
      */
-    private fun adjustTextBounds(outlineTypes: String): FrameLayout.LayoutParams {
+    private fun adjustTextBounds(): FrameLayout.LayoutParams {
         val layoutParams = FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.MATCH_PARENT,
             FrameLayout.LayoutParams.WRAP_CONTENT
         )
-        val strokeSize: Int = getTextMarginSize()
+
+        val outlineStrokeSize: Int = if (orientation == "portrait")
+            resources.getDimensionPixelSize(R.dimen.portraitStrokeSize)
+        else
+            resources.getDimensionPixelSize(R.dimen.strokeSize)
+
+        val textUtil = TextMarginUtil()
+
+        textUtil.determineTextMargins(poemTheme.getOutline(), resources,outlineStrokeSize)
+
         layoutParams.setMargins(
-            strokeSize
+            textUtil.marginLeft,
+            textUtil.marginTop,
+            textUtil.marginRight,
+            textUtil.marginBottom
         )
-        when (outlineTypes) {
-            OutlineTypes.TEARDROP.toString() -> {
-                layoutParams.setMargins(
-                    strokeSize
-                )
-            }
-            OutlineTypes.ROTATED_TEARDROP.toString() -> {
-                layoutParams.setMargins(
-                    strokeSize
-                )
-            }
-            OutlineTypes.LEMON.toString() -> {
-                layoutParams.setMargins(
-                    resources.getDimensionPixelSize(R.dimen.lemonCornerSizeTopLeft),
-                    resources.getDimensionPixelSize(R.dimen.lemonCornerSizeTopRight),
-                    resources.getDimensionPixelSize(R.dimen.lemonCornerSizeTopRight),
-                    resources.getDimensionPixelSize(R.dimen.lemonCornerSizeTopLeft)
-                )
-            }
-        }
+
         return layoutParams
     }
 
     /**
-     * Returns outline and the color selected
+     * @return Returns outline and the color selected
      */
 
     private fun getOutlineAndColor(): Drawable {
@@ -786,22 +781,7 @@ class CreatePoem : AppCompatActivity() {
         )
         when (poemTheme.getOutline()) {
             OutlineTypes.ROUNDED_RECTANGLE.toString() -> {
-                val gradientDrawable = ResourcesCompat.getDrawable(
-                    resources,
-                    R.drawable.rounded_rectangle_outline,
-                    null
-                ) as GradientDrawable
-
-                gradientDrawable.setBounds(
-                    currentPage.left,
-                    currentPage.top,
-                    currentPage.right,
-                    currentPage.bottom
-                )
-                gradientDrawable.setStroke(
-                    strokeSize, poemTheme.getOutlineColor()
-                )
-                return gradientDrawable
+                return defaultDrawable
             }
 
             OutlineTypes.TEARDROP.toString() -> {
@@ -895,7 +875,7 @@ class CreatePoem : AppCompatActivity() {
         text.setHint(R.string.create_poem_text_view_hint)
 
         if (poemTheme.backgroundType.toString().contains("OUTLINE")) {
-            text.layoutParams = adjustTextBounds(poemTheme.getOutline())
+            text.layoutParams = adjustTextBounds()
         }
 
         when (poemTheme.getTextAlignment()) {
@@ -987,9 +967,17 @@ class CreatePoem : AppCompatActivity() {
             }
 
             BackgroundType.OUTLINE_WITH_IMAGE -> {
+                val strokeSize: Int = if (orientation == "portrait")
+                    resources.getDimensionPixelSize(R.dimen.portraitStrokeSize)
+                else
+                    resources.getDimensionPixelSize(R.dimen.strokeSize)
                 frame.background = getOutlineAndColor()
                 image.shapeAppearanceModel =
-                    ShapeAppearanceModelHelper.shapeImageView(poemTheme.getOutline(), resources)
+                    ShapeAppearanceModelHelper.shapeImageView(
+                        poemTheme.getOutline(),
+                        resources,
+                        strokeSize.toFloat()
+                    )
                 val file = File(poemTheme.getImagePath())
                 if (file.exists()) {
                     Glide.with(applicationContext).load(file.absolutePath)
@@ -1022,14 +1010,8 @@ class CreatePoem : AppCompatActivity() {
                     FrameLayout.LayoutParams.MATCH_PARENT,
                     FrameLayout.LayoutParams.MATCH_PARENT
                 )
-                val strokeSize: Int = if (orientation == "portrait")
-                    resources.getDimensionPixelSize(R.dimen.portraitStrokeSizeMargin)
-                else
-                    resources.getDimensionPixelSize(R.dimen.strokeSizeMargin)
 
-                layoutParams.setMargins(
-                    strokeSize
-                )
+                layoutParams.setMargins(strokeSize)
                 image.layoutParams = layoutParams
                 image.scaleType = ImageView.ScaleType.FIT_XY
                 image.visibility = View.VISIBLE
@@ -1183,9 +1165,9 @@ class CreatePoem : AppCompatActivity() {
         else
             findViewById(R.id.portraitPoemContainer)
 
-        prepareText()
-
         setBackground()
+
+        prepareText()
         currentPage.visibility = View.VISIBLE
         currentPage.tag = 1
 
@@ -1393,11 +1375,14 @@ class CreatePoem : AppCompatActivity() {
                             }
                             else -> {
                                 val layoutParams = child.layoutParams as FrameLayout.LayoutParams
+                                println(layoutParams.leftMargin)
                                 layoutParams.gravity = if (gravity == Gravity.CENTER)
                                     Gravity.TOP or gravity
                                 else
                                     Gravity.NO_GRAVITY or gravity
                                 child.layoutParams = layoutParams
+
+                                println((child.layoutParams as FrameLayout.LayoutParams).leftMargin)
                                 child.textAlignment = alignment
                                 child.gravity = gravity
                             }
@@ -1752,6 +1737,10 @@ class CreatePoem : AppCompatActivity() {
                 currentContainerView = saveContainer
                 allOptionsContainer.visibility = View.VISIBLE
                 saveContainer.visibility = View.VISIBLE
+                currentPage.elevation = 0f
+//                currentContainerView?.elevation = 7f
+//                currentContainerView?.z = 7f
+//                currentContainerView?.bringToFront()
             }
         }
     }
@@ -1951,7 +1940,8 @@ class CreatePoem : AppCompatActivity() {
                         currentPage,
                         this,
                         Pair(strokeMargin, textMargin),
-                        poemTheme.getTextAlignment()
+                        poemTheme.getTextAlignment(),
+                        poemTheme.getOutline()
                     ),
                     null
                 )
@@ -1967,8 +1957,8 @@ class CreatePoem : AppCompatActivity() {
      */
     private suspend fun initiateSavePagesAsImages() {
         val editableArrayList = getAllTypedText()
-        val strokeSize: Int = getTextMarginSize()
-        val imageMargins =
+        getTextMarginSize()
+        val imageStrokeMargins =
             if (orientation == "portrait" && currentPage.background != null && currentPage.background !is ColorDrawable)
                 resources.getDimensionPixelSize(R.dimen.portraitStrokeSize)
             else if (orientation == "landscape" && currentPage.background != null && currentPage.background !is ColorDrawable)
@@ -1977,8 +1967,12 @@ class CreatePoem : AppCompatActivity() {
                 0
         val isLandscape = orientation == "landscape"
 
+        val textMarginUtil = TextMarginUtil()
+        if (imageStrokeMargins != 0)
+            textMarginUtil.determineTextMargins(poemTheme.getOutline(),resources,imageStrokeMargins)
+
         val imageSaverUtil =
-            ImageSaverUtil(applicationContext, currentPage, poemTheme.getTextSize())
+            ImageSaverUtil(this, currentPage, poemTheme.getTextSize(), poemTheme.getOutline())
 
         val isCenterVertical = poemTheme.getTextAlignment().toString().contains("CENTRE_VERTICAL")
 
@@ -1986,8 +1980,8 @@ class CreatePoem : AppCompatActivity() {
         if (imageSaverUtil.savePagesAsImages(
                 editableArrayList,
                 poemTheme.getTitle(),
-                strokeSize,
-                imageMargins,
+                textMarginUtil,
+                imageStrokeMargins,
                 isLandscape,
                 isCenterVertical
             ) == 0
