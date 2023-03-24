@@ -1966,13 +1966,22 @@ class CreatePoem : AppCompatActivity() {
             else
                 0
         val isLandscape = orientation == "landscape"
+       val settingsPref = getSharedPreferences(
+            getString(R.string.personalisation_sharedpreferences_key),
+            MODE_PRIVATE
+        )
+        val resolution = settingsPref.getString("resolution","1080 1080")?.split(" ")
+        val widthAndHeight = if (resolution != null)
+            Pair(resolution[0].toInt(), resolution[1].toInt())
+        else
+            Pair(1080,1080)
 
         val textMarginUtil = TextMarginUtil()
         if (imageStrokeMargins != 0)
             textMarginUtil.determineTextMargins(poemTheme.getOutline(),resources,imageStrokeMargins)
 
         val imageSaverUtil =
-            ImageSaverUtil(this, currentPage, poemTheme.getTextSize(), poemTheme.getOutline())
+            ImageSaverUtil(this, currentPage, poemTheme.getTextSize(), poemTheme.getOutline(), widthAndHeight)
 
         val isCenterVertical = poemTheme.getTextAlignment().toString().contains("CENTRE_VERTICAL")
 

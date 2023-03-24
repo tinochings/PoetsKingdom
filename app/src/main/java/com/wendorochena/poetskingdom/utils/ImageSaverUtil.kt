@@ -27,11 +27,19 @@ import java.io.File
 import java.io.FileOutputStream
 import kotlin.math.roundToInt
 
+/**
+ * @param context context of the activity
+ * @param currentPage the frame layout currently displayed
+ * @param textSize the size of the text in SP
+ * @param outline the outline set
+ * @param widthAndHeight a Pair with the width as the first value, height as second value
+ */
 class ImageSaverUtil(
     private val context: Context,
     private val currentPage: FrameLayout,
     private val textSize: Int,
-    private val outline: String
+    private val outline: String,
+    private val widthAndHeight : Pair<Int,Int>
 ) {
     private lateinit var textPaintAlignment: Paint.Align
     private var missingLineTag = "MISSING LINE/LINES AT INDEX: "
@@ -463,11 +471,11 @@ class ImageSaverUtil(
             Paint.Align.CENTER -> if (!isLandscape)
                 (currentPage.width / 2).toFloat()
             else
-                (1080 / 2).toFloat()
+                (widthAndHeight.first / 2).toFloat()
             else -> if (!isLandscape)
                 currentPage.width.toFloat() - firstEditText.x
             else
-                1080 - textMarginUtil.marginRight.toFloat()
+                widthAndHeight.first - textMarginUtil.marginRight.toFloat()
         }
     }
 
@@ -493,7 +501,7 @@ class ImageSaverUtil(
         else
             if (isCentreVertical)
                 return determineCentreVerticalYPoint(
-                    1080 - imageStrokeMargins,
+                    widthAndHeight.second - imageStrokeMargins,
                     editTextBox.text.lines().size,
                     firstEditText.lineHeight.toFloat()
                 )
@@ -509,14 +517,14 @@ class ImageSaverUtil(
      */
     private fun rebuildImageShape(imageStrokeMargins: Int, imagePath: String): Bitmap {
         val imageView = ShapeableImageView(context)
-        val bitmap = Bitmap.createBitmap(1080, 1080, Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(widthAndHeight.first, widthAndHeight.second, Bitmap.Config.ARGB_8888)
 
         val canvas = Canvas(bitmap)
-        imageView.layout(imageStrokeMargins, imageStrokeMargins, 1080, 1080)
+        imageView.layout(imageStrokeMargins, imageStrokeMargins, widthAndHeight.first, widthAndHeight.second)
         imageView.left = imageStrokeMargins
         imageView.top = imageStrokeMargins
-        imageView.right = 1080
-        imageView.bottom = 1080
+        imageView.right = widthAndHeight.first
+        imageView.bottom = widthAndHeight.second
         imageView.scaleType = ImageView.ScaleType.FIT_XY
 
         imageView.shapeAppearanceModel = ShapeAppearanceModelHelper.shapeImageView(
@@ -582,8 +590,8 @@ class ImageSaverUtil(
                             else
                                 formatPagesToSave(
                                     editable,
-                                    1080 - (textMarginUtil.marginTop + textMarginUtil.marginBottom),
-                                    1080 - (textMarginUtil.marginLeft + textMarginUtil.marginRight),
+                                    height = widthAndHeight.second - (textMarginUtil.marginTop + textMarginUtil.marginBottom),
+                                    width = widthAndHeight.first - (textMarginUtil.marginLeft + textMarginUtil.marginRight),
                                     firstEditText.lineHeight
                                 )
 
@@ -595,8 +603,8 @@ class ImageSaverUtil(
 
                                     val bitmap = if (isLandscape)
                                         Bitmap.createBitmap(
-                                            1080,
-                                            1080,
+                                            widthAndHeight.first,
+                                            widthAndHeight.second,
                                             Bitmap.Config.ARGB_8888
                                         ) else
                                         Bitmap.createBitmap(
@@ -613,7 +621,7 @@ class ImageSaverUtil(
                                                     currentPage.background.constantState?.newDrawable() as ColorDrawable
                                                 else
                                                     currentPage.background.constantState?.newDrawable() as GradientDrawable
-                                            background.setBounds(0, 0, 1080, 1080)
+                                            background.setBounds(0, 0, widthAndHeight.first, widthAndHeight.second)
                                             background.draw(canvas)
                                         } else {
                                             currentPage.background.draw(canvas)
@@ -635,9 +643,9 @@ class ImageSaverUtil(
                                                 shapeAbleImageView.bottom
                                             )
                                         else if (currentPage.background != null)
-                                            Rect(imageStrokeMargins, imageStrokeMargins, 1080, 1080)
+                                            Rect(imageStrokeMargins, imageStrokeMargins, widthAndHeight.first, widthAndHeight.second)
                                         else
-                                            Rect(0, 0, 1080, 1080)
+                                            Rect(0, 0, widthAndHeight.first, widthAndHeight.second)
 
                                         if (isLandscape)
                                             canvas.drawBitmap(

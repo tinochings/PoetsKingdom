@@ -10,6 +10,21 @@
         <item>landscape</item>
     </string-array>
 
+    <string-array name="landscape_orientation_entries">
+        <item>720 * 720</item>
+        <item>1280 * 720</item>
+        <item>1080 * 1080</item>
+        <item>1920 * 1080</item>
+    </string-array>
+
+    <!-- Numbers delimited by string, the first value is width, last is height -->
+    <string-array name="landscape_orientation_values">
+        <item>720 720</item>
+        <item>1280 720</item>
+        <item>1080 1080</item>
+        <item>1920 1080</item>
+    </string-array>
+
     <string-array name="cover_page_entries">
         <item>True</item>
         <item>False</item>
