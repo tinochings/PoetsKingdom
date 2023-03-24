@@ -53,7 +53,7 @@
     <dimen name="rotatedTeardropCornerSizeBottomLeft">35dp</dimen>
 
     <dimen name="teardropCornerSizeTopLeft">35dp</dimen>
-    <dimen name="teardropCornerSizeTopRight">2dp</dimen>
+    <dimen name="teardropCornerSizeTopRight">0dp</dimen>
     <dimen name="teardropCornerSizeBottomRight">35dp</dimen>
     <dimen name="teardropCornerSizeBottomLeft">35dp</dimen>
 

@@ -15,6 +15,7 @@
         <item>1280 * 720</item>
         <item>1080 * 1080</item>
         <item>1920 * 1080</item>
+        <item>1920 * 1920</item>
     </string-array>
 
     <!-- Numbers delimited by string, the first value is width, last is height -->
