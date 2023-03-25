@@ -686,7 +686,8 @@ class ImageSaverUtil(
                                     } else if (currentPage.getTag(1) != null) {
                                         canvas.drawColor(currentPage.getTag(1) as Int)
                                     } else {
-                                        canvas.drawColor(context.getColor(R.color.white))
+                                        if (shapeAbleImageView.tag == null)
+                                            canvas.drawColor(context.getColor(R.color.white))
                                     }
                                     val xPoint =
                                         determineXPoint(isLandscape, firstEditText, textMarginUtil)
