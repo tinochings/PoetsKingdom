@@ -3,6 +3,7 @@ package com.wendorochena.poetskingdom.utils
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
@@ -15,6 +16,7 @@ import android.util.Log
 import android.util.TypedValue
 import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.ImageView
 import androidx.core.view.drawToBitmap
 import com.google.android.material.imageview.ShapeableImageView
 import com.wendorochena.poetskingdom.R
@@ -25,14 +27,69 @@ import java.io.File
 import java.io.FileOutputStream
 import kotlin.math.roundToInt
 
+/**
+ * @param context context of the activity
+ * @param currentPage the frame layout currently displayed
+ * @param textSize the size of the text in SP
+ * @param outline the outline set
+ * @param widthAndHeight a Pair with the width as the first value, height as second value
+ */
 class ImageSaverUtil(
     private val context: Context,
     private val currentPage: FrameLayout,
-    private val textSize: Int
+    private val textSize: Int,
+    private val outline: String,
+    private val widthAndHeight: Pair<Int, Int>
 ) {
     private lateinit var textPaintAlignment: Paint.Align
     private var missingLineTag = "MISSING LINE/LINES AT INDEX: "
 
+    companion object {
+        /**
+         * One entire edit line could be an extremely long word or just gibberish therefore it needs to be
+         * split this method returns the split lines
+         *
+         * @param longWord the word to be split if necessary
+         * @param paint the paint of the text
+         * @param width width of the screen
+         *
+         * @return an arrayList containing lines to be saved as an image
+         */
+        fun updateLongWordBounds(
+            longWord: String,
+            paint: Paint,
+            width: Int
+        ): ArrayList<String> {
+            val lines = ArrayList<String>()
+            val bounds = Rect()
+
+            paint.getTextBounds(longWord, 0, longWord.length, bounds)
+
+            if (bounds.width() > width) {
+                var charIndex = 0
+                var accumulatedChars = ""
+                while (charIndex < longWord.length) {
+
+                    accumulatedChars += longWord[charIndex]
+                    paint.getTextBounds(accumulatedChars, 0, accumulatedChars.length, bounds)
+                    if (bounds.width() > width) {
+                        accumulatedChars =
+                            accumulatedChars.slice(0 until accumulatedChars.length - 1)
+                        accumulatedChars += "\n"
+                        lines.add(accumulatedChars)
+                        accumulatedChars = ""
+//                        charIndex++
+                    } else if (charIndex + 1 == longWord.length) {
+                        accumulatedChars += "\n"
+                        lines.add(accumulatedChars)
+                        charIndex++
+                    } else
+                        charIndex++
+                }
+            }
+            return lines
+        }
+    }
     /**
      * Sets the text alignment to be drawn on bitmap
      *
@@ -78,51 +135,6 @@ class ImageSaverUtil(
         return editTextToAdd
     }
 
-    /**
-     * One entire edit line could be an extremely long word or just gibberish therefore it needs to be
-     * split this method returns the split lines
-     *
-     * @param longWord the word to be split if necessary
-     * @param paint the paint of the text
-     * @param width width of the screen
-     *
-     * @return an arrayList containing lines to be saved as an image
-     */
-    private fun updateLongWordBounds(
-        longWord: String,
-        paint: Paint,
-        width: Int
-    ): ArrayList<String> {
-        val lines = ArrayList<String>()
-        val bounds = Rect()
-
-        paint.getTextBounds(longWord, 0, longWord.length, bounds)
-
-        if (bounds.width() > width) {
-            var charIndex = 0
-            var accumulatedChars = ""
-            while (charIndex < longWord.length) {
-
-                accumulatedChars += longWord[charIndex]
-                paint.getTextBounds(accumulatedChars, 0, accumulatedChars.length, bounds)
-                if (bounds.width() > width) {
-                    accumulatedChars =
-                        accumulatedChars.slice(0 until accumulatedChars.length - 1)
-                    accumulatedChars += "\n"
-                    lines.add(accumulatedChars)
-                    accumulatedChars = ""
-                    charIndex++
-                } else if (charIndex + 1 == longWord.length) {
-                    accumulatedChars += "\n"
-                    lines.add(accumulatedChars)
-                    charIndex++
-                } else
-                    charIndex++
-            }
-        }
-        return lines
-    }
-
     //use this as a helper function to adjust text bounds so that it fits
 
     /**
@@ -154,74 +166,77 @@ class ImageSaverUtil(
         val lines = ArrayList<String>()
         // indexing starts at 0
         val numOfPages = (height / lineHeight)
-        val paint = Paint()
-        paint.typeface = firstEditText.typeface
-        paint.textSize = textPixelSize
-        val bounds = Rect()
+        if (numOfPages > 0) {
+            val paint = Paint()
+            paint.typeface = firstEditText.typeface
+            paint.textSize = textPixelSize
+            val bounds = Rect()
 
-        paint.getTextBounds(lineToSplit, 0, lineToSplit.length, bounds)
-        if (bounds.width() < width) {
-            if (!isLastLine)
-                lines.add(lineToSplit + "\n")
-            else {
-                if (lineToSplit.isEmpty())
-                    lines.add("\n")
-                else
-                    lines.add(lineToSplit)
-            }
-        } else {
-            val words = lineToSplit.split(" ")
-            var indexCounter = 0
-            val wordsSize = words.size
-
-            var currentLine = ""
-
-            while (indexCounter < wordsSize) {
-                val currentWord = words[indexCounter]
-                paint.getTextBounds(currentWord, 0, currentWord.length, bounds)
-                if (bounds.width() > width) {
-                    if (!lines.addAll(updateLongWordBounds(currentWord, paint, width)))
-                        Log.e(missingLineTag, indexCounter.toString())
-                    indexCounter++
-                } else {
-                    currentLine += if (currentLine.isNotEmpty())
-                        " $currentWord"
+            paint.getTextBounds(lineToSplit, 0, lineToSplit.length, bounds)
+            if (bounds.width() < width) {
+                if (!isLastLine)
+                    lines.add(lineToSplit + "\n")
+                else {
+                    if (lineToSplit.isEmpty())
+                        lines.add("\n")
                     else
-                        currentWord
-                    paint.getTextBounds(currentLine, 0, currentLine.length, bounds)
-                    //this means the last word added spills into a new line
-                    if (bounds.width() > width) {
-                        val fullLineLength = currentLine.length - currentWord.length
-                        currentLine = currentLine.slice(0 until fullLineLength)
-                        currentLine += "\n"
-                        lines.add(currentLine)
-                        currentLine = ""
-                    } else if (indexCounter + 1 >= wordsSize) {
-                        if (!isLastLine)
-                            currentLine += "\n"
+                        lines.add(lineToSplit)
+                }
+            } else {
+                val words = lineToSplit.split(" ")
+                var indexCounter = 0
+                val wordsSize = words.size
 
-                        lines.add(currentLine)
+                var currentLine = ""
+
+                while (indexCounter < wordsSize) {
+                    val currentWord = words[indexCounter]
+                    paint.getTextBounds(currentWord, 0, currentWord.length, bounds)
+                    if (bounds.width() > width) {
+                        if (!lines.addAll(updateLongWordBounds(currentWord, paint, width)))
+                            Log.e(missingLineTag, indexCounter.toString())
                         indexCounter++
                     } else {
-                        indexCounter++
+                        currentLine += if (currentLine.isNotEmpty())
+                            " $currentWord"
+                        else
+                            currentWord
+                        paint.getTextBounds(currentLine, 0, currentLine.length, bounds)
+                        //this means the last word added spills into a new line
+                        if (bounds.width() > width) {
+                            val fullLineLength = currentLine.length - currentWord.length
+                            currentLine = currentLine.slice(0 until fullLineLength)
+                            currentLine += "\n"
+                            lines.add(currentLine)
+                            currentLine = ""
+                        } else if (indexCounter + 1 >= wordsSize) {
+                            if (!isLastLine)
+                                currentLine += "\n"
+
+                            lines.add(currentLine)
+                            indexCounter++
+                        } else {
+                            indexCounter++
+                        }
                     }
                 }
+
             }
 
-        }
-
-        var tempSpannableString = ""
-        for ((counter, line) in lines.withIndex()) {
-            tempSpannableString += line
-            if (counter % numOfPages == 0) {
+            var tempSpannableString = ""
+            for ((counter, line) in lines.withIndex()) {
+                tempSpannableString += line
+                if (counter % numOfPages == 0) {
+                    editableArrayListToReturn.add(SpannableStringBuilder(tempSpannableString))
+                    tempSpannableString = ""
+                }
+            }
+            if (tempSpannableString != "")
                 editableArrayListToReturn.add(SpannableStringBuilder(tempSpannableString))
-                tempSpannableString = ""
-            }
-        }
-        if (tempSpannableString != "")
-            editableArrayListToReturn.add(SpannableStringBuilder(tempSpannableString))
 
-        return editableArrayListToReturn
+            return editableArrayListToReturn
+        }
+        return ArrayList()
     }
 
 
@@ -424,13 +439,13 @@ class ImageSaverUtil(
     }
 
     /**
-     * Determines the YPoint of where the text should start
+     * Determines the YPoint of where the text should start for centreVertical alignment
      *
      * @param pageHeight the height of page to be printed on in pixels
      * @param numOfLines the number of lines on the page
      * @param lineHeight the height of each line
      */
-    private fun determineYPoint(
+    private fun determineCentreVerticalYPoint(
         pageHeight: Int,
         numOfLines: Int,
         lineHeight: Float
@@ -446,10 +461,102 @@ class ImageSaverUtil(
     }
 
     /**
+     * Determines the X point coordinate for the bitmap to be written on
+     */
+    private fun determineXPoint(
+        isLandscape: Boolean,
+        firstEditText: EditText,
+        textMarginUtil: TextMarginUtil
+    ): Float {
+        return when (textPaintAlignment) {
+            Paint.Align.LEFT -> if (!isLandscape)
+                firstEditText.x
+            else textMarginUtil.marginLeft.toFloat()
+            Paint.Align.CENTER -> if (!isLandscape)
+                (currentPage.width / 2).toFloat()
+            else
+                (widthAndHeight.first / 2).toFloat()
+            else -> if (!isLandscape)
+                currentPage.width.toFloat() - firstEditText.x
+            else
+                widthAndHeight.first - textMarginUtil.marginRight.toFloat()
+        }
+    }
+
+    /**
+     * Determines the Y point of the bitmap to be drawn on
+     */
+    private fun determineYPoint(
+        isLandscape: Boolean,
+        isCentreVertical: Boolean,
+        firstEditText: EditText,
+        editTextBox: EditText,
+        imageStrokeMargins: Int,
+        textMarginUtil: TextMarginUtil
+    ): Float {
+        if (!isLandscape && !isCentreVertical)
+            return firstEditText.y
+        else if (!isLandscape)
+            return determineCentreVerticalYPoint(
+                currentPage.height - imageStrokeMargins,
+                editTextBox.text.lines().size,
+                firstEditText.lineHeight.toFloat()
+            )
+        else
+            if (isCentreVertical)
+                return determineCentreVerticalYPoint(
+                    widthAndHeight.second - imageStrokeMargins,
+                    editTextBox.text.lines().size,
+                    firstEditText.lineHeight.toFloat()
+                )
+            else
+                return textMarginUtil.marginTop.toFloat()
+    }
+
+    /**
+     * Rebuilds the image shape if the image
+     *
+     * @param imagePath the path for the image
+     * @param imageStrokeMargins the size of the stroke
+     */
+    fun rebuildImageShape(imageStrokeMargins: Int, imagePath: String): Bitmap {
+        val imageView = ShapeableImageView(context)
+        val bitmap = Bitmap.createBitmap(
+            widthAndHeight.first,
+            widthAndHeight.second,
+            Bitmap.Config.ARGB_8888
+        )
+
+        val canvas = Canvas(bitmap)
+        imageView.layout(
+            imageStrokeMargins,
+            imageStrokeMargins,
+            widthAndHeight.first,
+            widthAndHeight.second
+        )
+        imageView.left = imageStrokeMargins
+        imageView.top = imageStrokeMargins
+        imageView.right = widthAndHeight.first
+        imageView.bottom = widthAndHeight.second
+        imageView.scaleType = ImageView.ScaleType.FIT_XY
+
+        imageView.shapeAppearanceModel = ShapeAppearanceModelHelper.shapeImageView(
+            outline,
+            context.resources,
+            imageStrokeMargins.toFloat()
+        )
+        imageView.setImageBitmap(BitmapFactory.decodeFile(imagePath))
+
+        imageView.draw(canvas)
+
+        return bitmap
+    }
+
+    /**
      * Creates a folder with the pictures that is accessible in the application
      * @param editableArrayList Arraylist containing text user entered per page
      * @param title of the poem
-     * @param textMarginPixels the size of the text margins in pixels
+     * @param textMarginUtil the utility class containing the text margins
      * @param isLandscape
      * @return 0 when we successfully generated images
      * @return -1 when we failed to
@@ -457,176 +564,172 @@ class ImageSaverUtil(
     suspend fun savePagesAsImages(
         editableArrayList: ArrayList<Editable>,
         title: String,
-        textMarginPixels: Int,
-        imageMargins: Int,
+        textMarginUtil: TextMarginUtil,
+        imageStrokeMargins: Int,
         isLandscape: Boolean,
         isCentreVertical: Boolean
     ): Int {
-        return withContext(Dispatchers.IO){
-        val firstEditText = currentPage.getChildAt(1) as EditText
-        val textPixelSize = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_SP,
-            textSize.toFloat(),
-            context.resources.displayMetrics
-        )
+        return withContext(Dispatchers.IO) {
+            val firstEditText = currentPage.getChildAt(1) as EditText
+            val textPixelSize = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_SP,
+                textSize.toFloat(),
+                context.resources.displayMetrics
+            )
+            val shapeAbleImageView = currentPage.getChildAt(0) as ShapeableImageView
+            var counter = 0
+            val imagesFolder = context.getDir("savedImages", MODE_PRIVATE)
 
-        val shapeAbleImageView = currentPage.getChildAt(0) as ShapeableImageView
-
-        var counter = 0
-        val imagesFolder = context.getDir("savedImages", MODE_PRIVATE)
-        try {
-            if (imagesFolder.exists()) {
-                val subFolderWithTitleAsName = File(
-                    imagesFolder.absolutePath + File.separator + title
-                        .replace(' ', '_')
-                )
-                if (subFolderWithTitleAsName.exists() && subFolderWithTitleAsName.listFiles() != null && subFolderWithTitleAsName.listFiles()?.size!! > 0) {
-                    for (file in subFolderWithTitleAsName.listFiles()!!) {
-                        file.delete()
+            try {
+                if (imagesFolder.exists()) {
+                    val subFolderWithTitleAsName = File(
+                        imagesFolder.absolutePath + File.separator + title
+                            .replace(' ', '_')
+                    )
+                    if (subFolderWithTitleAsName.exists() && subFolderWithTitleAsName.listFiles() != null && subFolderWithTitleAsName.listFiles()?.size!! > 0) {
+                        for (file in subFolderWithTitleAsName.listFiles()!!) {
+                            file.delete()
+                        }
                     }
-                }
-                if (subFolderWithTitleAsName.exists() || subFolderWithTitleAsName.mkdir()) {
-                    for (editable in editableArrayList) {
-                        val editTextsToPrint = if (!isLandscape)
-                            formatPagesToSave(
-                                editable,
-                                currentPage.height - (textMarginPixels * 2),
-                                currentPage.width - (textMarginPixels * 2),
-                                firstEditText.lineHeight
-                            )
-                        else
-                            formatPagesToSave(
-                                editable,
-                                1080 - (textMarginPixels * 2),
-                                1080 - (textMarginPixels * 2),
-                                firstEditText.lineHeight
-                            )
-                        for (editTextBox in editTextsToPrint) {
-                            val imageToAdd =
-                                File(subFolderWithTitleAsName.absolutePath + File.separator + "stanza$counter" + ".png")
-                            if (imageToAdd.exists() || imageToAdd.createNewFile()) {
-                                val outStream = FileOutputStream(imageToAdd)
+                    if (subFolderWithTitleAsName.exists() || subFolderWithTitleAsName.mkdir()) {
+                        for (editable in editableArrayList) {
+                            val editTextsToPrint = if (!isLandscape)
+                                formatPagesToSave(
+                                    editable,
+                                    currentPage.height - textMarginUtil.marginTop - textMarginUtil.marginBottom,
+                                    currentPage.width - textMarginUtil.marginLeft - textMarginUtil.marginRight - imageStrokeMargins,
+                                    firstEditText.lineHeight
+                                )
+                            else
+                                formatPagesToSave(
+                                    editable,
+                                    height = widthAndHeight.second - textMarginUtil.marginTop - textMarginUtil.marginBottom,
+                                    width = widthAndHeight.first - textMarginUtil.marginLeft - textMarginUtil.marginRight - imageStrokeMargins,
+                                    firstEditText.lineHeight
+                                )
 
-                                val bitmap = if (isLandscape)
-                                    Bitmap.createBitmap(
-                                        1080,
-                                        1080,
-                                        Bitmap.Config.ARGB_8888
-                                    ) else
-                                    Bitmap.createBitmap(
-                                        currentPage.width,
-                                        currentPage.height,
-                                        Bitmap.Config.ARGB_8888
-                                    )
-                                val canvas = Canvas(bitmap)
+                            for (editTextBox in editTextsToPrint) {
+                                val imageToAdd =
+                                    File(subFolderWithTitleAsName.absolutePath + File.separator + "stanza$counter" + ".png")
+                                if (imageToAdd.exists() || imageToAdd.createNewFile()) {
+                                    val outStream = FileOutputStream(imageToAdd)
 
-                                if (currentPage.background != null) {
-                                    if (isLandscape) {
-                                        val background =
-                                            if (currentPage.background.constantState?.newDrawable() is ColorDrawable)
-                                                currentPage.background.constantState?.newDrawable() as ColorDrawable
-                                            else
-                                                currentPage.background.constantState?.newDrawable() as GradientDrawable
-                                        background.setBounds(0, 0, 1080, 1080)
-                                        background.draw(canvas)
-                                    } else {
-                                        currentPage.background.draw(canvas)
+                                    val bitmap = if (isLandscape)
+                                        Bitmap.createBitmap(
+                                            widthAndHeight.first,
+                                            widthAndHeight.second,
+                                            Bitmap.Config.ARGB_8888
+                                        ) else
+                                        Bitmap.createBitmap(
+                                            currentPage.width,
+                                            currentPage.height,
+                                            Bitmap.Config.ARGB_8888
+                                        )
+                                    val canvas = Canvas(bitmap)
+
+                                    if (shapeAbleImageView.tag != null && shapeAbleImageView.tag.toString()
+                                            .startsWith("/")
+                                    ) {
+                                        val rect = if (!isLandscape)
+                                            Rect(
+                                                shapeAbleImageView.left,
+                                                shapeAbleImageView.top,
+                                                shapeAbleImageView.right,
+                                                shapeAbleImageView.bottom
+                                            )
+                                        else if (currentPage.background != null)
+                                            Rect(
+                                                imageStrokeMargins,
+                                                imageStrokeMargins,
+                                                widthAndHeight.first,
+                                                widthAndHeight.second
+                                            )
+                                        else
+                                            Rect(0, 0, widthAndHeight.first, widthAndHeight.second)
+
+                                        if (isLandscape)
+                                            canvas.drawBitmap(
+                                                rebuildImageShape(
+                                                    imageStrokeMargins,
+                                                    shapeAbleImageView.tag as String
+                                                ),
+                                                null,
+                                                rect,
+                                                null
+                                            )
+                                        else
+                                            canvas.drawBitmap(
+                                                shapeAbleImageView.drawToBitmap(),
+                                                null,
+                                                rect,
+                                                null
+                                            )
                                     }
-                                } else if (currentPage.getTag(1) != null) {
-                                    canvas.drawColor(currentPage.getTag(1) as Int)
-                                } else {
-                                    canvas.drawColor(context.getColor(R.color.white))
-                                }
 
-                                if (shapeAbleImageView.tag != null && shapeAbleImageView.tag.toString()
-                                        .startsWith("/")
-                                ) {
-                                    val rect = if (!isLandscape)
-                                        Rect(
-                                            shapeAbleImageView.left,
-                                            shapeAbleImageView.top,
-                                            shapeAbleImageView.right,
-                                            shapeAbleImageView.bottom
-                                        )
-                                    else if (currentPage.background != null)
-                                        Rect(
-                                            imageMargins,
-                                            imageMargins,
-                                            1080 - imageMargins,
-                                            1080 - imageMargins
-                                        )
-                                    else
-                                        Rect(0, 0, 1080, 1080)
+                                    if (currentPage.background != null) {
+                                        if (isLandscape) {
+                                            val background =
+                                                if (currentPage.background.constantState?.newDrawable() is ColorDrawable)
+                                                    currentPage.background.constantState?.newDrawable() as ColorDrawable
+                                                else
+                                                    currentPage.background.constantState?.newDrawable() as GradientDrawable
+                                            background.setBounds(
+                                                0,
+                                                0,
+                                                widthAndHeight.first,
+                                                widthAndHeight.second
+                                            )
+                                            background.draw(canvas)
+                                        } else {
+                                            currentPage.background.draw(canvas)
+                                        }
+                                    } else if (currentPage.getTag(1) != null) {
+                                        canvas.drawColor(currentPage.getTag(1) as Int)
+                                    } else {
+                                        if (shapeAbleImageView.tag == null)
+                                            canvas.drawColor(context.getColor(R.color.white))
+                                    }
+                                    val xPoint =
+                                        determineXPoint(isLandscape, firstEditText, textMarginUtil)
 
-                                    canvas.drawBitmap(
-                                        shapeAbleImageView.drawToBitmap(),
-                                        null,
-                                        rect,
-                                        null
+                                    var yPoint = determineYPoint(
+                                        isLandscape,
+                                        isCentreVertical,
+                                        firstEditText,
+                                        editTextBox,
+                                        imageStrokeMargins,
+                                        textMarginUtil
                                     )
-                                }
 
-                                val xPoint = when (textPaintAlignment) {
-                                    Paint.Align.LEFT -> if (!isLandscape)
-                                        firstEditText.x
-                                    else textMarginPixels.toFloat()
-                                    Paint.Align.CENTER -> if (!isLandscape)
-                                        (currentPage.width / 2).toFloat()
-                                    else
-                                        (1080 / 2).toFloat()
-                                    else -> if (!isLandscape)
-                                        currentPage.width.toFloat() - firstEditText.x
-                                    else
-                                        currentPage.width.toFloat() - textMarginPixels.toFloat()
-                                }
-
-                                var yPoint = if (!isLandscape && !isCentreVertical)
-                                    firstEditText.y
-                                else if (!isLandscape)
-                                    determineYPoint(
-                                        currentPage.height - imageMargins,
-                                        editTextBox.text.lines().size,
+                                    val lineHeight = if (!isLandscape)
                                         firstEditText.lineHeight.toFloat()
-                                    )
-                                else
-                                    if (isCentreVertical)
-                                        determineYPoint(
-                                            1080 - imageMargins,
-                                            editTextBox.text.lines().size,
-                                            firstEditText.lineHeight.toFloat()
-                                        )
                                     else
-                                        firstEditText.y
-
-                                val lineHeight = if (!isLandscape)
-                                    firstEditText.lineHeight.toFloat()
-                                else
-                                    landscapeLineHeight(firstEditText.typeface, textPixelSize)
-
-                                for (line in editTextBox.text.lines()) {
+                                        landscapeLineHeight(firstEditText.typeface, textPixelSize)
                                     val textPaint = Paint()
                                     textPaint.typeface = editTextBox.typeface
                                     textPaint.textSize = textPixelSize
                                     textPaint.color = editTextBox.currentTextColor
                                     textPaint.textAlign = textPaintAlignment
-                                    yPoint += lineHeight
-                                    canvas.drawText(line, xPoint, yPoint, textPaint)
-                                }
 
-                                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream)
-                                outStream.close()
-                                counter++
+                                    for (line in editTextBox.text.lines()) {
+                                        yPoint += lineHeight
+                                        canvas.drawText(line, xPoint, yPoint, textPaint)
+                                    }
+
+                                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream)
+                                    outStream.close()
+                                    counter++
+                                }
                             }
                         }
+                        return@withContext 0
                     }
-                    return@withContext 0
                 }
+            } catch (exception: Exception) {
+                exception.printStackTrace()
+                return@withContext -1
             }
-        } catch (exception: Exception) {
-            exception.printStackTrace()
             return@withContext -1
         }
-        return@withContext -1
-    }
     }
 }

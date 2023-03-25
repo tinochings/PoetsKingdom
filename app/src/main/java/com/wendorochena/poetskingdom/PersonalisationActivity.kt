@@ -8,6 +8,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.preference.EditTextPreference
+import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 
 class PersonalisationActivity : AppCompatActivity() {
@@ -32,6 +33,7 @@ class PersonalisationActivity : AppCompatActivity() {
             preferenceManager.sharedPreferencesName = getString(R.string.personalisation_sharedpreferences_key)
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
             setupPoemPreferencesListeners()
+            setupLandscapeListener()
             val sharedPreferences = context?.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
             if (sharedPreferences != null) {
                 if (!sharedPreferences.getBoolean("personalisationFirstUse",false)) {
@@ -58,6 +60,15 @@ class PersonalisationActivity : AppCompatActivity() {
                 restartApp()
                 true
             }
+        }
+
+        /**
+         * Sets the resolution visibility if selection is landscape
+         */
+        private fun setupLandscapeListener() {
+            val orientationSelected = findPreference<ListPreference>("orientation")
+            val resolution = findPreference<ListPreference>("resolution")
+            resolution?.isVisible = orientationSelected?.value == "landscape"
         }
 
         private fun restartApp() {

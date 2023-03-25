@@ -2,8 +2,6 @@ package com.wendorochena.poetskingdom
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
@@ -534,21 +532,20 @@ class PoemThemeActivity : AppCompatActivity() {
         val imageBackground = findViewById<ShapeableImageView>(R.id.imagePreview)
         val previewCardView = findViewById<CardView>(R.id.imagePreviewCard)
         val previewText = findViewById<TextView>(R.id.previewText)
+        val strokeSize = resources.getDimensionPixelSize(R.dimen.strokeSize)
 
         when (selection) {
             "Outline" -> {
                 if (outlineChosen != null) {
                     if (backgroundImageChosen != null) {
                         try {
-                            val bitmap: Bitmap =
-                                BitmapFactory.decodeFile(backgroundImageChosen?.let { File(it).absolutePath })
                             imageBackground.shapeAppearanceModel =
                                 ShapeAppearanceModelHelper.shapeImageView(
                                     outlineChosen!!.contentDescription as String,
-                                    resources
+                                    resources,
+                                    strokeSize.toFloat()
                                 )
-//                            imageBackground.setImageBitmap(bitmap)
-                            Glide.with(applicationContext).load(bitmap).into(imageBackground)
+                            Glide.with(applicationContext).load(backgroundImageChosen).into(imageBackground)
                             val colorDrawable =
                                 ColorDrawable(getColor(R.color.default_background_color))
 
@@ -556,7 +553,7 @@ class PoemThemeActivity : AppCompatActivity() {
                                 FrameLayout.LayoutParams.MATCH_PARENT,
                                 FrameLayout.LayoutParams.MATCH_PARENT
                             )
-                            layoutParams.setMargins(resources.getDimensionPixelSize(R.dimen.strokeSizeMargin))
+                            layoutParams.setMargins(strokeSize)
                             imageBackground.layoutParams = layoutParams
                             previewCardView.background = colorDrawable
                         } catch (e: Exception) {
@@ -580,28 +577,26 @@ class PoemThemeActivity : AppCompatActivity() {
                         }
 
                         if (backGroundFile.exists()) {
-                            val bitmap: Bitmap =
-                                BitmapFactory.decodeFile(backGroundFile.absolutePath)
                             if (outlineChosen != null) {
                                 imageBackground.shapeAppearanceModel =
                                     ShapeAppearanceModelHelper.shapeImageView(
                                         outlineChosen!!.contentDescription as String,
-                                        resources
+                                        resources,
+                                        strokeSize.toFloat()
                                     )
 
                                 val layoutParams = FrameLayout.LayoutParams(
                                     FrameLayout.LayoutParams.MATCH_PARENT,
                                     FrameLayout.LayoutParams.MATCH_PARENT
                                 )
-                                layoutParams.setMargins(resources.getDimensionPixelSize(R.dimen.strokeSizeMargin))
+                                layoutParams.setMargins(strokeSize)
                                 imageBackground.layoutParams = layoutParams
                                 val colorDrawable =
                                     ColorDrawable(getColor(R.color.default_background_color))
                                 previewCardView.background = colorDrawable
                             } else
                                 resetImageView()
-                            Glide.with(applicationContext).load(bitmap).into(imageBackground)
-//                            imageBackground.setImageBitmap(bitmap)
+                            Glide.with(applicationContext).load(backGroundFile.absolutePath).into(imageBackground)
                             previewLayout.bringChildToFront(previewText)
                         }
                     }

@@ -31,64 +31,6 @@
             android:textStyle="bold" />
     </androidx.appcompat.widget.Toolbar>
 
-    <RelativeLayout
-        android:layout_width="1080px"
-        android:layout_height="1080px"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:id="@+id/coverPage"
-        android:visibility="gone"
-        >
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/coverPageBackground"/>
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="fitXY"
-            android:id="@+id/coverPageImage"
-            />
-
-        <TextView
-            android:id="@+id/coverPageTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:textColor="@color/black"
-            android:layout_marginTop="5dp"
-            android:layout_marginStart="@dimen/strokeSizeMarginText"
-            android:layout_marginEnd="@dimen/strokeSizeMarginText"
-            android:textStyle="bold"
-            android:textSize="40sp"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/coverPageAuthor"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="@dimen/strokeSizeMarginText"
-            android:textColor="@color/black"
-            android:textStyle="bold"
-            android:textSize="25sp"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/coverPageSignature"
-            android:textStyle="italic"
-            android:textColor="@color/black"
-            android:layout_marginStart="@dimen/strokeSizeMarginText"
-            android:layout_alignParentBottom="true"
-            android:textSize="25sp"/>
-
-    </RelativeLayout>
-
-
     <FrameLayout
         android:id="@+id/backgroundDim"
         android:layout_width="match_parent"

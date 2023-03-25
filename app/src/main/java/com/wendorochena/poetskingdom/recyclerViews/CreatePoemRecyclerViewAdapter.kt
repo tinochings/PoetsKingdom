@@ -204,7 +204,6 @@ class CreatePoemRecyclerViewAdapter(
         if (currentImageLayout.tag != null && currentImageLayout.tag.toString().startsWith("/")) {
             imageViewToAdd.layoutParams = currentImageLayout.layoutParams
             imageViewToAdd.shapeAppearanceModel = currentImageLayout.shapeAppearanceModel
-            Glide.with(context).load(currentImageLayout.tag.toString()).into(imageViewToAdd)
             imageViewToAdd.tag = currentImageLayout.tag
         }
         editTextToAdd.text = editText.text

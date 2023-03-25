@@ -48,21 +48,21 @@
 
     <!-- OUTLINE VARIABLES -->
     <dimen name="rotatedTeardropCornerSizeTopLeft">0dp</dimen>
-    <dimen name="rotatedTeardropCornerSizeTopRight">55dp</dimen>
-    <dimen name="rotatedTeardropCornerSizeBottomRight">55dp</dimen>
-    <dimen name="rotatedTeardropCornerSizeBottomLeft">55dp</dimen>
+    <dimen name="rotatedTeardropCornerSizeTopRight">35dp</dimen>
+    <dimen name="rotatedTeardropCornerSizeBottomRight">35dp</dimen>
+    <dimen name="rotatedTeardropCornerSizeBottomLeft">35dp</dimen>
 
     <dimen name="teardropCornerSizeTopLeft">35dp</dimen>
-    <dimen name="teardropCornerSizeTopRight">2dp</dimen>
+    <dimen name="teardropCornerSizeTopRight">0dp</dimen>
     <dimen name="teardropCornerSizeBottomRight">35dp</dimen>
     <dimen name="teardropCornerSizeBottomLeft">35dp</dimen>
 
     <dimen name="roundedRectCornerSize">15dp</dimen>
 
     <dimen name="lemonCornerSizeTopLeft">90dp</dimen>
-    <dimen name="lemonCornerSizeTopRight">5dp</dimen>
+    <dimen name="lemonCornerSizeTopRight">0dp</dimen>
     <dimen name="lemonCornerSizeBottomRight">90dp</dimen>
-    <dimen name="lemonCornerSizeBottomLeft">5dp</dimen>
+    <dimen name="lemonCornerSizeBottomLeft">0dp</dimen>
 
     <item name="addPageRecyclerViewId" type="id"/>
 </resources>
