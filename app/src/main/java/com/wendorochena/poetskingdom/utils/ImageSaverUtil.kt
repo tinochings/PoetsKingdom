@@ -596,7 +596,7 @@ class ImageSaverUtil(
                             val editTextsToPrint = if (!isLandscape)
                                 formatPagesToSave(
                                     editable,
-                                    currentPage.height - textMarginUtil.marginTop - textMarginUtil.marginBottom,
+                                    currentPage.height - textMarginUtil.marginBottom,
                                     currentPage.width - textMarginUtil.marginLeft - textMarginUtil.marginRight - imageStrokeMargins,
                                     firstEditText.lineHeight
                                 )
