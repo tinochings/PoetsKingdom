@@ -21,9 +21,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.children
-import androidx.core.view.drawToBitmap
 import androidx.core.view.isVisible
 import androidx.core.view.setMargins
 import androidx.recyclerview.widget.GridLayoutManager
@@ -183,7 +181,7 @@ class CreatePoem : AppCompatActivity() {
      * Initiates a save as file in a coroutine
      */
     @OptIn(DelicateCoroutinesApi::class)
-    private fun actuateSaveAsFile(category: String, createThumbnail: Boolean) {
+    private fun actuateSaveAsFile(category: String, createThumbnail: Boolean, editPoemTheme: Boolean) {
 
         turnOnDimmerProgressBar()
         val exceptionHandler = CoroutineExceptionHandler { _, exception ->
@@ -194,7 +192,7 @@ class CreatePoem : AppCompatActivity() {
         }
 
         GlobalScope.launch(Dispatchers.Main + exceptionHandler) {
-            createDataContainer(category, createThumbnail)
+            createDataContainer(category, createThumbnail, editPoemTheme)
             turnOffDimmerProgressBar()
         }
     }
@@ -249,7 +247,7 @@ class CreatePoem : AppCompatActivity() {
                         ).absolutePath
                         val poemFile = File(directoryPath + File.separator + oldTitleName)
                         if (!poemFile.exists())
-                            actuateSaveAsFile(Category.NONE.toString(), true)
+                            actuateSaveAsFile(Category.NONE.toString(), true, editPoemTheme = true)
                         val poemThemeFile = File(poemThemePath + File.separator + oldTitleName)
                         val poemSavedImagesFolder =
                             File(savedImagesPath + File.separator + oldTitleFolderName)
@@ -323,9 +321,13 @@ class CreatePoem : AppCompatActivity() {
                             )
                             val encodedTitle = poemTheme.getTitle().replace(' ', '_') + ".png"
                             if (!File(thumbnailsFolder.absolutePath + File.separator + encodedTitle).exists())
-                                actuateSaveAsFile(Category.NONE.toString(), true)
+                                actuateSaveAsFile(Category.NONE.toString(), true,
+                                    editPoemTheme = true
+                                )
                             else
-                                actuateSaveAsFile(Category.NONE.toString(), false)
+                                actuateSaveAsFile(Category.NONE.toString(), false,
+                                    editPoemTheme = false
+                                )
                         }
                         finish()
                     }
@@ -742,113 +744,6 @@ class CreatePoem : AppCompatActivity() {
 
         return layoutParams
     }
-
-//    /**
-//     * @return Returns outline and the color selected
-//     */
-//
-//    private fun getOutlineAndColor(): Drawable {
-//
-//        val strokeSize: Int = if (orientation == "portrait")
-//            resources.getDimensionPixelSize(R.dimen.portraitStrokeSize)
-//        else
-//            resources.getDimensionPixelSize(R.dimen.strokeSize)
-//
-//        val defaultDrawable = ResourcesCompat.getDrawable(
-//            resources,
-//            R.drawable.rounded_rectangle_outline,
-//            null
-//        ) as GradientDrawable
-//
-//        defaultDrawable.setStroke(
-//            strokeSize, poemTheme.getOutlineColor()
-//        )
-//
-//        defaultDrawable.setBounds(
-//            currentPage.left,
-//            currentPage.top,
-//            currentPage.right,
-//            currentPage.bottom
-//        )
-//        when (poemTheme.getOutline()) {
-//            OutlineTypes.ROUNDED_RECTANGLE.toString() -> {
-//                return defaultDrawable
-//            }
-//
-//            OutlineTypes.TEARDROP.toString() -> {
-//                val gradientDrawable = ResourcesCompat.getDrawable(
-//                    resources,
-//                    R.drawable.teardrop_outline,
-//                    null
-//                ) as GradientDrawable
-//                gradientDrawable.setBounds(
-//                    currentPage.left,
-//                    currentPage.top,
-//                    currentPage.right,
-//                    currentPage.bottom
-//                )
-//                gradientDrawable.setStroke(
-//                    strokeSize, poemTheme.getOutlineColor()
-//                )
-//                return gradientDrawable
-//            }
-//
-//            OutlineTypes.ROTATED_TEARDROP.toString() -> {
-//                val gradientDrawable = ResourcesCompat.getDrawable(
-//                    resources,
-//                    R.drawable.rotated_teardrop,
-//                    null
-//                ) as GradientDrawable
-//                gradientDrawable.setBounds(
-//                    currentPage.left,
-//                    currentPage.top,
-//                    currentPage.right,
-//                    currentPage.bottom
-//                )
-//                gradientDrawable.setStroke(
-//                    strokeSize, poemTheme.getOutlineColor()
-//                )
-//                return gradientDrawable
-//            }
-//
-//            OutlineTypes.RECTANGLE.toString() -> {
-//                val gradientDrawable = ResourcesCompat.getDrawable(
-//                    resources,
-//                    R.drawable.rectangle_outline,
-//                    null
-//                ) as GradientDrawable
-//                gradientDrawable.setBounds(
-//                    currentPage.left,
-//                    currentPage.top,
-//                    currentPage.right,
-//                    currentPage.bottom
-//                )
-//                gradientDrawable.setStroke(
-//                    strokeSize, poemTheme.getOutlineColor()
-//                )
-//                return gradientDrawable
-//            }
-//
-//            OutlineTypes.LEMON.toString() -> {
-//                val gradientDrawable = ResourcesCompat.getDrawable(
-//                    resources,
-//                    R.drawable.lemon_outline,
-//                    null
-//                ) as GradientDrawable
-//                gradientDrawable.setBounds(
-//                    currentPage.left,
-//                    currentPage.top,
-//                    currentPage.right,
-//                    currentPage.bottom
-//                )
-//                gradientDrawable.setStroke(
-//                    strokeSize, poemTheme.getOutlineColor()
-//                )
-//                return gradientDrawable
-//            }
-//        }
-//        return defaultDrawable
-//    }
 
     /**
      * Sets up how the text looks
@@ -1572,9 +1467,16 @@ class CreatePoem : AppCompatActivity() {
 
     /**
      * Creates a poem data structure and writes to a file together with the thumbnail
+     * @param category The category of the poem
+     * @param createThumbnail true when we need to create a thumbnail false if not
+     * @param shouldGenerateBackground true if we want to generate a background, false if not
      *
+     * This method has been edited so that the background is only saved when a user saves as a file
+     * This allows for faster load times when starting an edit poem theme intent and faster exits from
+     * creating a poem. Note if the user has not actively saved as a file there will be no background
+     * when they search for a key word
      */
-    private suspend fun createDataContainer(category: String, createThumbnail: Boolean) {
+    private suspend fun createDataContainer(category: String, createThumbnail: Boolean, shouldGenerateBackground : Boolean) {
         val entirePoem = ArrayList<Editable>()
 
         for (keys in pageNumberAndId.keys) {
@@ -1603,22 +1505,54 @@ class CreatePoem : AppCompatActivity() {
 
         val poemParser = PoemXMLParser(poemDataContainer, applicationContext)
 
-        if (poemTheme.backgroundType.toString().contains("IMAGE")) {
-            for (child in currentPage.children) {
-                if (child is ShapeableImageView) {
-                    if (!poemParser.saveBackgroundImageDrawable(child.drawToBitmap(Bitmap.Config.ARGB_8888)))
-                        println("Could not save image background Drawable, failed to draw and store bitmap")
+        if (shouldGenerateBackground){
+            if (poemTheme.backgroundType.toString().contains("IMAGE")) {
+                for (child in currentPage.children) {
+                    if (child is ShapeableImageView) {
+                        // this is  not full proof a slight margin of error but it is acceptable
+                        val strokeMargin: Int =
+                            if (orientation == "portrait" && poemTheme.backgroundType.toString()
+                                    .contains("OUTLINE")
+                            )
+                                resources.getDimensionPixelSize(R.dimen.portraitStrokeSize)
+                            else if (orientation == "landscape" && poemTheme.backgroundType.toString()
+                                    .contains("OUTLINE")
+                            )
+                                resources.getDimensionPixelSize(R.dimen.strokeSize)
+                            else
+                                0
+
+                        val bitmap = Bitmap.createBitmap(
+                            child.width + strokeMargin,
+                            child.height + strokeMargin,
+                            Bitmap.Config.ARGB_8888
+                        )
+                        val canvas = Canvas(bitmap)
+                        // on
+                        child.draw(canvas)
+                        if (poemTheme.getOutline() != "") {
+                            val newDrawable =
+                                currentPage.background.constantState?.newDrawable() as GradientDrawable
+                            newDrawable.setBounds(0, 0, canvas.width, canvas.height)
+                            newDrawable.draw(canvas)
+                        }
+
+                        if (!poemParser.saveBackgroundImageDrawable(bitmap))
+                            println("Could not save image background Drawable, failed to draw and store bitmap")
+                    }
                 }
-            }
-        } else if (!poemParser.saveBackgroundImageDrawable(
-                currentPage.background.toBitmap(
-                    1080,
-                    1080,
-                    Bitmap.Config.ARGB_8888
+            } else {
+                val bitmap = Bitmap.createBitmap(1080, 1080, Bitmap.Config.ARGB_8888)
+                val canvas = Canvas(bitmap)
+                val newDrawable =
+                    currentPage.background.constantState?.newDrawable() as GradientDrawable
+                newDrawable.setBounds(0, 0, canvas.width, canvas.height)
+                newDrawable.draw(canvas)
+                if (!poemParser.saveBackgroundImageDrawable(bitmap)
                 )
-            )
-        )
-            println("Could not save image background Drawable, failed to draw and store bitmap")
+                    println("Could not save image background Drawable, failed to draw and store bitmap")
+            }
+    }
 
         when (poemParser.saveToXmlFile()) {
             0 -> {
@@ -1810,7 +1744,7 @@ class CreatePoem : AppCompatActivity() {
             AlertDialog.Builder(this).setTitle(R.string.category)
                 .setSingleChoiceItems(categoryChoices, 3) { dialog, chosenInt ->
                     dialog.dismiss()
-                    actuateSaveAsFile(categoryChoices[chosenInt], true)
+                    actuateSaveAsFile(categoryChoices[chosenInt], true, editPoemTheme = true)
                     turnOffCurrentView()
                     hasFileBeenEdited = false
                 }.show()
@@ -1848,7 +1782,7 @@ class CreatePoem : AppCompatActivity() {
         }
         editPoemTheme.setOnClickListener {
             //to fix when categories are necessary
-            actuateSaveAsFile(Category.NONE.toString(), true)
+            actuateSaveAsFile(Category.NONE.toString(), true, editPoemTheme = false)
             val activityIntent = Intent(applicationContext, PoemThemeActivity::class.java)
             activityIntent.putExtra("poemThemeName", poemTheme.getTitle())
             finish()

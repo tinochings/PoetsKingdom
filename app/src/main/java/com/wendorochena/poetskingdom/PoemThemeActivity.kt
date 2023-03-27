@@ -35,6 +35,7 @@ import com.wendorochena.poetskingdom.poemdata.PoemThemeXmlParser
 import com.wendorochena.poetskingdom.poemdata.TextAlignment
 import com.wendorochena.poetskingdom.recyclerViews.ImageRecyclerViewAdapter
 import com.wendorochena.poetskingdom.utils.ShapeAppearanceModelHelper
+import com.wendorochena.poetskingdom.utils.TextMarginUtil
 import com.wendorochena.poetskingdom.utils.TypefaceHelper
 import kotlinx.coroutines.*
 import java.io.File
@@ -491,34 +492,17 @@ class PoemThemeActivity : AppCompatActivity() {
             RelativeLayout.LayoutParams.MATCH_PARENT,
             RelativeLayout.LayoutParams.WRAP_CONTENT
         )
+        val textUtil = TextMarginUtil()
+
+        textUtil.determineTextMargins(outlineShape, resources, resources.getDimensionPixelSize(R.dimen.strokeSize))
+
         layoutParams.setMargins(
-            resources.getDimensionPixelSize(R.dimen.previewWithOutlineTextMarginRectangle)
+            textUtil.marginLeft,
+            textUtil.marginTop,
+            textUtil.marginRight,
+            textUtil.marginBottom
         )
-        when (outlineShape) {
-            getString(R.string.rounded_rectangle_outline_description) -> {
-                layoutParams.setMargins(
-                    resources.getDimensionPixelSize(R.dimen.previewWithOutlineTextMarginRectangle)
-                )
-            }
-            getString(R.string.teardrop_description_outline) -> {
-                layoutParams.setMargins(
-                    resources.getDimensionPixelSize(R.dimen.previewWithOutlineTextMarginTeardrop)
-                )
-            }
-            getString(R.string.rotated_teardrop_outline) -> {
-                layoutParams.setMargins(
-                    resources.getDimensionPixelSize(R.dimen.previewWithOutlineTextMarginTeardrop)
-                )
-            }
-            getString(R.string.lemon_outline_description) -> {
-                layoutParams.setMargins(
-                    resources.getDimensionPixelSize(R.dimen.lemonCornerSizeTopLeft),
-                    resources.getDimensionPixelSize(R.dimen.lemonCornerSizeTopRight),
-                    resources.getDimensionPixelSize(R.dimen.lemonCornerSizeTopRight),
-                    resources.getDimensionPixelSize(R.dimen.lemonCornerSizeTopLeft)
-                )
-            }
-        }
+
         return layoutParams
     }
 
@@ -979,7 +963,10 @@ class PoemThemeActivity : AppCompatActivity() {
                 RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT
             )
-            previewText.layoutParams = layoutParams
+            if (outlineChosen != null)
+                previewText.layoutParams = adjustPreviewTextBounds(outlineChosen?.contentDescription as String)
+            else
+                previewText.layoutParams = layoutParams
             previewText.gravity = Gravity.START
             poemTheme.setTextAlignment(TextAlignment.LEFT)
         }
@@ -988,7 +975,10 @@ class PoemThemeActivity : AppCompatActivity() {
                 RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT
             )
-            previewText.layoutParams = layoutParams
+            if (outlineChosen != null)
+                previewText.layoutParams = adjustPreviewTextBounds(outlineChosen?.contentDescription as String)
+            else
+                previewText.layoutParams = layoutParams
             previewText.gravity = Gravity.CENTER
             poemTheme.setTextAlignment(TextAlignment.CENTRE)
         }
@@ -997,7 +987,10 @@ class PoemThemeActivity : AppCompatActivity() {
                 RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT
             )
-            previewText.layoutParams = layoutParams
+            if (outlineChosen != null)
+                previewText.layoutParams = adjustPreviewTextBounds(outlineChosen?.contentDescription as String)
+            else
+                previewText.layoutParams = layoutParams
             previewText.gravity = Gravity.END
             poemTheme.setTextAlignment(TextAlignment.RIGHT)
         }
@@ -1285,10 +1278,13 @@ class PoemThemeActivity : AppCompatActivity() {
                 previewText.gravity = Gravity.END
             }
             TextAlignment.CENTRE_VERTICAL -> {
-                previewText.gravity = Gravity.CENTER_HORIZONTAL
+                previewText.gravity = Gravity.CENTER_VERTICAL
             }
-            else -> {
-                previewText.gravity = Gravity.CENTER_HORIZONTAL
+            TextAlignment.CENTRE_VERTICAL_LEFT -> {
+                previewText.gravity = Gravity.CENTER_VERTICAL or Gravity.START
+            }
+            TextAlignment.CENTRE_VERTICAL_RIGHT -> {
+                previewText.gravity = Gravity.CENTER_VERTICAL or Gravity.END
             }
         }
 

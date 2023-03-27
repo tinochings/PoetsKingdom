@@ -20,7 +20,7 @@ class TextMarginUtil {
      */
     fun determineTextMargins(outline : String, resources : Resources, strokeSize : Int) {
         when (outline) {
-            OutlineTypes.ROUNDED_RECTANGLE.toString() -> {
+             OutlineTypes.ROUNDED_RECTANGLE.toString(), OutlineTypes.RECTANGLE.toString() -> {
                 marginLeft = strokeSize + 4
                 marginRight = strokeSize + 4
                 marginTop = strokeSize + 4
