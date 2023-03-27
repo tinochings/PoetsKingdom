@@ -30,7 +30,7 @@
             android:layout_gravity="end"
             android:background="@drawable/heading_background"
             android:text="@string/create_poem"
-            android:textColor="@color/black"
+            android:textColor="@color/text_color"
             app:backgroundTint="@color/madzinza_green" />
     </androidx.appcompat.widget.Toolbar>
 
@@ -66,7 +66,7 @@
             android:layout_height="wrap_content"
             android:elevation="2dp"
             android:text="@string/preview_text"
-            android:textColor="@color/black"
+            android:textColor="@color/text_color"
             android:textSize="@dimen/normal_text_size"
             android:textStyle="bold" />
 
@@ -121,7 +121,7 @@
                         android:layout_height="match_parent"
                         android:gravity="center"
                         android:text="@string/outline"
-                        android:textColor="@color/black"
+                        android:textColor="@color/text_color"
                         android:textSize="@dimen/heading_layout_normal"
                         android:textStyle="bold" />
                 </FrameLayout>
@@ -137,7 +137,7 @@
                         android:layout_height="match_parent"
                         android:gravity="center"
                         android:text="@string/background"
-                        android:textColor="@color/black"
+                        android:textColor="@color/text_color"
                         android:textSize="@dimen/heading_layout_normal"
                         android:textStyle="bold" />
                 </FrameLayout>
@@ -153,7 +153,7 @@
                         android:layout_height="match_parent"
                         android:gravity="center"
                         android:text="@string/text"
-                        android:textColor="@color/black"
+                        android:textColor="@color/text_color"
                         android:textSize="@dimen/heading_layout_normal"
                         android:textStyle="bold" />
                 </FrameLayout>
@@ -180,7 +180,7 @@
                 <View
                     android:layout_width="1dp"
                     android:layout_height="match_parent"
-                    android:background="@color/black" />
+                    android:background="@color/text_color" />
 
                 <FrameLayout
                     android:layout_width="0dp"
@@ -211,7 +211,7 @@
                 <View
                     android:layout_width="1dp"
                     android:layout_height="match_parent"
-                    android:background="@color/black" />
+                    android:background="@color/text_color" />
 
                 <FrameLayout
                     android:id="@+id/rightEdgeTeardrop"
@@ -246,7 +246,7 @@
             <View
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
-                android:background="@color/black" />
+                android:background="@color/text_color" />
 
             <FrameLayout
                 android:id="@+id/unkownshape2"
@@ -345,7 +345,7 @@
                         android:layout_height="match_parent"
                         android:text="@string/text_size_default"
                         android:textAlignment="center"
-                        android:textColor="@color/black"
+                        android:textColor="@color/text_color"
                         android:textSize="@dimen/heading_layout_normal"
                         android:textStyle="bold" />
 
@@ -357,9 +357,9 @@
                         android:value="14"
                         android:valueFrom="0"
                         android:valueTo="75"
-                        app:thumbColor="@color/default_color"
-                        app:trackColorActive="@color/default_color"
-                        app:trackColorInactive="@color/seek_bar_background" />
+                        app:thumbColor="@color/icon_default_color"
+                        app:trackColorInactive="@color/seek_bar_background"
+                        app:trackColorActive="@color/icon_default_color" />
 
             </LinearLayout>
 
@@ -383,7 +383,7 @@
                         android:layout_height="match_parent"
                         android:text="@string/text_color"
                         android:textAlignment="center"
-                        android:textColor="@color/black"
+                        android:textColor="@color/text_color"
                         android:textSize="@dimen/heading_layout_normal"
                         android:textStyle="bold" />
 
@@ -487,7 +487,7 @@
                         android:fontFamily="monospace"
                         android:gravity="center"
                         android:text="@string/monospace_font_family"
-                        android:textColor="@color/black"
+                        android:textColor="@color/text_color"
                         android:textSize="@dimen/heading_layout_normal" />
                 </FrameLayout>
 
@@ -503,7 +503,7 @@
                         android:fontFamily="sans-serif"
                         android:gravity="center"
                         android:text="@string/sans_serif_font_family"
-                        android:textColor="@color/black"
+                        android:textColor="@color/text_color"
                         android:textSize="@dimen/heading_layout_normal" />
                 </FrameLayout>
             </LinearLayout>
@@ -529,7 +529,7 @@
                         android:fontFamily="serif"
                         android:gravity="center"
                         android:text="@string/serif_font_family"
-                        android:textColor="@color/black"
+                        android:textColor="@color/text_color"
                         android:textSize="@dimen/heading_layout_normal" />
                 </FrameLayout>
 
@@ -545,7 +545,7 @@
                         android:layout_height="match_parent"
                         android:gravity="center"
                         android:text="@string/defaulttext"
-                        android:textColor="@color/black"
+                        android:textColor="@color/text_color"
                         android:textSize="@dimen/heading_layout_normal" />
                 </FrameLayout>
 

@@ -86,7 +86,7 @@
             android:background="@null"
             android:inputType="textMultiLine|textCapSentences"
             android:scrollbars="vertical"
-            android:textColor="@color/black"
+            android:textColor="@color/text_color"
             android:hint="@string/enter_poem_text"
             android:autofillHints="Start Writing Here" />
     </FrameLayout>
@@ -114,7 +114,7 @@
             android:inputType="textMultiLine|textCapSentences"
             android:scrollbars="vertical"
             android:background="@null"
-            android:textColor="@color/black"
+            android:textColor="@color/text_color"
             android:autofillHints="Start Writing Here"/>
     </FrameLayout>
 
@@ -246,7 +246,7 @@
                 android:id="@+id/textSizeText"
                 android:text="@string/text_size_default"
                 android:textAlignment="center"
-                android:textColor="@color/black"
+                android:textColor="@color/text_color"
                 android:textSize="@dimen/heading_layout_normal"
                 android:textStyle="bold" />
 
@@ -255,9 +255,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                app:thumbColor="@color/default_color"
+                app:thumbColor="@color/icon_default_color"
                 app:trackColorInactive="@color/seek_bar_background"
-                app:trackColorActive="@color/default_color"
+                app:trackColorActive="@color/icon_default_color"
                 android:value="14"
                 android:contentDescription="@string/slider_description"
                 android:valueFrom="0"
@@ -280,7 +280,7 @@
                 android:text="@string/save_pdf"
                 android:gravity="center"
                 android:textAlignment="center"
-                android:textColor="@color/black"
+                android:textColor="@color/text_color"
                 android:textSize="@dimen/heading_layout_normal"
                 android:textStyle="bold"
                 app:drawableStartCompat="@drawable/pdf_icon" />
@@ -294,7 +294,7 @@
                 android:text="@string/save_image"
                 android:gravity="center"
                 android:textAlignment="center"
-                android:textColor="@color/black"
+                android:textColor="@color/text_color"
                 android:textSize="@dimen/heading_layout_normal"
                 android:textStyle="bold"
                 app:drawableStartCompat="@drawable/image_save"
@@ -309,7 +309,7 @@
                 android:text="@string/save_file"
                 android:textAlignment="center"
                 android:gravity="center"
-                android:textColor="@color/black"
+                android:textColor="@color/text_color"
                 android:textSize="@dimen/heading_layout_normal"
                 android:textStyle="bold"
                 app:drawableStartCompat="@drawable/file_save"
@@ -323,7 +323,7 @@
                 android:text="@string/edit_poem_theme"
                 android:textAlignment="center"
                 android:gravity="center"
-                android:textColor="@color/black"
+                android:textColor="@color/text_color"
                 android:textSize="@dimen/heading_layout_normal"
                 android:textStyle="bold"
                 app:drawableStartCompat="@drawable/ic_baseline_edit_24"
@@ -351,6 +351,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:contentDescription="@string/text_options_button"
+            android:elevation="5dp"
             android:src="@drawable/text_options_states"
             app:layout_constraintEnd_toStartOf="@+id/textColor"
             app:layout_constraintStart_toStartOf="parent" />
@@ -361,6 +362,7 @@
             android:layout_height="match_parent"
             android:contentDescription="@string/text_color_button"
             android:src="@drawable/text_color_states"
+            android:elevation="5dp"
             app:layout_constraintEnd_toStartOf="@+id/textSize"
             app:layout_constraintStart_toEndOf="@+id/textOptions" />
 
@@ -369,6 +371,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:contentDescription="@string/text_size_button"
+            android:elevation="5dp"
             android:src="@drawable/text_size_states"
             app:layout_constraintEnd_toStartOf="@+id/pagesOptions"
             app:layout_constraintStart_toEndOf="@+id/textColor" />
@@ -379,6 +382,7 @@
             android:layout_height="match_parent"
             android:contentDescription="@string/pages"
             android:src="@drawable/pages_button_states"
+            android:elevation="5dp"
             app:layout_constraintEnd_toStartOf="@+id/saveOptions"
             app:layout_constraintStart_toEndOf="@+id/textSize" />
 
@@ -386,6 +390,7 @@
             android:id="@+id/saveOptions"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:elevation="5dp"
             android:contentDescription="@string/save_button"
             android:src="@drawable/save_options_states"
             app:layout_constraintEnd_toEndOf="parent"

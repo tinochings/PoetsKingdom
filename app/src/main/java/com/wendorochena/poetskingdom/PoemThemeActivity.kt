@@ -866,6 +866,7 @@ class PoemThemeActivity : AppCompatActivity() {
         textViewChild.setTextSize(TypedValue.COMPLEX_UNIT_SP, 25f)
         textViewChild.typeface = TypefaceHelper.getTypeFace(fontFamily, applicationContext)
         textViewChild.text = fontText
+        textViewChild.setTextColor(ResourcesCompat.getColor(resources,R.color.text_color, this.theme))
         textViewChild.gravity = Gravity.CENTER
         layoutParams.weight = 1f
         frameToRet.layoutParams = layoutParams

@@ -217,7 +217,6 @@ class MyPoems : AppCompatActivity() {
      */
     private fun setupBottomDrawer() {
         val shareAsImage = findViewById<ImageButton>(R.id.shareAsImage)
-//        val shareAsPdf = findViewById<ImageButton>(R.id.shareAsPdf)
         val deleteButton = findViewById<ImageButton>(R.id.deleteButton)
 
         deleteButton.setOnClickListener {

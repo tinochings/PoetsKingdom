@@ -7,18 +7,18 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="light_black">#454545</color>
+    <color name="text_color">@color/white</color>
+    <color name="bottom_drawer_color">#87633A</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="text_color">@color/black</color>
     <color name="off_white">#FAF9F6</color>
-    <color name="bottom_drawer_color">#FAF9F6</color>
     <color name="brown">#964B00</color>
     <color name="blue">#0000FF</color>
     <color name="madzinza_green">#88A827</color>
     <color name="ripple_color">#88A827</color>
-    <color name="button_pressed">#964B00</color>
-    <color name="default_color">#8C4C27</color>
-    <color name="default_background_color">#F2D4AE</color>
-    <color name="default_status_bar_color">#D9BB84</color>
-    <color name="icon_default_color">@color/default_color</color>
-    <color name="seek_bar_background">#ababab</color>
+    <color name="button_pressed">#F2D4AE</color>
+    <color name="default_color">#533621</color>
+    <color name="default_background_color">#533621</color>
+    <color name="default_status_bar_color">#87633A</color>
+    <color name="icon_default_color">@color/white</color>
+    <color name="seek_bar_background">@color/button_pressed</color>
 </resources>

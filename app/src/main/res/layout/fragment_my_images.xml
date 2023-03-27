@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@style/Theme.PoetsKingdom.NoActionBar"
     android:id="@+id/parent"
     tools:context=".MyImages">
 
@@ -19,7 +20,7 @@
             android:text="@string/my_images_text"
             android:textStyle="bold"
             android:gravity="center"
-            android:textColor="@color/black"
+            android:textColor="@color/text_color"
             android:textSize="@dimen/heading_layout_normal"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/myPoemsText"
@@ -34,7 +35,7 @@
             android:textSize="@dimen/heading_layout_normal"
             android:textStyle="bold"
             android:gravity="center"
-            android:textColor="@color/black"
+            android:textColor="@color/text_color"
             app:layout_constraintStart_toEndOf="@id/myImagesText"
             app:layout_constraintEnd_toEndOf="parent"
             android:tag="inactive"
@@ -70,9 +71,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="5dp"
-        android:tint="@color/white"
-        android:src="@drawable/ic_baseline_add_a_photo_24"
         app:rippleColor="@color/white"
+        android:src="@drawable/ic_baseline_add_a_photo_24"
         android:contentDescription="@string/add_new_image" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

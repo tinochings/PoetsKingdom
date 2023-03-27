@@ -54,7 +54,7 @@
         android:textSize="@dimen/heading_layout_normal"
         android:textStyle="bold"
         android:gravity="center"
-        android:textColor="@color/black"
+        android:textColor="@color/text_color"
         android:textAlignment="center"
         />
 

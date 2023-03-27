@@ -29,7 +29,7 @@
         android:enabled="false"
         android:clickable="false"
         android:inputType="none"
-        android:textColor="@color/black"
+        android:textColor="@color/text_color"
         android:textSize="20sp" />
 
     <TextView
