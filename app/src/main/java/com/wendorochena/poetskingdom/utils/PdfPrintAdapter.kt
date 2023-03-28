@@ -145,7 +145,7 @@ class PdfPrintAdapter(
         page.canvas.apply {
 
             if (thumbnail) {
-                val thumbnailCreator = ThumbnailCreator(context,poemTheme,this.width,this.height,textUtils)
+                val thumbnailCreator = ThumbnailCreator(context,poemTheme,this.width,this.height,textUtils, generateBackground = false)
                 thumbnailCreator.pdfInitiateCreateThumbnail()
 
                 val rect = Rect(0, 0, this.width, this.height)

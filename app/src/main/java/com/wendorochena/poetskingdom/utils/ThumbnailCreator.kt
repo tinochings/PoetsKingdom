@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
+import android.util.Log
 import android.util.TypedValue
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
@@ -22,7 +23,8 @@ class ThumbnailCreator(
     private val poemTheme: PoemTheme,
     private val width: Int,
     private val height: Int,
-    private val textMarginUtil: TextMarginUtil
+    private val textMarginUtil: TextMarginUtil,
+    private val generateBackground : Boolean
 ) {
 
     private var poemName = "Default"
@@ -294,6 +296,24 @@ class ThumbnailCreator(
                 }
             }
 
+            if (generateBackground){
+                val backgroundImageDrawableFolder = context.getDir(
+                    context.getString(R.string.background_image_drawable_folder),
+                    Context.MODE_PRIVATE
+                )
+                val backgroundFile =
+                    File(backgroundImageDrawableFolder.absolutePath + File.separator + poemTheme.getTitle().replace(
+                        ' ',
+                        '_'
+                    ) + ".png")
+
+                if (backgroundFile.exists() || backgroundFile.createNewFile()) {
+                    val backgroundOutputStream = FileOutputStream(backgroundFile)
+                    thumbnailBitmap.compress(Bitmap.CompressFormat.PNG,100,backgroundOutputStream)
+                    backgroundOutputStream.close()
+                }
+            }
+
             yPoint = if (poemTheme.getOutline() != "")
                 (paint.descent() - paint.ascent() + paint.fontMetrics.leading) +
                         context.resources.getDimensionPixelSize(R.dimen.strokeSize).toFloat()
@@ -405,6 +425,7 @@ class ThumbnailCreator(
             outputStream.close()
         } catch (e: Exception) {
             e.printStackTrace()
+            Log.e(this::javaClass.name, "Failed to save thumbnail")
         }
     }
 }

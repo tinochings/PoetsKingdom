@@ -1,6 +1,7 @@
 package com.wendorochena.poetskingdom.utils
 
 import android.content.Context
+import android.util.Log
 import androidx.databinding.ObservableArrayList
 import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.poemdata.PoemXMLParser
@@ -180,6 +181,7 @@ class SearchUtil(
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
+                    Log.e(this::javaClass.name, "Lucene search failed")
                 }
             }
 

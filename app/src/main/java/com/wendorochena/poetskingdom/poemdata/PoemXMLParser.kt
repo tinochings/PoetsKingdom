@@ -1,7 +1,7 @@
 package com.wendorochena.poetskingdom.poemdata
 
 import android.content.Context
-import android.graphics.Bitmap
+import android.util.Log
 import android.util.Xml
 import com.wendorochena.poetskingdom.R
 import kotlinx.coroutines.CoroutineDispatcher
@@ -88,37 +88,6 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
 
             return@withContext -1
         }
-    }
-
-    /**
-     * Saves the background image as a bitmap. This is necessary for the search poem recycler view
-     *
-     * @param toBitmap the bitmap to save
-     * @return true if it was saved false if it was not
-     */
-    fun saveBackgroundImageDrawable(toBitmap: Bitmap): Boolean {
-        val backgroundImageDrawableFolder = context.getDir(
-            context.getString(R.string.background_image_drawable_folder),
-            Context.MODE_PRIVATE
-        )
-
-        if (backgroundImageDrawableFolder.exists()) {
-            val poemTitle = poem.poemTheme.getTitle().replace(" ", "_")
-            try {
-                val fileToSave =
-                    File(backgroundImageDrawableFolder.absolutePath + File.separator + poemTitle + ".png")
-
-                if (fileToSave.exists() || fileToSave.createNewFile()) {
-                    val outStream = FileOutputStream(fileToSave)
-                    val toRet = toBitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream)
-                    outStream.close()
-                    return toRet
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-        return false
     }
 
     companion object PoemXMLFileParserHelper {
@@ -225,6 +194,7 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
+                        Log.e(this::javaClass.name, "Failed to parse saved poem")
                     } finally {
                         inputStream.close()
                     }

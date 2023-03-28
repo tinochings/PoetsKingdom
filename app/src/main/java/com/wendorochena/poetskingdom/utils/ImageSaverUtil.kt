@@ -727,6 +727,7 @@ class ImageSaverUtil(
                 }
             } catch (exception: Exception) {
                 exception.printStackTrace()
+                Log.e(this::javaClass.name, "Failed to save poem as images")
                 return@withContext -1
             }
             return@withContext -1

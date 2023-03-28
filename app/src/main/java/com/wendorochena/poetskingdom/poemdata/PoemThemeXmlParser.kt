@@ -1,6 +1,7 @@
 package com.wendorochena.poetskingdom.poemdata
 
 import android.content.Context
+import android.util.Log
 import android.util.Xml
 import android.view.View
 import com.wendorochena.poetskingdom.R
@@ -142,6 +143,7 @@ class PoemThemeXmlParser(
                     }
                 } catch (exception: Exception) {
                     exception.printStackTrace()
+                    Log.e(this::javaClass.name, "Failed to parse user theme")
                     return@withContext -1
                 } finally {
                     inputStream.close()
@@ -282,6 +284,7 @@ class PoemThemeXmlParser(
             }
         } catch (e: Exception) {
             e.printStackTrace()
+            Log.e(this::javaClass.name, "Failed to parse background type")
         }
     }
 
@@ -443,6 +446,7 @@ class PoemThemeXmlParser(
                         }
                     } catch (e: java.lang.Exception) {
                         e.printStackTrace()
+                        Log.e(this::javaClass.name, "Failed to save poem theme as a file")
                         return@withContext -1
                     }
                 }
