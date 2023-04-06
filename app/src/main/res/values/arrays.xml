@@ -84,5 +84,8 @@
         <item>typerighter_medium_font</item>
         <item>righteous_regular_font</item>
         <item>chopin_script_font</item>
+        <item>rochester_regular_font</item>
+        <item>steelfish_rounded_font</item>
+        <item>vinque_font</item>
     </string-array>
 </resources>

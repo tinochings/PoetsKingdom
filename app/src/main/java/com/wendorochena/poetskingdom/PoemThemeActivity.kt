@@ -815,13 +815,20 @@ class PoemThemeActivity : AppCompatActivity() {
             "chopin_script_font" -> {
                 linearToRet.id = R.id.textchopin_script_font
             }
+            "rochester_regular_font" -> {
+                linearToRet.id = R.id.textrochester_regular_font
+            }
+            "vinque_font" -> {
+                linearToRet.id = R.id.textvinque_font
+            }
         }
 
         return linearToRet
     }
 
     /**
-     * hard coded for performance
+     * Getting a font by name is far too taxing. Therefore I have hard coded getting a font for
+     * performance
      */
     private fun createFontChild(fontFamily: String): FrameLayout {
         val frameToRet = FrameLayout(applicationContext)
