@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/parent"
@@ -81,7 +82,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:checked="true"
-                    android:textColor="@color/black"
+                    android:textColor="@color/text_color"
                     android:id="@+id/exactSearchCheckBox"
                     android:textStyle="bold"
                     android:text="@string/exact_phrase_search"/>
@@ -91,7 +92,7 @@
                     android:layout_marginStart="5dp"
                     android:checked="false"
                     android:textStyle="bold"
-                    android:textColor="@color/black"
+                    android:textColor="@color/text_color"
                     android:id="@+id/approximateSearchCheckBox"
                     android:text="@string/approximate_phrase_search"/>
                 <CheckBox
@@ -99,7 +100,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:textStyle="bold"
-                    android:textColor="@color/black"
+                    android:textColor="@color/text_color"
                     android:checked="false"
                     android:id="@+id/containsSearchCheckBox"
                     android:text="@string/contains_phrase_search"/>
@@ -137,8 +138,9 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:background="@drawable/transparent_outline"
-        android:elevation="4dp"
+        android:layout_marginBottom="5dp"
         android:visibility="gone"
+        android:elevation="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -148,28 +150,21 @@
             android:id="@+id/shareAsImage"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:elevation="5dp"
             android:contentDescription="@string/share_as_image"
             android:src="@drawable/ic_baseline_share_24"
-            app:layout_constraintEnd_toStartOf="@+id/shareAsPdf"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <ImageButton
-            android:id="@+id/shareAsPdf"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:contentDescription="@string/pdf_icon"
-            android:src="@drawable/pdf_icon"
             app:layout_constraintEnd_toStartOf="@+id/deleteButton"
-            app:layout_constraintStart_toEndOf="@+id/shareAsImage" />
+            app:layout_constraintStart_toStartOf="parent" />
 
         <ImageButton
             android:id="@+id/deleteButton"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:elevation="5dp"
             android:contentDescription="@string/delete_button"
             android:src="@drawable/ic_baseline_delete_24"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/shareAsPdf" />
+            app:layout_constraintStart_toEndOf="@+id/shareAsImage" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

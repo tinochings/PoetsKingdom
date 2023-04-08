@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
@@ -8,7 +8,9 @@
     <color name="black">#FF000000</color>
     <color name="light_black">#454545</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="text_color">@color/black</color>
     <color name="off_white">#FAF9F6</color>
+    <color name="bottom_drawer_color">#FAF9F6</color>
     <color name="brown">#964B00</color>
     <color name="blue">#0000FF</color>
     <color name="madzinza_green">#88A827</color>
@@ -17,4 +19,6 @@
     <color name="default_color">#8C4C27</color>
     <color name="default_background_color">#F2D4AE</color>
     <color name="default_status_bar_color">#D9BB84</color>
+    <color name="icon_default_color">@color/default_color</color>
+    <color name="seek_bar_background">#ababab</color>
 </resources>

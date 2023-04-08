@@ -2,8 +2,6 @@ package com.wendorochena.poetskingdom
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
@@ -22,6 +20,7 @@ import androidx.cardview.widget.CardView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
 import androidx.core.view.setMargins
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -37,6 +36,7 @@ import com.wendorochena.poetskingdom.poemdata.PoemThemeXmlParser
 import com.wendorochena.poetskingdom.poemdata.TextAlignment
 import com.wendorochena.poetskingdom.recyclerViews.ImageRecyclerViewAdapter
 import com.wendorochena.poetskingdom.utils.ShapeAppearanceModelHelper
+import com.wendorochena.poetskingdom.utils.TextMarginUtil
 import com.wendorochena.poetskingdom.utils.TypefaceHelper
 import kotlinx.coroutines.*
 import java.io.File
@@ -98,7 +98,7 @@ class PoemThemeActivity : AppCompatActivity() {
                     }.show()
             }
 
-            GlobalScope.launch(Dispatchers.Main + handler) {
+            lifecycleScope.launch(Dispatchers.Main + handler) {
                 if (poemThemeXmlParser.parseTheme(poemName) == 0) {
                     initialisePoemTheme(poemThemeXmlParser)
                     findViewById<Button>(R.id.startPoemCreation).setText(R.string.edit_button_theme)
@@ -209,7 +209,7 @@ class PoemThemeActivity : AppCompatActivity() {
                     println("Error saving file")
                 }
 
-                GlobalScope.launch(Dispatchers.Main + exceptionHandler) {
+                lifecycleScope.launch(Dispatchers.Main + exceptionHandler) {
                     if (poemThemeXmlParser.savePoemThemeToLocalFile(
                         backgroundImageChosen,
                         backgroundColorChosen,
@@ -279,7 +279,7 @@ class PoemThemeActivity : AppCompatActivity() {
                                 println("Error saving file")
                             }
 
-                            GlobalScope.launch(Dispatchers.Main + exceptionHandler) {
+                            lifecycleScope.launch(Dispatchers.Main + exceptionHandler) {
                                 if (poemThemeXmlParser.savePoemThemeToLocalFile(
                                         backgroundImageChosen,
                                         backgroundColorChosen,
@@ -493,34 +493,17 @@ class PoemThemeActivity : AppCompatActivity() {
             RelativeLayout.LayoutParams.MATCH_PARENT,
             RelativeLayout.LayoutParams.WRAP_CONTENT
         )
+        val textUtil = TextMarginUtil()
+
+        textUtil.determineTextMargins(outlineShape, resources, resources.getDimensionPixelSize(R.dimen.strokeSize))
+
         layoutParams.setMargins(
-            resources.getDimensionPixelSize(R.dimen.previewWithOutlineTextMarginRectangle)
+            textUtil.marginLeft,
+            textUtil.marginTop,
+            textUtil.marginRight,
+            textUtil.marginBottom
         )
-        when (outlineShape) {
-            getString(R.string.rounded_rectangle_outline_description) -> {
-                layoutParams.setMargins(
-                    resources.getDimensionPixelSize(R.dimen.previewWithOutlineTextMarginRectangle)
-                )
-            }
-            getString(R.string.teardrop_description_outline) -> {
-                layoutParams.setMargins(
-                    resources.getDimensionPixelSize(R.dimen.previewWithOutlineTextMarginTeardrop)
-                )
-            }
-            getString(R.string.rotated_teardrop_outline) -> {
-                layoutParams.setMargins(
-                    resources.getDimensionPixelSize(R.dimen.previewWithOutlineTextMarginTeardrop)
-                )
-            }
-            getString(R.string.lemon_outline_description) -> {
-                layoutParams.setMargins(
-                    resources.getDimensionPixelSize(R.dimen.lemonCornerSizeTopLeft),
-                    resources.getDimensionPixelSize(R.dimen.lemonCornerSizeTopRight),
-                    resources.getDimensionPixelSize(R.dimen.lemonCornerSizeTopRight),
-                    resources.getDimensionPixelSize(R.dimen.lemonCornerSizeTopLeft)
-                )
-            }
-        }
+
         return layoutParams
     }
 
@@ -534,21 +517,20 @@ class PoemThemeActivity : AppCompatActivity() {
         val imageBackground = findViewById<ShapeableImageView>(R.id.imagePreview)
         val previewCardView = findViewById<CardView>(R.id.imagePreviewCard)
         val previewText = findViewById<TextView>(R.id.previewText)
+        val strokeSize = resources.getDimensionPixelSize(R.dimen.strokeSize)
 
         when (selection) {
             "Outline" -> {
                 if (outlineChosen != null) {
                     if (backgroundImageChosen != null) {
                         try {
-                            val bitmap: Bitmap =
-                                BitmapFactory.decodeFile(backgroundImageChosen?.let { File(it).absolutePath })
                             imageBackground.shapeAppearanceModel =
                                 ShapeAppearanceModelHelper.shapeImageView(
                                     outlineChosen!!.contentDescription as String,
-                                    resources
+                                    resources,
+                                    strokeSize.toFloat()
                                 )
-//                            imageBackground.setImageBitmap(bitmap)
-                            Glide.with(applicationContext).load(bitmap).into(imageBackground)
+                            Glide.with(applicationContext).load(backgroundImageChosen).into(imageBackground)
                             val colorDrawable =
                                 ColorDrawable(getColor(R.color.default_background_color))
 
@@ -556,7 +538,7 @@ class PoemThemeActivity : AppCompatActivity() {
                                 FrameLayout.LayoutParams.MATCH_PARENT,
                                 FrameLayout.LayoutParams.MATCH_PARENT
                             )
-                            layoutParams.setMargins(resources.getDimensionPixelSize(R.dimen.strokeSizeMargin))
+                            layoutParams.setMargins(strokeSize)
                             imageBackground.layoutParams = layoutParams
                             previewCardView.background = colorDrawable
                         } catch (e: Exception) {
@@ -580,28 +562,26 @@ class PoemThemeActivity : AppCompatActivity() {
                         }
 
                         if (backGroundFile.exists()) {
-                            val bitmap: Bitmap =
-                                BitmapFactory.decodeFile(backGroundFile.absolutePath)
                             if (outlineChosen != null) {
                                 imageBackground.shapeAppearanceModel =
                                     ShapeAppearanceModelHelper.shapeImageView(
                                         outlineChosen!!.contentDescription as String,
-                                        resources
+                                        resources,
+                                        strokeSize.toFloat()
                                     )
 
                                 val layoutParams = FrameLayout.LayoutParams(
                                     FrameLayout.LayoutParams.MATCH_PARENT,
                                     FrameLayout.LayoutParams.MATCH_PARENT
                                 )
-                                layoutParams.setMargins(resources.getDimensionPixelSize(R.dimen.strokeSizeMargin))
+                                layoutParams.setMargins(strokeSize)
                                 imageBackground.layoutParams = layoutParams
                                 val colorDrawable =
                                     ColorDrawable(getColor(R.color.default_background_color))
                                 previewCardView.background = colorDrawable
                             } else
                                 resetImageView()
-                            Glide.with(applicationContext).load(bitmap).into(imageBackground)
-//                            imageBackground.setImageBitmap(bitmap)
+                            Glide.with(applicationContext).load(backGroundFile.absolutePath).into(imageBackground)
                             previewLayout.bringChildToFront(previewText)
                         }
                     }
@@ -836,13 +816,20 @@ class PoemThemeActivity : AppCompatActivity() {
             "chopin_script_font" -> {
                 linearToRet.id = R.id.textchopin_script_font
             }
+            "rochester_regular_font" -> {
+                linearToRet.id = R.id.textrochester_regular_font
+            }
+            "vinque_font" -> {
+                linearToRet.id = R.id.textvinque_font
+            }
         }
 
         return linearToRet
     }
 
     /**
-     * hard coded for performance
+     * Getting a font by name is far too taxing. Therefore I have hard coded getting a font for
+     * performance
      */
     private fun createFontChild(fontFamily: String): FrameLayout {
         val frameToRet = FrameLayout(applicationContext)
@@ -871,6 +858,7 @@ class PoemThemeActivity : AppCompatActivity() {
         textViewChild.setTextSize(TypedValue.COMPLEX_UNIT_SP, 25f)
         textViewChild.typeface = TypefaceHelper.getTypeFace(fontFamily, applicationContext)
         textViewChild.text = fontText
+        textViewChild.setTextColor(ResourcesCompat.getColor(resources,R.color.text_color, this.theme))
         textViewChild.gravity = Gravity.CENTER
         layoutParams.weight = 1f
         frameToRet.layoutParams = layoutParams
@@ -983,7 +971,10 @@ class PoemThemeActivity : AppCompatActivity() {
                 RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT
             )
-            previewText.layoutParams = layoutParams
+            if (outlineChosen != null)
+                previewText.layoutParams = adjustPreviewTextBounds(outlineChosen?.contentDescription as String)
+            else
+                previewText.layoutParams = layoutParams
             previewText.gravity = Gravity.START
             poemTheme.setTextAlignment(TextAlignment.LEFT)
         }
@@ -992,7 +983,10 @@ class PoemThemeActivity : AppCompatActivity() {
                 RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT
             )
-            previewText.layoutParams = layoutParams
+            if (outlineChosen != null)
+                previewText.layoutParams = adjustPreviewTextBounds(outlineChosen?.contentDescription as String)
+            else
+                previewText.layoutParams = layoutParams
             previewText.gravity = Gravity.CENTER
             poemTheme.setTextAlignment(TextAlignment.CENTRE)
         }
@@ -1001,7 +995,10 @@ class PoemThemeActivity : AppCompatActivity() {
                 RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT
             )
-            previewText.layoutParams = layoutParams
+            if (outlineChosen != null)
+                previewText.layoutParams = adjustPreviewTextBounds(outlineChosen?.contentDescription as String)
+            else
+                previewText.layoutParams = layoutParams
             previewText.gravity = Gravity.END
             poemTheme.setTextAlignment(TextAlignment.RIGHT)
         }
@@ -1289,10 +1286,13 @@ class PoemThemeActivity : AppCompatActivity() {
                 previewText.gravity = Gravity.END
             }
             TextAlignment.CENTRE_VERTICAL -> {
-                previewText.gravity = Gravity.CENTER_HORIZONTAL
+                previewText.gravity = Gravity.CENTER_VERTICAL
             }
-            else -> {
-                previewText.gravity = Gravity.CENTER_HORIZONTAL
+            TextAlignment.CENTRE_VERTICAL_LEFT -> {
+                previewText.gravity = Gravity.CENTER_VERTICAL or Gravity.START
+            }
+            TextAlignment.CENTRE_VERTICAL_RIGHT -> {
+                previewText.gravity = Gravity.CENTER_VERTICAL or Gravity.END
             }
         }
 

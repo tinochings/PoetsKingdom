@@ -36,6 +36,15 @@
             app:defaultValue="portrait"
             app:useSimpleSummaryProvider="true"/>
 
+        <ListPreference
+            app:key="resolution"
+            app:title="@string/image_size_orientation"
+            app:entries="@array/landscape_orientation_entries"
+            app:entryValues="@array/landscape_orientation_values"
+            app:defaultValue="1080 1080"
+            app:isPreferenceVisible="false"
+            app:useSimpleSummaryProvider="true"/>
+
         <EditTextPreference
             app:key="signature"
             app:title="@string/signature_title"

@@ -189,7 +189,9 @@
         or select a color it will be displayed on the top view</string>
     <string name="guide_text">At the bottom you will see text options. You can choose different fonts.
     You can change the color of the text and the size of the text. All clicks will be registered in the preview</string>
-    <string name="guide_create_poem">At the top you will see your poem title. At the bottom you will see buttons. You
+    <string name="guide_create_poem">At the top you will see your poem title. If you double tap
+        areas on the poem view
+        without text a drawer with buttons will appear from the bottom. You
         can long press them to see what they do. There are buttons to edit text size and alignment.
         There is a button that initiates a stanzas view. This page tries to emulate
     stanzas by allowing a user to add many different page views. The number of stanzas is shown at the bottom right of each page view
@@ -251,5 +253,5 @@
     <string name="app_logo">App logo</string>
     <string name="check">check</string>
     <string name="circle">circle</string>
-
+    <string name="image_size_orientation">Image Orientation Size</string>
 </resources>

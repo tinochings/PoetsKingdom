@@ -138,6 +138,15 @@ class TypefaceHelper {
                 "chopin_script_font" -> {
                     return ResourcesCompat.getFont(applicationContext, R.font.chopin_script_font)
                 }
+                "rochester_regular_font" -> {
+                    return ResourcesCompat.getFont(applicationContext, R.font.rochester_regular_font)
+                }
+                "steelfish_rounded_font" -> {
+                    return ResourcesCompat.getFont(applicationContext, R.font.steelfish_rounded_font)
+                }
+                "vinque_font" -> {
+                    return ResourcesCompat.getFont(applicationContext, R.font.vinque_font)
+                }
             }
             return Typeface.DEFAULT
         }

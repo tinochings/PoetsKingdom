@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<root>
+  <backgroundType>IMAGE</backgroundType>
+  <imagePath>app/src/test/java/com/wendorochena/poetskingdom/MockFiles/test_images/mypoems.jpg</imagePath>
+  <textSize>14</textSize>
+  <textColor>#fdfcff</textColor>
+  <textColorAsInt>-131841</textColorAsInt>
+  <textAlignment>LEFT</textAlignment>
+  <textFont>Default</textFont>
+</root>

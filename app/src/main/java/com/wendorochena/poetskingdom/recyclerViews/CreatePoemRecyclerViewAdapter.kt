@@ -44,12 +44,10 @@ class CreatePoemRecyclerViewAdapter(
             view.findViewById<FrameLayout>(R.id.clickableArea).setOnClickListener {
                 onItemClick?.invoke(frameLayoutArrayList[absoluteAdapterPosition])
             }
-            if (frameLayout.id != R.id.addPage) {
                 view.findViewById<FrameLayout>(R.id.clickableArea).setOnLongClickListener {
                     onItemLongClick?.invoke(frameLayoutArrayList[absoluteAdapterPosition])
                     true
                 }
-            }
         }
 
     }
@@ -123,15 +121,16 @@ class CreatePoemRecyclerViewAdapter(
             }
         }
 
-        if (currentFrameLayout.id == R.id.addPage) {
-            holder.frameLayout.id = R.id.addPageRecyclerViewId
+        if (position == 0) {
             holder.frameLayout.background = currentFrameLayout.background.mutate()
             holder.imageView.layoutParams = currentImageLayout?.layoutParams
-            holder.imageView.setImageDrawable(ResourcesCompat.getDrawable(
-                context.resources,
-                R.drawable.baseline_add_circle_outline_24,
-                null
-            ))
+            holder.imageView.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    context.resources,
+                    R.drawable.baseline_add_circle_outline_24,
+                    null
+                )
+            )
         } else {
             if (currentFrameLayout.background != null) {
                 val drawable = currentFrameLayout.background.constantState?.newDrawable()
@@ -147,7 +146,6 @@ class CreatePoemRecyclerViewAdapter(
                 holder.imageView.layoutParams = currentImageLayout?.layoutParams
                 holder.imageView.shapeAppearanceModel = currentImageLayout?.shapeAppearanceModel!!
                 Glide.with(context).load(currentImageLayout.tag.toString()).into(holder.imageView)
-//                holder.imageView.setImageBitmap(BitmapFactory.decodeFile(currentImageLayout.tag.toString()))
                 holder.imageView.tag = currentImageLayout.tag
             }
             holder.textView.text = editText?.text
@@ -190,6 +188,8 @@ class CreatePoemRecyclerViewAdapter(
         val currentImageLayout = newFrameLayout.getChildAt(0) as ShapeableImageView
         val editText = newFrameLayout.getChildAt(1) as EditText
 
+        frameToRet.id = newFrameLayout.tag as Int
+
         if (newFrameLayout.background != null) {
             val drawable = newFrameLayout.background.constantState?.newDrawable()
             drawable?.setBounds(
@@ -204,7 +204,6 @@ class CreatePoemRecyclerViewAdapter(
         if (currentImageLayout.tag != null && currentImageLayout.tag.toString().startsWith("/")) {
             imageViewToAdd.layoutParams = currentImageLayout.layoutParams
             imageViewToAdd.shapeAppearanceModel = currentImageLayout.shapeAppearanceModel
-            Glide.with(context).load(currentImageLayout.tag.toString()).into(imageViewToAdd)
             imageViewToAdd.tag = currentImageLayout.tag
         }
         editTextToAdd.text = editText.text
@@ -342,7 +341,15 @@ class CreatePoemRecyclerViewAdapter(
     /**
      * This is for testing purposes I REPEAT DO NOT UNCOMMENT IT IS HIGHLY INSECURE
      */
-    fun getElement(index: Int) : FrameLayout {
+    fun getElement(index: Int): FrameLayout {
         return frameLayoutArrayList[index]
+    }
+
+    override fun onViewRecycled(holder: ViewHolder) {
+        super.onViewRecycled(holder)
+        holder.imageView.setImageDrawable(null)
+        holder.textView.text = SpannableStringBuilder("")
+        if (holder.imageView.tag != null && holder.imageView.tag.toString().startsWith("/"))
+            Glide.with(context).clear(holder.imageView)
     }
 }

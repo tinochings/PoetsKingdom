@@ -1,6 +1,5 @@
 package com.wendorochena.poetskingdom.poemdata
 
-import android.support.v4.app.INotificationSideChannel
 import android.text.Editable
 
 data class PoemDataContainer(val category: Category, val poem: ArrayList<Editable>, val poemTheme: PoemTheme) {

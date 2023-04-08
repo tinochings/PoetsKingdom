@@ -1,19 +1,28 @@
 package com.wendorochena.poetskingdom.poemdata
 
 import android.content.Context
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
+import androidx.core.content.res.ResourcesCompat
 import com.wendorochena.poetskingdom.R
 
 data class PoemTheme(var backgroundType: BackgroundType, private val applicationContext: Context) {
-    private  var backgroundColor: String = "#FFFFFFFF"
-    private  var imagePath: String = ""
-    private  var outline: String =""
+    private var backgroundColor: String = "#FFFFFFFF"
+    private var imagePath: String = ""
+    private var outline: String = ""
     private var textSize = 14
     private var textColor: String = "#000000"
-    private var textColorAsInt = applicationContext.getColor(R.color.black)
-    private var backgroundColorAsInt = applicationContext.getColor(R.color.white)
+    private var textColorAsInt = -16777216
+
+    //        applicationContext.resources.getColor(R.color.black, null)
+    private var backgroundColorAsInt = -1
+
+    //        applicationContext.resources.getColor(R.color.white,null)
     private var textAlignment: TextAlignment = TextAlignment.LEFT
     private var textFontFamily: String = "Default"
-    private var outlineColor: Int = applicationContext.getColor(R.color.madzinza_green)
+    private var outlineColor: Int = -7821273
+
+    //        applicationContext.resources.getColor(R.color.madzinza_green, null)
     private var poemTitle: String = ""
 
 
@@ -37,6 +46,9 @@ data class PoemTheme(var backgroundType: BackgroundType, private val application
         this.imagePath = imagePath
     }
 
+    /**
+     * Returns the exact outline for the poem
+     */
     fun getOutline(): String {
         return outline
     }
@@ -168,6 +180,11 @@ data class PoemTheme(var backgroundType: BackgroundType, private val application
         }
 
 
+        /**
+         * Determines the TextAlignment value of @param string
+         * @param string string to be determined
+         * @return the TextAlignment class value of left as default
+         */
         fun determineTextAlignment(string: String): TextAlignment {
             when (string) {
                 TextAlignment.LEFT.toString() -> {
@@ -190,6 +207,126 @@ data class PoemTheme(var backgroundType: BackgroundType, private val application
                 }
             }
             return TextAlignment.LEFT
+        }
+
+        /**
+         * @param orientation orientation of the poem
+         * @param poemTheme the PoemTheme instance
+         * @param leftMargin the left margin
+         * @param rightMargin the right margin
+         * @param topMargin the top margin
+         * @param bottomMargin the bottom margin
+         * @return Returns outline and the color selected
+         */
+
+        fun getOutlineAndColor(
+            orientation: String,
+            poemTheme: PoemTheme,
+            leftMargin: Int,
+            rightMargin: Int,
+            topMargin: Int,
+            bottomMargin: Int,
+            applicationContext: Context
+        ): Drawable {
+
+            val strokeSize: Int = if (orientation == "portrait")
+                applicationContext.resources.getDimensionPixelSize(R.dimen.portraitStrokeSize)
+            else
+                applicationContext.resources.getDimensionPixelSize(R.dimen.strokeSize)
+
+            val defaultDrawable = ResourcesCompat.getDrawable(
+                applicationContext.resources,
+                R.drawable.rounded_rectangle_outline,
+                null
+            ) as GradientDrawable
+
+            defaultDrawable.setStroke(
+                strokeSize, poemTheme.getOutlineColor()
+            )
+
+            defaultDrawable.setBounds(
+                leftMargin,
+                topMargin,
+                rightMargin,
+                bottomMargin
+            )
+            when (poemTheme.getOutline()) {
+                OutlineTypes.ROUNDED_RECTANGLE.toString() -> {
+                    return defaultDrawable
+                }
+
+                OutlineTypes.TEARDROP.toString() -> {
+                    val gradientDrawable = ResourcesCompat.getDrawable(
+                        applicationContext.resources,
+                        R.drawable.teardrop_outline,
+                        null
+                    ) as GradientDrawable
+                    gradientDrawable.setBounds(
+                        leftMargin,
+                        topMargin,
+                        rightMargin,
+                        bottomMargin
+                    )
+                    gradientDrawable.setStroke(
+                        strokeSize, poemTheme.getOutlineColor()
+                    )
+                    return gradientDrawable
+                }
+
+                OutlineTypes.ROTATED_TEARDROP.toString() -> {
+                    val gradientDrawable = ResourcesCompat.getDrawable(
+                        applicationContext.resources,
+                        R.drawable.rotated_teardrop,
+                        null
+                    ) as GradientDrawable
+                    gradientDrawable.setBounds(
+                        leftMargin,
+                        topMargin,
+                        rightMargin,
+                        bottomMargin
+                    )
+                    gradientDrawable.setStroke(
+                        strokeSize, poemTheme.getOutlineColor()
+                    )
+                    return gradientDrawable
+                }
+
+                OutlineTypes.RECTANGLE.toString() -> {
+                    val gradientDrawable = ResourcesCompat.getDrawable(
+                        applicationContext.resources,
+                        R.drawable.rectangle_outline,
+                        null
+                    ) as GradientDrawable
+                    gradientDrawable.setBounds(
+                        leftMargin,
+                        topMargin,
+                        rightMargin,
+                        bottomMargin
+                    )
+                    gradientDrawable.setStroke(
+                        strokeSize, poemTheme.getOutlineColor()
+                    )
+                    return gradientDrawable
+                }
+                OutlineTypes.LEMON.toString() -> {
+                    val gradientDrawable = ResourcesCompat.getDrawable(
+                        applicationContext.resources,
+                        R.drawable.lemon_outline,
+                        null
+                    ) as GradientDrawable
+                    gradientDrawable.setBounds(
+                        leftMargin,
+                        topMargin,
+                        rightMargin,
+                        bottomMargin
+                    )
+                    gradientDrawable.setStroke(
+                        strokeSize, poemTheme.getOutlineColor()
+                    )
+                    return gradientDrawable
+                }
+            }
+            return defaultDrawable
         }
     }
 }

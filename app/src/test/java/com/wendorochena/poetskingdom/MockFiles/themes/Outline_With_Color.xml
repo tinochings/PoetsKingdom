@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<root>
+  <backgroundType>OUTLINE_WITH_COLOR</backgroundType>
+  <backgroundOutline>ROUNDED_RECTANGLE</backgroundOutline>
+  <backgroundOutlineColor>-7821273</backgroundOutlineColor>
+  <backgroundColor>#ff59ef</backgroundColor>
+  <backgroundColorAsInt>-42513</backgroundColorAsInt>
+  <textSize>14</textSize>
+  <textColor>#000000</textColor>
+  <textColorAsInt>-16777216</textColorAsInt>
+  <textAlignment>CENTRE_VERTICAL</textAlignment>
+  <textFont>Default</textFont>
+</root>

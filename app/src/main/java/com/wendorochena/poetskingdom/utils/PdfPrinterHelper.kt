@@ -1,6 +1,7 @@
 package com.wendorochena.poetskingdom.utils
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Paint
 import android.text.Editable
 import android.util.TypedValue
@@ -13,8 +14,11 @@ class PdfPrinterHelper(
     private val pageWidth: Int,
     private val textSize: Int,
     private var editTextsToPrint: ArrayList<EditText>,
-    private val textSizeMargin : Int
+    private val outline: String,
+    private val imagePath: String
 ) {
+
+    lateinit var reshapedBitmap: Bitmap
 
     /**
      * Initiates the calculating of pages of a PDF document
@@ -28,21 +32,41 @@ class PdfPrinterHelper(
     fun calculatePages(
         editables: ArrayList<Editable>,
         context: Context,
-        currentPage: FrameLayout
+        currentPage: FrameLayout,
+        strokeSize: Int,
+        fullWidth: Int,
+        fullHeight : Int
     ): Int {
-        val imageSaverUtil = ImageSaverUtil(context, currentPage, textSize * 4/3)
         val textPixelSize = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_SP,
             textSize.toFloat(),
             context.resources.displayMetrics
-        ) * 4/3
+        ) * 4 / 3
+        var imageSaverUtil = ImageSaverUtil(
+            context, currentPage, textSize * 4 / 3, outline,
+            Pair(pageWidth, height)
+        )
 
         val textPaint = Paint()
         textPaint.textSize = textPixelSize
 
         for (edit in editables) {
-            val editTexts = imageSaverUtil.formatPagesToSave(edit,height - textSizeMargin, pageWidth,(textPaint.descent() - textPaint.ascent() + textPaint.fontMetrics.leading).roundToInt())
+            val editTexts = imageSaverUtil.formatPagesToSave(
+                edit,
+                height,
+                pageWidth,
+                (textPaint.descent() - textPaint.ascent() + textPaint.fontMetrics.leading).roundToInt()
+            )
             editTextsToPrint.addAll(editTexts)
+        }
+
+
+        if (outline != "" && imagePath != "") {
+            imageSaverUtil = ImageSaverUtil(
+                context, currentPage, textSize * 4 / 3, outline,
+                Pair(fullWidth, fullHeight)
+            )
+            reshapedBitmap = imageSaverUtil.rebuildImageShape(strokeSize, imagePath)
         }
 
         return editTextsToPrint.size
@@ -51,7 +75,14 @@ class PdfPrinterHelper(
     /**
      * @return the EditTextBoxes to print where each element represents a page
      */
-    fun getEditTextsToPrint() : ArrayList<EditText> {
+    fun getEditTextsToPrint(): ArrayList<EditText> {
         return this.editTextsToPrint
+    }
+
+    fun getReshapedBitmapIfAny(): Bitmap? {
+        if (this::reshapedBitmap.isInitialized)
+            return reshapedBitmap
+
+        return null
     }
 }

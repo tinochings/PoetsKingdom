@@ -83,6 +83,7 @@ class ImageRecyclerViewAdapter(
 
             if (currentImageLocation.exists()) {
                 viewHolder.imageView.scaleType = ImageView.ScaleType.FIT_XY
+                viewHolder.imageView.tag = currentImageLocation.absolutePath
                 Glide.with(context).load(currentImageLocation).placeholder(R.drawable.ic_launcher_background).into(viewHolder.imageView)
             }
 
@@ -200,4 +201,9 @@ class ImageRecyclerViewAdapter(
 //        return imageLocations[elem]
 //    }
 
+    override fun onViewRecycled(holder: ViewHolder) {
+        super.onViewRecycled(holder)
+        if (holder.imageView.tag != null && holder.imageView.tag.toString().startsWith("/"))
+            Glide.with(context).clear(holder.imageView)
+    }
 }
