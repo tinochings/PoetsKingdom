@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/parent"
+    tools:context=".FirstFragment">
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/halfHeight"
+        app:layout_constraintEnd_toEndOf="@id/imageOneEnd"
+        app:layout_constraintStart_toStartOf="@id/leftGuide"
+        app:layout_constraintTop_toTopOf="@id/topOfScrollView">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:id="@+id/createPoemImage"
+            android:scaleType="fitXY"
+            android:src="@drawable/createpoem"
+            app:contentPadding="0.1dp"
+            app:shapeAppearanceOverlay="@style/rounded_rect" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/halfHeight"
+        app:layout_constraintEnd_toEndOf="@id/rightGuide"
+        app:layout_constraintStart_toStartOf="@id/imageTwoStart"
+        app:layout_constraintTop_toTopOf="@id/topOfScrollView">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:contentPadding="0.1dp"
+            android:scaleType="fitXY"
+            app:srcCompat="@drawable/mypoems"
+            android:id="@+id/myPoemImage"
+            app:shapeAppearanceOverlay="@style/rounded_rect" />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/bottomImageThree"
+        app:layout_constraintEnd_toEndOf="@id/rightGuide"
+        app:layout_constraintStart_toStartOf="@id/imageTwoStart"
+        app:layout_constraintTop_toTopOf="@id/topImageThree">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:id="@+id/personalisationImage"
+            android:src="@drawable/personalisation"
+            app:contentPadding="0.1dp"
+            app:shapeAppearanceOverlay="@style/rounded_rect" />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/bottomImageThree"
+        app:layout_constraintEnd_toEndOf="@id/imageOneEnd"
+        app:layout_constraintStart_toStartOf="@id/leftGuide"
+        app:layout_constraintTop_toTopOf="@id/topImageThree">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:id="@+id/myImages"
+            android:src="@drawable/myimages"
+            app:contentPadding="0.1dp"
+            app:shapeAppearanceOverlay="@style/rounded_rect" />
+
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="@string/create_poem"
+        android:textSize="@dimen/heading_layout_normal"
+        android:textStyle="bold"
+        android:textColor="@color/text_color"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="@id/textBoxRow1"
+        app:layout_constraintEnd_toEndOf="@id/imageOneEnd"
+        app:layout_constraintStart_toStartOf="@id/leftGuide"
+        app:layout_constraintTop_toTopOf="@id/topTextOne" />
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="@string/my_poem"
+        android:textSize="@dimen/heading_layout_normal"
+        android:textStyle="bold"
+        android:textColor="@color/text_color"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="@id/textBoxRow1"
+        app:layout_constraintEnd_toEndOf="@id/rightGuide"
+        app:layout_constraintStart_toStartOf="@id/imageTwoStart"
+        app:layout_constraintTop_toTopOf="@id/topTextOne" />
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="@string/personalisation"
+        android:textSize="@dimen/heading_layout_normal"
+        android:textStyle="bold"
+        android:textColor="@color/text_color"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="@id/textBoxRow2Bottom"
+        app:layout_constraintEnd_toEndOf="@id/rightGuide"
+        app:layout_constraintStart_toStartOf="@id/imageTwoStart"
+        app:layout_constraintTop_toTopOf="@id/textBoxRow2" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="@string/my_images"
+        android:textSize="@dimen/heading_layout_normal"
+        android:textStyle="bold"
+        android:textColor="@color/text_color"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="@id/textBoxRow2Bottom"
+        app:layout_constraintEnd_toEndOf="@id/imageOneEnd"
+        app:layout_constraintStart_toStartOf="@id/leftGuide"
+        app:layout_constraintTop_toTopOf="@id/textBoxRow2" />
+
+<!--    <RelativeLayout-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="0dp"-->
+<!--        android:layout_marginTop="5dp"-->
+<!--        android:layout_marginBottom="5dp"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="@id/textBoxRow2Bottom">-->
+
+<!--        <TextView-->
+<!--            android:id="@+id/nicknameText"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_centerInParent="true"-->
+<!--            android:fontFamily="cursive"-->
+<!--            android:text="@string/nickname_placeholder"-->
+<!--            android:textAlignment="center"-->
+<!--            android:textColor="@color/text_color"-->
+<!--            android:textSize="@dimen/heading_layout_normal"-->
+<!--            android:textStyle="bold" />-->
+<!--    </RelativeLayout>-->
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/leftGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.05" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/rightGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.95" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/imageOneEnd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.45" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/imageTwoStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.55" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/imageThreeStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.3" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/imageThreeEnd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.7" />
+
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/halfHeight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.45" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/topTextOne"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.45" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/textBoxRow1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.55" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/topImageThree"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.6" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/bottomImageThree"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.9" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/textBoxRow2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.9" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/textBoxRow2Bottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="1.0" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/topOfScrollView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.15" />
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -87,7 +87,7 @@ class FirstFragment : Fragment() {
         )?.getString("appNickname", null)
 
         if (nickname != null) {
-            binding.nicknameText.text = nickname
+            binding.nicknameText?.text = nickname
         }
     }
 }

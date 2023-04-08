@@ -217,7 +217,7 @@
         that will be used to save poems. Your nickname is the name you would like to see in the home
         page of the application. It is limited to 30 characters. A poem can be in portrait or landscape mode.
         The landscape mode is noticeably smaller than the portrait. The landscape images are by default saved with resolution
-        1920 x 1080. They will not however look like this when editing the poem. The poem signature is a mark or a trademark added
+        1080 x 1080. They will not however look like this when editing the poem. The poem signature is a mark or a trademark added
         to the bottom of the cover page
     </string>
     <string name="guide_image_viewer">This page serves the simple purpose of viewing images. In order

@@ -19,7 +19,7 @@
         android:largeHeap="true"
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
-        android:theme="@style/Theme.PoetsKingdom"
+        android:theme="@style/Theme.PoetsKingdom.NoActionBar"
         tools:targetApi="33">
         <activity
             android:name=".ImageViewer"
