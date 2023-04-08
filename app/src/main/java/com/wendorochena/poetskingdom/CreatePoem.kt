@@ -1723,6 +1723,7 @@ class CreatePoem : AppCompatActivity() {
                 showErrorToast(getString(R.string.error_type_image))
                 turnOffDimmerProgressBar()
             }
+
             lifecycleScope.launch (Dispatchers.Main + exceptionHandler) {
                 turnOffCurrentView()
                 createThumbnail()
