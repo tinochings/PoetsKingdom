@@ -20,6 +20,7 @@ import androidx.cardview.widget.CardView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
 import androidx.core.view.setMargins
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -97,7 +98,7 @@ class PoemThemeActivity : AppCompatActivity() {
                     }.show()
             }
 
-            GlobalScope.launch(Dispatchers.Main + handler) {
+            lifecycleScope.launch(Dispatchers.Main + handler) {
                 if (poemThemeXmlParser.parseTheme(poemName) == 0) {
                     initialisePoemTheme(poemThemeXmlParser)
                     findViewById<Button>(R.id.startPoemCreation).setText(R.string.edit_button_theme)
@@ -208,7 +209,7 @@ class PoemThemeActivity : AppCompatActivity() {
                     println("Error saving file")
                 }
 
-                GlobalScope.launch(Dispatchers.Main + exceptionHandler) {
+                lifecycleScope.launch(Dispatchers.Main + exceptionHandler) {
                     if (poemThemeXmlParser.savePoemThemeToLocalFile(
                         backgroundImageChosen,
                         backgroundColorChosen,
@@ -278,7 +279,7 @@ class PoemThemeActivity : AppCompatActivity() {
                                 println("Error saving file")
                             }
 
-                            GlobalScope.launch(Dispatchers.Main + exceptionHandler) {
+                            lifecycleScope.launch(Dispatchers.Main + exceptionHandler) {
                                 if (poemThemeXmlParser.savePoemThemeToLocalFile(
                                         backgroundImageChosen,
                                         backgroundColorChosen,

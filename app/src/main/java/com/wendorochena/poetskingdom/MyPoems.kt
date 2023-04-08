@@ -25,6 +25,7 @@ import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableList
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
@@ -540,7 +541,7 @@ class MyPoems : AppCompatActivity() {
                                 itemCount: Int
                             ) {
                                 // in Search Util we use an addAll to the observed item so we ony iterate once
-                                GlobalScope.launch(Dispatchers.Main + handler) {
+                                lifecycleScope.launch(Dispatchers.Main + handler) {
                                     if (sender != null) {
                                         val stanzaIndexAndText = searchUtil.getStanzaAndText()
                                         searchResultsViewAdapter = SearchResultsRecyclerViewAdapter(

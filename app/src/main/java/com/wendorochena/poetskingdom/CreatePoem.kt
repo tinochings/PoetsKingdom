@@ -24,6 +24,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.core.view.setMargins
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -86,7 +87,7 @@ class CreatePoem : AppCompatActivity() {
             }
 
             // load file on background thread and then populate UI
-            GlobalScope.launch(Dispatchers.Main + exceptionHandler) {
+            lifecycleScope.launch(Dispatchers.Main + exceptionHandler) {
                 val isLoadPoem = intentExtras.getBoolean(loadPoemArg, false)
                 if (isLoadPoem)
                     turnOnDimmerProgressBar()
@@ -191,7 +192,7 @@ class CreatePoem : AppCompatActivity() {
             turnOffDimmerProgressBar()
         }
 
-        GlobalScope.launch(Dispatchers.Main + exceptionHandler) {
+        lifecycleScope.launch(Dispatchers.Main + exceptionHandler) {
             createDataContainer(category, createThumbnail, shouldGenerateBackground)
             turnOffDimmerProgressBar()
         }
@@ -1172,7 +1173,7 @@ class CreatePoem : AppCompatActivity() {
             showErrorToast(getString(R.string.error_type_poem_theme))
         }
 
-        GlobalScope.launch(Dispatchers.Main + exceptionHandler) {
+        lifecycleScope.launch(Dispatchers.Main + exceptionHandler) {
             val poemThemeXmlParser = PoemThemeXmlParser(poemTheme, applicationContext)
             poemThemeXmlParser.setIsEditTheme(true)
 
@@ -1706,7 +1707,7 @@ class CreatePoem : AppCompatActivity() {
                 showErrorToast(getString(R.string.error_type_image))
                 turnOffDimmerProgressBar()
             }
-            GlobalScope.launch(Dispatchers.Main + exceptionHandler) {
+            lifecycleScope.launch(Dispatchers.Main + exceptionHandler) {
                 turnOnDimmerProgressBar()
                 createThumbnail()
                 initiateSavePagesAsImages()
@@ -1722,7 +1723,7 @@ class CreatePoem : AppCompatActivity() {
                 showErrorToast(getString(R.string.error_type_image))
                 turnOffDimmerProgressBar()
             }
-            GlobalScope.launch (Dispatchers.Main + exceptionHandler) {
+            lifecycleScope.launch (Dispatchers.Main + exceptionHandler) {
                 turnOffCurrentView()
                 createThumbnail()
                 initiateSavePagesAsPdf()
