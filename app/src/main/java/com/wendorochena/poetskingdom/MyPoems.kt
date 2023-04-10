@@ -28,6 +28,7 @@ import androidx.databinding.ObservableList
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.android.material.imageview.ShapeableImageView
 import com.wendorochena.poetskingdom.poemdata.BackgroundType
 import com.wendorochena.poetskingdom.poemdata.PoemTheme
@@ -73,7 +74,16 @@ class MyPoems : AppCompatActivity() {
         setupToolBarButtons()
         setupBottomDrawer()
         val sharedPreferences =
-            applicationContext.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
+            applicationContext.getSharedPreferences(getString(R.string.shared_pref), Context.MODE_PRIVATE)
+        if (sharedPreferences.getBoolean(getString(R.string.glide_cache_clear), false)) {
+            sharedPreferences.edit().putBoolean(getString(R.string.glide_cache_clear), false).apply()
+            val exceptionHandler = CoroutineExceptionHandler { _, exception ->
+                exception.printStackTrace()
+            }
+            lifecycleScope.launch(Dispatchers.IO + exceptionHandler) {
+                Glide.get(this@MyPoems).clearDiskCache()
+            }
+        }
         if (!sharedPreferences.getBoolean("myPoemsFirstUse", false)) {
             onFirstUse()
             sharedPreferences.edit().putBoolean("myPoemsFirstUse", true).apply()

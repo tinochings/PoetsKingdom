@@ -145,7 +145,7 @@ class CreatePoem : AppCompatActivity() {
 
         setupOnBackPressed()
         val sharedPreferences =
-            applicationContext.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
+            applicationContext.getSharedPreferences(getString(R.string.shared_pref), Context.MODE_PRIVATE)
         if (!sharedPreferences.getBoolean("createPoemFirstUse", false)) {
             onFirstUse()
             sharedPreferences.edit().putBoolean("createPoemFirstUse", true).apply()
@@ -1139,14 +1139,11 @@ class CreatePoem : AppCompatActivity() {
                             }
                             else -> {
                                 val layoutParams = child.layoutParams as FrameLayout.LayoutParams
-                                println(layoutParams.leftMargin)
                                 layoutParams.gravity = if (gravity == Gravity.CENTER)
                                     Gravity.TOP or gravity
                                 else
                                     Gravity.NO_GRAVITY or gravity
                                 child.layoutParams = layoutParams
-
-                                println((child.layoutParams as FrameLayout.LayoutParams).leftMargin)
                                 child.textAlignment = alignment
                                 child.gravity = gravity
                             }
@@ -1163,7 +1160,6 @@ class CreatePoem : AppCompatActivity() {
      *
      * Saves poem as a theme on IO thread
      */
-    @OptIn(DelicateCoroutinesApi::class)
     private fun actuateSavePoemTheme() {
         val exceptionHandler = CoroutineExceptionHandler { _, exception ->
             exception.printStackTrace()
@@ -1421,9 +1417,34 @@ class CreatePoem : AppCompatActivity() {
     }
 
     /**
+     * This simply stores the value true whenever we update a locally saved thumbnail that exists
+     * The cache does not need to be disregarded if a new thumbnail is created, only when an old one
+     * is now stale
+     */
+    private fun updateGlideCachePolicyIfNeeded() {
+        val sharedPreferences =
+            applicationContext.getSharedPreferences(getString(R.string.shared_pref), Context.MODE_PRIVATE)
+
+        val thumbnailFolder = getDir(
+            getString(R.string.thumbnails_folder_name),
+            Context.MODE_PRIVATE
+        )
+        val thumbnailFile = File(
+            thumbnailFolder.absolutePath + File.separator + poemTheme.poemTitle.replace(
+                ' ',
+                '_'
+            ) + ".png"
+        )
+        if (thumbnailFile.exists())
+            sharedPreferences.edit().putBoolean(getString(R.string.glide_cache_clear), true).apply()
+        else
+            sharedPreferences.edit().putBoolean(getString(R.string.glide_cache_clear), false).apply()
+    }
+    /**
      * Creates a thumbnail for a poem on IO thread coroutine context
      */
     private suspend fun createThumbnail() {
+        updateGlideCachePolicyIfNeeded()
         val textMarginUtil = TextMarginUtil()
         if (poemTheme.outline != "")
             textMarginUtil.determineTextMargins(
@@ -1494,7 +1515,7 @@ class CreatePoem : AppCompatActivity() {
                     this.resources,
                     resources.getDimensionPixelSize(R.dimen.strokeSize)
                 )
-
+            updateGlideCachePolicyIfNeeded()
             val thumbnailCreator = ThumbnailCreator(this, poemTheme, 1080, 1080, textMarginUtil, generateBackground = shouldGenerateBackground)
             thumbnailCreator.initiateCreateThumbnail()
         }
@@ -1670,7 +1691,6 @@ class CreatePoem : AppCompatActivity() {
     /**
      * Initialises the listeners for the save container
      */
-    @OptIn(DelicateCoroutinesApi::class)
     private fun setupSaveContainerButtons() {
         val categoryChoices = arrayOf(
             Category.ADVENTURE.toString(),

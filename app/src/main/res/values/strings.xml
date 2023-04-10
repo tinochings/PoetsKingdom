@@ -254,4 +254,6 @@
     <string name="check">check</string>
     <string name="circle">circle</string>
     <string name="image_size_orientation">Image Orientation Size</string>
+    <string name="glide_cache_clear">clearGlideCache</string>
+    <string name="shared_pref">my_shared_pref</string>
 </resources>
