@@ -314,23 +314,6 @@ class MyImages : Fragment() {
             if (!isLongClicked) {
                 recyclerViewAdapter.initiateOnLongClickImage(index)
             }
-//            if (selectedImages.isNotEmpty()) {
-//                val lastElem = selectedImages[selectedImages.size - 1]
-//                if (lastElem.second > index) {
-//                    var counter = selectedImages.size - 1
-//
-//                    while (counter >= 0) {
-//                        val lastElement = selectedImages[counter]
-//                        if (lastElement.second < index) {
-//                            selectedImages.add(counter + 1, Pair(file, index))
-//                            break
-//                        }
-//                        counter--
-//                    }
-//                    if (counter == -1)
-//                        selectedImages.add(0, Pair(file, index))
-//                }
-//            } else
             isLongClicked = true
         }
 

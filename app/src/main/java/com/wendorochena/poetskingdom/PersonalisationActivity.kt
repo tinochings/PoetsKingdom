@@ -30,15 +30,17 @@ class PersonalisationActivity : AppCompatActivity() {
     class SettingsFragment : PreferenceFragmentCompat() {
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-            preferenceManager.sharedPreferencesName = getString(R.string.personalisation_sharedpreferences_key)
+            preferenceManager.sharedPreferencesName =
+                getString(R.string.personalisation_sharedpreferences_key)
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
             setupPoemPreferencesListeners()
             setupLandscapeListener()
-            val sharedPreferences = context?.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
+            val sharedPreferences =
+                context?.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
             if (sharedPreferences != null) {
-                if (!sharedPreferences.getBoolean("personalisationFirstUse",false)) {
+                if (!sharedPreferences.getBoolean("personalisationFirstUse", false)) {
                     onFirstUse()
-                    sharedPreferences.edit().putBoolean("personalisationFirstUse",true).apply()
+                    sharedPreferences.edit().putBoolean("personalisationFirstUse", true).apply()
                 }
             }
         }
@@ -69,7 +71,7 @@ class PersonalisationActivity : AppCompatActivity() {
         private fun setupLandscapeListener() {
             val orientationSelected = findPreference<ListPreference>("orientation")
             val resolution = findPreference<ListPreference>("resolution")
-            orientationSelected?.setOnPreferenceChangeListener{ preferenceManager , s ->
+            orientationSelected?.setOnPreferenceChangeListener { _, s ->
                 resolution?.isVisible = s == "landscape"
                 true
             }
@@ -78,7 +80,7 @@ class PersonalisationActivity : AppCompatActivity() {
 
         private fun restartApp() {
             val intent = Intent(
-                context,
+                requireContext(),
                 MainActivity::class.java
             )
             startActivity(intent)

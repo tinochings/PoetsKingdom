@@ -174,9 +174,7 @@ class MyPoems : AppCompatActivity() {
      */
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun shareIntentAndroidQPlus(filesToShare: Array<File>, poemName: String) {
-//
         val imageUris = kotlin.collections.ArrayList<Uri>()
-
 
         for (file in filesToShare) {
             val contentValues = ContentValues().apply {
@@ -238,8 +236,6 @@ class MyPoems : AppCompatActivity() {
         }
 
         shareAsImage.setOnClickListener {
-
-
             if (selectedElements.size > 1) {
                 Toast.makeText(applicationContext, R.string.share_as_image_toast, Toast.LENGTH_LONG)
                     .show()
@@ -256,12 +252,11 @@ class MyPoems : AppCompatActivity() {
                     File(savedImagesFolder.absolutePath + File.separator + poemName)
 
                 if (poemSavedImagesFolder.exists()) {
-                    if (poemSavedImagesFolder.listFiles() != null && poemSavedImagesFolder.listFiles()?.size!! > 0) {
+                    val filesToShare = poemSavedImagesFolder.listFiles()
+                    if (filesToShare != null && filesToShare?.size!! > 0) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            poemSavedImagesFolder.listFiles()
-                                ?.let { it1 -> shareIntentAndroidQPlus(it1, poemName) }
+                            shareIntentAndroidQPlus(filesToShare, poemName)
                         } else {
-//                            if (poemSavedImagesFolder.listFiles()?.size!! > 1) {
                             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && checkSelfPermission(
                                     android.Manifest.permission.WRITE_EXTERNAL_STORAGE
                                 ) == PackageManager.PERMISSION_GRANTED
@@ -297,7 +292,7 @@ class MyPoems : AppCompatActivity() {
                                             imageUris.add(
                                                 FileProvider.getUriForFile(
                                                     applicationContext,
-                                                    "$packageName.fileprovider", newFile
+                                                    "$packageName.provider", newFile
                                                 )
                                             )
                                         }
@@ -434,7 +429,6 @@ class MyPoems : AppCompatActivity() {
     /**
      *
      */
-    @OptIn(DelicateCoroutinesApi::class)
     private fun setupToolBarButtons() {
         val searchOptionsImage = findViewById<ImageButton>(R.id.searchButton)
         val advancedSearchEditText = findViewById<EditText>(R.id.advancedSearchText)
