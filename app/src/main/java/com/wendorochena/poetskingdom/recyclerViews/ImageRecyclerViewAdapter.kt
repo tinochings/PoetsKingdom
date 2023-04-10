@@ -35,16 +35,6 @@ class ImageRecyclerViewAdapter(
             if (splitString[splitString.size - 1] != "PoemThemeActivity") {
                 checkImageView = view.findViewById(R.id.longClickImageView)
                 view.setOnLongClickListener {
-                    checkImageView.setImageDrawable(
-                        ResourcesCompat.getDrawable(
-                            context.resources,
-                            R.drawable.check_mark,
-                            null
-                        )
-                    )
-                    checkImageView.tag = "check"
-                    checkImageView.visibility = View.VISIBLE
-                    checkImageView.z = 1f
                     onItemLongClick?.invoke(
                         imageLocations[absoluteAdapterPosition],
                         absoluteAdapterPosition
@@ -83,7 +73,6 @@ class ImageRecyclerViewAdapter(
 
             if (currentImageLocation.exists()) {
                 viewHolder.imageView.scaleType = ImageView.ScaleType.FIT_XY
-                viewHolder.imageView.tag = currentImageLocation.absolutePath
                 Glide.with(context).load(currentImageLocation).placeholder(R.drawable.ic_launcher_background).into(viewHolder.imageView)
             }
 
@@ -203,7 +192,10 @@ class ImageRecyclerViewAdapter(
 
     override fun onViewRecycled(holder: ViewHolder) {
         super.onViewRecycled(holder)
-        if (holder.imageView.tag != null && holder.imageView.tag.toString().startsWith("/"))
-            Glide.with(context).clear(holder.imageView)
+            try {
+                Glide.with(context).clear(holder.imageView)
+            } catch (e : java.lang.IllegalArgumentException) {
+                e.printStackTrace()
+            }
     }
 }
