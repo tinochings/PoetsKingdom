@@ -1,7 +1,7 @@
 package com.wendorochena.poetskingdom.recyclerViews
 
 import android.content.res.ColorStateList
-import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.RippleDrawable
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +13,10 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.google.android.material.imageview.ShapeableImageView
 import com.wendorochena.poetskingdom.R
 import java.io.File
@@ -41,15 +45,6 @@ class MyPoemsRecyclerViewAdapter(val context: android.content.Context) :
                 onItemClick?.invoke(listAdapterArrayList[absoluteAdapterPosition], absoluteAdapterPosition)
             }
             imageView.setOnLongClickListener {
-                checkImageView.setImageDrawable(
-                    ResourcesCompat.getDrawable(
-                        context.resources,
-                        R.drawable.check_mark,
-                        null
-                    )
-                )
-                checkImageView.visibility = View.VISIBLE
-                checkImageView.z = 2f
                 onItemLongClick?.invoke(
                     listAdapterArrayList[absoluteAdapterPosition],
                     absoluteAdapterPosition
@@ -126,16 +121,39 @@ class MyPoemsRecyclerViewAdapter(val context: android.content.Context) :
         val shapeableImageView = frameLayout.getChildAt(1) as ShapeableImageView
         val textView = frameLayout.getChildAt(2) as TextView
         val dateTextView = frameLayout.getChildAt(3) as TextView
+
         if (shapeableImageView.tag != null && shapeableImageView.tag.toString().startsWith("/")) {
             val file = File(shapeableImageView.tag as String)
             if (file.exists()) {
-                val drawable = BitmapDrawable(context.resources, file.absolutePath)
-                val rippledImage = RippleDrawable(
-                    ColorStateList.valueOf(context.getColor(R.color.ripple_color)),
-                    drawable,
-                    null
-                )
-                holder.imageView.setImageDrawable(rippledImage)
+
+                Glide.with(context).load(file.absolutePath).listener(object : RequestListener<Drawable> {
+                    override fun onLoadFailed(
+                        e: GlideException?,
+                        model: Any?,
+                        target: Target<Drawable>?,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        holder.imageView.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_baseline_error_24, context.theme))
+                        return true
+                    }
+
+                    override fun onResourceReady(
+                        resource: Drawable?,
+                        model: Any?,
+                        target: Target<Drawable>?,
+                        dataSource: DataSource?,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        val rippledImage = RippleDrawable(
+                            ColorStateList.valueOf(context.getColor(R.color.ripple_color)),
+                            resource,
+                            null
+                        )
+                        holder.imageView.setImageDrawable(rippledImage)
+                        return true
+                    }
+
+                }).into(holder.imageView)
                 holder.imageView.tag = shapeableImageView.tag
             }
         }
@@ -148,7 +166,7 @@ class MyPoemsRecyclerViewAdapter(val context: android.content.Context) :
                         ResourcesCompat.getDrawable(
                             context.resources,
                             R.drawable.circle_svg,
-                            null
+                            context.theme
                         )
                     )
                 }
@@ -157,7 +175,7 @@ class MyPoemsRecyclerViewAdapter(val context: android.content.Context) :
                         ResourcesCompat.getDrawable(
                             context.resources,
                             R.drawable.check_mark,
-                            null
+                            context.theme
                         )
                     )
                 }
@@ -259,7 +277,8 @@ class MyPoemsRecyclerViewAdapter(val context: android.content.Context) :
 
     override fun onViewRecycled(holder: ViewHolder) {
         super.onViewRecycled(holder)
-        if (holder.imageView.tag != null && holder.imageView.tag.toString().startsWith("/"))
-            Glide.with(context).clear(holder.imageView)
+        if (holder.imageView.tag != null && holder.imageView.tag.toString().startsWith("/")) {
+            holder.imageView.setImageDrawable(null)
+        }
     }
 }

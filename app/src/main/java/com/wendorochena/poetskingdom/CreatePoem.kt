@@ -58,7 +58,6 @@ class CreatePoem : AppCompatActivity() {
     private val pageNumberAndId: HashMap<Int, Int> = HashMap()
     private val pageNumberAndText: HashMap<Int, String> = HashMap()
 
-    @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         poemTheme = PoemTheme(BackgroundType.DEFAULT, applicationContext)
@@ -181,7 +180,6 @@ class CreatePoem : AppCompatActivity() {
     /**
      * Initiates a save as file in a coroutine
      */
-    @OptIn(DelicateCoroutinesApi::class)
     private fun actuateSaveAsFile(category: String, createThumbnail: Boolean, shouldGenerateBackground: Boolean) {
 
         turnOnDimmerProgressBar()

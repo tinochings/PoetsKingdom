@@ -16,6 +16,7 @@
     <dimen name="portraitStrokeSize">10dp</dimen>
     <dimen name="portraitStrokeSizeMarginText">11dp</dimen>
     <dimen name="portraitStrokeSizeMargin">8.9dp</dimen>
+    <item type="id" name="image_tag_key" />
     <item type="id" name="add_pages" />
     <item type="id" name="textariana_violeta_font" />
     <item type="id" name="textcabal_bold_font" />

@@ -64,7 +64,7 @@ class MyPoems : AppCompatActivity() {
         thumbnailsFolder =
             applicationContext.getDir(getString(R.string.thumbnails_folder_name), MODE_PRIVATE)
         numberOfPoems = poemsFolder.listFiles()?.size ?: 0
-        recyclerViewAdapter = MyPoemsRecyclerViewAdapter(applicationContext)
+        recyclerViewAdapter = MyPoemsRecyclerViewAdapter(this)
         searchHashMap = HashMap()
         setupOnBackPressed()
         initialiseRecyclerView()
