@@ -228,7 +228,7 @@ class MyPoems : AppCompatActivity() {
                 fileNamesToDelete.add(textView.text.toString().replace(' ', '_'))
             }
             deleteFiles(fileNamesToDelete)
-            for (index in selectedElements) {
+            for (index in selectedElements.reversed()) {
                 recyclerViewAdapter.removeAtIndex(index)
             }
             selectedElements.clear()
