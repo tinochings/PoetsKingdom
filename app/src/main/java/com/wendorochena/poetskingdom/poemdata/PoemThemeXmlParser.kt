@@ -79,7 +79,7 @@ class PoemThemeXmlParser(
                                         )
                                         parser.nextTag()
                                         poemTheme = PoemTheme(backgroundType, applicationContext)
-                                        poemTheme.setTitle(poemTitle as String)
+                                        poemTheme.poemTitle = poemTitle as String
                                         backgroundTypeAsString =
                                             PoemTheme.determineBackgroundTypeAsString(
                                                 backgroundType
@@ -90,7 +90,7 @@ class PoemThemeXmlParser(
                                 "textSize" -> {
                                     parser.require(XmlPullParser.START_TAG, null, "textSize")
                                     if (parser.next() == XmlPullParser.TEXT) {
-                                        poemTheme.setTextSize(parser.text.toInt())
+                                        poemTheme.textSize = parser.text.toInt()
                                         parser.nextTag()
                                         parser.require(XmlPullParser.END_TAG, null, "textSize")
                                     }
@@ -98,7 +98,7 @@ class PoemThemeXmlParser(
                                 "textColor" -> {
                                     parser.require(XmlPullParser.START_TAG, null, "textColor")
                                     if (parser.next() == XmlPullParser.TEXT) {
-                                        poemTheme.setTextColor(parser.text)
+                                        poemTheme.textColor = parser.text
                                         parser.nextTag()
                                         parser.require(XmlPullParser.END_TAG, null, "textColor")
                                     }
@@ -106,7 +106,7 @@ class PoemThemeXmlParser(
                                 "textColorAsInt" -> {
                                     parser.require(XmlPullParser.START_TAG, null, "textColorAsInt")
                                     if (parser.next() == XmlPullParser.TEXT) {
-                                        poemTheme.setTextColorAsInt(parser.text.toInt())
+                                        poemTheme.textColorAsInt = parser.text.toInt()
                                         parser.nextTag()
                                         parser.require(
                                             XmlPullParser.END_TAG,
@@ -118,11 +118,10 @@ class PoemThemeXmlParser(
                                 "textAlignment" -> {
                                     parser.require(XmlPullParser.START_TAG, null, "textAlignment")
                                     if (parser.next() == XmlPullParser.TEXT) {
-                                        poemTheme.setTextAlignment(
+                                        poemTheme.textAlignment
                                             PoemTheme.determineTextAlignment(
                                                 parser.text
                                             )
-                                        )
                                         parser.nextTag()
                                         parser.require(XmlPullParser.END_TAG, null, "textAlignment")
                                     }
@@ -130,7 +129,7 @@ class PoemThemeXmlParser(
                                 "textFont" -> {
                                     parser.require(XmlPullParser.START_TAG, null, "textFont")
                                     if (parser.next() == XmlPullParser.TEXT) {
-                                        poemTheme.setTextFont(parser.text)
+                                        poemTheme.textFontFamily = parser.text
                                         parser.nextTag()
                                         parser.require(XmlPullParser.END_TAG, null, "textFont")
                                     }
@@ -138,7 +137,7 @@ class PoemThemeXmlParser(
                             }
                         }
                         parser.require(XmlPullParser.END_TAG, null, "root")
-                        poemTheme.setTitle(poemTheme.getTitle().replace('_', ' '))
+                        poemTheme.poemTitle = poemTheme.poemTitle.replace('_', ' ')
                         return@withContext 0
                     }
                 } catch (exception: Exception) {
@@ -168,7 +167,7 @@ class PoemThemeXmlParser(
                 if (parseTheme(fileNamePair.first.split(".")[0]) == 0) {
                     poemThemes.add(Pair(
                         poemTheme.backgroundType,
-                        poemTheme.getTextColorAsInt()
+                        poemTheme.textColorAsInt
                     ))
                 }
             }
@@ -188,7 +187,7 @@ class PoemThemeXmlParser(
             if (backgroundTypeAsString.split(" ").size <= 1) {
                 parser.require(XmlPullParser.START_TAG, null, backgroundTypeAsString)
                 parser.next()
-                poemTheme.setImagePath(parser.text)
+                poemTheme.imagePath = parser.text
                 parser.nextTag()
                 parser.require(XmlPullParser.END_TAG, null, backgroundTypeAsString)
             } else {
@@ -197,14 +196,14 @@ class PoemThemeXmlParser(
                     "imagePath" -> {
                         parser.require(XmlPullParser.START_TAG, null, delimitedString[0])
                         if (parser.next() == XmlPullParser.TEXT) {
-                            poemTheme.setImagePath(parser.text)
+                            poemTheme.imagePath = parser.text
                             parser.nextTag()
                             parser.require(XmlPullParser.END_TAG, null, delimitedString[0])
                             parser.nextTag()
                         }
                         parser.require(XmlPullParser.START_TAG, null, delimitedString[1])
                         if (parser.next() == XmlPullParser.TEXT) {
-                            poemTheme.setOutline(parser.text)
+                            poemTheme.outline = parser.text
                             parser.nextTag()
                             parser.require(XmlPullParser.END_TAG, null, delimitedString[1])
                             parser.nextTag()
@@ -212,7 +211,7 @@ class PoemThemeXmlParser(
 
                         parser.require(XmlPullParser.START_TAG, null, delimitedString[2])
                         if (parser.next() == XmlPullParser.TEXT) {
-                            poemTheme.setOutlineColor(parser.text.toInt())
+                            poemTheme.outlineColor = parser.text.toInt()
                             parser.nextTag()
                             parser.require(XmlPullParser.END_TAG, null, delimitedString[2])
                         }
@@ -220,14 +219,14 @@ class PoemThemeXmlParser(
                     "backgroundColor" -> {
                         parser.require(XmlPullParser.START_TAG, null, delimitedString[0])
                         if (parser.next() == XmlPullParser.TEXT) {
-                            poemTheme.setBackgroundColor(parser.text)
+                            poemTheme.backgroundColor = parser.text
                             parser.nextTag()
                             parser.require(XmlPullParser.END_TAG, null, delimitedString[0])
                             parser.nextTag()
                         }
                         parser.require(XmlPullParser.START_TAG, null, delimitedString[1])
                         if (parser.next() == XmlPullParser.TEXT) {
-                            poemTheme.setBackgroundColorAsInt(parser.text.toInt())
+                            poemTheme.backgroundColorAsInt = parser.text.toInt()
                             parser.nextTag()
                             parser.require(XmlPullParser.END_TAG, null, delimitedString[1])
                         }
@@ -235,7 +234,7 @@ class PoemThemeXmlParser(
                     "backgroundOutline" -> {
                         parser.require(XmlPullParser.START_TAG, null, delimitedString[0])
                         if (parser.next() == XmlPullParser.TEXT) {
-                            poemTheme.setOutline(parser.text)
+                            poemTheme.outline = parser.text
                             parser.nextTag()
                             parser.require(XmlPullParser.END_TAG, null, delimitedString[0])
                             parser.nextTag()
@@ -243,7 +242,7 @@ class PoemThemeXmlParser(
 
                         parser.require(XmlPullParser.START_TAG, null, delimitedString[1])
                         if (parser.next() == XmlPullParser.TEXT) {
-                            poemTheme.setOutlineColor(parser.text.toInt())
+                            poemTheme.outlineColor = parser.text.toInt()
                             parser.nextTag()
                             parser.require(XmlPullParser.END_TAG, null, delimitedString[1])
                         }
@@ -251,7 +250,7 @@ class PoemThemeXmlParser(
                     "backgroundOutlineWithColor" -> {
                         parser.require(XmlPullParser.START_TAG, null, "backgroundOutline")
                         if (parser.next() == XmlPullParser.TEXT) {
-                            poemTheme.setOutline(parser.text)
+                            poemTheme.outline = parser.text
                             parser.nextTag()
                             parser.require(XmlPullParser.END_TAG, null, "backgroundOutline")
                             parser.nextTag()
@@ -259,7 +258,7 @@ class PoemThemeXmlParser(
 
                         parser.require(XmlPullParser.START_TAG, null, delimitedString[1])
                         if (parser.next() == XmlPullParser.TEXT) {
-                            poemTheme.setOutlineColor(parser.text.toInt())
+                            poemTheme.outlineColor = parser.text.toInt()
                             parser.nextTag()
                             parser.require(XmlPullParser.END_TAG, null, delimitedString[1])
                             parser.nextTag()
@@ -267,7 +266,7 @@ class PoemThemeXmlParser(
 
                         parser.require(XmlPullParser.START_TAG, null, delimitedString[2])
                         if (parser.next() == XmlPullParser.TEXT) {
-                            poemTheme.setBackgroundColor(parser.text)
+                            poemTheme.backgroundColor = parser.text
                             parser.nextTag()
                             parser.require(XmlPullParser.END_TAG, null, delimitedString[2])
                             parser.nextTag()
@@ -275,7 +274,7 @@ class PoemThemeXmlParser(
 
                         parser.require(XmlPullParser.START_TAG, null, delimitedString[3])
                         if (parser.next() == XmlPullParser.TEXT) {
-                            poemTheme.setBackgroundColorAsInt(parser.text.toInt())
+                            poemTheme.backgroundColorAsInt = parser.text.toInt()
                             parser.nextTag()
                             parser.require(XmlPullParser.END_TAG, null, delimitedString[3])
                         }
@@ -313,7 +312,7 @@ class PoemThemeXmlParser(
             if (poemThemeFolder != null) {
                 if (poemThemeFolder.exists()) {
                     try {
-                        val poemFileName = poemTheme.getTitle().replace(' ', '_') + ".xml"
+                        val poemFileName = poemTheme.poemTitle.replace(' ', '_') + ".xml"
                         val savedPoem =
                             File(poemFolder.absolutePath + File.separator + poemFileName)
                         val poemFile =
@@ -348,20 +347,20 @@ class PoemThemeXmlParser(
 
                                     xmlSerializer.startTag(null, "backgroundColorAsInt")
                                     xmlSerializer.text(
-                                        poemTheme.getBackgroundColorAsInt().toString()
+                                        poemTheme.backgroundColorAsInt.toString()
                                     )
                                     xmlSerializer.endTag(null, "backgroundColorAsInt")
                                 }
                                 BackgroundType.OUTLINE -> {
                                     xmlSerializer.startTag(null, "backgroundOutline")
                                     if (outlineChosen == null)
-                                        xmlSerializer.text(poemTheme.getOutline())
+                                        xmlSerializer.text(poemTheme.outline)
                                     else
                                         xmlSerializer.text(outlineChosen.contentDescription.toString())
                                     xmlSerializer.endTag(null, "backgroundOutline")
 
                                     xmlSerializer.startTag(null, "backgroundOutlineColor")
-                                    xmlSerializer.text(poemTheme.getOutlineColor().toString())
+                                    xmlSerializer.text(poemTheme.outlineColor.toString())
                                     xmlSerializer.endTag(null, "backgroundOutlineColor")
                                 }
                                 BackgroundType.OUTLINE_WITH_IMAGE -> {
@@ -370,25 +369,25 @@ class PoemThemeXmlParser(
                                     xmlSerializer.endTag(null, "imagePath")
                                     xmlSerializer.startTag(null, "backgroundOutline")
                                     if (outlineChosen == null)
-                                        xmlSerializer.text(poemTheme.getOutline())
+                                        xmlSerializer.text(poemTheme.outline)
                                     else
                                         xmlSerializer.text(outlineChosen.contentDescription.toString())
                                     xmlSerializer.endTag(null, "backgroundOutline")
 
                                     xmlSerializer.startTag(null, "backgroundOutlineColor")
-                                    xmlSerializer.text(poemTheme.getOutlineColor().toString())
+                                    xmlSerializer.text(poemTheme.outlineColor.toString())
                                     xmlSerializer.endTag(null, "backgroundOutlineColor")
                                 }
                                 BackgroundType.OUTLINE_WITH_COLOR -> {
                                     xmlSerializer.startTag(null, "backgroundOutline")
                                     if (outlineChosen == null)
-                                        xmlSerializer.text(poemTheme.getOutline())
+                                        xmlSerializer.text(poemTheme.outline)
                                     else
                                         xmlSerializer.text(outlineChosen.contentDescription.toString())
                                     xmlSerializer.endTag(null, "backgroundOutline")
 
                                     xmlSerializer.startTag(null, "backgroundOutlineColor")
-                                    xmlSerializer.text(poemTheme.getOutlineColor().toString())
+                                    xmlSerializer.text(poemTheme.outlineColor.toString())
                                     xmlSerializer.endTag(null, "backgroundOutlineColor")
 
                                     xmlSerializer.startTag(null, "backgroundColor")
@@ -397,7 +396,7 @@ class PoemThemeXmlParser(
 
                                     xmlSerializer.startTag(null, "backgroundColorAsInt")
                                     xmlSerializer.text(
-                                        poemTheme.getBackgroundColorAsInt().toString()
+                                        poemTheme.backgroundColorAsInt.toString()
                                     )
                                     xmlSerializer.endTag(null, "backgroundColorAsInt")
                                 }
@@ -408,30 +407,30 @@ class PoemThemeXmlParser(
 
                                     xmlSerializer.startTag(null, "backgroundColorAsInt")
                                     xmlSerializer.text(
-                                        poemTheme.getBackgroundColorAsInt().toString()
+                                        poemTheme.backgroundColorAsInt.toString()
                                     )
                                     xmlSerializer.endTag(null, "backgroundColorAsInt")
                                 }
                             }
 
                             xmlSerializer.startTag(null, "textSize")
-                            xmlSerializer.text(poemTheme.getTextSize().toString())
+                            xmlSerializer.text(poemTheme.textSize.toString())
                             xmlSerializer.endTag(null, "textSize")
 
                             xmlSerializer.startTag(null, "textColor")
-                            xmlSerializer.text(poemTheme.getTextColor())
+                            xmlSerializer.text(poemTheme.textColor)
                             xmlSerializer.endTag(null, "textColor")
 
                             xmlSerializer.startTag(null, "textColorAsInt")
-                            xmlSerializer.text(poemTheme.getTextColorAsInt().toString())
+                            xmlSerializer.text(poemTheme.textColorAsInt.toString())
                             xmlSerializer.endTag(null, "textColorAsInt")
 
                             xmlSerializer.startTag(null, "textAlignment")
-                            xmlSerializer.text(poemTheme.getTextAlignment().toString())
+                            xmlSerializer.text(poemTheme.textAlignment.toString())
                             xmlSerializer.endTag(null, "textAlignment")
 
                             xmlSerializer.startTag(null, "textFont")
-                            xmlSerializer.text(poemTheme.getTextFont())
+                            xmlSerializer.text(poemTheme.textFontFamily)
                             xmlSerializer.endTag(null, "textFont")
 
                             xmlSerializer.endTag(null, "root")

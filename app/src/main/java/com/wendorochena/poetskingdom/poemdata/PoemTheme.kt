@@ -7,119 +7,20 @@ import androidx.core.content.res.ResourcesCompat
 import com.wendorochena.poetskingdom.R
 
 data class PoemTheme(var backgroundType: BackgroundType, private val applicationContext: Context) {
-    private var backgroundColor: String = "#FFFFFFFF"
-    private var imagePath: String = ""
-    private var outline: String = ""
-    private var textSize = 14
-    private var textColor: String = "#000000"
-    private var textColorAsInt = -16777216
-
+    var backgroundColor: String = "#FFFFFFFF"
+    var imagePath: String = ""
+    var outline: String = ""
+    var textSize = 14
+    var textColor: String = "#000000"
+    var textColorAsInt = -16777216
     //        applicationContext.resources.getColor(R.color.black, null)
-    private var backgroundColorAsInt = -1
-
+    var backgroundColorAsInt = -1
     //        applicationContext.resources.getColor(R.color.white,null)
-    private var textAlignment: TextAlignment = TextAlignment.LEFT
-    private var textFontFamily: String = "Default"
-    private var outlineColor: Int = -7821273
-
+    var textAlignment: TextAlignment = TextAlignment.LEFT
+    var textFontFamily: String = "Default"
+    var outlineColor: Int = -7821273
     //        applicationContext.resources.getColor(R.color.madzinza_green, null)
-    private var poemTitle: String = ""
-
-
-    fun setBackGroundType(backgroundType: BackgroundType) {
-        this.backgroundType = backgroundType
-    }
-
-    fun getBackgroundColor(): String {
-        return backgroundColor
-    }
-
-    fun setBackgroundColor(color: String) {
-        backgroundColor = color
-    }
-
-    fun getImagePath(): String {
-        return imagePath
-    }
-
-    fun setImagePath(imagePath: String) {
-        this.imagePath = imagePath
-    }
-
-    /**
-     * Returns the exact outline for the poem
-     */
-    fun getOutline(): String {
-        return outline
-    }
-
-    fun setOutline(outline: String) {
-        this.outline = outline
-    }
-
-    fun getTextSize(): Int {
-        return textSize
-    }
-
-    fun setTextSize(textSize: Int) {
-        this.textSize = textSize
-    }
-
-    fun getTextColor(): String {
-        return textColor
-    }
-
-    fun setTextColor(textColor: String) {
-        this.textColor = textColor
-    }
-
-    fun getTextFont(): String {
-        return textFontFamily
-    }
-
-    fun setTextFont(textFontFamily: String) {
-        this.textFontFamily = textFontFamily
-    }
-
-    fun getTextAlignment(): TextAlignment {
-        return textAlignment
-    }
-
-    fun setTextAlignment(textAlignment: TextAlignment) {
-        this.textAlignment = textAlignment
-    }
-
-    fun getTitle(): String {
-        return poemTitle
-    }
-
-    fun setTitle(poemTitle: String) {
-        this.poemTitle = poemTitle
-    }
-
-    fun getTextColorAsInt(): Int {
-        return textColorAsInt
-    }
-
-    fun setTextColorAsInt(color: Int) {
-        textColorAsInt = color
-    }
-
-    fun getBackgroundColorAsInt(): Int {
-        return backgroundColorAsInt
-    }
-
-    fun setBackgroundColorAsInt(color: Int) {
-        backgroundColorAsInt = color
-    }
-
-    fun getOutlineColor(): Int {
-        return outlineColor
-    }
-
-    fun setOutlineColor(color: Int) {
-        this.outlineColor = color
-    }
+    var poemTitle: String = ""
 
     override fun toString(): String {
         return "PoemTitle: $poemTitle, BackgroundType $backgroundType, BackgroundColor: " +
@@ -241,7 +142,7 @@ data class PoemTheme(var backgroundType: BackgroundType, private val application
             ) as GradientDrawable
 
             defaultDrawable.setStroke(
-                strokeSize, poemTheme.getOutlineColor()
+                strokeSize, poemTheme.outlineColor
             )
 
             defaultDrawable.setBounds(
@@ -250,7 +151,7 @@ data class PoemTheme(var backgroundType: BackgroundType, private val application
                 rightMargin,
                 bottomMargin
             )
-            when (poemTheme.getOutline()) {
+            when (poemTheme.outline) {
                 OutlineTypes.ROUNDED_RECTANGLE.toString() -> {
                     return defaultDrawable
                 }
@@ -268,7 +169,7 @@ data class PoemTheme(var backgroundType: BackgroundType, private val application
                         bottomMargin
                     )
                     gradientDrawable.setStroke(
-                        strokeSize, poemTheme.getOutlineColor()
+                        strokeSize, poemTheme.outlineColor
                     )
                     return gradientDrawable
                 }
@@ -286,7 +187,7 @@ data class PoemTheme(var backgroundType: BackgroundType, private val application
                         bottomMargin
                     )
                     gradientDrawable.setStroke(
-                        strokeSize, poemTheme.getOutlineColor()
+                        strokeSize, poemTheme.outlineColor
                     )
                     return gradientDrawable
                 }
@@ -304,7 +205,7 @@ data class PoemTheme(var backgroundType: BackgroundType, private val application
                         bottomMargin
                     )
                     gradientDrawable.setStroke(
-                        strokeSize, poemTheme.getOutlineColor()
+                        strokeSize, poemTheme.outlineColor
                     )
                     return gradientDrawable
                 }
@@ -321,7 +222,7 @@ data class PoemTheme(var backgroundType: BackgroundType, private val application
                         bottomMargin
                     )
                     gradientDrawable.setStroke(
-                        strokeSize, poemTheme.getOutlineColor()
+                        strokeSize, poemTheme.outlineColor
                     )
                     return gradientDrawable
                 }

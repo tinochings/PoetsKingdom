@@ -30,7 +30,7 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
                         Context.MODE_PRIVATE
                     )
                 if (poemFolder.exists()) {
-                    val fileName = poem.poemTheme.getTitle().replace(' ', '_')
+                    val fileName = poem.poemTheme.poemTitle.replace(' ', '_')
 
                     val fileToCreate =
                         File(poemFolder.absolutePath + File.separator + fileName + ".xml")
@@ -58,7 +58,7 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
                         xmlSerializer.endTag(null, "category")
 
                         xmlSerializer.startTag(null, "title")
-                        xmlSerializer.text(poem.poemTheme.getTitle())
+                        xmlSerializer.text(poem.poemTheme.poemTitle)
                         xmlSerializer.endTag(null, "title")
 
                         var counter = 1

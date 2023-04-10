@@ -94,7 +94,7 @@ class CreatePoem : AppCompatActivity() {
                 val poemThemeResult = poemParser.parseTheme(intentExtras.getString(poemTitleArg))
                 val poemLoadResult =
                     if (isLoadPoem) PoemXMLParser.parseSavedPoem(
-                        poemParser.getPoemTheme().getTitle(),
+                        poemParser.getPoemTheme().poemTitle,
                         applicationContext,
                         Dispatchers.IO
                     )
@@ -225,8 +225,8 @@ class CreatePoem : AppCompatActivity() {
                     textview.text = editText.text
                     val decodedTitleName = editText.text.toString()
                     val encodedTitleName = editText.text.toString().replace(' ', '_')
-                    val oldTitleName = poemTheme.getTitle().replace(' ', '_') + ".xml"
-                    val oldTitleFolderName = poemTheme.getTitle().replace(' ', '_')
+                    val oldTitleName = poemTheme.poemTitle.replace(' ', '_') + ".xml"
+                    val oldTitleFolderName = poemTheme.poemTitle.replace(' ', '_')
                     try {
                         val directoryPath = getDir(
                             getString(R.string.poems_folder_name),
@@ -275,7 +275,7 @@ class CreatePoem : AppCompatActivity() {
                                         poemSavedImagesFolder.name
                                     )
                             }
-                            poemTheme.setTitle(decodedTitleName)
+                            poemTheme.poemTitle = decodedTitleName
                             hasFileBeenEdited = true
                         }
                     } catch (e: Exception) {
@@ -318,7 +318,7 @@ class CreatePoem : AppCompatActivity() {
                                 getString(R.string.thumbnails_folder_name),
                                 MODE_PRIVATE
                             )
-                            val encodedTitle = poemTheme.getTitle().replace(' ', '_') + ".png"
+                            val encodedTitle = poemTheme.poemTitle.replace(' ', '_') + ".png"
                             if (!File(thumbnailsFolder.absolutePath + File.separator + encodedTitle).exists())
                                 actuateSaveAsFile(Category.NONE.toString(), true,
                                     shouldGenerateBackground = true
@@ -340,9 +340,9 @@ class CreatePoem : AppCompatActivity() {
      * Returns the margin size for text
      */
     private fun getTextMarginSize(): Int {
-        return if (poemTheme.getOutline() == OutlineTypes.ROTATED_TEARDROP.toString())
+        return if (poemTheme.outline == OutlineTypes.ROTATED_TEARDROP.toString())
             resources.getDimensionPixelSize(R.dimen.previewWithOutlineTextMarginTeardrop)
-        else if (poemTheme.getOutline() == OutlineTypes.TEARDROP.toString())
+        else if (poemTheme.outline == OutlineTypes.TEARDROP.toString())
             resources.getDimensionPixelSize(R.dimen.rotatedTeardropCornerSizeTopLeft)
         else if (poemTheme.backgroundType.toString()
                 .contains("OUTLINE")
@@ -418,12 +418,12 @@ class CreatePoem : AppCompatActivity() {
         val toRetEditTextBox = EditText(this)
         toRetEditTextBox.typeface = defaultText.typeface
         toRetEditTextBox.background = null
-        toRetEditTextBox.setTextColor(poemTheme.getTextColorAsInt())
-        toRetEditTextBox.textSize = poemTheme.getTextSize().toFloat()
+        toRetEditTextBox.setTextColor(poemTheme.textColorAsInt)
+        toRetEditTextBox.textSize = poemTheme.textSize.toFloat()
         toRetEditTextBox.inputType = defaultText.inputType
         toRetEditTextBox.isVerticalScrollBarEnabled = true
         toRetEditTextBox.setHint(R.string.create_poem_text_view_hint)
-        toRetEditTextBox.setHintTextColor(poemTheme.getTextColorAsInt())
+        toRetEditTextBox.setHintTextColor(poemTheme.textColorAsInt)
 
         toRetEditTextBox.isSingleLine = false
 
@@ -460,7 +460,7 @@ class CreatePoem : AppCompatActivity() {
 
         frameToReturn.addView(toRetEditTextBox)
 
-        when (poemTheme.getTextAlignment()) {
+        when (poemTheme.textAlignment) {
             TextAlignment.LEFT -> {
                 toRetEditTextBox.textAlignment = View.TEXT_ALIGNMENT_VIEW_START
                 toRetEditTextBox.gravity = Gravity.TOP or Gravity.START
@@ -732,7 +732,7 @@ class CreatePoem : AppCompatActivity() {
 
         val textUtil = TextMarginUtil()
 
-        textUtil.determineTextMargins(poemTheme.getOutline(), resources, outlineStrokeSize)
+        textUtil.determineTextMargins(poemTheme.outline, resources, outlineStrokeSize)
 
         layoutParams.setMargins(
             textUtil.marginLeft,
@@ -753,17 +753,17 @@ class CreatePoem : AppCompatActivity() {
         else
             findViewById<EditText>(R.id.portraitTextView)
 
-        text.typeface = TypefaceHelper.getTypeFace(poemTheme.getTextFont(), applicationContext)
-        text.textSize = poemTheme.getTextSize().toFloat()
-        text.setHintTextColor(poemTheme.getTextColorAsInt())
-        text.setTextColor(poemTheme.getTextColorAsInt())
+        text.typeface = TypefaceHelper.getTypeFace(poemTheme.textFontFamily, applicationContext)
+        text.textSize = poemTheme.textSize.toFloat()
+        text.setHintTextColor(poemTheme.textColorAsInt)
+        text.setTextColor(poemTheme.textColorAsInt)
         text.setHint(R.string.create_poem_text_view_hint)
 
         if (poemTheme.backgroundType.toString().contains("OUTLINE")) {
             text.layoutParams = adjustTextBounds()
         }
 
-        when (poemTheme.getTextAlignment()) {
+        when (poemTheme.textAlignment) {
             TextAlignment.LEFT -> {
                 text.textAlignment = View.TEXT_ALIGNMENT_VIEW_START
                 text.gravity = Gravity.START
@@ -853,11 +853,11 @@ class CreatePoem : AppCompatActivity() {
                 ) as GradientDrawable
                 image.shapeAppearanceModel =
                     ShapeAppearanceModelHelper.shapeImageView(
-                        poemTheme.getOutline(),
+                        poemTheme.outline,
                         resources,
                         strokeSize.toFloat()
                     )
-                val file = File(poemTheme.getImagePath())
+                val file = File(poemTheme.imagePath)
                 if (file.exists()) {
                     Glide.with(applicationContext).load(file.absolutePath).into(image)
                 }
@@ -870,7 +870,7 @@ class CreatePoem : AppCompatActivity() {
                 image.layoutParams = layoutParams
                 image.scaleType = ImageView.ScaleType.FIT_XY
                 image.visibility = View.VISIBLE
-                image.tag = poemTheme.getImagePath()
+                image.tag = poemTheme.imagePath
             }
 
             BackgroundType.OUTLINE_WITH_COLOR -> {
@@ -885,22 +885,22 @@ class CreatePoem : AppCompatActivity() {
                 ) as GradientDrawable
                 val gradientDrawable: GradientDrawable =
                     frame.background.constantState?.newDrawable() as GradientDrawable
-                gradientDrawable.setColor(poemTheme.getBackgroundColorAsInt())
+                gradientDrawable.setColor(poemTheme.backgroundColorAsInt)
                 frame.background = gradientDrawable
                 frame.visibility = View.VISIBLE
             }
 
             BackgroundType.IMAGE -> {
-                val file = File(poemTheme.getImagePath())
+                val file = File(poemTheme.imagePath)
                 if (file.exists()) {
                     Glide.with(this).load(file.absolutePath).into(image)
                     image.visibility = View.VISIBLE
-                    image.tag = poemTheme.getImagePath()
+                    image.tag = poemTheme.imagePath
                 }
             }
 
             BackgroundType.COLOR -> {
-                val colorDrawable = ColorDrawable(poemTheme.getBackgroundColorAsInt())
+                val colorDrawable = ColorDrawable(poemTheme.backgroundColorAsInt)
                 colorDrawable.setBounds(0, 0, frame.right, frame.bottom)
                 frame.background = colorDrawable
             }
@@ -1014,7 +1014,7 @@ class CreatePoem : AppCompatActivity() {
      */
     private fun inflateUserTheme() {
 
-        findViewById<TextView>(R.id.titleTextView).text = poemTheme.getTitle()
+        findViewById<TextView>(R.id.titleTextView).text = poemTheme.poemTitle
 
         setupOrientation()
 
@@ -1176,8 +1176,8 @@ class CreatePoem : AppCompatActivity() {
             poemThemeXmlParser.setIsEditTheme(true)
 
             poemThemeXmlParser.savePoemThemeToLocalFile(
-                poemTheme.getImagePath(),
-                poemTheme.getBackgroundColor(),
+                poemTheme.imagePath,
+                poemTheme.backgroundColor,
                 null
             )
         }
@@ -1196,27 +1196,27 @@ class CreatePoem : AppCompatActivity() {
 
 
         leftAlign.setOnClickListener {
-            poemTheme.setTextAlignment(TextAlignment.LEFT)
+            poemTheme.textAlignment = TextAlignment.LEFT
             setEditTextAlignment(TextView.TEXT_ALIGNMENT_TEXT_START, Gravity.START)
             actuateSavePoemTheme()
         }
         centreAlign.setOnClickListener {
-            poemTheme.setTextAlignment(TextAlignment.CENTRE)
+            poemTheme.textAlignment = TextAlignment.CENTRE
             setEditTextAlignment(TextView.TEXT_ALIGNMENT_CENTER, Gravity.CENTER)
             actuateSavePoemTheme()
         }
         rightAlign.setOnClickListener {
-            poemTheme.setTextAlignment(TextAlignment.RIGHT)
+            poemTheme.textAlignment = TextAlignment.RIGHT
             setEditTextAlignment(TextView.TEXT_ALIGNMENT_TEXT_END, Gravity.END)
             actuateSavePoemTheme()
         }
         centreVerticalAlign.setOnClickListener {
-            poemTheme.setTextAlignment(TextAlignment.CENTRE_VERTICAL)
+            poemTheme.textAlignment = TextAlignment.CENTRE_VERTICAL
             setEditTextAlignment(TextView.TEXT_ALIGNMENT_CENTER, Gravity.CENTER_VERTICAL)
             actuateSavePoemTheme()
         }
         centreVerticalRightAlign.setOnClickListener {
-            poemTheme.setTextAlignment(TextAlignment.CENTRE_VERTICAL_RIGHT)
+            poemTheme.textAlignment = TextAlignment.CENTRE_VERTICAL_RIGHT
             setEditTextAlignment(
                 TextView.TEXT_ALIGNMENT_TEXT_END,
                 Gravity.CENTER_VERTICAL or Gravity.END
@@ -1224,7 +1224,7 @@ class CreatePoem : AppCompatActivity() {
             actuateSavePoemTheme()
         }
         centreVerticalLeftAlign.setOnClickListener {
-            poemTheme.setTextAlignment(TextAlignment.CENTRE_VERTICAL_LEFT)
+            poemTheme.textAlignment = TextAlignment.CENTRE_VERTICAL_LEFT
             setEditTextAlignment(
                 TextView.TEXT_ALIGNMENT_TEXT_START,
                 Gravity.CENTER_VERTICAL or Gravity.START
@@ -1315,8 +1315,8 @@ class CreatePoem : AppCompatActivity() {
                 .setDefaultColor(R.color.black)     // Pass Default Color
                 .setColorListener { color, colorHex ->
                     currentEditText?.setTextColor(color)
-                    poemTheme.setTextColor(colorHex)
-                    poemTheme.setTextColorAsInt(color)
+                    poemTheme.textColor = colorHex
+                    poemTheme.textColorAsInt = color
                     updateAllEditTextViews(Float.NaN, "textColor", color)
                     actuateSavePoemTheme()
                 }.setDismissListener {
@@ -1373,18 +1373,18 @@ class CreatePoem : AppCompatActivity() {
         val currentEditText: EditText = currentPage.getChildAt(1) as EditText
         findViewById<TextView>(R.id.textSizeText).text = String.format(
             resources.getString(R.string.text_size_changeable),
-            poemTheme.getTextSize()
+            poemTheme.textSize
         )
-        textSlider.value = poemTheme.getTextSize().toFloat()
+        textSlider.value = poemTheme.textSize.toFloat()
         textSlider.addOnChangeListener { _: Slider, value: Float, _: Boolean ->
             findViewById<TextView>(R.id.textSizeText).text = String.format(
                 resources.getString(R.string.text_size_changeable),
                 value.roundToInt()
             )
-            poemTheme.setTextSize(value.roundToInt())
+            poemTheme.textSize = value.roundToInt()
 
-            val newTextSize = poemTheme.getTextSize().toFloat()
-            currentEditText.textSize = poemTheme.getTextSize().toFloat()
+            val newTextSize = poemTheme.textSize.toFloat()
+            currentEditText.textSize = poemTheme.textSize.toFloat()
             updateAllEditTextViews(newTextSize, "textSize", 0)
             actuateSavePoemTheme()
         }
@@ -1425,9 +1425,9 @@ class CreatePoem : AppCompatActivity() {
      */
     private suspend fun createThumbnail() {
         val textMarginUtil = TextMarginUtil()
-        if (poemTheme.getOutline() != "")
+        if (poemTheme.outline != "")
             textMarginUtil.determineTextMargins(
-                poemTheme.getOutline(),
+                poemTheme.outline,
                 this@CreatePoem.resources,
                 resources.getDimensionPixelSize(R.dimen.strokeSize)
             )
@@ -1456,7 +1456,7 @@ class CreatePoem : AppCompatActivity() {
 
         Toast.makeText(
             applicationContext,
-            getString(R.string.save_toast, poemTheme.getTitle(), saveType),
+            getString(R.string.save_toast, poemTheme.poemTitle, saveType),
             Toast.LENGTH_LONG
         ).show()
     }
@@ -1488,9 +1488,9 @@ class CreatePoem : AppCompatActivity() {
 
         if (createThumbnail) {
             val textMarginUtil = TextMarginUtil()
-            if (poemTheme.getOutline() != "")
+            if (poemTheme.outline != "")
                 textMarginUtil.determineTextMargins(
-                    poemTheme.getOutline(),
+                    poemTheme.outline,
                     this.resources,
                     resources.getDimensionPixelSize(R.dimen.strokeSize)
                 )
@@ -1554,7 +1554,7 @@ class CreatePoem : AppCompatActivity() {
                 val textMarginUtil = TextMarginUtil()
                 if (strokeMargin != 0)
                     textMarginUtil.determineTextMargins(
-                        poemTheme.getOutline(),
+                        poemTheme.outline,
                         resources,
                         strokeMargin
                     )
@@ -1568,13 +1568,13 @@ class CreatePoem : AppCompatActivity() {
                     jobName,
                     PdfPrintAdapter(
                         baseContext,
-                        poemTheme.getTextSize(),
+                        poemTheme.textSize,
                         getAllTypedText(),
-                        poemTheme.getTitle(),
+                        poemTheme.poemTitle,
                         currentPage,
                         this,
                         Pair(strokeMargin, textMargin),
-                        poemTheme.getOutline(),
+                        poemTheme.outline,
                         textMarginUtil,
                         poemTheme
                     ),
@@ -1614,7 +1614,7 @@ class CreatePoem : AppCompatActivity() {
         val textMarginUtil = TextMarginUtil()
         if (imageStrokeMargins != 0)
             textMarginUtil.determineTextMargins(
-                poemTheme.getOutline(),
+                poemTheme.outline,
                 resources,
                 imageStrokeMargins
             )
@@ -1623,17 +1623,17 @@ class CreatePoem : AppCompatActivity() {
             ImageSaverUtil(
                 this,
                 currentPage,
-                poemTheme.getTextSize(),
-                poemTheme.getOutline(),
+                poemTheme.textSize,
+                poemTheme.outline,
                 widthAndHeight
             )
 
-        val isCenterVertical = poemTheme.getTextAlignment().toString().contains("CENTRE_VERTICAL")
+        val isCenterVertical = poemTheme.textAlignment.toString().contains("CENTRE_VERTICAL")
 
-        imageSaverUtil.setPaintAlignment(poemTheme.getTextAlignment())
+        imageSaverUtil.setPaintAlignment(poemTheme.textAlignment)
         if (imageSaverUtil.savePagesAsImages(
                 editableArrayList,
-                poemTheme.getTitle(),
+                poemTheme.poemTitle,
                 textMarginUtil,
                 imageStrokeMargins,
                 isLandscape,
@@ -1732,7 +1732,7 @@ class CreatePoem : AppCompatActivity() {
             //to fix when categories are necessary
             actuateSaveAsFile(Category.NONE.toString(), true, shouldGenerateBackground = true)
             val activityIntent = Intent(applicationContext, PoemThemeActivity::class.java)
-            activityIntent.putExtra("poemThemeName", poemTheme.getTitle())
+            activityIntent.putExtra("poemThemeName", poemTheme.poemTitle)
             finish()
             startActivity(activityIntent)
         }
@@ -1788,7 +1788,7 @@ class CreatePoem : AppCompatActivity() {
             pages++
             val frameLayout = createNewPage(true)
             val frameEditText = frameLayout.getChildAt(1) as EditText
-            frameEditText.textSize = poemTheme.getTextSize().toFloat()
+            frameEditText.textSize = poemTheme.textSize.toFloat()
             frameEditText.text = SpannableStringBuilder(stanzas[counter])
             pageNumberAndText[frameLayout.tag as Int] = stanzas[counter]
             recyclerViewAdapter.addElement(frameLayout, frameLayout.tag as Int)
@@ -1803,20 +1803,18 @@ class CreatePoem : AppCompatActivity() {
      * @param poemThemeXmlParser The poem theme parser with users saved theme preference
      */
     private fun initialisePoemTheme(poemThemeXmlParser: PoemThemeXmlParser) {
-        poemTheme.setTitle(poemThemeXmlParser.getPoemTheme().getTitle())
+        poemTheme.poemTitle = poemThemeXmlParser.getPoemTheme().poemTitle
         poemTheme.backgroundType = poemThemeXmlParser.getPoemTheme().backgroundType
-        poemTheme.setTextFont(poemThemeXmlParser.getPoemTheme().getTextFont())
-        poemTheme.setTextAlignment(poemThemeXmlParser.getPoemTheme().getTextAlignment())
-        poemTheme.setOutline(poemThemeXmlParser.getPoemTheme().getOutline())
-        poemTheme.setOutlineColor(poemThemeXmlParser.getPoemTheme().getOutlineColor())
-        poemTheme.setTextColorAsInt(poemThemeXmlParser.getPoemTheme().getTextColorAsInt())
-        poemTheme.setTextColor(poemThemeXmlParser.getPoemTheme().getTextColor())
-        poemTheme.setTextSize(poemThemeXmlParser.getPoemTheme().getTextSize())
-        poemTheme.setBackgroundColorAsInt(
-            poemThemeXmlParser.getPoemTheme().getBackgroundColorAsInt()
-        )
-        poemTheme.setBackgroundColor(poemThemeXmlParser.getPoemTheme().getBackgroundColor())
-        poemTheme.setImagePath(poemThemeXmlParser.getPoemTheme().getImagePath())
+        poemTheme.textFontFamily = poemThemeXmlParser.getPoemTheme().textFontFamily
+        poemTheme.textAlignment = poemThemeXmlParser.getPoemTheme().textAlignment
+        poemTheme.outline  = poemThemeXmlParser.getPoemTheme().outline
+        poemTheme.outlineColor = poemThemeXmlParser.getPoemTheme().outlineColor
+        poemTheme.textColorAsInt = poemThemeXmlParser.getPoemTheme().textColorAsInt
+        poemTheme.textColor = poemThemeXmlParser.getPoemTheme().textColor
+        poemTheme.textSize = poemThemeXmlParser.getPoemTheme().textSize
+        poemTheme.backgroundColorAsInt = poemThemeXmlParser.getPoemTheme().backgroundColorAsInt
+        poemTheme.backgroundColor = poemThemeXmlParser.getPoemTheme().backgroundColor
+        poemTheme.imagePath = poemThemeXmlParser.getPoemTheme().imagePath
     }
 
 }

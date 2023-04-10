@@ -75,9 +75,9 @@ class ThumbnailCreator(
 
     private fun setupPaint() {
         paint = Paint()
-        paint.color = poemTheme.getTextColorAsInt()
+        paint.color = poemTheme.textColorAsInt
         paint.textSize = poemTextSize
-        paint.typeface = TypefaceHelper.getTypeFace(poemTheme.getTextFont(), context)
+        paint.typeface = TypefaceHelper.getTypeFace(poemTheme.textFontFamily, context)
     }
 
     /**
@@ -118,16 +118,16 @@ class ThumbnailCreator(
             AppCompatActivity.MODE_PRIVATE
         )
 
-        poemName = poemTheme.getTitle()
+        poemName = poemTheme.poemTitle
         poetsName = personalisationPreferences.getString("author", "Default").toString()
         poetsSignature = personalisationPreferences.getString("signature", "Default").toString()
         poemTextSize = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_SP,
-            poemTheme.getTextSize().toFloat(),
+            poemTheme.textSize.toFloat(),
             context.resources.displayMetrics
         )
         setupPaint()
-        setPaintAlignment(poemTheme.getTextAlignment())
+        setPaintAlignment(poemTheme.textAlignment)
         validateLines()
         drawToBitmap()
     }
@@ -155,16 +155,16 @@ class ThumbnailCreator(
                 AppCompatActivity.MODE_PRIVATE
             )
 
-            poemName = poemTheme.getTitle()
+            poemName = poemTheme.poemTitle
             poetsName = personalisationPreferences.getString("author", "Default").toString()
             poetsSignature = personalisationPreferences.getString("signature", "Default").toString()
             poemTextSize = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_SP,
-                poemTheme.getTextSize().toFloat(),
+                poemTheme.textSize.toFloat(),
                 context.resources.displayMetrics
             )
             setupPaint()
-            setPaintAlignment(poemTheme.getTextAlignment())
+            setPaintAlignment(poemTheme.textAlignment)
             validateLines()
             drawToBitmap()
         }
@@ -180,7 +180,7 @@ class ThumbnailCreator(
                 Context.MODE_PRIVATE
             )
             val thumbnailFile = File(
-                thumbnailFolder.absolutePath + File.separator + poemTheme.getTitle().replace(
+                thumbnailFolder.absolutePath + File.separator + poemTheme.poemTitle.replace(
                     ' ',
                     '_'
                 ) + ".png"
@@ -226,10 +226,10 @@ class ThumbnailCreator(
                         height,
                         context
                     ) as GradientDrawable
-                    backgroundDrawable.setStroke(strokeSize, poemTheme.getOutlineColor())
+                    backgroundDrawable.setStroke(strokeSize, poemTheme.outlineColor)
 
                     val image = ShapeableImageView(context)
-                    val file = File(poemTheme.getImagePath())
+                    val file = File(poemTheme.imagePath)
                     image.layout(strokeSize, strokeSize, width, height)
                     image.left = strokeSize
                     image.top = strokeSize
@@ -239,7 +239,7 @@ class ThumbnailCreator(
 
                     image.shapeAppearanceModel =
                         ShapeAppearanceModelHelper.shapeImageView(
-                            poemTheme.getOutline(),
+                            poemTheme.outline,
                             context.resources,
                             strokeSize.toFloat()
                         )
@@ -250,7 +250,7 @@ class ThumbnailCreator(
                             Bitmap.Config.ARGB_8888
                         )
                         val tempCanvas = Canvas(bitmap)
-                        image.setImageBitmap(BitmapFactory.decodeFile(poemTheme.getImagePath()))
+                        image.setImageBitmap(BitmapFactory.decodeFile(poemTheme.imagePath))
                         image.draw(tempCanvas)
                         canvas.drawBitmap(
                             bitmap, null,
@@ -275,22 +275,22 @@ class ThumbnailCreator(
                     ) as GradientDrawable
                     val gradientDrawable: GradientDrawable =
                         backgroundDrawable.constantState?.newDrawable() as GradientDrawable
-                    gradientDrawable.setColor(poemTheme.getBackgroundColorAsInt())
+                    gradientDrawable.setColor(poemTheme.backgroundColorAsInt)
 
                     gradientDrawable.setBounds(0, 0, width, height)
                     gradientDrawable.draw(canvas)
                 }
 
                 BackgroundType.IMAGE -> {
-                    val file = File(poemTheme.getImagePath())
+                    val file = File(poemTheme.imagePath)
                     if (file.exists()) {
-                        val bitmap = BitmapFactory.decodeFile(poemTheme.getImagePath())
+                        val bitmap = BitmapFactory.decodeFile(poemTheme.imagePath)
                         canvas.drawBitmap(bitmap, null, Rect(0, 0, width, height), null)
                     }
                 }
 
                 BackgroundType.COLOR -> {
-                    val colorDrawable = ColorDrawable(poemTheme.getBackgroundColorAsInt())
+                    val colorDrawable = ColorDrawable(poemTheme.backgroundColorAsInt)
                     colorDrawable.setBounds(0, 0, width, height)
                     colorDrawable.draw(canvas)
                 }
@@ -302,7 +302,7 @@ class ThumbnailCreator(
                     Context.MODE_PRIVATE
                 )
                 val backgroundFile =
-                    File(backgroundImageDrawableFolder.absolutePath + File.separator + poemTheme.getTitle().replace(
+                    File(backgroundImageDrawableFolder.absolutePath + File.separator + poemTheme.poemTitle.replace(
                         ' ',
                         '_'
                     ) + ".png")
@@ -314,16 +314,16 @@ class ThumbnailCreator(
                 }
             }
 
-            yPoint = if (poemTheme.getOutline() != "")
+            yPoint = if (poemTheme.outline != "")
                 (paint.descent() - paint.ascent() + paint.fontMetrics.leading) +
                         context.resources.getDimensionPixelSize(R.dimen.strokeSize).toFloat()
             else
                 paint.descent() - paint.ascent() + paint.fontMetrics.leading
 
             val isCentreVertical =
-                poemTheme.getTextAlignment() == TextAlignment.CENTRE_VERTICAL || poemTheme.getTextAlignment() == TextAlignment.CENTRE
+                poemTheme.textAlignment == TextAlignment.CENTRE_VERTICAL || poemTheme.textAlignment == TextAlignment.CENTRE
             val isRightAlign =
-                poemTheme.getTextAlignment() == TextAlignment.CENTRE_VERTICAL_RIGHT || poemTheme.getTextAlignment() == TextAlignment.RIGHT
+                poemTheme.textAlignment == TextAlignment.CENTRE_VERTICAL_RIGHT || poemTheme.textAlignment == TextAlignment.RIGHT
 
             val poemNameSplit = poemName.split("\\p")
             val poetsNameSplit = poetsName.split("\\p")

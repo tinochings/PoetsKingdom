@@ -55,7 +55,6 @@ class PoemThemeActivity : AppCompatActivity() {
     private lateinit var poemTheme: PoemTheme
 
 
-    @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_poem_theme)
@@ -221,7 +220,7 @@ class PoemThemeActivity : AppCompatActivity() {
                     newActivityIntent.putExtra("loadPoem", true)
                     newActivityIntent.putExtra(
                         "poemTitle",
-                        poemTheme.getTitle()
+                        poemTheme.poemTitle
                     )
                     finish()
                     startActivity(newActivityIntent)
@@ -269,7 +268,7 @@ class PoemThemeActivity : AppCompatActivity() {
                             editText.isEnabled = true
                             editText.setText("")
                         } else if (isValidatedInput(editText.text.toString().replace(' ', '_'))) {
-                            poemTheme.setTitle(editText.text.toString())
+                            poemTheme.poemTitle = editText.text.toString()
                             val poemThemeXmlParser =
                                 PoemThemeXmlParser(poemTheme, applicationContext)
 
@@ -292,7 +291,7 @@ class PoemThemeActivity : AppCompatActivity() {
                                     newActivityIntent.putExtra(getString(R.string.load_poem_argument_name), false)
                                     newActivityIntent.putExtra(
                                         getString(R.string.poem_title_argument_name),
-                                        poemTheme.getTitle()
+                                        poemTheme.poemTitle
                                     )
                                     finish()
                                     startActivity(newActivityIntent)
@@ -476,9 +475,9 @@ class PoemThemeActivity : AppCompatActivity() {
                         backgroundImageChosen = imageFileClicked.absolutePath
                         preparePoemView("Background")
                         if (outlineChosen != null)
-                            poemTheme.setBackGroundType(BackgroundType.OUTLINE_WITH_IMAGE)
+                            poemTheme.backgroundType = BackgroundType.OUTLINE_WITH_IMAGE
                         else
-                            poemTheme.setBackGroundType(BackgroundType.IMAGE)
+                            poemTheme.backgroundType = BackgroundType.IMAGE
                     }
                 }
             }
@@ -670,7 +669,7 @@ class PoemThemeActivity : AppCompatActivity() {
                         frameLayout.background = gradientDrawable.mutate()
                     }
                 }
-                poemTheme.setOutlineColor(color)
+                poemTheme.outlineColor = color
             }
             .show()
     }
@@ -690,17 +689,17 @@ class PoemThemeActivity : AppCompatActivity() {
                                 frameLayoutChild.setOnClickListener {
                                     outlineChosen = frameLayoutChild
                                     if (backgroundImageChosen == null && backgroundColorChosen == null) {
-                                        poemTheme.setBackGroundType(BackgroundType.OUTLINE)
+                                        poemTheme.backgroundType = BackgroundType.OUTLINE
                                         preparePoemView("Outline")
                                     } else if (backgroundImageChosen != null) {
-                                        poemTheme.setBackGroundType(BackgroundType.OUTLINE_WITH_IMAGE)
+                                        poemTheme.backgroundType = BackgroundType.OUTLINE_WITH_IMAGE
                                         preparePoemView("Outline")
                                     } else {
                                         findViewById<RelativeLayout>(R.id.backgroundPreview).setBackgroundColor(
                                             getColor(R.color.white)
                                         )
                                         preparePoemView("OutlineWithColor")
-                                        poemTheme.setBackGroundType(BackgroundType.OUTLINE_WITH_COLOR)
+                                        poemTheme.backgroundType = BackgroundType.OUTLINE_WITH_COLOR
                                     }
                                 }
 
@@ -723,12 +722,12 @@ class PoemThemeActivity : AppCompatActivity() {
     private fun setupSliderListener() {
         val textSlider = findViewById<Slider>(R.id.textSizeSlider)
 
-        if (poemTheme.getTextSize() != 14) {
+        if (poemTheme.textSize != 14) {
             findViewById<TextView>(R.id.textSizeText).text = String.format(
                 resources.getString(R.string.text_size_changeable),
-                poemTheme.getTextSize()
+                poemTheme.textSize
             )
-            textSlider.value = poemTheme.getTextSize().toFloat()
+            textSlider.value = poemTheme.textSize.toFloat()
         }
 
         textSlider.addOnChangeListener { _: Slider, value: Float, _: Boolean ->
@@ -740,7 +739,7 @@ class PoemThemeActivity : AppCompatActivity() {
                 TypedValue.COMPLEX_UNIT_SP,
                 round(value)
             )
-            poemTheme.setTextSize(value.roundToInt())
+            poemTheme.textSize = value.roundToInt()
         }
     }
 
@@ -927,9 +926,7 @@ class PoemThemeActivity : AppCompatActivity() {
                                         )
                                     }
                                 (frameChild.contentDescription as String?)?.let { it1 ->
-                                    poemTheme.setTextFont(
-                                        it1
-                                    )
+                                    poemTheme.textFontFamily = it1
                                 }
                             }
                         }
@@ -960,8 +957,8 @@ class PoemThemeActivity : AppCompatActivity() {
                     textColorView.setColorFilter(color)
                     findViewById<TextView>(R.id.textColorText).setTextColor(color)
                     previewText.setTextColor(color)
-                    poemTheme.setTextColor(colorHex)
-                    poemTheme.setTextColorAsInt(color)
+                    poemTheme.textColor = colorHex
+                    poemTheme.textColorAsInt = color
                 }
                 .show()
         }
@@ -976,7 +973,7 @@ class PoemThemeActivity : AppCompatActivity() {
             else
                 previewText.layoutParams = layoutParams
             previewText.gravity = Gravity.START
-            poemTheme.setTextAlignment(TextAlignment.LEFT)
+            poemTheme.textAlignment = TextAlignment.LEFT
         }
         centreAlign.setOnClickListener {
             val layoutParams = RelativeLayout.LayoutParams(
@@ -988,7 +985,7 @@ class PoemThemeActivity : AppCompatActivity() {
             else
                 previewText.layoutParams = layoutParams
             previewText.gravity = Gravity.CENTER
-            poemTheme.setTextAlignment(TextAlignment.CENTRE)
+            poemTheme.textAlignment = TextAlignment.CENTRE
         }
         rightAlign.setOnClickListener {
             val layoutParams = RelativeLayout.LayoutParams(
@@ -1000,7 +997,7 @@ class PoemThemeActivity : AppCompatActivity() {
             else
                 previewText.layoutParams = layoutParams
             previewText.gravity = Gravity.END
-            poemTheme.setTextAlignment(TextAlignment.RIGHT)
+            poemTheme.textAlignment = TextAlignment.RIGHT
         }
         centreVerticalAlign.setOnClickListener {
             val layoutParams = RelativeLayout.LayoutParams(
@@ -1010,7 +1007,7 @@ class PoemThemeActivity : AppCompatActivity() {
             layoutParams.addRule(RelativeLayout.CENTER_VERTICAL)
             previewText.layoutParams = layoutParams
             previewText.gravity = Gravity.CENTER
-            poemTheme.setTextAlignment(TextAlignment.CENTRE_VERTICAL)
+            poemTheme.textAlignment = TextAlignment.CENTRE_VERTICAL
         }
 
         setupFontFamilyListeners("$packageName:id/text")
@@ -1034,17 +1031,17 @@ class PoemThemeActivity : AppCompatActivity() {
                 .setDefaultColor(R.color.black)     // Pass Default Color
                 .setColorListener { color, colorHex ->
                     if (outlineChosen != null)
-                        poemTheme.setBackGroundType(BackgroundType.OUTLINE_WITH_COLOR)
+                        poemTheme.backgroundType = BackgroundType.OUTLINE_WITH_COLOR
                     else
-                        poemTheme.setBackGroundType(BackgroundType.COLOR)
+                        poemTheme.backgroundType = BackgroundType.COLOR
 
                     val imagePreviewCard = findViewById<CardView>(R.id.imagePreviewCard)
                     if (imagePreviewCard.visibility == View.VISIBLE) {
                         imagePreviewCard.visibility = View.GONE
                         backgroundImageChosen = null
                     }
-                    poemTheme.setBackgroundColor(colorHex)
-                    poemTheme.setBackgroundColorAsInt(color)
+                    poemTheme.backgroundColor = colorHex
+                    poemTheme.backgroundColorAsInt = color
                     backgroundColorChosen = colorHex
                     backgroundColorChosenAsInt = color
                     if (outlineChosen != null) {
@@ -1236,7 +1233,7 @@ class PoemThemeActivity : AppCompatActivity() {
                     if (child.childCount > 0) {
                         for (frameLayoutChild in child.children) {
                             if (frameLayoutChild is FrameLayout) {
-                                if (frameLayoutChild.contentDescription == poemTheme.getOutline()) {
+                                if (frameLayoutChild.contentDescription == poemTheme.outline) {
                                     outlineChosen = frameLayoutChild
                                     shouldBreak = true
                                     break
@@ -1253,29 +1250,27 @@ class PoemThemeActivity : AppCompatActivity() {
      * Create  memory for current data container
      */
     private fun initialisePoemTheme(poemThemeXmlParser: PoemThemeXmlParser) {
-        poemTheme.setTitle(poemThemeXmlParser.getPoemTheme().getTitle())
+        poemTheme.poemTitle = poemThemeXmlParser.getPoemTheme().poemTitle
         poemTheme.backgroundType = poemThemeXmlParser.getPoemTheme().backgroundType
-        poemTheme.setTextFont(poemThemeXmlParser.getPoemTheme().getTextFont())
-        poemTheme.setTextAlignment(poemThemeXmlParser.getPoemTheme().getTextAlignment())
-        poemTheme.setOutline(poemThemeXmlParser.getPoemTheme().getOutline())
-        poemTheme.setOutlineColor(poemThemeXmlParser.getPoemTheme().getOutlineColor())
-        poemTheme.setTextColorAsInt(poemThemeXmlParser.getPoemTheme().getTextColorAsInt())
-        poemTheme.setTextColor(poemThemeXmlParser.getPoemTheme().getTextColor())
-        poemTheme.setTextSize(poemThemeXmlParser.getPoemTheme().getTextSize())
-        poemTheme.setBackgroundColorAsInt(
-            poemThemeXmlParser.getPoemTheme().getBackgroundColorAsInt()
-        )
-        poemTheme.setBackgroundColor(poemThemeXmlParser.getPoemTheme().getBackgroundColor())
-        poemTheme.setImagePath(poemThemeXmlParser.getPoemTheme().getImagePath())
+        poemTheme.textFontFamily = poemThemeXmlParser.getPoemTheme().textFontFamily
+        poemTheme.textAlignment = poemThemeXmlParser.getPoemTheme().textAlignment
+        poemTheme.outline = poemThemeXmlParser.getPoemTheme().outline
+        poemTheme.outlineColor = poemThemeXmlParser.getPoemTheme().outlineColor
+        poemTheme.textColorAsInt = poemThemeXmlParser.getPoemTheme().textColorAsInt
+        poemTheme.textColor = poemThemeXmlParser.getPoemTheme().textColor
+        poemTheme.textSize = poemThemeXmlParser.getPoemTheme().textSize
+        poemTheme.backgroundColorAsInt = poemThemeXmlParser.getPoemTheme().backgroundColorAsInt
+        poemTheme.backgroundColor = poemThemeXmlParser.getPoemTheme().backgroundColor
+        poemTheme.imagePath = poemThemeXmlParser.getPoemTheme().imagePath
 
         val previewText = findViewById<TextView>(R.id.previewText)
-        previewText.setTextColor(poemTheme.getTextColorAsInt())
-        previewText.textSize = poemTheme.getTextSize().toFloat()
+        previewText.setTextColor(poemTheme.textColorAsInt)
+        previewText.textSize = poemTheme.textSize.toFloat()
 
         previewText.typeface =
-            TypefaceHelper.getTypeFace(poemTheme.getTextFont(), applicationContext)
+            TypefaceHelper.getTypeFace(poemTheme.textFontFamily, applicationContext)
 
-        when (poemTheme.getTextAlignment()) {
+        when (poemTheme.textAlignment) {
             TextAlignment.CENTRE -> {
                 previewText.gravity = Gravity.CENTER
             }
@@ -1299,13 +1294,13 @@ class PoemThemeActivity : AppCompatActivity() {
         when (poemTheme.backgroundType) {
             BackgroundType.COLOR -> {
                 findViewById<RelativeLayout>(R.id.backgroundPreview).setBackgroundColor(
-                    poemTheme.getBackgroundColorAsInt()
+                    poemTheme.backgroundColorAsInt
                 )
-                backgroundColorChosen = poemTheme.getBackgroundColor()
-                backgroundColorChosenAsInt = poemTheme.getBackgroundColorAsInt()
+                backgroundColorChosen = poemTheme.backgroundColor
+                backgroundColorChosenAsInt = poemTheme.backgroundColorAsInt
             }
             BackgroundType.IMAGE -> {
-                backgroundImageChosen = poemTheme.getImagePath()
+                backgroundImageChosen = poemTheme.imagePath
                 preparePoemView("Background")
             }
             BackgroundType.OUTLINE -> {
@@ -1315,13 +1310,13 @@ class PoemThemeActivity : AppCompatActivity() {
             BackgroundType.OUTLINE_WITH_IMAGE -> {
                 setOutlineChosen()
                 preparePoemView("Outline")
-                backgroundImageChosen = poemTheme.getImagePath()
+                backgroundImageChosen = poemTheme.imagePath
                 preparePoemView("Background")
             }
             BackgroundType.OUTLINE_WITH_COLOR -> {
                 setOutlineChosen()
-                backgroundColorChosenAsInt = poemTheme.getBackgroundColorAsInt()
-                backgroundColorChosen = poemTheme.getBackgroundColor()
+                backgroundColorChosenAsInt = poemTheme.backgroundColorAsInt
+                backgroundColorChosen = poemTheme.backgroundColor
                 preparePoemView("OutlineWithColor")
             }
             BackgroundType.DEFAULT -> {

@@ -217,7 +217,7 @@ class PdfPrintAdapter(
                 samplePaint.textAlign = getPaintAlignment()
                 val lineHeight = (samplePaint.descent() - samplePaint.ascent() + samplePaint.fontMetrics.leading).roundToInt().toFloat()
 
-                var yPoint = if (poemTheme.getTextAlignment().toString().contains("CENTRE_VERTICAL"))
+                var yPoint = if (poemTheme.textAlignment.toString().contains("CENTRE_VERTICAL"))
                     determineYPoint(this.height - layoutMarginAndTextMargin.first, editText.text.lines().size, lineHeight)
                     else
                         textUtils.marginTop.toFloat()
@@ -239,7 +239,7 @@ class PdfPrintAdapter(
      * Returns alignment of the paint to be used
      */
     private fun getPaintAlignment(): Paint.Align {
-        return when (poemTheme.getTextAlignment()) {
+        return when (poemTheme.textAlignment) {
             TextAlignment.LEFT -> {
                 Paint.Align.LEFT
             }
@@ -264,7 +264,7 @@ class PdfPrintAdapter(
     }
 
     private fun determineXPoint(width : Int) : Float {
-        when (poemTheme.getTextAlignment()) {
+        when (poemTheme.textAlignment) {
             TextAlignment.LEFT -> {
                 return  textUtils.marginLeft.toFloat()
             }
