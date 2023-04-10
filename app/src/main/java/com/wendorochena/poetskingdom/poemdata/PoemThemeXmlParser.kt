@@ -118,10 +118,9 @@ class PoemThemeXmlParser(
                                 "textAlignment" -> {
                                     parser.require(XmlPullParser.START_TAG, null, "textAlignment")
                                     if (parser.next() == XmlPullParser.TEXT) {
-                                        poemTheme.textAlignment
-                                            PoemTheme.determineTextAlignment(
-                                                parser.text
-                                            )
+                                        poemTheme.textAlignment =PoemTheme.determineTextAlignment(
+                                                parser.text)
+
                                         parser.nextTag()
                                         parser.require(XmlPullParser.END_TAG, null, "textAlignment")
                                     }
