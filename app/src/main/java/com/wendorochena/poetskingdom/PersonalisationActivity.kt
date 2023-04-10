@@ -50,6 +50,7 @@ class PersonalisationActivity : AppCompatActivity() {
                     dialog.dismiss()
                 }?.setMessage(R.string.guide_personalisation)?.show()
         }
+
         private fun setupPoemPreferencesListeners() {
             val nicknamePref = findPreference<EditTextPreference>("appNickname")
 
@@ -68,6 +69,10 @@ class PersonalisationActivity : AppCompatActivity() {
         private fun setupLandscapeListener() {
             val orientationSelected = findPreference<ListPreference>("orientation")
             val resolution = findPreference<ListPreference>("resolution")
+            orientationSelected?.setOnPreferenceChangeListener{ preferenceManager , s ->
+                resolution?.isVisible = s == "landscape"
+                true
+            }
             resolution?.isVisible = orientationSelected?.value == "landscape"
         }
 
