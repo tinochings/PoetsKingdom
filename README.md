@@ -20,6 +20,6 @@ Poets Kingdom is a passion project I started for myself. I am a lover of poetry,
 <img src="app/Application Screenshots/Poem Activity.png" width="170">
 <img src="app/Application Screenshots/My Images.png" width="170"> <img src="app/Application Screenshots/My Poems.png" width="170">
 
-## Debug APK File
+## Debug APK File Download
 
 [APK File](https://github.com/tinochings/PoetsKingdom/blob/master/app/Debug%20APK/app-debug.apk)
