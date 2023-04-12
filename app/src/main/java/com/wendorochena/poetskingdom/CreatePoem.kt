@@ -763,7 +763,6 @@ class CreatePoem : AppCompatActivity() {
             text.layoutParams = adjustTextBounds()
         }
 
-        println(poemTheme.textAlignment)
         when (poemTheme.textAlignment) {
             TextAlignment.LEFT -> {
                 text.textAlignment = View.TEXT_ALIGNMENT_VIEW_START
