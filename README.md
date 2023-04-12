@@ -14,12 +14,12 @@ Poets Kingdom is a passion project I started for myself. I am a lover of poetry,
 - Exact phrase searching and highlighting using Lucene
 - Poem image viewer for viewing saved poems
 
+## Debug APK File Download
+
+[APK File](https://github.com/tinochings/PoetsKingdom/blob/master/app/Debug%20APK/app-debug.apk)
+
 ## Screenshots
 
 <img src="app/Application Screenshots/Home Screen.png" width="170"> <img src="app/Application Screenshots/Create Poem.png" width="170">
 <img src="app/Application Screenshots/Poem Activity.png" width="170">
 <img src="app/Application Screenshots/My Images.png" width="170"> <img src="app/Application Screenshots/My Poems.png" width="170">
-
-## Debug APK File Download
-
-[APK File](https://github.com/tinochings/PoetsKingdom/blob/master/app/Debug%20APK/app-debug.apk)
