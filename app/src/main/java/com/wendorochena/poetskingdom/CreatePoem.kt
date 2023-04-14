@@ -145,7 +145,10 @@ class CreatePoem : AppCompatActivity() {
 
         setupOnBackPressed()
         val sharedPreferences =
-            applicationContext.getSharedPreferences(getString(R.string.shared_pref), Context.MODE_PRIVATE)
+            applicationContext.getSharedPreferences(
+                getString(R.string.shared_pref),
+                Context.MODE_PRIVATE
+            )
         if (!sharedPreferences.getBoolean("createPoemFirstUse", false)) {
             onFirstUse()
             sharedPreferences.edit().putBoolean("createPoemFirstUse", true).apply()
@@ -180,7 +183,13 @@ class CreatePoem : AppCompatActivity() {
     /**
      * Initiates a save as file in a coroutine
      */
-    private fun actuateSaveAsFile(category: String, createThumbnail: Boolean, shouldGenerateBackground: Boolean) {
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun actuateSaveAsFile(
+        category: String,
+        createThumbnail: Boolean,
+        shouldGenerateBackground: Boolean,
+        isExitingActivity: Boolean
+    ) {
 
         turnOnDimmerProgressBar()
         val exceptionHandler = CoroutineExceptionHandler { _, exception ->
@@ -190,9 +199,16 @@ class CreatePoem : AppCompatActivity() {
             turnOffDimmerProgressBar()
         }
 
-        lifecycleScope.launch(Dispatchers.Main + exceptionHandler) {
-            createDataContainer(category, createThumbnail, shouldGenerateBackground)
-            turnOffDimmerProgressBar()
+        if (isExitingActivity) {
+            GlobalScope.launch(Dispatchers.Main + exceptionHandler) {
+                createDataContainer(category, createThumbnail, shouldGenerateBackground)
+                turnOffDimmerProgressBar()
+            }
+        } else {
+            lifecycleScope.launch(Dispatchers.Main + exceptionHandler) {
+                createDataContainer(category, createThumbnail, shouldGenerateBackground)
+                turnOffDimmerProgressBar()
+            }
         }
     }
 
@@ -246,7 +262,12 @@ class CreatePoem : AppCompatActivity() {
                         ).absolutePath
                         val poemFile = File(directoryPath + File.separator + oldTitleName)
                         if (!poemFile.exists())
-                            actuateSaveAsFile(Category.NONE.toString(), true, shouldGenerateBackground = true)
+                            actuateSaveAsFile(
+                                Category.NONE.toString(),
+                                true,
+                                shouldGenerateBackground = true,
+                                isExitingActivity = false
+                            )
                         val poemThemeFile = File(poemThemePath + File.separator + oldTitleName)
                         val poemSavedImagesFolder =
                             File(savedImagesPath + File.separator + oldTitleFolderName)
@@ -320,12 +341,16 @@ class CreatePoem : AppCompatActivity() {
                             )
                             val encodedTitle = poemTheme.poemTitle.replace(' ', '_') + ".png"
                             if (!File(thumbnailsFolder.absolutePath + File.separator + encodedTitle).exists())
-                                actuateSaveAsFile(Category.NONE.toString(), true,
-                                    shouldGenerateBackground = true
+                                actuateSaveAsFile(
+                                    Category.NONE.toString(), true,
+                                    shouldGenerateBackground = true,
+                                    isExitingActivity = true
                                 )
                             else
-                                actuateSaveAsFile(Category.NONE.toString(), false,
-                                    shouldGenerateBackground = false
+                                actuateSaveAsFile(
+                                    Category.NONE.toString(), false,
+                                    shouldGenerateBackground = false,
+                                    isExitingActivity = true
                                 )
                         }
                         finish()
@@ -1423,7 +1448,10 @@ class CreatePoem : AppCompatActivity() {
      */
     private fun updateGlideCachePolicyIfNeeded() {
         val sharedPreferences =
-            applicationContext.getSharedPreferences(getString(R.string.shared_pref), Context.MODE_PRIVATE)
+            applicationContext.getSharedPreferences(
+                getString(R.string.shared_pref),
+                Context.MODE_PRIVATE
+            )
 
         val thumbnailFolder = getDir(
             getString(R.string.thumbnails_folder_name),
@@ -1438,8 +1466,10 @@ class CreatePoem : AppCompatActivity() {
         if (thumbnailFile.exists())
             sharedPreferences.edit().putBoolean(getString(R.string.glide_cache_clear), true).apply()
         else
-            sharedPreferences.edit().putBoolean(getString(R.string.glide_cache_clear), false).apply()
+            sharedPreferences.edit().putBoolean(getString(R.string.glide_cache_clear), false)
+                .apply()
     }
+
     /**
      * Creates a thumbnail for a poem on IO thread coroutine context
      */
@@ -1493,7 +1523,11 @@ class CreatePoem : AppCompatActivity() {
      * creating a poem. Note if the user has not actively saved as a file there will be no background
      * when they search for a key word
      */
-    private suspend fun createDataContainer(category: String, createThumbnail: Boolean, shouldGenerateBackground : Boolean) {
+    private suspend fun createDataContainer(
+        category: String,
+        createThumbnail: Boolean,
+        shouldGenerateBackground: Boolean
+    ) {
         val entirePoem = ArrayList<Editable>()
 
         for (keys in pageNumberAndId.keys) {
@@ -1516,7 +1550,14 @@ class CreatePoem : AppCompatActivity() {
                     resources.getDimensionPixelSize(R.dimen.strokeSize)
                 )
             updateGlideCachePolicyIfNeeded()
-            val thumbnailCreator = ThumbnailCreator(this, poemTheme, 1080, 1080, textMarginUtil, generateBackground = shouldGenerateBackground)
+            val thumbnailCreator = ThumbnailCreator(
+                this,
+                poemTheme,
+                1080,
+                1080,
+                textMarginUtil,
+                generateBackground = shouldGenerateBackground
+            )
             thumbnailCreator.initiateCreateThumbnail()
         }
 
@@ -1711,7 +1752,12 @@ class CreatePoem : AppCompatActivity() {
             AlertDialog.Builder(this).setTitle(R.string.category)
                 .setSingleChoiceItems(categoryChoices, 3) { dialog, chosenInt ->
                     dialog.dismiss()
-                    actuateSaveAsFile(categoryChoices[chosenInt], true, shouldGenerateBackground = true)
+                    actuateSaveAsFile(
+                        categoryChoices[chosenInt],
+                        true,
+                        shouldGenerateBackground = true,
+                        isExitingActivity = false
+                    )
                     turnOffCurrentView()
                     hasFileBeenEdited = false
                 }.show()
@@ -1742,7 +1788,7 @@ class CreatePoem : AppCompatActivity() {
                 turnOffDimmerProgressBar()
             }
 
-            lifecycleScope.launch (Dispatchers.Main + exceptionHandler) {
+            lifecycleScope.launch(Dispatchers.Main + exceptionHandler) {
                 turnOffCurrentView()
                 createThumbnail()
                 initiateSavePagesAsPdf()
@@ -1750,7 +1796,12 @@ class CreatePoem : AppCompatActivity() {
         }
         editPoemTheme.setOnClickListener {
             //to fix when categories are necessary
-            actuateSaveAsFile(Category.NONE.toString(), true, shouldGenerateBackground = true)
+            actuateSaveAsFile(
+                Category.NONE.toString(),
+                true,
+                shouldGenerateBackground = true,
+                isExitingActivity = true
+            )
             val activityIntent = Intent(applicationContext, PoemThemeActivity::class.java)
             activityIntent.putExtra("poemThemeName", poemTheme.poemTitle)
             finish()
@@ -1827,7 +1878,7 @@ class CreatePoem : AppCompatActivity() {
         poemTheme.backgroundType = poemThemeXmlParser.getPoemTheme().backgroundType
         poemTheme.textFontFamily = poemThemeXmlParser.getPoemTheme().textFontFamily
         poemTheme.textAlignment = poemThemeXmlParser.getPoemTheme().textAlignment
-        poemTheme.outline  = poemThemeXmlParser.getPoemTheme().outline
+        poemTheme.outline = poemThemeXmlParser.getPoemTheme().outline
         poemTheme.outlineColor = poemThemeXmlParser.getPoemTheme().outlineColor
         poemTheme.textColorAsInt = poemThemeXmlParser.getPoemTheme().textColorAsInt
         poemTheme.textColor = poemThemeXmlParser.getPoemTheme().textColor
