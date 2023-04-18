@@ -28,11 +28,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.github.dhaval2404.colorpicker.ColorPickerDialog
-import com.github.dhaval2404.colorpicker.model.ColorShape
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.slider.Slider
+import com.skydoves.colorpickerview.ColorEnvelope
+import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
 import com.wendorochena.poetskingdom.poemdata.*
 import com.wendorochena.poetskingdom.recyclerViews.CreatePoemRecyclerViewAdapter
 import com.wendorochena.poetskingdom.utils.*
@@ -1329,20 +1329,44 @@ class CreatePoem : AppCompatActivity() {
                 if (child is EditText)
                     currentEditText = child
 
-            ColorPickerDialog
-                .Builder(this)                        // Pass Activity Instance
-                .setTitle(getString(R.string.color_picker_title))            // Default "Choose Color"
-                .setColorShape(ColorShape.SQAURE)   // Default ColorShape.CIRCLE
-                .setDefaultColor(R.color.black)     // Pass Default Color
-                .setColorListener { color, colorHex ->
-                    currentEditText?.setTextColor(color)
-                    poemTheme.textColor = colorHex
-                    poemTheme.textColorAsInt = color
-                    updateAllEditTextViews(Float.NaN, "textColor", color)
-                    actuateSavePoemTheme()
-                }.setDismissListener {
-                    currentContainerView = null
-                }.show()
+            com.skydoves.colorpickerview.ColorPickerDialog.Builder(this).setTitle(getString(R.string.color_picker_title)).setPositiveButton(R.string.confirm, object : ColorEnvelopeListener{
+                override fun onColorSelected(envelope: ColorEnvelope?, fromUser: Boolean) {
+                    if (envelope != null) {
+                        currentEditText?.setTextColor(envelope.color)
+                        poemTheme.textColor = envelope.hexCode
+                        poemTheme.textColorAsInt = envelope.color
+                        updateAllEditTextViews(Float.NaN, "textColor", envelope.color)
+                        actuateSavePoemTheme()
+                    } else{
+                        //default case
+                        val defaultColor = getColor(R.color.white)
+                        currentEditText?.setTextColor(defaultColor)
+                        poemTheme.textColor = "#fff"
+                        poemTheme.textColorAsInt = defaultColor
+                        updateAllEditTextViews(Float.NaN, "textColor", defaultColor)
+                        actuateSavePoemTheme()
+                    }
+                }
+
+            }).setNegativeButton(R.string.title_change_cancel
+            ) { dialog, _ ->
+                currentContainerView = null
+                dialog?.dismiss()
+            }.show()
+//            ColorPickerDialog
+//                .Builder(this)                        // Pass Activity Instance
+//                .setTitle(getString(R.string.color_picker_title))            // Default "Choose Color"
+//                .setColorShape(ColorShape.SQAURE)   // Default ColorShape.CIRCLE
+//                .setDefaultColor(R.color.black)     // Pass Default Color
+//                .setColorListener { color, colorHex ->
+//                    currentEditText?.setTextColor(color)
+//                    poemTheme.textColor = colorHex
+//                    poemTheme.textColorAsInt = color
+//                    updateAllEditTextViews(Float.NaN, "textColor", color)
+//                    actuateSavePoemTheme()
+//                }.setDismissListener {
+//                    currentContainerView = null
+//                }.show()
         }
     }
 
