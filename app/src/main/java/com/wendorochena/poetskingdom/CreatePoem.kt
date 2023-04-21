@@ -1018,6 +1018,39 @@ class CreatePoem : AppCompatActivity() {
     }
 
     /**
+     * This function tries to resize the landscape view to fit within the bounds of the screen.
+     *
+     */
+    private fun resizeView() {
+        val settingsPref = getSharedPreferences(
+            getString(R.string.personalisation_sharedpreferences_key),
+            MODE_PRIVATE
+        )
+        val marginTopAsPixels = resources.getDimension(R.dimen.action_bar_size).toInt()
+        val resolution = settingsPref.getString("resolution", "1080 1080")?.split(" ")
+        val landscapeWidth = resolution?.get(0)?.toFloat()
+        val landscapeHeight = resolution?.get(1)?.toFloat()
+        val deviceWidth = resources.displayMetrics.widthPixels.toFloat()
+        val deviceHeight = resources.displayMetrics.heightPixels.toFloat()
+
+        if (landscapeHeight != null && landscapeWidth != null){
+            landscapeWidth / landscapeHeight
+            val bestRatio =
+                (deviceWidth / landscapeWidth).coerceAtMost(deviceHeight / landscapeHeight)
+
+            if (landscapeWidth > deviceWidth)
+                currentPage.layoutParams.width = (landscapeWidth * bestRatio).toInt()
+            else
+                currentPage.layoutParams.width = landscapeWidth.toInt()
+
+            if (landscapeHeight > deviceHeight || landscapeHeight - deviceHeight < marginTopAsPixels)
+                currentPage.layoutParams.height = (landscapeHeight * bestRatio).toInt()
+            else
+                currentPage.layoutParams.height = landscapeHeight.toInt()
+        }
+    }
+
+    /**
      *
      */
     private fun setupOrientation() {
@@ -1026,6 +1059,8 @@ class CreatePoem : AppCompatActivity() {
         else
             findViewById(R.id.portraitPoemContainer)
 
+        if (orientation == "landscape")
+            resizeView()
         setBackground()
 
         prepareText()

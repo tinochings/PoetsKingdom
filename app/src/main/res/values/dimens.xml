@@ -44,6 +44,7 @@
     <item type="id" name="textchopin_script_font"/>
     <item type="id" name="textrochester_regular_font"/>
     <item type="id" name="textvinque_font"/>
+    <dimen name="touch_target">48dp</dimen>
 
     <dimen name="previewWithOutlineTextMarginRectangle">9dp</dimen>
     <dimen name="previewWithOutlineTextMarginTeardrop">14dp</dimen>
