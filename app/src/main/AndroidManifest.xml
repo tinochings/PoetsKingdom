@@ -10,47 +10,47 @@
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
+        android:hardwareAccelerated="true"
         android:icon="@drawable/logo"
         android:label="@string/app_name"
-        android:hardwareAccelerated="true"
-        android:enableOnBackInvokedCallback="true"
         android:largeHeap="true"
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/Theme.PoetsKingdom.NoActionBar"
         tools:targetApi="33">
         <activity
+            android:name=".PoemThemeActivityCompose"
+            android:exported="true"
+            android:label="@string/title_activity_poem_theme_compose"
+            android:theme="@style/Theme.PoetsKingdom.NoActionBar" />
+        <activity
             android:name=".ImageViewer"
-            android:theme="@style/Theme.PoetsKingdom.NoActionBar"
-            android:exported="false">
+            android:exported="false"
+            android:theme="@style/Theme.PoetsKingdom.NoActionBar">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-
         <activity
             android:name=".MyPoems"
             android:exported="false"
             android:theme="@style/Theme.PoetsKingdom.NoActionBar" />
-
         <activity
             android:name=".PoemThemeActivity"
             android:exported="true"
             android:theme="@style/Theme.PoetsKingdom.NoActionBar" />
-
         <activity
             android:name=".CreatePoem"
             android:configChanges="orientation|screenSize"
             android:exported="false"
             android:theme="@style/Theme.PoetsKingdom.NoActionBar" />
-
         <activity
             android:name=".PersonalisationActivity"
             android:exported="false"
-            android:theme="@style/Theme.PoetsKingdom.NoActionBar"
-            android:label="@string/title_activity_personalisation" />
-
+            android:label="@string/title_activity_personalisation"
+            android:theme="@style/Theme.PoetsKingdom.NoActionBar" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

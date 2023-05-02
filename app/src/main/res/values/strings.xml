@@ -15,6 +15,7 @@
     <string name="poem_themes_folder_name">poemThemes</string>
     <string name="thumbnails_folder_name">thumbnails</string>
     <string name="background_image_drawable_folder">background</string>
+    <string name="my_images_folder_name">myImages</string>
 
     <!-- Preference Titles -->
     <string name="poem_preferences">Poem Preferences</string>
@@ -256,4 +257,5 @@
     <string name="image_size_orientation">Image Orientation Size</string>
     <string name="glide_cache_clear">clearGlideCache</string>
     <string name="shared_pref">my_shared_pref</string>
+    <string name="title_activity_poem_theme_compose">PoemThemeActivityCompose</string>
 </resources>

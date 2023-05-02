@@ -2,6 +2,12 @@ package com.wendorochena.poetskingdom.utils
 
 import android.content.Context
 import android.graphics.Typeface
+import android.graphics.Typeface.DEFAULT
+import android.graphics.Typeface.MONOSPACE
+import android.graphics.Typeface.SANS_SERIF
+import android.graphics.Typeface.SERIF
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.core.content.res.ResourcesCompat
 import com.wendorochena.poetskingdom.R
 
@@ -31,13 +37,13 @@ class TypefaceHelper {
                     return ResourcesCompat.getFont(applicationContext, R.font.lobster_regular_font)
                 }
                 "monospace" -> {
-                    return Typeface.MONOSPACE
+                    return MONOSPACE
                 }
                 "sans-serif" -> {
-                    return Typeface.SANS_SERIF
+                    return SANS_SERIF
                 }
                 "serif" -> {
-                    return Typeface.SERIF
+                    return SERIF
                 }
                 "adinekirnberg_font" -> {
                     return ResourcesCompat.getFont(applicationContext, R.font.adinekirnberg_font)
@@ -148,7 +154,146 @@ class TypefaceHelper {
                     return ResourcesCompat.getFont(applicationContext, R.font.vinque_font)
                 }
             }
-            return Typeface.DEFAULT
+            return DEFAULT
+        }
+
+        /**
+         * Jetpack Compose helper
+         */
+        fun getTypeFace(typeFaceName: String): FontFamily {
+
+            when (typeFaceName) {
+                "ariana_violeta" -> {
+                    return FontFamily(Font(R.font.ariana_violeta))
+                }
+                "cabal_bold" -> {
+                    return FontFamily(Font( R.font.cabal_bold))
+                }
+                "cabal" -> {
+                    return FontFamily(Font(R.font.cabal))
+                }
+                "lobster_regular" -> {
+                    return FontFamily(Font(R.font.lobster_regular))
+                }
+                "monospace" -> {
+                    return FontFamily(MONOSPACE)
+                }
+                "sans-serif" -> {
+                    return FontFamily(SANS_SERIF)
+                }
+                "serif" -> {
+                    return FontFamily(SERIF)
+                }
+                "adinekirnberg" -> {
+                    return FontFamily(Font(R.font.adinekirnberg))
+                }
+                "bangers" -> {
+                    return FontFamily(Font(R.font.bangers))
+                }
+                "flaemische" -> {
+                    return FontFamily(Font(R.font.flaemische))
+                }
+                "opensansregular" -> {
+                    return FontFamily(Font(R.font.opensansregular))
+                }
+                "sacramento" -> {
+                    return FontFamily(Font(R.font.sacramento))
+                }
+                "scriptin" -> {
+                    return FontFamily(Font(R.font.scriptin))
+                }
+                "sourcesansproregular" -> {
+                    return FontFamily(Font(R.font.sourcesansproregular))
+                }
+                "thesignature" -> {
+                    return FontFamily(Font(R.font.thesignature))
+                }
+                "alegreya_sans_sc_medium" -> {
+                    return FontFamily(Font(R.font.alegreya_sans_sc_medium))
+                }
+                "ayuma" -> {
+                    return FontFamily(Font(R.font.ayuma))
+                }
+                "bungasai" -> {
+                    return FontFamily(Font(R.font.bungasai))
+                }
+                "clicker_script" -> {
+                    return FontFamily(Font(R.font.clicker_script))
+                }
+                "comfortaa" -> {
+                    return FontFamily(Font(R.font.comfortaa))
+                }
+                "crimson_bold" -> {
+                    return FontFamily(Font(R.font.crimson_bold))
+                }
+                "crimson_roman" -> {
+                    return FontFamily(Font(R.font.crimson_roman))
+                }
+                "dense_regular" -> {
+                    return FontFamily(Font(R.font.dense_regular))
+                }
+                "glass_antiqua" -> {
+                    return FontFamily(Font(R.font.glass_antiqua))
+                }
+                "honey_script" -> {
+                    return FontFamily(Font(R.font.honey_script))
+                }
+                "josefin_sans" -> {
+                    return FontFamily(Font(R.font.josefin_sans))
+                }
+                "libre_baskerville" -> {
+                    return FontFamily(Font(R.font.libre_baskerville))
+                }
+                "life_savers" -> {
+                    return FontFamily(Font(R.font.life_savers))
+                }
+                "lucian_schoenschrift" -> {
+                    return FontFamily(Font(R.font.lucian_schoenschrift))
+                }
+                "magnolia_script" -> {
+                    return FontFamily(Font(R.font.magnolia_script))
+                }
+                "medula_one" -> {
+                    return FontFamily(Font(R.font.medula_one))
+                }
+                "nautilus" -> {
+                    return FontFamily(Font(R.font.nautilus))
+                }
+                "nickainley" -> {
+                    return FontFamily(Font(R.font.nickainley))
+                }
+                "oldenglishfive" -> {
+                    return FontFamily(Font(R.font.oldenglishfive))
+                }
+                "quattrocento" -> {
+                    return FontFamily(Font(R.font.quattrocento))
+                }
+                "rogue_script" -> {
+                    return FontFamily(Font(R.font.rouge_script))
+                }
+                "sexsmith" -> {
+                    return FontFamily(Font(R.font.sexsmith))
+                }
+                "typerighter_medium" -> {
+                    return FontFamily(Font(R.font.typerighter_medium))
+                }
+                "righteous_regular" -> {
+                    return FontFamily(Font(R.font.righteous_regular))
+                }
+                "chopin_script" -> {
+                    return FontFamily(Font(R.font.chopin_script))
+                }
+                "rochester_regular" -> {
+                    return FontFamily(Font(R.font.rochester_regular))
+                }
+                "steelfish_rounded" -> {
+                    return FontFamily(Font(R.font.steelfish_rounded))
+                }
+                "vinque" -> {
+                    return FontFamily(Font(R.font.vinque))
+                }
+            }
+            return FontFamily(DEFAULT)
         }
     }
 }
