@@ -35,7 +35,7 @@ enum class HeadingSelection {
 class PoemThemeViewModel : ViewModel() {
 
     private val _poemThemeState = MutableStateFlow(PoemTheme(BackgroundType.DEFAULT))
-    private val uiState: StateFlow<PoemTheme> = _poemThemeState.asStateFlow()
+    val uiState: StateFlow<PoemTheme> = _poemThemeState.asStateFlow()
     var headingSelection by mutableStateOf(HeadingSelection.OUTLINE)
         private set
     var backgroundType by mutableStateOf(BackgroundType.DEFAULT)
@@ -57,6 +57,9 @@ class PoemThemeViewModel : ViewModel() {
     var poemTitle =  ""
     var isEditTheme = false
 
+    /**
+     * Changes Background Type
+     */
     fun changeBackgroundType(backgroundType: BackgroundType) {
         if (this.backgroundType.toString().lowercase()
                 .contains("color") && !backgroundType.toString().lowercase().contains("color")
@@ -74,7 +77,7 @@ class PoemThemeViewModel : ViewModel() {
 
     //color background
     /**
-     * Color Background
+     * Updates Color Background
      */
     fun updateBackground(
         backgroundType: BackgroundType,
@@ -89,6 +92,9 @@ class PoemThemeViewModel : ViewModel() {
         uiState.value.backgroundColorAsInt = backgroundColorAsInt
     }
 
+    /**
+     * Parses outline from the saved string
+     */
     private fun parseOutlineType(outline: String): OutlineTypes {
         when (outline) {
             OutlineTypes.ROUNDED_RECTANGLE.toString() -> {
@@ -114,6 +120,9 @@ class PoemThemeViewModel : ViewModel() {
         return OutlineTypes.RECTANGLE
     }
 
+    /**
+     * Returns a shape from the current selected outline
+     */
     fun shapeFromOutline(): Shape {
         when (outlineType) {
             OutlineTypes.RECTANGLE -> {
@@ -143,7 +152,7 @@ class PoemThemeViewModel : ViewModel() {
     }
     //outline and color background
     /**
-     * OUTLINE_WITH_COLOR
+     * Updates an OUTLINE_WITH_COLOR background
      */
     fun updateBackground(
         backgroundType: BackgroundType,
@@ -163,7 +172,7 @@ class PoemThemeViewModel : ViewModel() {
     }
     //outline and image background
     /**
-     * OUTLINE_WITH_IMAGE
+     * Updates an OUTLINE_WITH_IMAGE background
      */
     fun updateBackground(
         backgroundType: BackgroundType,
@@ -182,7 +191,7 @@ class PoemThemeViewModel : ViewModel() {
     }
     //outline background
     /**
-     * OUTLINE
+     * Updates an OUTLINE background
      */
     fun updateBackground(backgroundType: BackgroundType, outlineColor: Int, outline: OutlineTypes) {
         uiState.value.backgroundType = backgroundType
@@ -194,7 +203,7 @@ class PoemThemeViewModel : ViewModel() {
     }
     //image background
     /**
-     * IMAGE BACKGROUND
+     * Updates an IMAGE BACKGROUND
      */
     fun updateBackground(backgroundType: BackgroundType, imagePath: String) {
         uiState.value.backgroundType = backgroundType
@@ -207,6 +216,9 @@ class PoemThemeViewModel : ViewModel() {
         this.headingSelection = headingSelection
     }
 
+    /**
+     * Returns an arraylist containing headings not selected
+     */
     fun unselectedHeadings(): ArrayList<HeadingSelection> {
         return when (headingSelection) {
             HeadingSelection.OUTLINE -> {
@@ -320,6 +332,9 @@ class PoemThemeViewModel : ViewModel() {
         return true
     }
 
+    /**
+     * Initialises viewModels state by copying the value of the loaded poem
+     */
      fun initialisePoemTheme(poemThemeXmlParser: PoemThemeXmlParser) {
         uiState.value.poemTitle = poemThemeXmlParser.getPoemTheme().poemTitle
         poemTitle =  uiState.value.poemTitle
@@ -348,7 +363,18 @@ class PoemThemeViewModel : ViewModel() {
     fun resetResultToDefault() {
         poemThemeResult = -2
     }
-     fun savePoemTheme(poemName : String, context : Context, isEditTheme : Boolean)  {
+
+    /**
+     * Saves a poem theme as a file. poemThemeResult is assigned the deferred result to trigger a
+     * recomposition which will allow the composable state to respond to a failed file write or a
+     * successful one
+     *
+     * @param poemName the name of the poem
+     * @param context the application context
+     * @param isEditTheme true if the CreatePoemActivity called PoemThemeActivity
+     *
+     */
+    fun savePoemTheme(poemName : String, context : Context, isEditTheme : Boolean)  {
         val exceptionHandler = CoroutineExceptionHandler { _, exception ->
             exception.printStackTrace()
             //add a better wayy to manage failure
@@ -369,7 +395,6 @@ class PoemThemeViewModel : ViewModel() {
                 )
             }
             poemThemeResult = savePoemResult.await()
-            println("sajhdghsajdghsajgd sahjdg sahdgsa dgsajh d ${poemThemeResult}")
         }
     }
 }
