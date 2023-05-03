@@ -122,41 +122,8 @@ fun ThemePoemApp(
                 .fillMaxSize()
                 .background(DefaultBackgroundColor)
         ) {
-            val onOutlineClicked: (OutlineTypes) -> Unit = { outline ->
-                if (poemThemeViewModel.backgroundType == BackgroundType.COLOR ||
-                    poemThemeViewModel.backgroundType == BackgroundType.OUTLINE_WITH_COLOR
-                ) {
-                    poemThemeViewModel.updateBackground(
-                        backgroundType = BackgroundType.OUTLINE_WITH_COLOR,
-                        outline = outline.name,
-                        outlineColor = poemThemeViewModel.outlineColor,
-                        backgroundColor = poemThemeViewModel.backgroundColorChosen!!,
-                        backgroundColorAsInt = poemThemeViewModel.backgroundColorChosenAsInt!!
-                    )
-                } else if (poemThemeViewModel.backgroundType == BackgroundType.IMAGE ||
-                    poemThemeViewModel.backgroundType == BackgroundType.OUTLINE_WITH_IMAGE
-                ) {
-                    poemThemeViewModel.updateBackground(
-                        backgroundType = BackgroundType.OUTLINE_WITH_IMAGE,
-                        outlineColor = poemThemeViewModel.outlineColor,
-                        outline = outline.name,
-                        imagePath = poemThemeViewModel.backgroundImageChosen!!
-                    )
-                } else {
-                    poemThemeViewModel.updateBackground(
-                        backgroundType = BackgroundType.OUTLINE,
-                        outlineColor = poemThemeViewModel.outlineColor,
-                        outline
-                    )
-                }
-            }
             ThemePreview(it, poemThemeViewModel = poemThemeViewModel)
-            ThemeOptions(
-                headingSelection = poemThemeViewModel.headingSelection,
-                unselectedHeadings = poemThemeViewModel.unselectedHeadings(),
-                poemThemeViewModel = poemThemeViewModel,
-                onOutlineClicked = onOutlineClicked,
-            )
+            ThemeOptions(poemThemeViewModel = poemThemeViewModel)
 
             if (poemThemeViewModel.shouldDisplayDialog)
                 SavePoemThemeDialog(paddingValues = it, poemThemeViewModel)
@@ -567,12 +534,38 @@ fun DisplayOutline(
 @Composable
 fun ThemeOptions(
     modifier: Modifier = Modifier,
-    headingSelection: HeadingSelection,
-    unselectedHeadings: ArrayList<HeadingSelection>,
-    poemThemeViewModel: PoemThemeViewModel,
-    onOutlineClicked: (OutlineTypes) -> Unit,
+    poemThemeViewModel: PoemThemeViewModel
 ) {
-
+    val headingSelection = poemThemeViewModel.headingSelection
+    val unselectedHeadings = poemThemeViewModel.unselectedHeadings()
+    val onOutlineClicked: (OutlineTypes) -> Unit = { outline ->
+        if (poemThemeViewModel.backgroundType == BackgroundType.COLOR ||
+            poemThemeViewModel.backgroundType == BackgroundType.OUTLINE_WITH_COLOR
+        ) {
+            poemThemeViewModel.updateBackground(
+                backgroundType = BackgroundType.OUTLINE_WITH_COLOR,
+                outline = outline.name,
+                outlineColor = poemThemeViewModel.outlineColor,
+                backgroundColor = poemThemeViewModel.backgroundColorChosen!!,
+                backgroundColorAsInt = poemThemeViewModel.backgroundColorChosenAsInt!!
+            )
+        } else if (poemThemeViewModel.backgroundType == BackgroundType.IMAGE ||
+            poemThemeViewModel.backgroundType == BackgroundType.OUTLINE_WITH_IMAGE
+        ) {
+            poemThemeViewModel.updateBackground(
+                backgroundType = BackgroundType.OUTLINE_WITH_IMAGE,
+                outlineColor = poemThemeViewModel.outlineColor,
+                outline = outline.name,
+                imagePath = poemThemeViewModel.backgroundImageChosen!!
+            )
+        } else {
+            poemThemeViewModel.updateBackground(
+                backgroundType = BackgroundType.OUTLINE,
+                outlineColor = poemThemeViewModel.outlineColor,
+                outline
+            )
+        }
+    }
     val colorPickerDialog: @Composable (HeadingSelection) -> Unit = {
         ColorPickerDialog.Builder(LocalContext.current).setTitle(
             stringResource(R.string.color_picker_title)
