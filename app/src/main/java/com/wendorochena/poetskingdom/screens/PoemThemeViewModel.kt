@@ -1,5 +1,6 @@
 package com.wendorochena.poetskingdom.screens
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,14 +12,21 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.wendorochena.poetskingdom.poemdata.BackgroundType
 import com.wendorochena.poetskingdom.poemdata.OutlineTypes
 import com.wendorochena.poetskingdom.poemdata.PoemTheme
+import com.wendorochena.poetskingdom.poemdata.PoemThemeXmlParser
 import com.wendorochena.poetskingdom.poemdata.TextAlignment
 import com.wendorochena.poetskingdom.ui.theme.MadzinzaGreen
+import com.wendorochena.poetskingdom.utils.TypefaceHelper
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 enum class HeadingSelection {
     OUTLINE, BACKGROUND, TEXT
@@ -38,10 +46,16 @@ class PoemThemeViewModel : ViewModel() {
     var outlineType: OutlineTypes? by mutableStateOf(null)
     var outlineColor: Int by mutableStateOf(MadzinzaGreen.toArgb())
     var fontColor: Int by mutableStateOf(Color.Black.toArgb())
-    var textFontFamily : FontFamily by mutableStateOf(FontFamily(android.graphics.Typeface.DEFAULT))
-    var fontSize : Float by mutableStateOf(14f)
+    var textFontFamily: FontFamily by mutableStateOf(FontFamily(android.graphics.Typeface.DEFAULT))
+    var fontSize: Float by mutableStateOf(14f)
         private set
-    var textAlignment : TextAlignment by mutableStateOf(TextAlignment.LEFT)
+    var textAlignment: TextAlignment by mutableStateOf(TextAlignment.LEFT)
+    var shouldDisplayDialog by mutableStateOf(false)
+        private set
+    var poemThemeResult by mutableStateOf(-2)
+    private set
+    var poemTitle =  ""
+    var isEditTheme = false
 
     fun changeBackgroundType(backgroundType: BackgroundType) {
         if (this.backgroundType.toString().lowercase()
@@ -70,11 +84,12 @@ class PoemThemeViewModel : ViewModel() {
         uiState.value.backgroundType = backgroundType
         changeBackgroundType(backgroundType)
         backgroundColorChosen = backgroundColor
-        backgroundColorChosenAsInt  = backgroundColorAsInt
+        backgroundColorChosenAsInt = backgroundColorAsInt
         uiState.value.backgroundColor = backgroundColor
         uiState.value.backgroundColorAsInt = backgroundColorAsInt
     }
-    private fun parseOutlineType(outline: String) : OutlineTypes {
+
+    private fun parseOutlineType(outline: String): OutlineTypes {
         when (outline) {
             OutlineTypes.ROUNDED_RECTANGLE.toString() -> {
                 return OutlineTypes.ROUNDED_RECTANGLE
@@ -91,6 +106,7 @@ class PoemThemeViewModel : ViewModel() {
             OutlineTypes.RECTANGLE.toString() -> {
                 return OutlineTypes.RECTANGLE
             }
+
             OutlineTypes.LEMON.toString() -> {
                 return OutlineTypes.LEMON
             }
@@ -98,23 +114,28 @@ class PoemThemeViewModel : ViewModel() {
         return OutlineTypes.RECTANGLE
     }
 
-    fun shapeFromOutline() : Shape {
+    fun shapeFromOutline(): Shape {
         when (outlineType) {
             OutlineTypes.RECTANGLE -> {
                 return RectangleShape
             }
+
             OutlineTypes.LEMON -> {
                 return com.wendorochena.poetskingdom.ui.theme.LemonOutline
             }
+
             OutlineTypes.ROTATED_TEARDROP -> {
                 return com.wendorochena.poetskingdom.ui.theme.RotatedTeardropOutline
             }
+
             OutlineTypes.TEARDROP -> {
                 return com.wendorochena.poetskingdom.ui.theme.TeardropOutline
             }
+
             OutlineTypes.ROUNDED_RECTANGLE -> {
                 return com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline
             }
+
             null -> {
                 return RectangleShape
             }
@@ -207,15 +228,22 @@ class PoemThemeViewModel : ViewModel() {
         this.fontSize = textSize
     }
 
-    fun setFontFamily(fontFamily: FontFamily) {
+    fun setFontFamily(fontFamily: FontFamily, fontFamilyString: String) {
         this.textFontFamily = fontFamily
+        uiState.value.textFontFamily = fontFamilyString
     }
-    fun setTextColor(color : Int) {
+
+    fun setTextColor(color: Int, hexCode : String) {
         this.fontColor = color
+        uiState.value.textColorAsInt = color
+        uiState.value.textColor = hexCode
     }
+
     fun setTextAlign(textAlignToAdd: TextAlignment) {
         textAlignment = textAlignToAdd
+        uiState.value.textAlignment = textAlignToAdd
     }
+
     /**
      * @return a Pair where the first and second values are the options to select in the removal dialog
      */
@@ -240,50 +268,108 @@ class PoemThemeViewModel : ViewModel() {
         }
     }
 
-    fun texAlignmentToTextAlign() : TextAlign {
+    fun texAlignmentToTextAlign(): TextAlign {
         return when (textAlignment) {
             TextAlignment.LEFT, TextAlignment.CENTRE_VERTICAL_LEFT -> {
                 TextAlign.Start
             }
-            TextAlignment.CENTRE,TextAlignment.CENTRE_VERTICAL  -> {
+
+            TextAlignment.CENTRE, TextAlignment.CENTRE_VERTICAL -> {
                 TextAlign.Center
             }
-             TextAlignment.CENTRE_VERTICAL_RIGHT, TextAlignment.RIGHT-> {
+
+            TextAlignment.CENTRE_VERTICAL_RIGHT, TextAlignment.RIGHT -> {
                 TextAlign.End
             }
         }
     }
-    fun boxAlignment() : Alignment {
+
+    fun boxAlignment(): Alignment {
         return when (textAlignment) {
             TextAlignment.LEFT, TextAlignment.CENTRE_VERTICAL_LEFT -> {
                 Alignment.TopStart
             }
-            TextAlignment.CENTRE,TextAlignment.CENTRE_VERTICAL  -> {
+
+            TextAlignment.CENTRE, TextAlignment.CENTRE_VERTICAL -> {
                 Alignment.Center
             }
-            TextAlignment.CENTRE_VERTICAL_RIGHT, TextAlignment.RIGHT-> {
+
+            TextAlignment.CENTRE_VERTICAL_RIGHT, TextAlignment.RIGHT -> {
                 Alignment.TopEnd
             }
         }
     }
-//    fun savePoemTheme() {
-//        val exceptionHandler = CoroutineExceptionHandler { _, exception ->
-//            exception.printStackTrace()
-//            //add a better wayy to manage failure
-//            println("Error saving file")
-//        }
-//
-//        viewModelScope.launch(Dispatchers.Main + exceptionHandler) {
-//            val poemTheme = _poemThemeState.value
-//            val poemThemeXmlParser =
-//                PoemThemeXmlParser(poemTheme)
-//            poemThemeXmlParser.setIsEditTheme(true)
-//
-//            poemThemeSaveValue = poemThemeXmlParser.savePoemThemeToLocalFile(
-//                    poemTheme.imagePath,
-//                    poemTheme.backgroundColor,
-//                    poemTheme.outline
-//                )
-//        }
-//    }
+
+    fun setDisplayDialog(boolean: Boolean) {
+        shouldDisplayDialog = boolean
+    }
+
+    /**
+     * Simple algorithm that checks whether the string typed by a user is safe
+     */
+    fun isValidatedInput(toValidate: String): Boolean {
+        if (toValidate.isEmpty())
+            return false
+        for (char in toValidate) {
+            if (char == '_')
+                continue
+            if (!char.isLetterOrDigit() || char.isWhitespace()) {
+                return false
+            }
+        }
+        return true
+    }
+
+     fun initialisePoemTheme(poemThemeXmlParser: PoemThemeXmlParser) {
+        uiState.value.poemTitle = poemThemeXmlParser.getPoemTheme().poemTitle
+        poemTitle =  uiState.value.poemTitle
+        uiState.value.backgroundType = poemThemeXmlParser.getPoemTheme().backgroundType
+        backgroundType =  uiState.value.backgroundType
+        uiState.value.textFontFamily = poemThemeXmlParser.getPoemTheme().textFontFamily
+        setFontFamily(TypefaceHelper.getTypeFace(uiState.value.textFontFamily), uiState.value.textFontFamily)
+        uiState.value.textAlignment = poemThemeXmlParser.getPoemTheme().textAlignment
+        setTextAlign(uiState.value.textAlignment)
+        uiState.value.outline = poemThemeXmlParser.getPoemTheme().outline
+        outlineType = parseOutlineType(uiState.value.outline)
+        uiState.value.outlineColor = poemThemeXmlParser.getPoemTheme().outlineColor
+        outlineColor = uiState.value.outlineColor
+        uiState.value.textColorAsInt = poemThemeXmlParser.getPoemTheme().textColorAsInt
+        fontColor = uiState.value.textColorAsInt
+        uiState.value.textColor = poemThemeXmlParser.getPoemTheme().textColor
+        uiState.value.textSize = poemThemeXmlParser.getPoemTheme().textSize
+        fontSize = uiState.value.textSize.toFloat()
+        uiState.value.backgroundColorAsInt = poemThemeXmlParser.getPoemTheme().backgroundColorAsInt
+        backgroundColorChosenAsInt = uiState.value.backgroundColorAsInt
+        uiState.value.backgroundColor = poemThemeXmlParser.getPoemTheme().backgroundColor
+        backgroundColorChosen = uiState.value.backgroundColor
+        uiState.value.imagePath = poemThemeXmlParser.getPoemTheme().imagePath
+        backgroundImageChosen = uiState.value.imagePath
+    }
+    fun resetResultToDefault() {
+        poemThemeResult = -2
+    }
+     fun savePoemTheme(poemName : String, context : Context, isEditTheme : Boolean)  {
+        val exceptionHandler = CoroutineExceptionHandler { _, exception ->
+            exception.printStackTrace()
+            //add a better wayy to manage failure
+            println("Error saving file")
+        }
+        uiState.value.poemTitle = poemName
+         poemTitle = poemName
+        viewModelScope.launch(Dispatchers.Main + exceptionHandler) {
+            val poemTheme = _poemThemeState.value
+            val poemThemeXmlParser =
+                PoemThemeXmlParser(poemTheme, context = context)
+            poemThemeXmlParser.setIsEditTheme(isEditTheme)
+            val savePoemResult =  async {
+                poemThemeXmlParser.savePoemThemeToLocalFile(
+                    backgroundImageChosen,
+                    backgroundColorChosen,
+                    null
+                )
+            }
+            poemThemeResult = savePoemResult.await()
+            println("sajhdghsajdghsajgd sahjdg sahdgsa dgsajh d ${poemThemeResult}")
+        }
+    }
 }

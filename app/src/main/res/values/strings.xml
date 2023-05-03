@@ -112,6 +112,9 @@
     <string name="invalid_input">Invalid input</string>
     <string name="invalid_input_message">You have entered a name which does not contain letters
     and or numbers. Please enter a valid name.</string>
+    <string name="valid_input_message">
+        Enter text that contains letters and or numbers
+    </string>
     <string name="image_for_result_key">selectImageForResult</string>
     <string name="image_selection_title">Confirm App Background Image</string>
     <string name="image_selection_message">Do you confirm that this is the image you would like to

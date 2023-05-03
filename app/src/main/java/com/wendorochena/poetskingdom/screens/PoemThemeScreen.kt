@@ -1,6 +1,8 @@
 package com.wendorochena.poetskingdom.screens
 
 import android.content.Context
+import android.content.Intent
+import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -29,7 +31,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -57,12 +62,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.skydoves.colorpickerview.ColorEnvelope
 import com.skydoves.colorpickerview.ColorPickerDialog
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
+import com.wendorochena.poetskingdom.CreatePoem
 import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.poemdata.BackgroundType
 import com.wendorochena.poetskingdom.poemdata.OutlineTypes
@@ -82,10 +90,32 @@ import kotlin.math.roundToInt
 @Composable
 fun ThemePoemApp(
     modifier: Modifier = Modifier,
-    poemThemeViewModel: PoemThemeViewModel = viewModel()
+    poemThemeViewModel: PoemThemeViewModel
 ) {
     Scaffold(topBar = {
-        AppBar()
+        val setDisplayDialog: @Composable (Boolean) -> Unit = {
+            if (poemThemeViewModel.isEditTheme) {
+                poemThemeViewModel.savePoemTheme(poemThemeViewModel.poemTitle, LocalContext.current.applicationContext, poemThemeViewModel.isEditTheme)
+            } else {
+                poemThemeViewModel.setDisplayDialog(it)
+            }
+        }
+        if (poemThemeViewModel.poemThemeResult == 0) {
+            val newActivityIntent =
+                Intent(LocalContext.current.applicationContext, CreatePoem::class.java)
+            newActivityIntent.putExtra("loadPoem", true)
+            newActivityIntent.putExtra(
+                "poemTitle",
+                poemThemeViewModel.poemTitle
+            )
+            val activity = LocalContext.current as? ComponentActivity
+            activity?.finish()
+            LocalContext.current.startActivity(newActivityIntent)
+        } else if (poemThemeViewModel.poemThemeResult == -1){
+            val activity = LocalContext.current as? ComponentActivity
+            activity?.finish()
+        }
+        AppBar(setDisplayDialog = setDisplayDialog, isEditTheme = poemThemeViewModel.isEditTheme)
     }) {
         Column(
             modifier = Modifier
@@ -104,7 +134,8 @@ fun ThemePoemApp(
                         backgroundColorAsInt = poemThemeViewModel.backgroundColorChosenAsInt!!
                     )
                 } else if (poemThemeViewModel.backgroundType == BackgroundType.IMAGE ||
-                    poemThemeViewModel.backgroundType == BackgroundType.OUTLINE_WITH_IMAGE) {
+                    poemThemeViewModel.backgroundType == BackgroundType.OUTLINE_WITH_IMAGE
+                ) {
                     poemThemeViewModel.updateBackground(
                         backgroundType = BackgroundType.OUTLINE_WITH_IMAGE,
                         outlineColor = poemThemeViewModel.outlineColor,
@@ -127,7 +158,8 @@ fun ThemePoemApp(
                 onOutlineClicked = onOutlineClicked,
             )
 
-
+            if (poemThemeViewModel.shouldDisplayDialog)
+                SavePoemThemeDialog(paddingValues = it, poemThemeViewModel)
         }
     }
 }
@@ -298,8 +330,10 @@ fun ThemePreview(
                 val marginEnd = (textMarginUtil.marginRight / (density / 160f)).roundToInt()
                 val marginTop = (textMarginUtil.marginTop / (density / 160f)).roundToInt()
                 val marginBottom = (textMarginUtil.marginBottom / (density / 160f)).roundToInt()
-                Box(modifier = Modifier.fillMaxSize(),
-                    contentAlignment = poemThemeViewModel.boxAlignment()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = poemThemeViewModel.boxAlignment()
+                ) {
                     Text(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -317,8 +351,10 @@ fun ThemePreview(
                     )
                 }
             } else {
-                Box(modifier = Modifier.fillMaxSize(),
-                contentAlignment = poemThemeViewModel.boxAlignment()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = poemThemeViewModel.boxAlignment()
+                ) {
                     Text(
                         text = stringResource(id = R.string.preview_text),
                         fontSize = poemThemeViewModel.fontSize.sp,
@@ -570,7 +606,7 @@ fun ThemeOptions(
                         }
 
                         HeadingSelection.TEXT -> {
-                            poemThemeViewModel.setTextColor(envelope.color)
+                            poemThemeViewModel.setTextColor(envelope.color, envelope.hexCode)
 //                            poemThemeViewModel.fontColor = envelope.color
                         }
 
@@ -608,10 +644,10 @@ fun ThemeOptions(
         }
     }
 
-    val onFontItemClicked : (FontFamily) -> Unit = {
-        poemThemeViewModel.setFontFamily(it)
+    val onFontItemClicked: (FontFamily, String) -> Unit = { fontFamily, fontFamilyString ->
+        poemThemeViewModel.setFontFamily(fontFamily, fontFamilyString)
     }
-    val onTextAlignClicked : (TextAlignment) -> Unit = {
+    val onTextAlignClicked: (TextAlignment) -> Unit = {
         poemThemeViewModel.setTextAlign(it)
     }
     Column(
@@ -741,7 +777,13 @@ fun ThemeOptions(
             }
 
             HeadingSelection.TEXT -> {
-                TextLayout(textSizeChange = textSizeChange, colorPickerDialog = colorPickerDialog, textColor = poemThemeViewModel.fontColor, onFontItemClicked = onFontItemClicked, onTextAlignClicked = onTextAlignClicked)
+                TextLayout(
+                    textSizeChange = textSizeChange,
+                    colorPickerDialog = colorPickerDialog,
+                    textColor = poemThemeViewModel.fontColor,
+                    onFontItemClicked = onFontItemClicked,
+                    onTextAlignClicked = onTextAlignClicked
+                )
             }
         }
 
@@ -847,8 +889,10 @@ fun SliderLayout(textSizeChange: (Float) -> Unit) {
 }
 
 @Composable
-fun TextColorAndAlignment(colorPickerDialog: @Composable (HeadingSelection) -> Unit, textColor: Int,
-onTextAlignClicked : (TextAlignment) -> Unit) {
+fun TextColorAndAlignment(
+    colorPickerDialog: @Composable (HeadingSelection) -> Unit, textColor: Int,
+    onTextAlignClicked: (TextAlignment) -> Unit
+) {
     var shouldDisplayDialog by remember { mutableStateOf(false) }
     Row(modifier = Modifier.fillMaxWidth()) {
         Column(
@@ -937,7 +981,7 @@ fun TextLayout(
     modifier: Modifier = Modifier,
     colorPickerDialog: @Composable (HeadingSelection) -> Unit,
     textColor: Int,
-    onFontItemClicked : (FontFamily) -> Unit,
+    onFontItemClicked: (FontFamily, String) -> Unit,
     onTextAlignClicked: (TextAlignment) -> Unit
 ) {
     val defaultFonts = arrayOf("monospace", "sans-Serif", "serif", "default")
@@ -945,7 +989,13 @@ fun TextLayout(
     val numOfFonts = allFonts.size
     LazyVerticalGrid(columns = GridCells.Fixed(2)) {
         item(span = { GridItemSpan(2) }) { SliderLayout(textSizeChange = textSizeChange) }
-        item(span = { GridItemSpan(2) }) { TextColorAndAlignment(colorPickerDialog, textColor = textColor, onTextAlignClicked = onTextAlignClicked) }
+        item(span = { GridItemSpan(2) }) {
+            TextColorAndAlignment(
+                colorPickerDialog,
+                textColor = textColor,
+                onTextAlignClicked = onTextAlignClicked
+            )
+        }
         items(numOfFonts) {
             FontFaceItem(allFonts[it], onFontItemClicked)
         }
@@ -954,13 +1004,13 @@ fun TextLayout(
 
 
 @Composable
-fun FontFaceItem(fontItem: String, onFontItemClicked : (FontFamily) -> Unit) {
+fun FontFaceItem(fontItem: String, onFontItemClicked: (FontFamily, String) -> Unit) {
     val fontFamily = TypefaceHelper.getTypeFace(fontItem)
     val typefaceNameArr = fontItem.split('_')
     var fontText = if (typefaceNameArr.size > 1)
         ""
     else
-        fontItem[0].uppercase() + fontItem.substring(1,fontItem.length)
+        fontItem[0].uppercase() + fontItem.substring(1, fontItem.length)
     if (fontText == "") {
         for ((index, word) in typefaceNameArr.withIndex()) {
             if (index != typefaceNameArr.size) {
@@ -969,9 +1019,11 @@ fun FontFaceItem(fontItem: String, onFontItemClicked : (FontFamily) -> Unit) {
             }
         }
     }
-    Box(modifier = Modifier
-        .height(80.dp)
-        .clickable { onFontItemClicked.invoke(fontFamily) }, contentAlignment = Alignment.Center) {
+    Box(
+        modifier = Modifier
+            .height(80.dp)
+            .clickable { onFontItemClicked.invoke(fontFamily, fontItem) }, contentAlignment = Alignment.Center
+    ) {
         Text(
             text = fontText,
             fontSize = 25.sp,
@@ -1138,9 +1190,131 @@ fun SelectedHeadingBox(modifier: Modifier, headingName: String) {
     }
 }
 
+@Composable
+fun SavePoemThemeDialog(paddingValues: PaddingValues, poemThemeViewModel: PoemThemeViewModel) {
+    var poemName by remember { mutableStateOf("") }
+    var dialogTitle by remember { mutableStateOf(R.string.create_poem_title) }
+    var buttonText by remember { mutableStateOf(R.string.confirm) }
+    var inputMessage by remember { mutableStateOf(R.string.valid_input_message) }
+    val maxChars by remember { mutableStateOf(60) }
+    var shouldChangeText by remember { mutableStateOf(false) }
+    val validateInput: @Composable (String) -> Boolean = {
+        if (poemThemeViewModel.isValidatedInput(it.replace(' ', '_'))) {
+            //save poem theme and start new activity
+            poemThemeViewModel.savePoemTheme(
+                it,
+                LocalContext.current.applicationContext,
+                poemThemeViewModel.isEditTheme
+            )
+            true
+        } else {
+            false
+        }
+    }
+    if (poemThemeViewModel.poemThemeResult == 0) {
+        val newActivityIntent =
+            Intent(LocalContext.current.applicationContext, CreatePoem::class.java)
+        newActivityIntent.putExtra("loadPoem", true)
+        newActivityIntent.putExtra(
+            "poemTitle",
+            poemThemeViewModel.poemTitle
+        )
+        val activity = LocalContext.current as? ComponentActivity
+        activity?.finish()
+        LocalContext.current.startActivity(newActivityIntent)
+    } else if (poemThemeViewModel.poemThemeResult == -1) {
+        dialogTitle = R.string.retry
+        buttonText = R.string.retry
+        inputMessage = R.string.file_already_exists
+        poemThemeViewModel.resetResultToDefault()
+    }
+    Dialog(
+        onDismissRequest = { poemThemeViewModel.setDisplayDialog(false) },
+        properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth(),
+            shape = com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(DefaultColor),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Text(
+                    text = stringResource(id = dialogTitle),
+                    style = MaterialTheme.typography.h1,
+                    color = Color.White
+                )
+
+                Spacer(modifier = Modifier.height(30.dp))
+
+                Text(
+                    text = stringResource(id = inputMessage),
+                    style = MaterialTheme.typography.body1,
+                    color = Color.White
+                )
+
+                Spacer(modifier = Modifier.height(30.dp))
+
+                TextField(
+                    colors = TextFieldDefaults.textFieldColors(textColor = Color.White),
+                    singleLine = true,
+                    value = poemName,
+                    onValueChange = { if (it.length <= maxChars) poemName = it },
+                    label = {
+                        Text(
+                            stringResource(id = R.string.create_poem_edit_text_hint),
+                            color = OffWhite
+                        )
+                    })
+
+                Spacer(modifier = Modifier.height(30.dp))
+
+                Button(
+                    onClick = { shouldChangeText = true },
+                    shape = RoundedCornerShape(15.dp),
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = DefaultColor),
+                    modifier = Modifier
+                        .align(Alignment.End)
+                ) {
+                    Text(
+                        text = stringResource(id = buttonText),
+                        color = Color.White,
+                        style = MaterialTheme.typography.body1
+                    )
+                }
+                Spacer(modifier = Modifier.height(2.dp))
+            }
+        }
+    }
+    if (shouldChangeText) {
+        if (dialogTitle == R.string.retry) {
+            dialogTitle = R.string.create_poem_title
+            buttonText = R.string.confirm
+            inputMessage = R.string.valid_input_message
+        } else if (!validateInput.invoke(poemName)) {
+            dialogTitle = R.string.retry
+            buttonText = R.string.retry
+            inputMessage = R.string.invalid_input_message
+        }
+        shouldChangeText = false
+    }
+}
 
 @Composable
-fun AppBar(modifier: Modifier = Modifier) {
+fun AppBar(
+    modifier: Modifier = Modifier,
+    setDisplayDialog: @Composable (Boolean) -> Unit,
+    isEditTheme: Boolean
+) {
+    var shouldDisplayDialog by remember {
+        mutableStateOf(false)
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -1158,14 +1332,22 @@ fun AppBar(modifier: Modifier = Modifier) {
         )
         Spacer(modifier = Modifier.weight(1f))
         Button(
-            onClick = { /*TODO*/ },
+            onClick = { shouldDisplayDialog = true },
             shape = RoundedCornerShape(15.dp),
             colors = androidx.compose.material3.ButtonDefaults.buttonColors(
                 MadzinzaGreen
             )
         ) {
-            Text(text = stringResource(id = R.string.create_poem))
+            if (isEditTheme) {
+                Text(text = stringResource(id = R.string.edit_button_theme))
+            } else {
+                Text(text = stringResource(id = R.string.create_poem))
+            }
         }
+    }
+    if (shouldDisplayDialog) {
+        setDisplayDialog.invoke(true)
+        shouldDisplayDialog = false
     }
 }
 
@@ -1173,6 +1355,6 @@ fun AppBar(modifier: Modifier = Modifier) {
 @Composable
 fun PoemThemeScreenPreview() {
     PoetsKingdomTheme {
-        ThemePoemApp()
+        ThemePoemApp(poemThemeViewModel = viewModel())
     }
 }

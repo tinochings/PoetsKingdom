@@ -42,7 +42,6 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.HashSet
 
 class MyPoems : AppCompatActivity() {
 
@@ -263,7 +262,7 @@ class MyPoems : AppCompatActivity() {
 
                 if (poemSavedImagesFolder.exists()) {
                     val filesToShare = poemSavedImagesFolder.listFiles()
-                    if (filesToShare != null && filesToShare?.size!! > 0) {
+                    if (filesToShare != null && filesToShare.size > 0) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                             shareIntentAndroidQPlus(filesToShare, poemName)
                         } else {

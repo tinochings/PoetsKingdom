@@ -13,7 +13,13 @@ import android.text.InputType
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
-import android.widget.*
+import android.widget.Button
+import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
@@ -38,7 +44,9 @@ import com.wendorochena.poetskingdom.recyclerViews.ImageRecyclerViewAdapter
 import com.wendorochena.poetskingdom.utils.ShapeAppearanceModelHelper
 import com.wendorochena.poetskingdom.utils.TextMarginUtil
 import com.wendorochena.poetskingdom.utils.TypefaceHelper
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.math.round
 import kotlin.math.roundToInt
@@ -192,7 +200,6 @@ class PoemThemeActivity : AppCompatActivity() {
     /**
      * This function launches a new activity but firsts writes poem data to a local file
      */
-    @OptIn(DelicateCoroutinesApi::class)
     private fun setupCreatePoemListener() {
 
         findViewById<Button>(R.id.startPoemCreation).setOnClickListener { newButton ->

@@ -18,18 +18,24 @@ package com.wendorochena.poetskingdom.ui.theme
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.wendorochena.poetskingdom.R
 
+val HelveticaFont = FontFamily(
+    Font(R.font.helvetica),
+    Font(R.font.helvetica_bold, weight = FontWeight.Bold)
+)
 val TypographyPK = Typography(
     body1 = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontFamily = HelveticaFont,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp
     ),
     h1 = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontFamily = HelveticaFont,
         fontWeight = FontWeight.Bold,
         fontSize = 20.sp
     )
