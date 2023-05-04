@@ -21,6 +21,11 @@
         android:theme="@style/Theme.PoetsKingdom.NoActionBar"
         tools:targetApi="33">
         <activity
+            android:name=".MainActivityCompose"
+            android:exported="true"
+            android:label="@string/title_activity_main_compose"
+            android:theme="@style/Theme.PoetsKingdom.NoActionBar" />
+        <activity
             android:name=".PoemThemeActivityCompose"
             android:exported="true"
             android:label="@string/title_activity_poem_theme_compose"

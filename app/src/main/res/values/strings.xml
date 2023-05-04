@@ -261,4 +261,5 @@
     <string name="glide_cache_clear">clearGlideCache</string>
     <string name="shared_pref">my_shared_pref</string>
     <string name="title_activity_poem_theme_compose">PoemThemeActivityCompose</string>
+    <string name="title_activity_main_compose">MainActivityCompose</string>
 </resources>
