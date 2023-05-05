@@ -112,7 +112,8 @@ class MyImagesViewModel : ViewModel() {
                     )
                 )
                 if (fullPathToDelete.exists())
-                    fullPathToDelete.deleteRecursively()
+                    if(fullPathToDelete.deleteRecursively())
+                        savedPoemImages.remove(file)
                 else {
                     Log.e("Failed to remove file: ", entry.key.name)
                 }
@@ -195,7 +196,6 @@ class MyImagesViewModel : ViewModel() {
                         outputStream.close()
                         inputStream.close()
                         imageFiles[imageToAdd] = false
-                        println("sakjfhksajdhskjd")
                     }
                 }
             }
