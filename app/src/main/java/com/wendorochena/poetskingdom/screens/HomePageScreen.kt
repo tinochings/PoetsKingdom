@@ -3,6 +3,7 @@ package com.wendorochena.poetskingdom.screens
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,18 +28,25 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wendorochena.poetskingdom.R
+import com.wendorochena.poetskingdom.ui.theme.DefaultStatusBarColor
 import com.wendorochena.poetskingdom.ui.theme.PoetsKingdomTheme
 
 
 @Composable
-fun HomePageScreenApp(modifier: Modifier = Modifier, onImagesClick : () -> Unit) {
+fun HomePageScreenApp(
+    modifier: Modifier = Modifier,
+    onImagesClick: () -> Unit,
+    onMyPoemsClick: () -> Unit,
+    onPersonalisationClick: () -> Unit,
+    onCreatePoemClick: () -> Unit
+) {
     Column(
         modifier = modifier
             .fillMaxWidth()
             .fillMaxHeight()
     ) {
-        QuadrantRowOne()
-        QuadrantRowTwo(onImagesClick)
+        QuadrantRowOne(onMyPoemsClick = onMyPoemsClick, onCreatePoemClick = onCreatePoemClick)
+        QuadrantRowTwo(onImagesClick, onPersonalisationClick)
         NicknameContainer()
     }
 }
@@ -61,7 +70,11 @@ fun NicknameContainer(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun QuadrantRowTwo(onImagesClick : () -> Unit, modifier: Modifier = Modifier) {
+fun QuadrantRowTwo(
+    onImagesClick: () -> Unit,
+    onPersonalisationClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -72,7 +85,7 @@ fun QuadrantRowTwo(onImagesClick : () -> Unit, modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(10.dp)
-                    .clickable { onImagesClick.invoke() }, contentAlignment = Alignment.Center
+                    .clickable(interactionSource = MutableInteractionSource(),indication = rememberRipple(color = DefaultStatusBarColor, bounded = true), onClick = { onImagesClick.invoke() }), contentAlignment = Alignment.Center
             ) {
 
                 Column {
@@ -100,7 +113,9 @@ fun QuadrantRowTwo(onImagesClick : () -> Unit, modifier: Modifier = Modifier) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(10.dp), contentAlignment = Alignment.Center
+                    .padding(10.dp)
+                    .clickable(interactionSource = MutableInteractionSource(),indication = rememberRipple(color = DefaultStatusBarColor, bounded = true), onClick =  { onPersonalisationClick.invoke() }),
+                contentAlignment = Alignment.Center
             ) {
 
                 Column {
@@ -128,7 +143,11 @@ fun QuadrantRowTwo(onImagesClick : () -> Unit, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun QuadrantRowOne(modifier: Modifier = Modifier) {
+fun QuadrantRowOne(
+    onMyPoemsClick: () -> Unit,
+    onCreatePoemClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -138,7 +157,9 @@ fun QuadrantRowOne(modifier: Modifier = Modifier) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(10.dp), contentAlignment = Alignment.BottomCenter
+                    .padding(10.dp)
+                    .clickable(interactionSource = MutableInteractionSource(),indication = rememberRipple(color = DefaultStatusBarColor, bounded = true),onClick = {onCreatePoemClick.invoke()}),
+                contentAlignment = Alignment.BottomCenter
             ) {
                 Column {
                     Image(
@@ -165,7 +186,9 @@ fun QuadrantRowOne(modifier: Modifier = Modifier) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(10.dp), contentAlignment = Alignment.BottomCenter
+                    .padding(10.dp)
+                    .clickable(interactionSource = MutableInteractionSource(),indication = rememberRipple(color = DefaultStatusBarColor, bounded = true), onClick = { onMyPoemsClick.invoke() }),
+                contentAlignment = Alignment.BottomCenter
             ) {
 
                 Column {
@@ -196,6 +219,10 @@ fun QuadrantRowOne(modifier: Modifier = Modifier) {
 @Composable
 fun HomePageScreenPreview() {
     PoetsKingdomTheme {
-        HomePageScreenApp(onImagesClick = {})
+        HomePageScreenApp(
+            onImagesClick = {},
+            onPersonalisationClick = {},
+            onCreatePoemClick = {},
+            onMyPoemsClick = {})
     }
 }

@@ -176,7 +176,7 @@ class SearchUtil(
                                 println(currDocument.get("fileName") + " score= ${hit.score}")
                             }
                         } catch (e: Exception) {
-                            println("Error Searching for $searchPhrase and error ${e.message}")
+                            Log.e("Search Error: ", "Error Searching for $searchPhrase and error ${e.message}")
                         }
                     }
                 } catch (e: Exception) {

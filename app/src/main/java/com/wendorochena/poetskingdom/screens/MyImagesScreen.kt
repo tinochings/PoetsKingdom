@@ -173,7 +173,7 @@ fun PoemImagesView(myImagesViewModel: MyImagesViewModel, modifier: Modifier = Mo
                 val file = imageFileKeys.elementAt(it)
                 ImagesItem(
                     Pair(file, imageFiles[file]!!),
-                    modifier = Modifier.padding(3.dp),
+                    modifier = Modifier.padding(3.dp).height(150.dp),
                     onImageItemClick,
                     onLongClick,
                     myImagesViewModel.onImageLongPressed
@@ -252,7 +252,6 @@ fun ImagesItem(
             model = imageFilePair.first.absolutePath, contentDescription = "",
             modifier = modifier
                 .fillMaxWidth()
-                .height(150.dp)
                 .combinedClickable(
                     enabled = true,
                     onClick = { imageClicked = true },
@@ -298,7 +297,7 @@ fun ImagesView(
             val file = imageFileKeys.elementAt(it)
             ImagesItem(
                 Pair(file, imageFiles[file]!!),
-                modifier = Modifier.padding(3.dp),
+                modifier = Modifier.padding(3.dp).height(100.dp),
                 onImageItemClick,
                 onLongClick,
                 myImagesViewModel.onImageLongPressed

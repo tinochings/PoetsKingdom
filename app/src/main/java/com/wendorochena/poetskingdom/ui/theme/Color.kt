@@ -33,4 +33,3 @@ val RippleColor = Color(0xFF88A827)
 val DefaultColor = Color(0xFF8C4C27)
 val DefaultBackgroundColor = Color(0xFFF2D4AE)
 val DefaultStatusBarColor = Color(0xFFD9BB84)
-

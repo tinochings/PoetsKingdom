@@ -21,6 +21,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.poemdata.OutlineTypes
+import com.wendorochena.poetskingdom.viewModels.HeadingSelection
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

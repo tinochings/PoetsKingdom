@@ -262,4 +262,10 @@
     <string name="shared_pref">my_shared_pref</string>
     <string name="title_activity_poem_theme_compose">PoemThemeActivityCompose</string>
     <string name="title_activity_main_compose">MainActivityCompose</string>
+    <string name="title_activity_my_poems_compose">MyPoemsCompose</string>
+    <string name="register_launcher_success">Thank you for granting share access. Try sharing the image again</string>
+    <string name="register_launcher_fail">You have decided not to allow share access</string>
+    <string name="title_activity_create_poem_compose">CreatePoemCompose</string>
+    <string name="no_results_found_text">No results have been found for the term you have input. Try again.</string>
+    <string name="search_button_content_description">Search Image Button</string>
 </resources>

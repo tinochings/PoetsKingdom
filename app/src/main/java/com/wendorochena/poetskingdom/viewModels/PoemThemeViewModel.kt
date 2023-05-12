@@ -1,4 +1,4 @@
-package com.wendorochena.poetskingdom.screens
+package com.wendorochena.poetskingdom.viewModels
 
 import android.content.Context
 import androidx.compose.runtime.getValue

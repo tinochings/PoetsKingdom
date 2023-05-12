@@ -1861,7 +1861,7 @@ class CreatePoem : AppCompatActivity() {
                 shouldGenerateBackground = true,
                 isExitingActivity = true
             )
-            val activityIntent = Intent(applicationContext, PoemThemeActivity::class.java)
+            val activityIntent = Intent(applicationContext, PoemThemeActivityCompose::class.java)
             activityIntent.putExtra("poemThemeName", poemTheme.poemTitle)
             finish()
             startActivity(activityIntent)

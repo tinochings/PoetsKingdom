@@ -262,7 +262,7 @@ class MyPoems : AppCompatActivity() {
 
                 if (poemSavedImagesFolder.exists()) {
                     val filesToShare = poemSavedImagesFolder.listFiles()
-                    if (filesToShare != null && filesToShare.size > 0) {
+                    if (filesToShare != null && filesToShare.isNotEmpty()) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                             shareIntentAndroidQPlus(filesToShare, poemName)
                         } else {

@@ -10,9 +10,9 @@ class MainActivityCompose : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            PoetsKingdomTheme {
-                HomeScreenApp()
-            }
+                PoetsKingdomTheme {
+                    HomeScreenApp()
+                }
         }
     }
 }

@@ -7,9 +7,9 @@ import com.wendorochena.poetskingdom.poemdata.OutlineTypes
 import com.wendorochena.poetskingdom.poemdata.PoemTheme
 import com.wendorochena.poetskingdom.poemdata.PoemThemeXmlParser
 import com.wendorochena.poetskingdom.poemdata.TextAlignment
-import com.wendorochena.poetskingdom.screens.PoemThemeViewModel
 import com.wendorochena.poetskingdom.ui.theme.MadzinzaGreen
 import com.wendorochena.poetskingdom.ui.theme.OffWhite
+import com.wendorochena.poetskingdom.viewModels.PoemThemeViewModel
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith

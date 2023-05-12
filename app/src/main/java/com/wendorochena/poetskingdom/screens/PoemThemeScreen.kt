@@ -75,7 +75,6 @@ import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.poemdata.BackgroundType
 import com.wendorochena.poetskingdom.poemdata.OutlineTypes
 import com.wendorochena.poetskingdom.poemdata.TextAlignment
-import com.wendorochena.poetskingdom.ui.theme.DefaultBackgroundColor
 import com.wendorochena.poetskingdom.ui.theme.DefaultColor
 import com.wendorochena.poetskingdom.ui.theme.DefaultStatusBarColor
 import com.wendorochena.poetskingdom.ui.theme.MadzinzaGreen
@@ -83,13 +82,14 @@ import com.wendorochena.poetskingdom.ui.theme.OffWhite
 import com.wendorochena.poetskingdom.ui.theme.PoetsKingdomTheme
 import com.wendorochena.poetskingdom.utils.TextMarginUtil
 import com.wendorochena.poetskingdom.utils.TypefaceHelper
+import com.wendorochena.poetskingdom.viewModels.HeadingSelection
+import com.wendorochena.poetskingdom.viewModels.PoemThemeViewModel
 import java.io.File
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThemePoemApp(
-    modifier: Modifier = Modifier,
     poemThemeViewModel: PoemThemeViewModel
 ) {
     Scaffold(topBar = {
@@ -120,13 +120,13 @@ fun ThemePoemApp(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(DefaultBackgroundColor)
+                .background(MaterialTheme.colors.background)
         ) {
             ThemePreview(it, poemThemeViewModel = poemThemeViewModel)
             ThemeOptions(poemThemeViewModel = poemThemeViewModel)
 
             if (poemThemeViewModel.shouldDisplayDialog)
-                SavePoemThemeDialog(paddingValues = it, poemThemeViewModel)
+                SavePoemThemeDialog(poemThemeViewModel)
         }
     }
 }
@@ -135,7 +135,6 @@ fun ThemePoemApp(
 @Composable
 fun ThemePreview(
     paddingValues: PaddingValues,
-    modifier: Modifier = Modifier,
     poemThemeViewModel: PoemThemeViewModel
 ) {
     var shouldChangeBackground by remember { mutableStateOf(false) }
@@ -304,12 +303,7 @@ fun ThemePreview(
                     Text(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(
-                                start = marginStart.dp,
-                                end = marginEnd.dp,
-                                top = marginTop.dp,
-                                bottom = marginBottom.dp
-                            ),
+                            .padding(start = marginStart.dp, end = marginEnd.dp, top = marginTop.dp, bottom = marginBottom.dp),
                         text = stringResource(id = R.string.preview_text),
                         color = Color(poemThemeViewModel.fontColor),
                         fontFamily = poemThemeViewModel.textFontFamily,
@@ -533,7 +527,6 @@ fun DisplayOutline(
 
 @Composable
 fun ThemeOptions(
-    modifier: Modifier = Modifier,
     poemThemeViewModel: PoemThemeViewModel
 ) {
     val headingSelection = poemThemeViewModel.headingSelection
@@ -785,7 +778,6 @@ fun ThemeOptions(
 
 @Composable
 fun BackgroundLayout(
-    modifier: Modifier = Modifier,
     colorPickerDialog: @Composable (HeadingSelection) -> Unit,
     onImageItemClick: (File) -> Unit
 ) {
@@ -971,7 +963,6 @@ fun TextColorAndAlignment(
 @Composable
 fun TextLayout(
     textSizeChange: (Float) -> Unit,
-    modifier: Modifier = Modifier,
     colorPickerDialog: @Composable (HeadingSelection) -> Unit,
     textColor: Int,
     onFontItemClicked: (FontFamily, String) -> Unit,
@@ -1062,7 +1053,6 @@ fun ImagesGrid(onImageItemClick: (File) -> Unit) {
 
 @Composable
 fun OutlineLayout(
-    modifier: Modifier = Modifier,
     onOutlineClicked: (OutlineTypes) -> Unit,
     onOutlineLongClicked: @Composable (HeadingSelection) -> Unit,
     outlineColor: Int
@@ -1184,7 +1174,7 @@ fun SelectedHeadingBox(modifier: Modifier, headingName: String) {
 }
 
 @Composable
-fun SavePoemThemeDialog(paddingValues: PaddingValues, poemThemeViewModel: PoemThemeViewModel) {
+fun SavePoemThemeDialog(poemThemeViewModel: PoemThemeViewModel) {
     var poemName by remember { mutableStateOf("") }
     var dialogTitle by remember { mutableStateOf(R.string.create_poem_title) }
     var buttonText by remember { mutableStateOf(R.string.confirm) }
@@ -1301,7 +1291,6 @@ fun SavePoemThemeDialog(paddingValues: PaddingValues, poemThemeViewModel: PoemTh
 
 @Composable
 fun AppBar(
-    modifier: Modifier = Modifier,
     setDisplayDialog: @Composable (Boolean) -> Unit,
     isEditTheme: Boolean
 ) {

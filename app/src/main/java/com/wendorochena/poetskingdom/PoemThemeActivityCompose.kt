@@ -9,9 +9,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.wendorochena.poetskingdom.poemdata.BackgroundType
 import com.wendorochena.poetskingdom.poemdata.PoemTheme
 import com.wendorochena.poetskingdom.poemdata.PoemThemeXmlParser
-import com.wendorochena.poetskingdom.screens.PoemThemeViewModel
 import com.wendorochena.poetskingdom.screens.ThemePoemApp
 import com.wendorochena.poetskingdom.ui.theme.PoetsKingdomTheme
+import com.wendorochena.poetskingdom.viewModels.PoemThemeViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -54,9 +54,9 @@ class PoemThemeActivityCompose : ComponentActivity() {
             }
         }
         setContent {
-            PoetsKingdomTheme {
-                ThemePoemApp(poemThemeViewModel = poemThemeViewModel)
-            }
+                PoetsKingdomTheme {
+                    ThemePoemApp(poemThemeViewModel = poemThemeViewModel)
+                }
         }
     }
 }

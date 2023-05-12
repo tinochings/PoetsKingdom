@@ -75,7 +75,7 @@ class MyImagesViewModel : ViewModel() {
     }
 
     /**
-     * Deletes image iles
+     * Deletes image files
      */
     fun deleteImages() {
         val filesToDelete = imageFiles.filter { it.value }

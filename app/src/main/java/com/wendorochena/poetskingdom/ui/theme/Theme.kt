@@ -29,8 +29,8 @@ private val DarkColorPalette = darkColors(
     secondary = Teal200
 )
 private val LightColorPalette = lightColors(
+    background = DefaultBackgroundColor,
     primary = DefaultBackgroundColor,
-    primaryVariant = DefaultBackgroundColor,
     surface = DefaultBackgroundColor,
     secondary = MadzinzaGreen
 )
