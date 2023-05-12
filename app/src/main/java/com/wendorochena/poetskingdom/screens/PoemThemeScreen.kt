@@ -856,6 +856,7 @@ fun SliderLayout(textSizeChange: (Float) -> Unit) {
                 textAlign = TextAlign.Center,
                 text = "Text Size: " + sliderPosition.roundToInt().toString() + "sp",
                 style = MaterialTheme.typography.h1,
+                color = MaterialTheme.colors.primary,
                 modifier = Modifier.fillMaxWidth()
             )
             Slider(
@@ -1012,6 +1013,7 @@ fun FontFaceItem(fontItem: String, onFontItemClicked: (FontFamily, String) -> Un
             text = fontText,
             fontSize = 25.sp,
             textAlign = TextAlign.Center,
+            color = MaterialTheme.colors.primary,
             fontFamily = fontFamily
         )
     }
@@ -1152,6 +1154,7 @@ fun UnselectedHeadingBox(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.Center),
+            color = MaterialTheme.colors.primary,
             textAlign = TextAlign.Center
         )
     }
@@ -1168,6 +1171,7 @@ fun SelectedHeadingBox(modifier: Modifier, headingName: String) {
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.Center),
+            color = MaterialTheme.colors.primary,
             textAlign = TextAlign.Center
         )
     }
@@ -1300,7 +1304,7 @@ fun AppBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(DefaultStatusBarColor)
+            .background(MaterialTheme.colors.secondary)
     ) {
         Image(
             painter = painterResource(id = R.drawable.appbartitle),

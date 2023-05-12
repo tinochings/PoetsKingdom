@@ -49,7 +49,6 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.wendorochena.poetskingdom.ImageViewer
 import com.wendorochena.poetskingdom.R
-import com.wendorochena.poetskingdom.ui.theme.DefaultBackgroundColor
 import com.wendorochena.poetskingdom.ui.theme.DefaultColor
 import com.wendorochena.poetskingdom.ui.theme.PoetsKingdomTheme
 import com.wendorochena.poetskingdom.utils.UriUtils
@@ -70,7 +69,7 @@ fun MyImagesScreenApp(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(it)
-                .background(DefaultBackgroundColor)
+                .background(MaterialTheme.colors.background)
         ) {
             if (myImagesViewModel.onImageLongPressed) {
                 BackHandler(true) {
@@ -201,6 +200,7 @@ fun TitleItem(imageFile: File, modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .fillMaxWidth(),
                 style = MaterialTheme.typography.h1,
+                color = MaterialTheme.colors.primary,
                 textAlign = TextAlign.Center
             )
         }
@@ -339,6 +339,7 @@ fun TopRow(modifier: Modifier = Modifier, myImagesViewModel: MyImagesViewModel) 
                 Text(
                     modifier = Modifier,
                     text = stringResource(id = R.string.my_images_text),
+                    color = MaterialTheme.colors.primary,
                     style = MaterialTheme.typography.h1
                 )
             }
@@ -363,6 +364,7 @@ fun TopRow(modifier: Modifier = Modifier, myImagesViewModel: MyImagesViewModel) 
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
                     text = stringResource(id = R.string.my_poems_text),
+                    color = MaterialTheme.colors.primary,
                     style = MaterialTheme.typography.h1
                 )
             }

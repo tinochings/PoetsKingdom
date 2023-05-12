@@ -24,15 +24,16 @@ import androidx.compose.runtime.Composable
 
 //todo
 private val DarkColorPalette = darkColors(
-    primary = Purple200,
-    primaryVariant = Purple700,
-    secondary = Teal200
+    background = DarkDefaultBackgroundColor,
+    surface = DarkDefaultBackgroundColor,
+    primary = DarkTextColor,
+    secondary = DarkDefaultStatusBarColor
 )
 private val LightColorPalette = lightColors(
     background = DefaultBackgroundColor,
-    primary = DefaultBackgroundColor,
+    primary = TextColor,
     surface = DefaultBackgroundColor,
-    secondary = MadzinzaGreen
+    secondary = DefaultStatusBarColor
 )
 
 @Composable

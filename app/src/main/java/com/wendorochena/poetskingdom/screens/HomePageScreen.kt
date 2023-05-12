@@ -2,6 +2,7 @@ package com.wendorochena.poetskingdom.screens
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -44,6 +45,7 @@ fun HomePageScreenApp(
         modifier = modifier
             .fillMaxWidth()
             .fillMaxHeight()
+            .background(MaterialTheme.colors.background)
     ) {
         QuadrantRowOne(onMyPoemsClick = onMyPoemsClick, onCreatePoemClick = onCreatePoemClick)
         QuadrantRowTwo(onImagesClick, onPersonalisationClick)
@@ -64,6 +66,7 @@ fun NicknameContainer(modifier: Modifier = Modifier) {
             fontFamily = FontFamily.Cursive,
             fontSize = 20.sp,
             textAlign = TextAlign.Center,
+            color = MaterialTheme.colors.primary,
             modifier = Modifier.fillMaxWidth()
         )
     }
@@ -104,6 +107,7 @@ fun QuadrantRowTwo(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(10.dp),
+                        color = MaterialTheme.colors.primary,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -130,6 +134,7 @@ fun QuadrantRowTwo(
                     )
                     Text(
                         text = stringResource(id = R.string.personalisation),
+                        color = MaterialTheme.colors.primary,
                         style = MaterialTheme.typography.h1,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -177,6 +182,7 @@ fun QuadrantRowOne(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(10.dp),
+                        color = MaterialTheme.colors.primary,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -207,6 +213,7 @@ fun QuadrantRowOne(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(10.dp),
+                        color = MaterialTheme.colors.primary,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -218,7 +225,7 @@ fun QuadrantRowOne(
 @Preview(showBackground = true)
 @Composable
 fun HomePageScreenPreview() {
-    PoetsKingdomTheme {
+    PoetsKingdomTheme(darkTheme = true) {
         HomePageScreenApp(
             onImagesClick = {},
             onPersonalisationClick = {},

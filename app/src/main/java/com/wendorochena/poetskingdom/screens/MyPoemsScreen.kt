@@ -217,13 +217,6 @@ fun SearchResultText(
     substringLocations: Pair<String, String>
 ) {
     val textAndStanzas = myPoemsViewModel.highlightedText(substringLocations)
-    if (backgroundPair.first.name.contains("OUTLINE")) {
-        Box(
-            modifier = Modifier.padding(3.dp)
-        ) {
-            Text(text = textAndStanzas.first)
-        }
-    } else {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -244,10 +237,10 @@ fun SearchResultText(
                     .height(50.dp),
                 style = androidx.compose.material.MaterialTheme.typography.h1,
                 maxLines = 1,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                color = androidx.compose.material.MaterialTheme.colors.primary,
             )
         }
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -316,6 +309,7 @@ fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
                 fontWeight = FontWeight.Bold,
                 fontFamily = HelveticaFont,
                 textAlign = TextAlign.Center,
+                color = androidx.compose.material.MaterialTheme.colors.primary,
                 modifier = Modifier
                     .weight(0.8f, true)
                     .padding(start = 5.dp)
@@ -336,6 +330,7 @@ fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
             )
             Text(
                 text = stringResource(id = R.string.approximate_phrase_search),
+                color = androidx.compose.material.MaterialTheme.colors.primary,
                 fontWeight = FontWeight.Bold,
                 fontFamily = HelveticaFont,
                 modifier = Modifier
@@ -358,6 +353,7 @@ fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
             )
             Text(
                 text = stringResource(id = R.string.contains_phrase_search),
+                color = androidx.compose.material.MaterialTheme.colors.primary,
                 fontWeight = FontWeight.Bold,
                 fontFamily = HelveticaFont,
                 modifier = Modifier

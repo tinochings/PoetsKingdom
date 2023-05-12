@@ -30,7 +30,6 @@ import com.wendorochena.poetskingdom.MyPoemsCompose
 import com.wendorochena.poetskingdom.PersonalisationActivity
 import com.wendorochena.poetskingdom.PoemThemeActivityCompose
 import com.wendorochena.poetskingdom.R
-import com.wendorochena.poetskingdom.ui.theme.DefaultStatusBarColor
 import com.wendorochena.poetskingdom.ui.theme.PoetsKingdomTheme
 
 enum class HomeScreen {
@@ -43,7 +42,7 @@ fun HomeScreenAppBar(modifier: Modifier = Modifier, displaySearch : Boolean, onS
         modifier = Modifier
             .fillMaxWidth()
             .height(dimensionResource(id = R.dimen.action_bar_size))
-            .background(DefaultStatusBarColor)
+            .background(MaterialTheme.colors.secondary)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Image(
