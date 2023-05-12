@@ -423,6 +423,7 @@ class MyPoemsViewModel : ViewModel() {
 
 //            var holderText: Spannable = SpannableString("")
             val text = buildAnnotatedString {
+                var textCharCounter = 0
                 for ((counter, pair) in stanzaIndexAndText.withIndex()) {
                     if (counter != stanzaIndexAndText.lastIndex)
                         append(pair.second + "\n\n")
@@ -431,9 +432,10 @@ class MyPoemsViewModel : ViewModel() {
 
                     for (indices in tripleArrayList[pair.first]!!) {
                         if (indices.first > -1) {
-                            addStyle(style = SpanStyle(background = androidx.compose.ui.graphics.Color(Color.LTGRAY)), start = indices.first, end = indices.second)
+                            addStyle(style = SpanStyle(background = androidx.compose.ui.graphics.Color(Color.LTGRAY)), start = indices.first + textCharCounter, end = indices.second + textCharCounter)
                         }
                     }
+                    textCharCounter += pair.second.length
                 }
             }
             // obtain locations and format as string
@@ -453,7 +455,7 @@ class MyPoemsViewModel : ViewModel() {
             return Pair(text, stanzaNumbersText)
 
         }
-        return Pair(buildAnnotatedString {  },"")
+        return Pair(buildAnnotatedString {  }, "")
     }
 
     operator fun Spannable.plus(other: Spannable): Spannable {
