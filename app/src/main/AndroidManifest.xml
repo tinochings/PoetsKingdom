@@ -43,7 +43,7 @@
         </activity>
         <activity
             android:name=".PoemThemeActivityCompose"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_poem_theme_compose"
             android:theme="@style/Theme.PoetsKingdom.NoActionBar" />
         <activity
@@ -60,7 +60,7 @@
             android:theme="@style/Theme.PoetsKingdom.NoActionBar" />
         <activity
             android:name=".PoemThemeActivity"
-            android:exported="true"
+            android:exported="false"
             android:theme="@style/Theme.PoetsKingdom.NoActionBar" />
         <activity
             android:name=".CreatePoem"

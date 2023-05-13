@@ -136,9 +136,9 @@ fun MyPoemsApp(myPoemsViewModel: MyPoemsViewModel) {
 @Composable
 fun NoResultsDialog(myPoemsViewModel: MyPoemsViewModel) {
     var shouldDismiss by remember { mutableStateOf(false) }
-    if (!shouldDismiss) {
+    if (myPoemsViewModel.displayNoResultsFound) {
         Dialog(
-            onDismissRequest = { shouldDismiss = true; myPoemsViewModel.displayNoResultsFound = false; },
+            onDismissRequest = { shouldDismiss = true; myPoemsViewModel.displayNoResultsFound = false;},
             properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)
         ) {
             Card(
@@ -166,7 +166,7 @@ fun NoResultsDialog(myPoemsViewModel: MyPoemsViewModel) {
                 Button(
                     modifier = Modifier
                         .align(Alignment.End),
-                    onClick = { shouldDismiss = true },
+                    onClick = { myPoemsViewModel.displayNoResultsFound = false; },
                     colors = ButtonDefaults.buttonColors(containerColor = DefaultColor)
                 ) {
                     Text(text = stringResource(id = R.string.confirm))
@@ -174,7 +174,7 @@ fun NoResultsDialog(myPoemsViewModel: MyPoemsViewModel) {
             }
         }
     }
-    SearchView(myPoemsViewModel = myPoemsViewModel)
+
 }
 
 @Composable

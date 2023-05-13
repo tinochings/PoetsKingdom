@@ -362,10 +362,11 @@ class MyPoemsViewModel : ViewModel() {
                                 applicationContext.getString(R.string.background_image_drawable_folder),
                                 Context.MODE_PRIVATE
                             )
-                            for (fileName in stanzaIndexAndText.keys) {
+
+                            for (filePair in subStringLocations) {
                                 val backgroundFileImage =
                                     File(
-                                        backgroundImageDrawableFolder.absolutePath + File.separator + fileName.split(
+                                        backgroundImageDrawableFolder.absolutePath + File.separator + filePair.first.split(
                                             "."
                                         )[0] + ".png"
                                     )
@@ -409,6 +410,7 @@ class MyPoemsViewModel : ViewModel() {
             })
         } else {
             displayNoResultsFound = true
+            hitsFound = false
         }
     }
 
