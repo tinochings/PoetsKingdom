@@ -47,7 +47,6 @@ class MyPoemsViewModel : ViewModel() {
         private set
     var onImageLongPressed by mutableStateOf(false)
         private set
-
     var permissionsResultLauncher = MutableLiveData<String>()
     var shareIntent = MutableLiveData<Intent>()
     var searchButtonClicked by mutableStateOf(false)
@@ -59,6 +58,9 @@ class MyPoemsViewModel : ViewModel() {
     var searchResultFiles = mutableListOf<File>()
 
 
+    /**
+     * Adds all files and sets to long press as false to to the savedPoems Map
+     */
     private fun addAllFiles(
         arrayList: ArrayList<File>,
     ) {
@@ -67,6 +69,9 @@ class MyPoemsViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Clears Search View options
+     */
     fun clearSearchOptions() {
         searchButtonClicked = false
         displayNoResultsFound = false
@@ -76,6 +81,7 @@ class MyPoemsViewModel : ViewModel() {
         substringLocations.clear()
         searchResultFiles.clear()
     }
+
     fun setOnLongClick(boolean: Boolean) {
         onImageLongPressed = boolean
     }
@@ -156,6 +162,9 @@ class MyPoemsViewModel : ViewModel() {
         onImageLongPressed = false
     }
 
+    /**
+     * Shares images
+     */
     fun shareIntent(applicationContext: Context) {
         val selectedElements = savedPoems.filter { it.value }
         if (selectedElements.size > 1) {
@@ -287,7 +296,13 @@ class MyPoemsViewModel : ViewModel() {
     }
 
     /**
+     * Invokes a search for users input
      *
+     * @param searchPhrase The phrase the user desires to search
+     * @param applicationContext The context of the application
+     * @param searchType The kind of search the user wishes to query
+     * @param mainDispatcher The Main Thread
+     * @param ioDispatcher The IO Thread
      */
     fun invokeSearch(
         searchPhrase: String,
@@ -395,6 +410,12 @@ class MyPoemsViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Highlights hits found
+     *
+     * @param subStringLocations The locations to highlight
+     * @return Highlighted string as the first element. The second is the stanzas it was found in
+     */
     fun highlightedText(subStringLocations: Pair<String, String>) : Pair<AnnotatedString, String> {
         var stanzaNumbersText = ""
         val stanzaIndexAndText = this.stanzaIndexAndText[subStringLocations.first]
@@ -421,7 +442,6 @@ class MyPoemsViewModel : ViewModel() {
                 }
             }
 
-//            var holderText: Spannable = SpannableString("")
             val text = buildAnnotatedString {
                 var textCharCounter = 0
                 for ((counter, pair) in stanzaIndexAndText.withIndex()) {

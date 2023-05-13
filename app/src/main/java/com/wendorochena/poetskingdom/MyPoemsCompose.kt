@@ -1,6 +1,5 @@
 package com.wendorochena.poetskingdom
 
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -42,28 +41,13 @@ class MyPoemsCompose : ComponentActivity() {
                 Glide.get(this@MyPoemsCompose).clearDiskCache()
             }
         }
-        if (!sharedPreferences.getBoolean("myPoemsFirstUse", false)) {
-            onFirstUse()
-            sharedPreferences.edit().putBoolean("myPoemsFirstUse", true).apply()
-        }
+
         setContent {
             PoetsKingdomTheme {
                     MyPoemsApp(myPoemsViewModel)
                 }
             }
     }
-
-    /**
-     *
-     */
-    private fun onFirstUse() {
-        val alertDialogBuilder = AlertDialog.Builder(this)
-        alertDialogBuilder.setTitle(R.string.guide_title)
-            .setPositiveButton(R.string.builder_understood) { dialog, _ ->
-                dialog.dismiss()
-            }.setMessage(R.string.guide_my_poems).show()
-    }
-
     private fun permissionsActivityResult(): ActivityResultLauncher<String> =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
             if (isGranted)

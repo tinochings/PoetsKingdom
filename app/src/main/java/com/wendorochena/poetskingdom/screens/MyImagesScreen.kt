@@ -1,5 +1,6 @@
 package com.wendorochena.poetskingdom.screens
 
+import android.content.Context
 import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -7,12 +8,14 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +25,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Scaffold
@@ -43,6 +50,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
@@ -50,8 +59,13 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.wendorochena.poetskingdom.ImageViewer
 import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.ui.theme.DefaultColor
+import com.wendorochena.poetskingdom.ui.theme.DefaultStatusBarColor
+import com.wendorochena.poetskingdom.ui.theme.OffWhite
 import com.wendorochena.poetskingdom.ui.theme.PoetsKingdomTheme
 import com.wendorochena.poetskingdom.utils.UriUtils
+import com.wendorochena.poetskingdom.viewModels.CurrentSelection
+import com.wendorochena.poetskingdom.viewModels.FloatingButtonState
+import com.wendorochena.poetskingdom.viewModels.MyImagesViewModel
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -60,10 +74,19 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyImagesScreenApp(
-    myImagesViewModel: MyImagesViewModel = viewModel()
+    myImagesViewModel: MyImagesViewModel = viewModel(),
 ) {
+    val sharedPreferences =
+        LocalContext.current.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
+    var isFirstUse = false
+    if (sharedPreferences != null) {
+        if (!sharedPreferences.getBoolean("myImagesFirstUse", false)) {
+            isFirstUse = true
+            sharedPreferences.edit().putBoolean("myImagesFirstUse", true).apply()
+        }
+    }
     Scaffold(floatingActionButton = {
-                                    FloatingActionButton(myImagesViewModel = myImagesViewModel)
+        FloatingActionButton(myImagesViewModel = myImagesViewModel)
     }, floatingActionButtonPosition = FabPosition.End) {
         Column(
             modifier = Modifier
@@ -82,7 +105,65 @@ fun MyImagesScreenApp(
                 ImagesView(myImagesViewModel = myImagesViewModel)
             else
                 PoemImagesView(myImagesViewModel)
+            if (isFirstUse) {
+                FirstUseDialog(R.string.my_images, R.string.guide_my_images)
+                isFirstUse = false
+            }
+        }
+    }
+}
 
+@Composable
+fun FirstUseDialog(
+    heading: Int,
+    guideText: Int
+) {
+    var shouldDismiss by remember { mutableStateOf(false) }
+    if (!shouldDismiss) {
+        Dialog(
+            onDismissRequest = { },
+            properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth().border(width = 3.dp, color = DefaultStatusBarColor, com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline),
+                shape = com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline,
+                colors = CardDefaults.cardColors(containerColor = DefaultColor)
+            ) {
+                Text(
+                    text = stringResource(id = heading),
+                    modifier = Modifier.fillMaxWidth().padding(5.dp),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.h1,
+                    color = Color.White
+                )
+
+                Spacer(modifier = Modifier.height(15.dp))
+
+                Text(
+                    text = stringResource(id = guideText),
+                    style = MaterialTheme.typography.body1,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().padding(5.dp),
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(15.dp))
+
+                Button(
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(5.dp)
+                        .border(
+                            3.dp,
+                            color = OffWhite,
+                            com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline
+                        ),
+                    onClick = { shouldDismiss = true },
+                    colors = ButtonDefaults.buttonColors(containerColor = DefaultColor)
+                ) {
+                    Text(text = stringResource(id = R.string.builder_understood))
+                }
+            }
         }
     }
 }
@@ -172,7 +253,9 @@ fun PoemImagesView(myImagesViewModel: MyImagesViewModel, modifier: Modifier = Mo
                 val file = imageFileKeys.elementAt(it)
                 ImagesItem(
                     Pair(file, imageFiles[file]!!),
-                    modifier = Modifier.padding(3.dp).height(150.dp),
+                    modifier = Modifier
+                        .padding(3.dp)
+                        .height(150.dp),
                     onImageItemClick,
                     onLongClick,
                     myImagesViewModel.onImageLongPressed
@@ -297,7 +380,9 @@ fun ImagesView(
             val file = imageFileKeys.elementAt(it)
             ImagesItem(
                 Pair(file, imageFiles[file]!!),
-                modifier = Modifier.padding(3.dp).height(100.dp),
+                modifier = Modifier
+                    .padding(3.dp)
+                    .height(100.dp),
                 onImageItemClick,
                 onLongClick,
                 myImagesViewModel.onImageLongPressed

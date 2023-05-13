@@ -92,6 +92,8 @@ import kotlin.math.roundToInt
 fun ThemePoemApp(
     poemThemeViewModel: PoemThemeViewModel
 ) {
+    val isFirstUse = poemThemeViewModel.determineFirstUse(LocalContext.current.applicationContext,"outlineFirstUse")
+
     Scaffold(topBar = {
         val setDisplayDialog: @Composable (Boolean) -> Unit = {
             if (poemThemeViewModel.isEditTheme) {
@@ -127,6 +129,10 @@ fun ThemePoemApp(
 
             if (poemThemeViewModel.shouldDisplayDialog)
                 SavePoemThemeDialog(poemThemeViewModel)
+
+            if (isFirstUse){
+                FirstUseDialog(heading = R.string.outline, guideText = R.string.guide_outline)
+            }
         }
     }
 }
@@ -303,7 +309,12 @@ fun ThemePreview(
                     Text(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = marginStart.dp, end = marginEnd.dp, top = marginTop.dp, bottom = marginBottom.dp),
+                            .padding(
+                                start = marginStart.dp,
+                                end = marginEnd.dp,
+                                top = marginTop.dp,
+                                bottom = marginBottom.dp
+                            ),
                         text = stringResource(id = R.string.preview_text),
                         color = Color(poemThemeViewModel.fontColor),
                         fontFamily = poemThemeViewModel.textFontFamily,
@@ -529,6 +540,8 @@ fun DisplayOutline(
 fun ThemeOptions(
     poemThemeViewModel: PoemThemeViewModel
 ) {
+//    val sharedPreferences =
+//        LocalContext.current.applicationContext.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
     val headingSelection = poemThemeViewModel.headingSelection
     val unselectedHeadings = poemThemeViewModel.unselectedHeadings()
     val onOutlineClicked: (OutlineTypes) -> Unit = { outline ->
@@ -678,6 +691,10 @@ fun ThemeOptions(
                                 shape = RoundedCornerShape(15.dp)
                             )
                     )
+
+                    if (poemThemeViewModel.determineFirstUse(LocalContext.current.applicationContext,"textFirstUse")) {
+                        FirstUseDialog(heading = R.string.text, guideText = R.string.guide_text)
+                    }
                 }
 
                 HeadingSelection.BACKGROUND -> {
@@ -711,6 +728,9 @@ fun ThemeOptions(
                             .align(Alignment.CenterVertically),
                         onItemClick = onHeadingClicked
                     )
+                    if (poemThemeViewModel.determineFirstUse(LocalContext.current.applicationContext,"backgroundFirstUse")) {
+                        FirstUseDialog(heading = R.string.background, guideText = R.string.guide_background)
+                    }
                 }
 
                 HeadingSelection.OUTLINE -> {

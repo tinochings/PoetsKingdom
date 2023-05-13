@@ -1,5 +1,6 @@
 package com.wendorochena.poetskingdom.screens
 
+import android.content.Context
 import android.content.Intent
 import android.view.KeyEvent
 import androidx.activity.ComponentActivity
@@ -78,6 +79,16 @@ fun MyPoemsApp(myPoemsViewModel: MyPoemsViewModel) {
             myPoemsViewModel.clearSearchOptions()
         myPoemsViewModel.searchButtonClicked = true
     }
+    val sharedPreferences =
+        LocalContext.current.getSharedPreferences(
+            LocalContext.current.getString(R.string.shared_pref),
+            Context.MODE_PRIVATE
+        )
+    var isFirstUse = false
+    if (!sharedPreferences.getBoolean("myPoemsFirstUse", false)) {
+        isFirstUse = true
+        sharedPreferences.edit().putBoolean("myPoemsFirstUse", true).apply()
+    }
     Scaffold(
         bottomBar = { if (myPoemsViewModel.onImageLongPressed) BottomBar(myPoemsViewModel) },
         topBar = { HomeScreenAppBar(displaySearch = true, onSearchClick = onSearchClick) }) {
@@ -110,6 +121,13 @@ fun MyPoemsApp(myPoemsViewModel: MyPoemsViewModel) {
                     SearchImageList(myPoemsViewModel = myPoemsViewModel)
                 else
                     SearchView(myPoemsViewModel)
+            }
+            if (isFirstUse) {
+                FirstUseDialog(
+                    heading = R.string.my_poems_text,
+                    guideText = R.string.guide_my_poems
+                )
+                isFirstUse = false
             }
         }
     }
@@ -217,30 +235,30 @@ fun SearchResultText(
     substringLocations: Pair<String, String>
 ) {
     val textAndStanzas = myPoemsViewModel.highlightedText(substringLocations)
-        Box(
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .padding(3.dp),
+    ) {
+        Text(
+            text = textAndStanzas.first, color = Color(backgroundPair.second),
+            fontSize = 14.sp, modifier = Modifier
+                .fillMaxWidth()
+                .height(150.dp)
+        )
+        Text(
+            text = stringResource(id = R.string.search_stanza_text, textAndStanzas.second),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
-                .padding(3.dp),
-        ) {
-            Text(
-                text = textAndStanzas.first, color = Color(backgroundPair.second),
-                fontSize = 14.sp, modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp)
-            )
-            Text(
-                text = stringResource(id = R.string.search_stanza_text, textAndStanzas.second),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 150.dp)
-                    .height(50.dp),
-                style = androidx.compose.material.MaterialTheme.typography.h1,
-                maxLines = 1,
-                textAlign = TextAlign.Center,
-                color = androidx.compose.material.MaterialTheme.colors.primary,
-            )
-        }
+                .padding(top = 150.dp)
+                .height(50.dp),
+            style = androidx.compose.material.MaterialTheme.typography.h1,
+            maxLines = 1,
+            textAlign = TextAlign.Center,
+            color = androidx.compose.material.MaterialTheme.colors.primary,
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -250,7 +268,7 @@ fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
     var check2 by remember { mutableStateOf(false) }
     var check3 by remember { mutableStateOf(false) }
 
-    val checkManager : (String) -> Unit = {
+    val checkManager: (String) -> Unit = {
         when (it) {
             "check1" -> {
                 check1 = !check1
@@ -259,6 +277,7 @@ fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
                     check3 = false
                 }
             }
+
             "check2" -> {
                 check2 = !check2
                 if (check2) {
@@ -266,6 +285,7 @@ fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
                     check3 = false
                 }
             }
+
             "check3" -> {
                 check3 = !check3
                 if (check3) {
@@ -300,7 +320,7 @@ fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
         ) {
             Checkbox(
                 checked = check1,
-                onCheckedChange = {  checkManager.invoke("check1") },
+                onCheckedChange = { checkManager.invoke("check1") },
                 colors = CheckboxDefaults.colors(checkedColor = DefaultColor),
                 modifier = Modifier.weight(0.2f)
             )
@@ -318,13 +338,13 @@ fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
         Row(
             modifier = Modifier
                 .weight(1f, true)
-                .clickable {  checkManager.invoke("check2") },
+                .clickable { checkManager.invoke("check2") },
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Checkbox(
                 checked = check2,
-                onCheckedChange = {  checkManager.invoke("check2")},
+                onCheckedChange = { checkManager.invoke("check2") },
                 colors = CheckboxDefaults.colors(checkedColor = DefaultColor),
                 modifier = Modifier.weight(0.2f)
             )
@@ -341,13 +361,13 @@ fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
         Row(
             modifier = Modifier
                 .weight(1f, true)
-                .clickable {  checkManager.invoke("check3") },
+                .clickable { checkManager.invoke("check3") },
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Checkbox(
                 checked = check3,
-                onCheckedChange = {  checkManager.invoke("check3") },
+                onCheckedChange = { checkManager.invoke("check3") },
                 colors = CheckboxDefaults.colors(checkedColor = DefaultColor),
                 modifier = Modifier.weight(0.2f)
             )

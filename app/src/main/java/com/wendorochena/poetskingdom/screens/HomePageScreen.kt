@@ -105,8 +105,7 @@ fun QuadrantRowTwo(
                         text = stringResource(id = R.string.my_images),
                         style = MaterialTheme.typography.h1,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp),
+                            .fillMaxWidth(),
                         color = MaterialTheme.colors.primary,
                         textAlign = TextAlign.Center
                     )
@@ -137,8 +136,7 @@ fun QuadrantRowTwo(
                         color = MaterialTheme.colors.primary,
                         style = MaterialTheme.typography.h1,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp),
+                            .fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
                 }
@@ -180,8 +178,7 @@ fun QuadrantRowOne(
                         text = stringResource(id = R.string.create_poem),
                         style = MaterialTheme.typography.h1,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp),
+                            .fillMaxWidth(),
                         color = MaterialTheme.colors.primary,
                         textAlign = TextAlign.Center
                     )
@@ -211,8 +208,7 @@ fun QuadrantRowOne(
                         text = stringResource(id = R.string.my_poems_text),
                         style = MaterialTheme.typography.h1,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp),
+                            .fillMaxWidth(),
                         color = MaterialTheme.colors.primary,
                         textAlign = TextAlign.Center
                     )

@@ -186,7 +186,7 @@
         encompass either an image or a color. By default it encompasses a white color.
         You can change the outlines color by long pressing the desired outline. When you select
     an outline a preview will be displayed at the top of the page</string>
-    <string name="guide_background">At the bottom you can either select a background color or a
+    <string name="guide_background">You can either select a background color or a
         background image. The images that will be shown are the images you have added to the
         application. In order to add images kindly navigate to the main page and click my images.
         At the bottom right there will be a button you can press. Once again when you click an image
@@ -202,26 +202,22 @@
     To delete a stanza, long hold that stanza and it will delete the stanza. You can also save the
         current stanza as an image, pdf or a local application file. By default when you leave
         this page the application saves the current poem as a file</string>
-    <string name="guide_my_images">At the bottom right there is a button you can click to add images.
-        The button will launch your image viewer and you can select the images you wish to add.
-    If you have any poems that were saved as images you can view them by clicking "My Poems". You
-        can only delete them through the page My Poems by deleting the entire file. If you click on any image or a poem thumbnail an image viewer will be opene</string>
-    <string name="guide_my_poems">All your saved poems will be shown here. If you click them it will
-        take you to the page to edit your poem. You can long press a poem thumbnail and share that poem outside the application as an image.
-        You can delete a or many poems. You can only share a singular poem however. When you long click a thumbnail
-    a bottom drawer will appear. If you choose to share your poem the saved images are
-        automatically copied to the Downloads folder. The search button allows you to search for a poem.
-        This is a simplified search. All found files will be display below the text entered. When you click on a search item
-    The page to edit a poem will be opened.</string>
+    <string name="guide_my_images">Spice up the outlook of your poems by adding an image.\n\n
+    Click the bottom right floating button to initiate the addition of images.\n\n
+    When you long click an image the button helps you delete images.</string>
+    <string name="guide_my_poems">All your saved poems will be shown here. Clicking a thumbnail makes you edit that poem. \n\n
+        You can long press a poem thumbnail and share that poem outside the application as an image.\n\n
+        You can delete many poems. You can only share a singular poem however. When you long click a thumbnail
+    a bottom drawer will appear. The search button allows you to search for a poem.</string>
     <string name="guide_first_fragment">Welcome to The Poets Kingdom. To get started you will be
         taken to the personalisation page where you shall edit a few things before first use.
     </string>
-    <string name="guide_personalisation">Here you can edit a few things. The author name is your
-        name and it will appear as the top text on a cover page for your poem. The cover page is the thumbnail
-        that will be used to save poems. Your nickname is the name you would like to see in the home
-        page of the application. It is limited to 30 characters. A poem can be in portrait or landscape mode.
+    <string name="guide_personalisation">The author name is your
+        name and it will appear as the top text on a cover page for your poem.\n\n The cover page is the thumbnail
+        that will be used to save poems.\n\n Your nickname is the name you would like to see in the home
+        page of the application. It is limited to 30 characters. \n\n A poem can be in portrait or landscape mode.
         The landscape mode is noticeably smaller than the portrait. The landscape images are by default saved with resolution
-        1080 x 1080. They will not however look like this when editing the poem. The poem signature is a mark or a trademark added
+        1080 x 1080. They will not however look like this when editing the poem.\n\n The poem signature is a mark or a trademark added
         to the bottom of the cover page
     </string>
     <string name="guide_image_viewer">This page serves the simple purpose of viewing images. In order

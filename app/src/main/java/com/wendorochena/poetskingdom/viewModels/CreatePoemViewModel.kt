@@ -13,6 +13,11 @@ import com.wendorochena.poetskingdom.poemdata.PoemTheme
 import com.wendorochena.poetskingdom.poemdata.PoemThemeXmlParser
 import com.wendorochena.poetskingdom.poemdata.TextAlignment
 
+/**
+ * Currently this is a work in progress. Saving an Image is tightly ingrained into the XML implementation
+ * As such critical caution is needed migrating CreatePoem. This ViewModel will initially serve as
+ * a read only mode when read only poems are implemented
+ */
 class CreatePoemViewModel : ViewModel() {
 
     var poemTheme: PoemTheme = PoemTheme(BackgroundType.DEFAULT)
@@ -26,11 +31,12 @@ class CreatePoemViewModel : ViewModel() {
         pageNumberAndText[1] = ""
     }
 
-    fun getPage(pageNumber: Int) : String? {
+    fun getPage(pageNumber: Int): String? {
         if (pageNumber in 1..pages)
             return pageNumberAndText[pageNumber]
         return null
     }
+
     /**
      * Create  memory for current poem theme container
      * @param poemThemeXmlParser The poem theme parser with users saved theme preference
@@ -165,6 +171,7 @@ class CreatePoemViewModel : ViewModel() {
             }
             return OutlineTypes.RECTANGLE
         }
+
         /**
          * Returns a shape from the current selected outline
          */

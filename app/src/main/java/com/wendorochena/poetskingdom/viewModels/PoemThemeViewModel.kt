@@ -280,6 +280,9 @@ class PoemThemeViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Returns the TextAlign value of the current text alignment of the poem
+     */
     fun texAlignmentToTextAlign(): TextAlign {
         return when (textAlignment) {
             TextAlignment.LEFT, TextAlignment.CENTRE_VERTICAL_LEFT -> {
@@ -296,6 +299,9 @@ class PoemThemeViewModel : ViewModel() {
         }
     }
 
+    /**
+     *
+     */
     fun boxAlignment(): Alignment {
         return when (textAlignment) {
             TextAlignment.LEFT, TextAlignment.CENTRE_VERTICAL_LEFT -> {
@@ -396,5 +402,15 @@ class PoemThemeViewModel : ViewModel() {
             }
             poemThemeResult = savePoemResult.await()
         }
+    }
+
+    fun determineFirstUse(context: Context, key : String) : Boolean{
+        val sharedPreferences =
+            context.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
+        if (!sharedPreferences.getBoolean(key, false)) {
+            sharedPreferences.edit().putBoolean(key, true).apply()
+            return true
+        }
+        return false
     }
 }

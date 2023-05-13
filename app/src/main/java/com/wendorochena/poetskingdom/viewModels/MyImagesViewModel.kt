@@ -1,4 +1,4 @@
-package com.wendorochena.poetskingdom.screens
+package com.wendorochena.poetskingdom.viewModels
 
 import android.content.Context
 import android.util.Log
@@ -41,6 +41,9 @@ class MyImagesViewModel : ViewModel() {
         floatingButtonStateVar = state
     }
 
+    /**
+     * Adds all files and sets the long press boolean value to false
+     */
     private fun addAllFiles(
         arrayList: ArrayList<File>?,
         listFiles: Array<File>?,
@@ -57,6 +60,11 @@ class MyImagesViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Gets all image files to display
+     * @param context The context of application or activity
+     * @return A map with the file image as key and the long press boolean as the value
+     */
     fun getImageFiles(context: Context): MutableMap<File, Boolean> {
         if (imageFiles.isEmpty()) {
             val imagesFolder = context.getDir(
@@ -127,7 +135,7 @@ class MyImagesViewModel : ViewModel() {
     }
 
     /**
-     * Gets an arraylist containing thumbnails to display
+     * Gets an arraylist containing thumbnail images to display
      */
     fun getThumbnails(context: Context): MutableMap<File, Boolean> {
         val arrayListToRet = ArrayList<File>()
@@ -166,6 +174,7 @@ class MyImagesViewModel : ViewModel() {
     }
     /**
      * @param imagePath the path to the image that we want to copy
+     * @param context Context
      *
      * This function copies any selected image or images to our own local folder
      */
