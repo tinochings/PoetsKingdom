@@ -29,7 +29,7 @@
             android:layout_height="48dp"
             android:layout_gravity="end"
             android:background="@drawable/heading_background"
-            android:text="@string/create_poem"
+            android:text=   "@string/create_poem"
             android:textColor="@color/text_color"
             app:backgroundTint="@color/madzinza_green" />
     </androidx.appcompat.widget.Toolbar>

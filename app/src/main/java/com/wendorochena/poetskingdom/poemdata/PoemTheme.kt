@@ -6,7 +6,13 @@ import android.graphics.drawable.GradientDrawable
 import androidx.core.content.res.ResourcesCompat
 import com.wendorochena.poetskingdom.R
 
-data class PoemTheme(var backgroundType: BackgroundType, private val applicationContext: Context) {
+data class PoemTheme(var backgroundType: BackgroundType) {
+
+    private lateinit var applicationContext : Context
+    constructor(backgroundType: BackgroundType, applicationContext: Context) : this(backgroundType) {
+        this.applicationContext = applicationContext
+    }
+
     var backgroundColor: String = "#FFFFFFFF"
     var imagePath: String = ""
     var outline: String = ""

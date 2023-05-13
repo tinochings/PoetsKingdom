@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Theme.PoetsKingdom" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
@@ -33,7 +33,7 @@
     <!-- TODO FIX -->
     <style name="Theme.PoetsKingdom.BlackText" parent="Theme.AppCompat.Light">
         <item name="android:textColor">#FF000000</item>
-       <!-- <item name="android:alertDialogTheme">@style/AlertDialogCustom</item> -->
+        <!-- <item name="android:alertDialogTheme">@style/AlertDialogCustom</item> -->
     </style>
 
     <style name="Theme.PoetsKingdom.PurpleText" parent="Theme.AppCompat.Light">

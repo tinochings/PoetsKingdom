@@ -47,7 +47,7 @@ class PersonalisationActivity : AppCompatActivity() {
 
         private fun onFirstUse() {
             val alertDialogBuilder = context?.let { AlertDialog.Builder(it) }
-            alertDialogBuilder?.setTitle(R.string.guide_title)
+            alertDialogBuilder?.setTitle(R.string.personalisation)
                 ?.setPositiveButton(R.string.builder_understood) { dialog, _ ->
                     dialog.dismiss()
                 }?.setMessage(R.string.guide_personalisation)?.show()

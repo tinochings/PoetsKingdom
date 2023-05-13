@@ -144,11 +144,11 @@
         app:layout_constraintTop_toTopOf="@id/textBoxRow2Bottom">
 
         <TextView
+            android:id="@+id/nicknameText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:fontFamily="cursive"
-            android:id="@+id/nicknameText"
             android:text="@string/nickname_placeholder"
             android:textAlignment="center"
             android:textColor="@color/text_color"

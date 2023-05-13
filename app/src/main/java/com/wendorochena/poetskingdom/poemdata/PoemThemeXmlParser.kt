@@ -15,12 +15,15 @@ import java.io.StringWriter
 
 class PoemThemeXmlParser(
     private var poemTheme: PoemTheme,
-    private val applicationContext: Context
 ) {
+    private lateinit var applicationContext: Context
     private var isEditTheme: Boolean = false
 
     private lateinit var backgroundTypeAsString: String
 
+    constructor(poemTheme : PoemTheme, context: Context) : this(poemTheme) {
+        this.applicationContext = context
+    }
     fun getPoemTheme(): PoemTheme {
         return poemTheme
     }
@@ -452,5 +455,165 @@ class PoemThemeXmlParser(
             return@withContext -1
         }
     }
+
+//    suspend fun savePoemThemeToLocalFile(
+//        backgroundImageChosen: String?,
+//        backgroundColorChosen: String?,
+//        outlineChosen: String?,
+//    ): Int {
+//        return withContext(Dispatchers.IO) {
+//            val poemThemeFolder = applicationContext.getDir(
+//                applicationContext.getString(R.string.poem_themes_folder_name),
+//                Context.MODE_PRIVATE
+//            )
+//            val poemFolder = applicationContext.getDir(
+//                applicationContext.getString(R.string.poems_folder_name),
+//                Context.MODE_PRIVATE
+//            )
+//
+//            if (poemThemeFolder != null) {
+//                if (poemThemeFolder.exists()) {
+//                    try {
+//                        val poemFileName = poemTheme.poemTitle.replace(' ', '_') + ".xml"
+//                        val savedPoem =
+//                            File(poemFolder.absolutePath + File.separator + poemFileName)
+//                        val poemFile =
+//                            File(poemThemeFolder.absolutePath + File.separator + poemFileName)
+//                        if (isEditTheme || (!savedPoem.exists() || poemFile.createNewFile())) {
+//                            val fileOutStream = FileOutputStream(poemFile)
+//
+//                            val stringWriter = StringWriter()
+//                            val xmlSerializer = Xml.newSerializer()
+//                            xmlSerializer.setOutput(stringWriter)
+//                            xmlSerializer.setFeature(
+//                                "http://xmlpull.org/v1/doc/features.html#indent-output",
+//                                true
+//                            )
+//                            xmlSerializer.startDocument("UTF-8", true)
+//                            xmlSerializer.startTag(null, "root")
+//
+//                            xmlSerializer.startTag(null, "backgroundType")
+//                            xmlSerializer.text(poemTheme.backgroundType.toString())
+//                            xmlSerializer.endTag(null, "backgroundType")
+//
+//                            when (poemTheme.backgroundType) {
+//                                BackgroundType.IMAGE -> {
+//                                    xmlSerializer.startTag(null, "imagePath")
+//                                    xmlSerializer.text(backgroundImageChosen)
+//                                    xmlSerializer.endTag(null, "imagePath")
+//                                }
+//                                BackgroundType.COLOR -> {
+//                                    xmlSerializer.startTag(null, "backgroundColor")
+//                                    xmlSerializer.text(backgroundColorChosen)
+//                                    xmlSerializer.endTag(null, "backgroundColor")
+//
+//                                    xmlSerializer.startTag(null, "backgroundColorAsInt")
+//                                    xmlSerializer.text(
+//                                        poemTheme.backgroundColorAsInt.toString()
+//                                    )
+//                                    xmlSerializer.endTag(null, "backgroundColorAsInt")
+//                                }
+//                                BackgroundType.OUTLINE -> {
+//                                    xmlSerializer.startTag(null, "backgroundOutline")
+//                                    if (outlineChosen == null)
+//                                        xmlSerializer.text(poemTheme.outline)
+//                                    else
+//                                        xmlSerializer.text(outlineChosen)
+//                                    xmlSerializer.endTag(null, "backgroundOutline")
+//
+//                                    xmlSerializer.startTag(null, "backgroundOutlineColor")
+//                                    xmlSerializer.text(poemTheme.outlineColor.toString())
+//                                    xmlSerializer.endTag(null, "backgroundOutlineColor")
+//                                }
+//                                BackgroundType.OUTLINE_WITH_IMAGE -> {
+//                                    xmlSerializer.startTag(null, "imagePath")
+//                                    xmlSerializer.text(backgroundImageChosen)
+//                                    xmlSerializer.endTag(null, "imagePath")
+//                                    xmlSerializer.startTag(null, "backgroundOutline")
+//                                    if (outlineChosen == null)
+//                                        xmlSerializer.text(poemTheme.outline)
+//                                    else
+//                                        xmlSerializer.text(outlineChosen)
+//                                    xmlSerializer.endTag(null, "backgroundOutline")
+//
+//                                    xmlSerializer.startTag(null, "backgroundOutlineColor")
+//                                    xmlSerializer.text(poemTheme.outlineColor.toString())
+//                                    xmlSerializer.endTag(null, "backgroundOutlineColor")
+//                                }
+//                                BackgroundType.OUTLINE_WITH_COLOR -> {
+//                                    xmlSerializer.startTag(null, "backgroundOutline")
+//                                    if (outlineChosen == null)
+//                                        xmlSerializer.text(poemTheme.outline)
+//                                    else
+//                                        xmlSerializer.text(outlineChosen)
+//                                    xmlSerializer.endTag(null, "backgroundOutline")
+//
+//                                    xmlSerializer.startTag(null, "backgroundOutlineColor")
+//                                    xmlSerializer.text(poemTheme.outlineColor.toString())
+//                                    xmlSerializer.endTag(null, "backgroundOutlineColor")
+//
+//                                    xmlSerializer.startTag(null, "backgroundColor")
+//                                    xmlSerializer.text(backgroundColorChosen)
+//                                    xmlSerializer.endTag(null, "backgroundColor")
+//
+//                                    xmlSerializer.startTag(null, "backgroundColorAsInt")
+//                                    xmlSerializer.text(
+//                                        poemTheme.backgroundColorAsInt.toString()
+//                                    )
+//                                    xmlSerializer.endTag(null, "backgroundColorAsInt")
+//                                }
+//                                BackgroundType.DEFAULT -> {
+//                                    xmlSerializer.startTag(null, "backgroundColor")
+//                                    xmlSerializer.text("#FFFFFF")
+//                                    xmlSerializer.endTag(null, "backgroundColor")
+//
+//                                    xmlSerializer.startTag(null, "backgroundColorAsInt")
+//                                    xmlSerializer.text(
+//                                        poemTheme.backgroundColorAsInt.toString()
+//                                    )
+//                                    xmlSerializer.endTag(null, "backgroundColorAsInt")
+//                                }
+//                            }
+//
+//                            xmlSerializer.startTag(null, "textSize")
+//                            xmlSerializer.text(poemTheme.textSize.toString())
+//                            xmlSerializer.endTag(null, "textSize")
+//
+//                            xmlSerializer.startTag(null, "textColor")
+//                            xmlSerializer.text(poemTheme.textColor)
+//                            xmlSerializer.endTag(null, "textColor")
+//
+//                            xmlSerializer.startTag(null, "textColorAsInt")
+//                            xmlSerializer.text(poemTheme.textColorAsInt.toString())
+//                            xmlSerializer.endTag(null, "textColorAsInt")
+//
+//                            xmlSerializer.startTag(null, "textAlignment")
+//                            xmlSerializer.text(poemTheme.textAlignment.toString())
+//                            xmlSerializer.endTag(null, "textAlignment")
+//
+//                            xmlSerializer.startTag(null, "textFont")
+//                            xmlSerializer.text(poemTheme.textFontFamily)
+//                            xmlSerializer.endTag(null, "textFont")
+//
+//                            xmlSerializer.endTag(null, "root")
+//
+//                            xmlSerializer.endDocument()
+//                            xmlSerializer.flush()
+//
+//                            val dataWritten = stringWriter.toString()
+//                            fileOutStream.write(dataWritten.toByteArray())
+//                            fileOutStream.close()
+//                            return@withContext 0
+//                        }
+//                    } catch (e: java.lang.Exception) {
+//                        e.printStackTrace()
+//                        Log.e(this::javaClass.name, "Failed to save poem theme as a file")
+//                        return@withContext -1
+//                    }
+//                }
+//            }
+//            return@withContext -1
+//        }
+//    }
 
 }
