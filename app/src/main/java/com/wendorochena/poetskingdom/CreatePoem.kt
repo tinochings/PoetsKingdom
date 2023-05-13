@@ -84,7 +84,6 @@ class CreatePoem : AppCompatActivity() {
                         finish()
                     }.show()
             }
-
             // load file on background thread and then populate UI
             lifecycleScope.launch(Dispatchers.Main + exceptionHandler) {
                 val isLoadPoem = intentExtras.getBoolean(loadPoemArg, false)

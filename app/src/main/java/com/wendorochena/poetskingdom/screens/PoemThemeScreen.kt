@@ -103,19 +103,17 @@ fun ThemePoemApp(
             }
         }
         if (poemThemeViewModel.poemThemeResult == 0) {
+            val activity = LocalContext.current as ComponentActivity
             val newActivityIntent =
-                Intent(LocalContext.current.applicationContext, CreatePoem::class.java)
+                Intent(activity, CreatePoem::class.java)
             newActivityIntent.putExtra("loadPoem", true)
             newActivityIntent.putExtra(
                 "poemTitle",
                 poemThemeViewModel.poemTitle
             )
-            val activity = LocalContext.current as? ComponentActivity
-            activity?.finish()
-            LocalContext.current.startActivity(newActivityIntent)
-        } else if (poemThemeViewModel.poemThemeResult == -1){
-            val activity = LocalContext.current as? ComponentActivity
-            activity?.finish()
+            poemThemeViewModel.resetResultToDefault()
+            activity.finish()
+            activity.startActivity(newActivityIntent)
         }
         AppBar(setDisplayDialog = setDisplayDialog, isEditTheme = poemThemeViewModel.isEditTheme)
     }) {
@@ -1219,16 +1217,17 @@ fun SavePoemThemeDialog(poemThemeViewModel: PoemThemeViewModel) {
         }
     }
     if (poemThemeViewModel.poemThemeResult == 0) {
+        val activity = LocalContext.current as ComponentActivity
         val newActivityIntent =
-            Intent(LocalContext.current.applicationContext, CreatePoem::class.java)
+            Intent(activity, CreatePoem::class.java)
         newActivityIntent.putExtra("loadPoem", true)
         newActivityIntent.putExtra(
             "poemTitle",
             poemThemeViewModel.poemTitle
         )
-        val activity = LocalContext.current as? ComponentActivity
-        activity?.finish()
-        LocalContext.current.startActivity(newActivityIntent)
+        poemThemeViewModel.resetResultToDefault()
+        activity.finish()
+        activity.startActivity(newActivityIntent)
     } else if (poemThemeViewModel.poemThemeResult == -1) {
         dialogTitle = R.string.retry
         buttonText = R.string.retry

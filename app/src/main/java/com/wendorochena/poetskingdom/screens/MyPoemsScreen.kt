@@ -138,7 +138,7 @@ fun NoResultsDialog(myPoemsViewModel: MyPoemsViewModel) {
     var shouldDismiss by remember { mutableStateOf(false) }
     if (!shouldDismiss) {
         Dialog(
-            onDismissRequest = { shouldDismiss = true },
+            onDismissRequest = { shouldDismiss = true; myPoemsViewModel.displayNoResultsFound = false; },
             properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)
         ) {
             Card(
@@ -181,7 +181,7 @@ fun NoResultsDialog(myPoemsViewModel: MyPoemsViewModel) {
 fun SearchImageList(myPoemsViewModel: MyPoemsViewModel) {
     val onThumbnailClicked: @Composable (File) -> Unit = {
         val newActivityIntent =
-            Intent(LocalContext.current.applicationContext, CreatePoem::class.java)
+            Intent(LocalContext.current, CreatePoem::class.java)
         newActivityIntent.putExtra("loadPoem", true)
         newActivityIntent.putExtra(
             "poemTitle",
@@ -427,7 +427,7 @@ fun PoemListView(myPoemsViewModel: MyPoemsViewModel) {
     val onThumbnailClicked: @Composable (File) -> Unit = {
         if (!myPoemsViewModel.onImageLongPressed) {
             val newActivityIntent =
-                Intent(LocalContext.current.applicationContext, CreatePoem::class.java)
+                Intent(LocalContext.current, CreatePoem::class.java)
             newActivityIntent.putExtra("loadPoem", true)
             newActivityIntent.putExtra(
                 "poemTitle",

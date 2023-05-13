@@ -52,7 +52,7 @@ class MyPoemsViewModel : ViewModel() {
     var searchButtonClicked by mutableStateOf(false)
     var displayNoResultsFound by mutableStateOf(false)
     var hitsFound by mutableStateOf(false)
-    var stanzaIndexAndText =  HashMap<String, ArrayList<Pair<Int, String>>>()
+    var stanzaIndexAndText = HashMap<String, ArrayList<Pair<Int, String>>>()
     val poemBackgroundTypeArrayList = mutableStateListOf<Pair<BackgroundType, Int>>()
     val substringLocations = mutableStateListOf<Pair<String, String>>()
     var searchResultFiles = mutableListOf<File>()
@@ -75,7 +75,7 @@ class MyPoemsViewModel : ViewModel() {
     fun clearSearchOptions() {
         searchButtonClicked = false
         displayNoResultsFound = false
-            hitsFound = false
+        hitsFound = false
         stanzaIndexAndText.clear()
         poemBackgroundTypeArrayList.clear()
         substringLocations.clear()
@@ -355,12 +355,14 @@ class MyPoemsViewModel : ViewModel() {
                     viewModelScope.launch(Dispatchers.Main + handler) {
                         if (sender != null) {
                             substringLocations.addAll(sender)
-                             stanzaIndexAndText = searchUtil.getStanzaAndText()
+                            if (displayNoResultsFound)
+                                displayNoResultsFound = false
+                            stanzaIndexAndText = searchUtil.getStanzaAndText()
                             val backgroundImageDrawableFolder = applicationContext.getDir(
                                 applicationContext.getString(R.string.background_image_drawable_folder),
                                 Context.MODE_PRIVATE
                             )
-                            for (fileName in stanzaIndexAndText.keys){
+                            for (fileName in stanzaIndexAndText.keys) {
                                 val backgroundFileImage =
                                     File(
                                         backgroundImageDrawableFolder.absolutePath + File.separator + fileName.split(
@@ -416,7 +418,7 @@ class MyPoemsViewModel : ViewModel() {
      * @param subStringLocations The locations to highlight
      * @return Highlighted string as the first element. The second is the stanzas it was found in
      */
-    fun highlightedText(subStringLocations: Pair<String, String>) : Pair<AnnotatedString, String> {
+    fun highlightedText(subStringLocations: Pair<String, String>): Pair<AnnotatedString, String> {
         var stanzaNumbersText = ""
         val stanzaIndexAndText = this.stanzaIndexAndText[subStringLocations.first]
         if (stanzaIndexAndText != null) {
@@ -452,7 +454,15 @@ class MyPoemsViewModel : ViewModel() {
 
                     for (indices in tripleArrayList[pair.first]!!) {
                         if (indices.first > -1) {
-                            addStyle(style = SpanStyle(background = androidx.compose.ui.graphics.Color(Color.LTGRAY)), start = indices.first + textCharCounter, end = indices.second + textCharCounter)
+                            addStyle(
+                                style = SpanStyle(
+                                    background = androidx.compose.ui.graphics.Color(
+                                        Color.LTGRAY
+                                    )
+                                ),
+                                start = indices.first + textCharCounter,
+                                end = indices.second + textCharCounter
+                            )
                         }
                     }
                     textCharCounter += pair.second.length
@@ -475,7 +485,7 @@ class MyPoemsViewModel : ViewModel() {
             return Pair(text, stanzaNumbersText)
 
         }
-        return Pair(buildAnnotatedString {  }, "")
+        return Pair(buildAnnotatedString { }, "")
     }
 
     operator fun Spannable.plus(other: Spannable): Spannable {
