@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -428,7 +429,7 @@ fun ImagesView(
                 Pair(file, imageFiles[file]!!),
                 modifier = Modifier
                     .padding(3.dp)
-                    .height(100.dp),
+                    .aspectRatio(1f),
                 onImageItemClick,
                 onLongClick,
                 myImagesViewModel.onImageLongPressed
