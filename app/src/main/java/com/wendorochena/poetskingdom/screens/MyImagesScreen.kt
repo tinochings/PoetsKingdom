@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -429,8 +428,7 @@ fun ImagesView(
                 Pair(file, imageFiles[file]!!),
                 modifier = Modifier
                     .padding(3.dp)
-                    .height(100.dp)
-                    .widthIn(max = 100.dp),
+                    .height(100.dp),
                 onImageItemClick,
                 onLongClick,
                 myImagesViewModel.onImageLongPressed
