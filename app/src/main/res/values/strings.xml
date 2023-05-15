@@ -209,7 +209,7 @@
         You can long press a poem thumbnail and share that poem outside the application as an image.\n\n
         You can delete many poems. You can only share a singular poem however. When you long click a thumbnail
     a bottom drawer will appear. The search button allows you to search for a poem.</string>
-    <string name="guide_first_fragment">Welcome to The Poets Kingdom. To get started you will be
+    <string name="guide_first_fragment">Welcome to The Poets Kingdom.\n\n To get started you will be
         taken to the personalisation page where you shall edit a few things before first use.
     </string>
     <string name="guide_personalisation">The author name is your

@@ -1,5 +1,6 @@
 package com.wendorochena.poetskingdom.screens
 
+import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -104,6 +105,11 @@ fun HomeScreenApp() {
                 }
                 val onPersonalisationClicked: () -> Unit = {
                     context.startActivity(personalisationActivityIntent)
+                }
+                val sharedPreferences = context.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
+                if (sharedPreferences?.getBoolean("firstUse", false) == false) {
+                    sharedPreferences.edit()?.putBoolean("firstUse",true)?.apply()
+                    FirstUseDialog(heading = R.string.guide_title, guideText = R.string.guide_first_fragment, true)
                 }
                 HomePageScreenApp(
                     onImagesClick = onMyImagesClicked,

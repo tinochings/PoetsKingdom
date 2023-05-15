@@ -60,6 +60,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.wendorochena.poetskingdom.ImageViewer
+import com.wendorochena.poetskingdom.PersonalisationActivity
 import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.ui.theme.DefaultColor
 import com.wendorochena.poetskingdom.ui.theme.DefaultStatusBarColor
@@ -109,7 +110,7 @@ fun MyImagesScreenApp(
             else
                 PoemImagesView(myImagesViewModel)
             if (isFirstUse) {
-                FirstUseDialog(R.string.my_images, R.string.guide_my_images)
+                FirstUseDialog(R.string.my_images, R.string.guide_my_images, false)
                 isFirstUse = false
             }
         }
@@ -119,8 +120,10 @@ fun MyImagesScreenApp(
 @Composable
 fun FirstUseDialog(
     heading: Int,
-    guideText: Int
+    guideText: Int,
+    isHomeScreen : Boolean
 ) {
+    val context = LocalContext.current
     var shouldDismiss by remember { mutableStateOf(false) }
     if (!shouldDismiss) {
         Dialog(
@@ -170,7 +173,13 @@ fun FirstUseDialog(
                             color = OffWhite,
                             com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline
                         ),
-                    onClick = { shouldDismiss = true },
+                    onClick = { shouldDismiss = true
+                        if (isHomeScreen) {
+                            val personalisationActivityIntent =
+                                Intent(context, PersonalisationActivity::class.java)
+                            context.startActivity(personalisationActivityIntent)
+                        }
+                              },
                     colors = ButtonDefaults.buttonColors(containerColor = DefaultColor)
                 ) {
                     Text(text = stringResource(id = R.string.builder_understood))

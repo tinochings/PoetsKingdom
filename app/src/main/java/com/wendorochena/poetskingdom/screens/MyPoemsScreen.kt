@@ -125,7 +125,7 @@ fun MyPoemsApp(myPoemsViewModel: MyPoemsViewModel) {
             if (isFirstUse) {
                 FirstUseDialog(
                     heading = R.string.my_poems_text,
-                    guideText = R.string.guide_my_poems
+                    guideText = R.string.guide_my_poems, false
                 )
                 isFirstUse = false
             }
@@ -135,10 +135,11 @@ fun MyPoemsApp(myPoemsViewModel: MyPoemsViewModel) {
 
 @Composable
 fun NoResultsDialog(myPoemsViewModel: MyPoemsViewModel) {
-    var shouldDismiss by remember { mutableStateOf(false) }
     if (myPoemsViewModel.displayNoResultsFound) {
         Dialog(
-            onDismissRequest = { shouldDismiss = true; myPoemsViewModel.displayNoResultsFound = false;},
+            onDismissRequest = {
+                myPoemsViewModel.displayNoResultsFound = false
+            },
             properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)
         ) {
             Card(

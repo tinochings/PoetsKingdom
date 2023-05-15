@@ -92,12 +92,19 @@ import kotlin.math.roundToInt
 fun ThemePoemApp(
     poemThemeViewModel: PoemThemeViewModel
 ) {
-    val isFirstUse = poemThemeViewModel.determineFirstUse(LocalContext.current.applicationContext,"outlineFirstUse")
+    val isFirstUse = poemThemeViewModel.determineFirstUse(
+        LocalContext.current.applicationContext,
+        "outlineFirstUse"
+    )
 
     Scaffold(topBar = {
         val setDisplayDialog: @Composable (Boolean) -> Unit = {
             if (poemThemeViewModel.isEditTheme) {
-                poemThemeViewModel.savePoemTheme(poemThemeViewModel.poemTitle, LocalContext.current.applicationContext, poemThemeViewModel.isEditTheme)
+                poemThemeViewModel.savePoemTheme(
+                    poemThemeViewModel.poemTitle,
+                    LocalContext.current.applicationContext,
+                    poemThemeViewModel.isEditTheme
+                )
             } else {
                 poemThemeViewModel.setDisplayDialog(it)
             }
@@ -128,8 +135,12 @@ fun ThemePoemApp(
             if (poemThemeViewModel.shouldDisplayDialog)
                 SavePoemThemeDialog(poemThemeViewModel)
 
-            if (isFirstUse){
-                FirstUseDialog(heading = R.string.outline, guideText = R.string.guide_outline)
+            if (isFirstUse) {
+                FirstUseDialog(
+                    heading = R.string.outline,
+                    guideText = R.string.guide_outline,
+                    false
+                )
             }
         }
     }
@@ -690,8 +701,16 @@ fun ThemeOptions(
                             )
                     )
 
-                    if (poemThemeViewModel.determineFirstUse(LocalContext.current.applicationContext,"textFirstUse")) {
-                        FirstUseDialog(heading = R.string.text, guideText = R.string.guide_text)
+                    if (poemThemeViewModel.determineFirstUse(
+                            LocalContext.current.applicationContext,
+                            "textFirstUse"
+                        )
+                    ) {
+                        FirstUseDialog(
+                            heading = R.string.text,
+                            guideText = R.string.guide_text,
+                            false
+                        )
                     }
                 }
 
@@ -726,8 +745,16 @@ fun ThemeOptions(
                             .align(Alignment.CenterVertically),
                         onItemClick = onHeadingClicked
                     )
-                    if (poemThemeViewModel.determineFirstUse(LocalContext.current.applicationContext,"backgroundFirstUse")) {
-                        FirstUseDialog(heading = R.string.background, guideText = R.string.guide_background)
+                    if (poemThemeViewModel.determineFirstUse(
+                            LocalContext.current.applicationContext,
+                            "backgroundFirstUse"
+                        )
+                    ) {
+                        FirstUseDialog(
+                            heading = R.string.background,
+                            guideText = R.string.guide_background,
+                            false
+                        )
                     }
                 }
 
@@ -1025,7 +1052,8 @@ fun FontFaceItem(fontItem: String, onFontItemClicked: (FontFamily, String) -> Un
     Box(
         modifier = Modifier
             .height(80.dp)
-            .clickable { onFontItemClicked.invoke(fontFamily, fontItem) }, contentAlignment = Alignment.Center
+            .clickable { onFontItemClicked.invoke(fontFamily, fontItem) },
+        contentAlignment = Alignment.Center
     ) {
         Text(
             text = fontText,
