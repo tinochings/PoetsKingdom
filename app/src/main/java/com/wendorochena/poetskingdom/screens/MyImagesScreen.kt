@@ -287,9 +287,9 @@ fun PoemImagesView(myImagesViewModel: MyImagesViewModel, modifier: Modifier = Mo
     val imageFiles = myImagesViewModel.getThumbnails(LocalContext.current.applicationContext)
     val imageFileKeys = imageFiles.keys.asSequence().sortedByDescending { it.lastModified() }
     LazyVerticalGrid(
-        modifier = modifier.padding(top = 5.dp), columns = GridCells.Fixed(2),
+        modifier = modifier.padding(top = 5.dp).fillMaxWidth(), columns = GridCells.Fixed(2),
         verticalArrangement = Arrangement.spacedBy(10.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+        horizontalArrangement = Arrangement.spacedBy(3.dp)
     ) {
         items(count = imageFileKeys.count()) {
             Column {
