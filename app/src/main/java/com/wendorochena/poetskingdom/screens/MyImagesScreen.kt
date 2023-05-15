@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -45,7 +44,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -298,7 +296,7 @@ fun PoemImagesView(myImagesViewModel: MyImagesViewModel, modifier: Modifier = Mo
                     Pair(file, imageFiles[file]!!),
                     modifier = Modifier
                         .padding(3.dp)
-                        .height(150.dp),
+                        .aspectRatio(1f),
                     onImageItemClick,
                     onLongClick,
                     myImagesViewModel.onImageLongPressed
@@ -380,9 +378,7 @@ fun ImagesItem(
                 .combinedClickable(
                     enabled = true,
                     onClick = { imageClicked = true },
-                    onLongClick = { onLongClick.invoke(imageFilePair.first) }).clip(
-                    RoundedCornerShape(5.dp)
-                ),
+                    onLongClick = { onLongClick.invoke(imageFilePair.first) }),
             contentScale = ContentScale.FillBounds
         ) { requestBuilder ->
             requestBuilder.placeholder(R.drawable.baseline_placeholder)
