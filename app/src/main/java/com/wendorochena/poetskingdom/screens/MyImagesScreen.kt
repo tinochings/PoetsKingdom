@@ -1,7 +1,10 @@
 package com.wendorochena.poetskingdom.screens
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -126,13 +129,20 @@ fun FirstUseDialog(
         ) {
             Card(
                 modifier = Modifier
-                    .fillMaxWidth().border(width = 3.dp, color = DefaultStatusBarColor, com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline),
+                    .fillMaxWidth()
+                    .border(
+                        width = 3.dp,
+                        color = DefaultStatusBarColor,
+                        com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline
+                    ),
                 shape = com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline,
                 colors = CardDefaults.cardColors(containerColor = DefaultColor)
             ) {
                 Text(
                     text = stringResource(id = heading),
-                    modifier = Modifier.fillMaxWidth().padding(5.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.h1,
                     color = Color.White
@@ -144,7 +154,9 @@ fun FirstUseDialog(
                     text = stringResource(id = guideText),
                     style = MaterialTheme.typography.body1,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth().padding(5.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp),
                     color = Color.White
                 )
                 Spacer(modifier = Modifier.height(15.dp))
@@ -187,6 +199,12 @@ fun FloatingActionButton(myImagesViewModel: MyImagesViewModel) {
             }
         }
     )
+    val permissionsResultLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ){
+        if (it)
+            imagePicker.launch("image/*")
+    }
     androidx.compose.material.FloatingActionButton(
         onClick = { },
         backgroundColor = DefaultColor
@@ -213,7 +231,18 @@ fun FloatingActionButton(myImagesViewModel: MyImagesViewModel) {
             )
         }
         if (onClick) {
-            imagePicker.launch("image/*")
+            if (Build.VERSION.SDK_INT < 33 && LocalContext.current.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) ==
+                PackageManager.PERMISSION_GRANTED || Build.VERSION.SDK_INT >= 33 && LocalContext.current.checkSelfPermission(
+                    Manifest.permission.READ_MEDIA_IMAGES
+                ) == PackageManager.PERMISSION_GRANTED
+            )
+                imagePicker.launch("image/*")
+            else {
+                if (Build.VERSION.SDK_INT >= 33)
+                    permissionsResultLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                else
+                    permissionsResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
             onClick = false
         }
     }

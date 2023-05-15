@@ -27,13 +27,15 @@ private val DarkColorPalette = darkColors(
     background = DarkDefaultBackgroundColor,
     surface = DarkDefaultBackgroundColor,
     primary = DarkTextColor,
-    secondary = DarkDefaultStatusBarColor
+    secondary = DarkDefaultStatusBarColor,
+    secondaryVariant = OffWhite
 )
 private val LightColorPalette = lightColors(
     background = DefaultBackgroundColor,
     primary = TextColor,
     surface = DefaultBackgroundColor,
-    secondary = DefaultStatusBarColor
+    secondary = DefaultStatusBarColor,
+    secondaryVariant = LightBlack
 )
 
 @Composable
