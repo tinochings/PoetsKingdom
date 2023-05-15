@@ -77,7 +77,7 @@ fun HomeScreenApp() {
     Scaffold(
         topBar = {
             HomeScreenAppBar(displaySearch = false, onSearchClick = {})
-        }
+        },  modifier = Modifier.background(MaterialTheme.colors.background)
     ) {
         NavHost(
             navController = navController,
