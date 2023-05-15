@@ -201,7 +201,7 @@ fun FloatingActionButton(myImagesViewModel: MyImagesViewModel) {
     )
     val permissionsResultLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ){
+    ) {
         if (it)
             imagePicker.launch("image/*")
     }
@@ -369,7 +369,10 @@ fun ImagesItem(
                     onClick = { imageClicked = true },
                     onLongClick = { onLongClick.invoke(imageFilePair.first) }),
             contentScale = ContentScale.FillBounds
-        )
+        ) { requestBuilder ->
+            requestBuilder.placeholder(R.drawable.baseline_placeholder)
+                .load(imageFilePair.first.absolutePath).error(R.drawable.baseline_broken_image_24)
+        }
         if (imageClicked) {
             onImageItemClick.invoke(imageFilePair.first)
             imageClicked = false
