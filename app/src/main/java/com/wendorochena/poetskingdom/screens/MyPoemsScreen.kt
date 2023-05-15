@@ -458,7 +458,7 @@ fun PoemListView(myPoemsViewModel: MyPoemsViewModel) {
                     Pair(file, imageFiles[file]!!),
                     modifier = Modifier
                         .padding(3.dp)
-                        .height(150.dp),
+                        .aspectRatio(1f),
                     onThumbnailClicked,
                     onLongClick,
                     myPoemsViewModel.onImageLongPressed
