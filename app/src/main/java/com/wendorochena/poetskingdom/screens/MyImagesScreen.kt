@@ -122,7 +122,7 @@ fun MyImagesScreenApp(
 fun FirstUseDialog(
     heading: Int,
     guideText: Int,
-    isHomeScreen : Boolean
+    isHomeScreen: Boolean
 ) {
     val context = LocalContext.current
     var shouldDismiss by remember { mutableStateOf(false) }
@@ -174,13 +174,14 @@ fun FirstUseDialog(
                             color = OffWhite,
                             com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline
                         ),
-                    onClick = { shouldDismiss = true
+                    onClick = {
+                        shouldDismiss = true
                         if (isHomeScreen) {
                             val personalisationActivityIntent =
                                 Intent(context, PersonalisationActivity::class.java)
                             context.startActivity(personalisationActivityIntent)
                         }
-                              },
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = DefaultColor)
                 ) {
                     Text(text = stringResource(id = R.string.builder_understood))
@@ -315,10 +316,9 @@ fun TitleItem(imageFile: File, modifier: Modifier = Modifier) {
         imageFile.name[0].uppercase() + imageFile.name.split(".png")[0].replace('_', ' ')
             .removeRange(0, 1)
     Column {
-        Box(modifier = modifier.height(50.dp), contentAlignment = Alignment.Center) {
+        Box(modifier = modifier, contentAlignment = Alignment.Center) {
             Text(
                 text = titleName,
-                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -329,8 +329,7 @@ fun TitleItem(imageFile: File, modifier: Modifier = Modifier) {
         }
         Text(
             text = dateText, maxLines = 1, modifier = Modifier
-                .fillMaxWidth()
-                .height(25.dp),
+                .fillMaxWidth(),
             style = MaterialTheme.typography.body1,
             textAlign = TextAlign.Center,
             color = colorResource(id = R.color.light_black)
