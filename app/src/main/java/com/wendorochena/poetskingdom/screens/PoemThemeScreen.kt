@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -895,6 +896,10 @@ fun BackgroundLayout(
 @Composable
 fun SliderLayout(textSizeChange: (Float) -> Unit) {
     var sliderPosition by remember { mutableStateOf(14f) }
+    val thumbColor = if(isSystemInDarkTheme())
+        OffWhite
+    else
+        DefaultColor
     Row(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(
@@ -906,7 +911,7 @@ fun SliderLayout(textSizeChange: (Float) -> Unit) {
             )
             Slider(
                 colors = androidx.compose.material.SliderDefaults.colors(
-                    thumbColor = DefaultColor, inactiveTrackColor = colorResource(
+                    thumbColor = thumbColor, inactiveTrackColor = colorResource(
                         id = R.color.seek_bar_background
                     ), activeTrackColor = colorResource(id = R.color.icon_default_color)
                 ),
