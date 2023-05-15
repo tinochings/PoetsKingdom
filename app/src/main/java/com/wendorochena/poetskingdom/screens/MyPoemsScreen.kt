@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -211,7 +212,7 @@ fun SearchImageList(myPoemsViewModel: MyPoemsViewModel) {
                         Pair(file, false),
                         modifier = Modifier
                             .padding(3.dp)
-                            .height(200.dp),
+                            .aspectRatio(1f),
                         onThumbnailClicked,
                         {},
                         myPoemsViewModel.onImageLongPressed
