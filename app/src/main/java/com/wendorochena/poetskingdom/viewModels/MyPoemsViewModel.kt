@@ -36,7 +36,6 @@ import com.wendorochena.poetskingdom.poemdata.PoemThemeXmlParser
 import com.wendorochena.poetskingdom.utils.SearchUtil
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileInputStream
@@ -352,7 +351,7 @@ class MyPoemsViewModel : ViewModel() {
                     itemCount: Int
                 ) {
                     // in Search Util we use an addAll to the observed item so we ony iterate once
-                    viewModelScope.launch(Dispatchers.Main + handler) {
+                    viewModelScope.launch(mainDispatcher + handler) {
                         if (sender != null) {
                             substringLocations.addAll(sender)
                             if (displayNoResultsFound)

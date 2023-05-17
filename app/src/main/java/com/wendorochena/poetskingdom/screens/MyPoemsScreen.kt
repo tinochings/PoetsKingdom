@@ -212,7 +212,7 @@ fun SearchImageList(myPoemsViewModel: MyPoemsViewModel) {
                         Pair(file, false),
                         modifier = Modifier
                             .padding(3.dp)
-                            .aspectRatio(1f),
+                            .fillMaxWidth(),
                         onThumbnailClicked,
                         {},
                         myPoemsViewModel.onImageLongPressed
@@ -220,8 +220,8 @@ fun SearchImageList(myPoemsViewModel: MyPoemsViewModel) {
                     if (subStringLocations.size > 0 && poemBackgroundTypeArrayList.size > 0)
                         SearchResultText(
                             myPoemsViewModel,
-                            myPoemsViewModel.poemBackgroundTypeArrayList[it],
-                            myPoemsViewModel.substringLocations[it]
+                            backgroundPair =  poemBackgroundTypeArrayList[it],
+                            substringLocations = subStringLocations[it]
                         )
                 }
                 TitleItem(file)
