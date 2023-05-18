@@ -15,7 +15,7 @@ Poets Kingdom is a passion project I started for myself. I am a lover of poetry,
 - Poem image viewer for viewing saved poems
 
 ## Debug APK File Download
-
+### Android 7.0+
 [APK File](https://github.com/tinochings/PoetsKingdom/blob/master/app/Debug%20APK/app-debug.apk)
 
 ## Screenshots
