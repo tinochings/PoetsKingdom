@@ -89,6 +89,7 @@
         <item>steelfish_rounded_font</item>
         <item>vinque_font</item>
     </string-array>
+
     <string-array name="customFontNamesCompose">
         <item>adinekirnberg</item>
         <item>ariana_violeta</item>
