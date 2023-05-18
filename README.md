@@ -13,6 +13,7 @@ Poets Kingdom is a passion project I started for myself. I am a lover of poetry,
 - Dynamic theme styling for a poem
 - Exact phrase searching and highlighting using Lucene
 - Poem image viewer for viewing saved poems
+- Custom font types pre-built into application (Available on Android 8.0+)
 
 ## Debug APK File Download
 ### Android 7.0+
