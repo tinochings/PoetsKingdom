@@ -33,7 +33,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -76,7 +75,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyImagesScreenApp(
     myImagesViewModel: MyImagesViewModel = viewModel(),
@@ -103,6 +101,7 @@ fun MyImagesScreenApp(
                 BackHandler(true) {
                     myImagesViewModel.setOnLongClick(false)
                     myImagesViewModel.setFloatingButtonState(FloatingButtonState.ADDIMAGE)
+                    myImagesViewModel.resetSelectedImages()
                 }
             }
             TopRow(myImagesViewModel = myImagesViewModel)

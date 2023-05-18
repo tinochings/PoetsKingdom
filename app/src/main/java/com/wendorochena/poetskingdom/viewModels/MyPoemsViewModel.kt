@@ -492,4 +492,11 @@ class MyPoemsViewModel : ViewModel() {
     operator fun Spannable.plus(other: Spannable): Spannable {
         return SpannableStringBuilder(this).append(other)
     }
+
+    fun resetSelectedImages() {
+        val keys = savedPoems.filter { it.value }
+        for (selectedKeys in keys) {
+            savedPoems[selectedKeys.key] = false
+        }
+    }
 }

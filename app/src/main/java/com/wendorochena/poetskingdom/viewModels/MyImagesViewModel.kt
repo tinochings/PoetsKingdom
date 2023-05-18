@@ -212,4 +212,18 @@ class MyImagesViewModel : ViewModel() {
             e.printStackTrace()
         }
     }
+
+    fun resetSelectedImages() {
+        if(currentSelection == CurrentSelection.IMAGES) {
+            val keys = imageFiles.filter { it.value }
+            for (selectedKeys in keys) {
+                imageFiles[selectedKeys.key] = false
+            }
+        } else {
+            val keys = savedPoemImages.filter { it.value }
+            for (selectedKeys in keys) {
+                savedPoemImages[selectedKeys.key] = false
+            }
+        }
+    }
 }

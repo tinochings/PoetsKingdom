@@ -30,7 +30,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -72,7 +71,6 @@ import com.wendorochena.poetskingdom.viewModels.MyPoemsViewModel
 import kotlinx.coroutines.Dispatchers
 import java.io.File
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyPoemsApp(myPoemsViewModel: MyPoemsViewModel) {
     val onSearchClick: () -> Unit = {
@@ -96,6 +94,7 @@ fun MyPoemsApp(myPoemsViewModel: MyPoemsViewModel) {
         if (myPoemsViewModel.onImageLongPressed) {
             BackHandler(true) {
                 myPoemsViewModel.setOnLongClick(false)
+                myPoemsViewModel.resetSelectedImages()
             }
         }
         if (myPoemsViewModel.searchButtonClicked) {
@@ -263,7 +262,6 @@ fun SearchResultText(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
     var check1 by remember { mutableStateOf(true) }
@@ -410,12 +408,13 @@ fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
             .background(color = DefaultColor, shape = RoundedCornerShape(10.dp))
             .border(width = 3.dp, color = DefaultStatusBarColor, RoundedCornerShape(10.dp))
             .onKeyEvent { it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER },
-        colors = TextFieldDefaults.textFieldColors(
-            textColor = Color.White,
-            containerColor = Color.Transparent,
+        colors = TextFieldDefaults.colors(
+            focusedTextColor = Color.White,
+            focusedContainerColor = Color.Transparent,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent
+            disabledIndicatorColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent
         )
     )
     if (invokeDimmerProgress) {

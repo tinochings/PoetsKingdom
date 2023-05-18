@@ -36,7 +36,6 @@ import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -88,7 +87,6 @@ import com.wendorochena.poetskingdom.viewModels.PoemThemeViewModel
 import java.io.File
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThemePoemApp(
     poemThemeViewModel: PoemThemeViewModel
