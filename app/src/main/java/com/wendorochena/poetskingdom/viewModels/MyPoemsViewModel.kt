@@ -75,12 +75,6 @@ class MyPoemsViewModel : ViewModel() {
     private val savedPoemAndAlbum = HashMap<String, String>()
 
 
-//    fun setAllPoemsSelection() {
-//        poemViewSelection = PoemViewSelection.ALL_POEMS
-//        if (albumSavedPoems.isNotEmpty())
-//            albumSavedPoems.clear()
-//    }
-
     fun setAlbumSelection(albumName: String) {
         albumNameSelection = albumName
         if (albumSavedPoems.isNotEmpty())
@@ -195,7 +189,12 @@ class MyPoemsViewModel : ViewModel() {
      * @param context application context
      */
     fun deleteSavedPoems(context: Context) {
-        val filesToDelete = allSavedPoems.filter { it.value }
+        val mapToUse = if (albumNameSelection == allPoemsString)
+            allSavedPoems
+        else
+            albumSavedPoems
+
+        val filesToDelete = mapToUse.filter { it.value }
         for (entry in filesToDelete) {
             try {
                 val file = entry.key
@@ -229,7 +228,11 @@ class MyPoemsViewModel : ViewModel() {
      * Shares images
      */
     fun shareIntent(applicationContext: Context) {
-        val selectedElements = allSavedPoems.filter { it.value }
+        val mapToUse = if (albumNameSelection == allPoemsString)
+            allSavedPoems
+        else
+            albumSavedPoems
+        val selectedElements = mapToUse.filter { it.value }
         if (selectedElements.size > 1) {
             Toast.makeText(applicationContext, R.string.share_as_image_toast, Toast.LENGTH_LONG)
                 .show()
@@ -561,9 +564,13 @@ class MyPoemsViewModel : ViewModel() {
      * Resets all selected images if there were any
      */
     fun resetSelectedImages() {
-        val keys = allSavedPoems.filter { it.value }
+        val mapToUse = if (albumNameSelection == allPoemsString)
+            allSavedPoems
+        else
+            albumSavedPoems
+        val keys = mapToUse.filter { it.value }
         for (selectedKeys in keys) {
-            allSavedPoems[selectedKeys.key] = false
+            mapToUse[selectedKeys.key] = false
         }
     }
 
@@ -668,7 +675,7 @@ class MyPoemsViewModel : ViewModel() {
     private fun updateAlbums(context: Context) {
         val sharedPreferences =
             context.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
-        val albumsToSave = albumFolderNames.filterIndexed { index, s -> index != 0 }
+        val albumsToSave = albumFolderNames.filterIndexed { index, _ -> index != 0 }
 
         sharedPreferences.edit().putStringSet("albums", albumsToSave.toSet()).apply()
     }
@@ -677,7 +684,11 @@ class MyPoemsViewModel : ViewModel() {
      * Moves a poem from its current location to a new album
      */
     fun addPoemToAlbum(context: Context, albumName: String): Boolean {
-        val albumsToMove = allSavedPoems.filter { it.value }
+        val mapToUse = if (albumName == allPoemsString)
+            allSavedPoems
+        else
+            albumSavedPoems
+        val albumsToMove = mapToUse.filter { it.value }
         val encodedAlbumName = albumName.replace(' ', '_')
         val poemFolder =
             context.getDir(
@@ -693,7 +704,6 @@ class MyPoemsViewModel : ViewModel() {
                     val albumFolderToMoveFrom = savedPoemAndAlbum[poemFileNameDecoded]
                     val encodedAlbumFolderToMoveFrom = albumFolderToMoveFrom?.replace(' ', '_')
 
-                    println(albumFolderToMoveFrom)
                     val sourceFile = if (albumFolderToMoveFrom == null)
                         File(poemFolder.absolutePath + File.separator + poemFileName + ".xml")
                     else
@@ -706,13 +716,15 @@ class MyPoemsViewModel : ViewModel() {
                                 destinationFile.toPath(),
                                 StandardCopyOption.ATOMIC_MOVE
                             )
-                        }
-                        //                    else {
-//                    Files.copy()
-//                        val destFolder = File(albumFolder.absolutePath + File.separator + poemFileName)
-//                        if (!poemFile.renameTo(destFolder))
-//                            return false
-//                    }
+                        } else {
+                            val inputStream = FileInputStream(sourceFile)
+                            val outputStream = FileOutputStream(destinationFile)
+
+                            outputStream.channel.transferFrom(inputStream.channel,0,sourceFile.totalSpace)
+                            outputStream.close()
+                            inputStream.close()
+                    }
+                        savedPoemAndAlbum[poemFileName] = albumName
                     } else {
                         Log.e(this::javaClass.name, "Failed to move {${sourceFile.absolutePath}} to $albumFolder")
                         return false

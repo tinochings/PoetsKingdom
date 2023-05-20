@@ -186,8 +186,11 @@ fun MyPoemsApp(myPoemsViewModel: MyPoemsViewModel) {
 fun AlbumsSelector(myPoemsViewModel: MyPoemsViewModel) {
     val context = LocalContext.current
     val onAlbumClick: (String) -> Unit = {
-        if (myPoemsViewModel.addPoemToAlbum(context, it))
+        if (myPoemsViewModel.addPoemToAlbum(context, it)) {
             myPoemsViewModel.displayAlbumSelector = false
+            myPoemsViewModel.setOnLongClick(false)
+            myPoemsViewModel.resetSelectedImages()
+        }
     }
     Column(
         modifier = Modifier
@@ -771,7 +774,10 @@ fun PoemListView(myPoemsViewModel: MyPoemsViewModel) {
         }
     }
     val onLongClick: (File) -> Unit = {
-        myPoemsViewModel.allSavedPoems[it] = true
+        if (myPoemsViewModel.albumNameSelection == myPoemsViewModel.allPoemsString)
+                myPoemsViewModel.allSavedPoems[it] = true
+        else
+            myPoemsViewModel.albumSavedPoems[it] = true
         myPoemsViewModel.setOnLongClick(true)
     }
     val imageFiles = myPoemsViewModel.getThumbnails(
