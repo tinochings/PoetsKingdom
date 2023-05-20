@@ -71,6 +71,7 @@ class MyPoemsViewModel : ViewModel() {
     private val searchHistory = mutableStateListOf<String>()
     private var initialisedSearchHistory = false
     private val albumFolderNames = mutableStateListOf<String>()
+
     // poem name as key and album as value
     private val savedPoemAndAlbum = HashMap<String, String>()
 
@@ -80,12 +81,13 @@ class MyPoemsViewModel : ViewModel() {
         if (albumSavedPoems.isNotEmpty())
             albumSavedPoems.clear()
     }
+
     /**
      * Adds all files and sets to long press as false to to the savedPoems Map
      */
     private fun addAllFiles(
         arrayList: ArrayList<File>,
-        isAlbumAdd : Boolean
+        isAlbumAdd: Boolean
     ) {
         for (file in arrayList) {
             if (isAlbumAdd)
@@ -198,21 +200,31 @@ class MyPoemsViewModel : ViewModel() {
         for (entry in filesToDelete) {
             try {
                 val file = entry.key
-                val splitString = file.name.split(File.separator)
-                val poemName = splitString[splitString.size - 1]
+                val poemName = file.name
+                val decodedPoemName = poemName.split(".")[0].replace('_', ' ')
+                val encodedAlbumName = savedPoemAndAlbum[decodedPoemName]
                 val savedPoemsPath = context.getDir(
                     context.getString(R.string.poems_folder_name),
                     Context.MODE_PRIVATE
                 )
-                val fullPathToDelete = File(
-                    savedPoemsPath.absolutePath + File.separator + poemName.replace(
-                        ".png",
-                        ".xml"
+                val fullPathToDelete = if (encodedAlbumName != null)
+                    File(
+                        savedPoemsPath.absolutePath + File.separator + encodedAlbumName + File.separator + poemName.replace(
+                            ".png",
+                            ".xml"
+                        )
                     )
-                )
+                else
+                    File(
+                        savedPoemsPath.absolutePath + File.separator + poemName.replace(
+                            ".png",
+                            ".xml"
+                        )
+                    )
+                println(fullPathToDelete)
                 if (fullPathToDelete.exists())
                     if (fullPathToDelete.deleteRecursively())
-                        allSavedPoems.remove(file)
+                        mapToUse.remove(file)
                     else {
                         Log.e("Failed to remove file: ", entry.key.name)
                     }
@@ -684,7 +696,7 @@ class MyPoemsViewModel : ViewModel() {
      * Moves a poem from its current location to a new album
      */
     fun addPoemToAlbum(context: Context, albumName: String): Boolean {
-        val mapToUse = if (albumName == allPoemsString)
+        val mapToUse = if (albumNameSelection == allPoemsString)
             allSavedPoems
         else
             albumSavedPoems
@@ -707,8 +719,9 @@ class MyPoemsViewModel : ViewModel() {
                     val sourceFile = if (albumFolderToMoveFrom == null)
                         File(poemFolder.absolutePath + File.separator + poemFileName + ".xml")
                     else
-                        File(poemFolder.absolutePath + File.separator + encodedAlbumFolderToMoveFrom + File.separator +  poemFileName + ".xml")
-                    val destinationFile = File(albumFolder.absolutePath + File.separator + poemFileName + ".xml")
+                        File(poemFolder.absolutePath + File.separator + encodedAlbumFolderToMoveFrom + File.separator + poemFileName + ".xml")
+                    val destinationFile =
+                        File(albumFolder.absolutePath + File.separator + poemFileName + ".xml")
                     if (sourceFile.exists() && destinationFile.createNewFile()) {
                         if (Build.VERSION.SDK_INT >= 26) {
                             Files.move(
@@ -720,16 +733,26 @@ class MyPoemsViewModel : ViewModel() {
                             val inputStream = FileInputStream(sourceFile)
                             val outputStream = FileOutputStream(destinationFile)
 
-                            outputStream.channel.transferFrom(inputStream.channel,0,sourceFile.totalSpace)
+                            outputStream.channel.transferFrom(
+                                inputStream.channel,
+                                0,
+                                sourceFile.totalSpace
+                            )
                             outputStream.close()
                             inputStream.close()
-                    }
+                        }
                         savedPoemAndAlbum[poemFileName] = albumName
+                        if (albumSavedPoems[poemFilePair.key] != null)
+                            albumSavedPoems.remove(poemFilePair.key)
                     } else {
-                        Log.e(this::javaClass.name, "Failed to move {${sourceFile.absolutePath}} to $albumFolder")
+                        Log.e(
+                            this::javaClass.name,
+                            "Failed to move {${sourceFile.absolutePath}} to $albumFolder"
+                        )
                         return false
                     }
                 }
+
             } catch (e: IOException) {
                 e.printStackTrace()
                 return false
@@ -742,7 +765,7 @@ class MyPoemsViewModel : ViewModel() {
         return true
     }
 
-    fun resolveAlbumName(file: File) : String? {
+    fun resolveAlbumName(file: File): String? {
         val fileName = file.name.split(".")[0].replace('_', ' ')
         return savedPoemAndAlbum[fileName]
     }
