@@ -221,11 +221,12 @@ class MyPoemsViewModel : ViewModel() {
                             ".xml"
                         )
                     )
-                println(fullPathToDelete)
                 if (fullPathToDelete.exists())
-                    if (fullPathToDelete.deleteRecursively())
+                    if (fullPathToDelete.deleteRecursively()) {
+                        if (albumNameSelection != allPoemsString)
+                            allSavedPoems.remove(file)
                         mapToUse.remove(file)
-                    else {
+                    } else {
                         Log.e("Failed to remove file: ", entry.key.name)
                     }
             } catch (e: Exception) {
