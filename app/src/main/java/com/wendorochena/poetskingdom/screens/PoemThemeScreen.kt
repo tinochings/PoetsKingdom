@@ -117,6 +117,11 @@ fun ThemePoemApp(
                 "poemTitle",
                 poemThemeViewModel.poemTitle
             )
+            if (poemThemeViewModel.savedAlbumName != null)
+                newActivityIntent.putExtra(
+                    activity.getString(R.string.album_argument_name),
+                    poemThemeViewModel.savedAlbumName
+                )
             poemThemeViewModel.resetResultToDefault()
             activity.finish()
             activity.startActivity(newActivityIntent)
@@ -1235,7 +1240,7 @@ fun SavePoemThemeDialog(poemThemeViewModel: PoemThemeViewModel) {
     val maxChars by remember { mutableStateOf(60) }
     var shouldChangeText by remember { mutableStateOf(false) }
     val validateInput: @Composable (String) -> Boolean = {
-        if (poemThemeViewModel.isValidatedInput(it.replace(' ', '_'))) {
+        if (PoemThemeViewModel.isValidatedInput(it.replace(' ', '_'))) {
             //save poem theme and start new activity
             poemThemeViewModel.savePoemTheme(
                 it,

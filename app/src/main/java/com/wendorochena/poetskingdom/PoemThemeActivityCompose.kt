@@ -21,7 +21,9 @@ class PoemThemeActivityCompose : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val poemThemeViewModel : PoemThemeViewModel by viewModels()
         val intentExtras = intent.extras
+        val albumArg = getString(R.string.album_argument_name)
         if (intentExtras?.getString("poemThemeName") != null) {
+            poemThemeViewModel.savedAlbumName = intentExtras.getString(albumArg)
             poemThemeViewModel.isEditTheme = true
             val poemName = intentExtras.getString("poemThemeName")
             val poemThemeXmlParser = PoemThemeXmlParser(

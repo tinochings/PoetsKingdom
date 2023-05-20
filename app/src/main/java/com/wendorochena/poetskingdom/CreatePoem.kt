@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.*
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
+import android.os.Build
 import android.os.Bundle
 import android.print.PrintManager
 import android.text.*
@@ -53,6 +54,7 @@ class CreatePoem : AppCompatActivity() {
     private lateinit var currentPage: FrameLayout
     private var hasFileBeenEdited = false
     private var currentContainerView: View? = null
+    private var savedAlbumName : String? = null
 
     //key is the page number value is the id
     private val pageNumberAndId: HashMap<Int, Int> = HashMap()
@@ -64,6 +66,7 @@ class CreatePoem : AppCompatActivity() {
         val intentExtras = intent.extras
         val loadPoemArg = getString(R.string.load_poem_argument_name)
         val poemTitleArg = getString(R.string.poem_title_argument_name)
+        val albumArg = getString(R.string.album_argument_name)
 
         // parse users theme. If we cant parse it terminate the activity
         if (intentExtras?.getString(poemTitleArg) != null) {
@@ -87,13 +90,22 @@ class CreatePoem : AppCompatActivity() {
             // load file on background thread and then populate UI
             lifecycleScope.launch(Dispatchers.Main + exceptionHandler) {
                 val isLoadPoem = intentExtras.getBoolean(loadPoemArg, false)
+                val albumName = intentExtras.getString(albumArg)
+                if (albumName != null)
+                    savedAlbumName = albumName
+
                 if (isLoadPoem)
                     turnOnDimmerProgressBar()
 
                 val poemThemeResult = poemParser.parseTheme(intentExtras.getString(poemTitleArg))
+               val poemPath =  if (albumName != null)
+                   albumName + File.separator + poemParser.getPoemTheme().poemTitle.replace(' ','_')
+                else
+                   poemParser.getPoemTheme().poemTitle
+
                 val poemLoadResult =
                     if (isLoadPoem) PoemXMLParser.parseSavedPoem(
-                        poemParser.getPoemTheme().poemTitle,
+                        poemPath,
                         applicationContext,
                         Dispatchers.IO
                     )
@@ -777,7 +789,14 @@ class CreatePoem : AppCompatActivity() {
         else
             findViewById<EditText>(R.id.portraitTextView)
 
-        text.typeface = TypefaceHelper.getTypeFace(poemTheme.textFontFamily, applicationContext)
+
+        if (Build.VERSION.SDK_INT < 26)
+            text.typeface = Typeface.DEFAULT
+        else
+            text.typeface = TypefaceHelper.getTypeFace(poemTheme.textFontFamily + "_font", applicationContext)
+
+        //due to compose integration the xml font array isn't used
+//        text.typeface = TypefaceHelper.getTypeFace(poemTheme.textFontFamily + "_font", applicationContext)
         text.textSize = poemTheme.textSize.toFloat()
         text.setHintTextColor(poemTheme.textColorAsInt)
         text.setTextColor(poemTheme.textColorAsInt)
@@ -1387,20 +1406,6 @@ class CreatePoem : AppCompatActivity() {
                 currentContainerView = null
                 dialog?.dismiss()
             }.show()
-//            ColorPickerDialog
-//                .Builder(this)                        // Pass Activity Instance
-//                .setTitle(getString(R.string.color_picker_title))            // Default "Choose Color"
-//                .setColorShape(ColorShape.SQAURE)   // Default ColorShape.CIRCLE
-//                .setDefaultColor(R.color.black)     // Pass Default Color
-//                .setColorListener { color, colorHex ->
-//                    currentEditText?.setTextColor(color)
-//                    poemTheme.textColor = colorHex
-//                    poemTheme.textColorAsInt = color
-//                    updateAllEditTextViews(Float.NaN, "textColor", color)
-//                    actuateSavePoemTheme()
-//                }.setDismissListener {
-//                    currentContainerView = null
-//                }.show()
         }
     }
 
@@ -1621,7 +1626,7 @@ class CreatePoem : AppCompatActivity() {
 
         val poemParser = PoemXMLParser(poemDataContainer, applicationContext)
 
-        when (poemParser.saveToXmlFile()) {
+        when (poemParser.saveToXmlFile(savedAlbumName)) {
             0 -> {
                 showSuccessToast(getString(R.string.error_type_file))
             }
@@ -1862,6 +1867,8 @@ class CreatePoem : AppCompatActivity() {
             )
             val activityIntent = Intent(applicationContext, PoemThemeActivityCompose::class.java)
             activityIntent.putExtra("poemThemeName", poemTheme.poemTitle)
+            if (savedAlbumName != null)
+                activityIntent.putExtra(getString(R.string.album_argument_name), savedAlbumName)
             finish()
             startActivity(activityIntent)
         }

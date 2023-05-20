@@ -38,5 +38,15 @@ val TypographyPK = Typography(
         fontFamily = HelveticaFont,
         fontWeight = FontWeight.Bold,
         fontSize = 20.sp
+    ),
+    h2 = TextStyle(
+        fontFamily = HelveticaFont,
+        fontWeight = FontWeight.Bold,
+        fontSize = 18.sp
+    ),
+    caption = TextStyle(
+        fontFamily = HelveticaFont,
+        fontWeight = FontWeight.Light,
+        fontSize = 16.sp
     )
 )

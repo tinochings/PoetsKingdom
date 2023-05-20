@@ -21,7 +21,7 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
      * @return 0 is returned if operation was successful
      * @return -1 if operation failed
      */
-    suspend fun saveToXmlFile(): Int {
+    suspend fun saveToXmlFile(albumName : String?): Int {
         return withContext(Dispatchers.IO) {
             try {
                 val poemFolder =
@@ -32,12 +32,11 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
                 if (poemFolder.exists()) {
                     val fileName = poem.poemTheme.poemTitle.replace(' ', '_')
 
-                    val fileToCreate =
+                    val fileToCreate = if (albumName != null)
+                        File(poemFolder.absolutePath + File.separator + albumName + File.separator + fileName + ".xml")
+                    else
                         File(poemFolder.absolutePath + File.separator + fileName + ".xml")
-
                     if (fileToCreate.exists() || fileToCreate.createNewFile()) {
-
-
                         val outputStream = FileOutputStream(fileToCreate)
 
                         val stringWriter = StringWriter()

@@ -52,7 +52,7 @@ import com.wendorochena.poetskingdom.viewModels.CreatePoemViewModel
 
 @Composable
 fun CreatePoemApp(createPoemViewModel: CreatePoemViewModel) {
-    Scaffold(topBar = { HomeScreenAppBar(displaySearch = false, onSearchClick = {}) }) {
+    Scaffold(topBar = { HomeScreenAppBar(displaySearch = false, onSearchClick = {}, onMenuClicked = {}) }) {
         it
         if (createPoemViewModel.isDimmerDisplayed) {
             DimmerProgress()

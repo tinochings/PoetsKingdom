@@ -112,6 +112,8 @@
     <string name="invalid_input">Invalid input</string>
     <string name="invalid_input_message">You have entered a name which does not contain letters
     and or numbers. Please enter a valid name.</string>
+    <string name="invalid_input_message_extended">Failed to created a new Album. Check that your input is valid
+    and is not the same as an already saved album.</string>
     <string name="valid_input_message">
         Enter text that contains letters and or numbers
     </string>
@@ -243,8 +245,10 @@
     <string name="no_input_entered">No Input Entered</string>
     <string name="search_stanza_text">Stanzas : %1$s</string>
     <string name="create_poem_edit_text_hint">Enter Poem Name Here</string>
+    <string name="create_album_hint">Enter Album Name Here</string>
     <string name="load_poem_argument_name">loadPoem</string>
     <string name="poem_title_argument_name">poemTitle</string>
+    <string name="album_argument_name">albumTitle</string>
     <string name="change_title_hint">Enter New Title</string>
     <string name="error_type_file">file</string>
     <string name="error_type_image">image</string>
@@ -264,4 +268,12 @@
     <string name="title_activity_create_poem_compose">CreatePoemCompose</string>
     <string name="no_results_found_text">No results have been found for the term you have input. Try again.</string>
     <string name="search_button_content_description">Search Image Button</string>
+    <string name="search_history">Recent Search History</string>
+    <string name="cancel_button_content_description">Cancel Image Button</string>
+    <string name="albums">Albums</string>
+    <string name="add_new_album_content_description">Add New Album</string>
+    <string name="album_icon_content_description">Album Icon</string>
+    <string name="menu_icon_content_description">Menu Icon</string>
+    <string name="all_poems_album_name">All Poems</string>
+    <string name="add_new_album_message">Add a new album name.\n\n Maximum 60 characters. Letters And Numbers Only.</string>
 </resources>

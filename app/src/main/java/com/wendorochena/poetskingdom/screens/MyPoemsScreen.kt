@@ -19,17 +19,25 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.DrawerState
+import androidx.compose.material.DrawerValue
+import androidx.compose.material.ModalDrawer
+import androidx.compose.material.rememberDrawerState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -39,10 +47,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -66,13 +76,25 @@ import com.wendorochena.poetskingdom.ui.theme.BottomDrawerColor
 import com.wendorochena.poetskingdom.ui.theme.DefaultColor
 import com.wendorochena.poetskingdom.ui.theme.DefaultStatusBarColor
 import com.wendorochena.poetskingdom.ui.theme.HelveticaFont
+import com.wendorochena.poetskingdom.ui.theme.OffWhite
 import com.wendorochena.poetskingdom.ui.theme.PoetsKingdomTheme
 import com.wendorochena.poetskingdom.viewModels.MyPoemsViewModel
+import com.wendorochena.poetskingdom.viewModels.PoemThemeViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 
 @Composable
 fun MyPoemsApp(myPoemsViewModel: MyPoemsViewModel) {
+    val context = LocalContext.current
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    val onMenuClicked: () -> Unit = {
+        scope.launch {
+            drawerState.open()
+        }
+    }
     val onSearchClick: () -> Unit = {
         if (myPoemsViewModel.searchButtonClicked)
             myPoemsViewModel.clearSearchOptions()
@@ -88,48 +110,290 @@ fun MyPoemsApp(myPoemsViewModel: MyPoemsViewModel) {
         isFirstUse = true
         sharedPreferences.edit().putBoolean("myPoemsFirstUse", true).apply()
     }
-    Scaffold(
-        bottomBar = { if (myPoemsViewModel.onImageLongPressed) BottomBar(myPoemsViewModel) },
-        topBar = { HomeScreenAppBar(displaySearch = true, onSearchClick = onSearchClick) }) {
-        if (myPoemsViewModel.onImageLongPressed) {
-            BackHandler(true) {
-                myPoemsViewModel.setOnLongClick(false)
-                myPoemsViewModel.resetSelectedImages()
+    ModalDrawer(
+        drawerState = drawerState,
+        drawerShape = RoundedCornerShape(topEnd = 35.dp, bottomEnd = 35.dp),
+        drawerContent = {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = androidx.compose.material.MaterialTheme.colors.background)
+            ) {
+                DrawerContainer(myPoemsViewModel = myPoemsViewModel, drawerState, scope)
             }
-        }
-        if (myPoemsViewModel.searchButtonClicked) {
-            BackHandler(true) {
-                if (myPoemsViewModel.hitsFound) {
-                    myPoemsViewModel.clearSearchOptions()
-                    myPoemsViewModel.searchButtonClicked = true
-                } else
-                    myPoemsViewModel.clearSearchOptions()
-            }
-        }
-        Column(
-            modifier = Modifier
-                .background(androidx.compose.material.MaterialTheme.colors.background)
-                .fillMaxSize()
-                .padding(it)
-        ) {
-            if (!myPoemsViewModel.searchButtonClicked)
-                PoemListView(myPoemsViewModel)
-            else {
-                if (myPoemsViewModel.displayNoResultsFound)
-                    NoResultsDialog(myPoemsViewModel)
-                else if (myPoemsViewModel.hitsFound)
-                    SearchImageList(myPoemsViewModel = myPoemsViewModel)
-                else
-                    SearchView(myPoemsViewModel)
-            }
-            if (isFirstUse) {
-                FirstUseDialog(
-                    heading = R.string.my_poems_text,
-                    guideText = R.string.guide_my_poems, false
+        }) {
+        Scaffold(
+            bottomBar = { if (myPoemsViewModel.onImageLongPressed) BottomBar(myPoemsViewModel) },
+            topBar = {
+                HomeScreenAppBar(
+                    displaySearch = true,
+                    onSearchClick = onSearchClick,
+                    onMenuClicked = onMenuClicked
                 )
-                isFirstUse = false
+            }) {
+            if (myPoemsViewModel.onImageLongPressed) {
+                BackHandler(true) {
+                    myPoemsViewModel.setOnLongClick(false)
+                    myPoemsViewModel.resetSelectedImages()
+                    if (myPoemsViewModel.displayAlbumSelector)
+                        myPoemsViewModel.displayAlbumSelector = false
+                }
+            }
+            if (myPoemsViewModel.searchButtonClicked) {
+                BackHandler(true) {
+                    if (myPoemsViewModel.hitsFound) {
+                        myPoemsViewModel.clearSearchOptions()
+                        myPoemsViewModel.searchButtonClicked = true
+                    } else
+                        myPoemsViewModel.clearSearchOptions()
+                    myPoemsViewModel.saveSearchHistory(context)
+                }
+            }
+            if (myPoemsViewModel.displayAlbumSelector)
+                AlbumsSelector(myPoemsViewModel)
+            Column(
+                modifier = Modifier
+                    .background(androidx.compose.material.MaterialTheme.colors.background)
+                    .fillMaxSize()
+                    .padding(it)
+            ) {
+                if (!myPoemsViewModel.searchButtonClicked)
+                    PoemListView(myPoemsViewModel)
+                else {
+                    if (myPoemsViewModel.displayNoResultsFound)
+                        NoResultsDialog(myPoemsViewModel)
+                    else if (myPoemsViewModel.hitsFound)
+                        SearchImageList(myPoemsViewModel = myPoemsViewModel)
+                    else
+                        SearchView(myPoemsViewModel)
+                }
+                if (myPoemsViewModel.displayAlbumsDialog)
+                    AlbumNameDialog(myPoemsViewModel = myPoemsViewModel)
+
+                if (isFirstUse) {
+                    FirstUseDialog(
+                        heading = R.string.my_poems_text,
+                        guideText = R.string.guide_my_poems, false
+                    )
+                    isFirstUse = false
+                }
             }
         }
+    }
+}
+
+@Composable
+fun AlbumsSelector(myPoemsViewModel: MyPoemsViewModel) {
+    val context = LocalContext.current
+    val onAlbumClick: (String) -> Unit = {
+        if (myPoemsViewModel.addPoemToAlbum(context, it))
+            myPoemsViewModel.displayAlbumSelector = false
+    }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = dimensionResource(id = R.dimen.action_bar_size))
+            .background(color = androidx.compose.material.MaterialTheme.colors.background.copy(0.5f))
+            .zIndex(2f),
+        verticalArrangement = Arrangement.Bottom
+    ) {
+        val albums = myPoemsViewModel.getAlbums(LocalContext.current)
+        LazyColumn(
+            modifier = Modifier
+                .padding(10.dp)
+                .background(
+                    color = BottomDrawerColor,
+                    shape = RoundedCornerShape(25.dp)
+                )
+        ) {
+            items(albums.size) {
+                AlbumItem(albums[it], onAlbumClick)
+            }
+        }
+    }
+}
+
+@Composable
+fun AlbumNameDialog(myPoemsViewModel: MyPoemsViewModel) {
+    var albumName by remember { mutableStateOf("") }
+    var dialogTitle by remember { mutableStateOf(R.string.add_new_album_content_description) }
+    var buttonText by remember { mutableStateOf(R.string.confirm) }
+    var inputMessage by remember { mutableStateOf(R.string.valid_input_message) }
+    var shouldChangeText by remember { mutableStateOf(false) }
+
+    val validateInput: @Composable (String) -> Boolean = {
+        if (PoemThemeViewModel.isValidatedInput(it.replace(' ', '_'))) {
+            val boolean = myPoemsViewModel.addAlbumName(it, LocalContext.current)
+            boolean
+        } else {
+            false
+        }
+    }
+    if (myPoemsViewModel.albumSaveResult == -1) {
+        dialogTitle = R.string.retry
+        buttonText = R.string.retry
+        inputMessage = R.string.file_already_exists
+        myPoemsViewModel.albumSaveResult = -2
+    } else if (myPoemsViewModel.albumSaveResult == 0) {
+        myPoemsViewModel.displayAlbumsDialog = false
+        myPoemsViewModel.albumSaveResult = -2
+    }
+
+    if (myPoemsViewModel.displayAlbumsDialog) {
+        Dialog(
+            onDismissRequest = { myPoemsViewModel.displayAlbumsDialog = false },
+            properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                shape = com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(DefaultColor),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+
+                    Text(
+                        text = stringResource(id = dialogTitle),
+                        style = androidx.compose.material.MaterialTheme.typography.h1,
+                        color = Color.White
+                    )
+
+                    Spacer(modifier = Modifier.height(30.dp))
+
+                    Text(
+                        text = stringResource(id = inputMessage),
+                        style = androidx.compose.material.MaterialTheme.typography.body1,
+                        color = Color.White
+                    )
+
+                    Spacer(modifier = Modifier.height(30.dp))
+
+                    androidx.compose.material.TextField(
+                        colors = androidx.compose.material.TextFieldDefaults.textFieldColors(
+                            textColor = Color.White
+                        ),
+                        singleLine = true,
+                        value = albumName,
+                        onValueChange = { if (it.length <= 60) albumName = it },
+                        label = {
+                            androidx.compose.material.Text(
+                                stringResource(id = R.string.create_album_hint),
+                                color = OffWhite
+                            )
+                        })
+
+                    Spacer(modifier = Modifier.height(30.dp))
+
+                    Button(
+                        onClick = { shouldChangeText = true },
+                        shape = RoundedCornerShape(15.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = DefaultColor
+                        ),
+                        modifier = Modifier
+                            .align(Alignment.End)
+                    ) {
+                        Text(
+                            text = stringResource(id = buttonText),
+                            color = Color.White,
+                            style = androidx.compose.material.MaterialTheme.typography.body1
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(2.dp))
+                }
+            }
+        }
+        if (shouldChangeText) {
+            if (dialogTitle == R.string.retry) {
+                dialogTitle = R.string.add_new_album_content_description
+                buttonText = R.string.confirm
+                inputMessage = R.string.valid_input_message
+            } else if (!validateInput.invoke(albumName)) {
+                dialogTitle = R.string.retry
+                buttonText = R.string.retry
+                inputMessage = R.string.invalid_input_message
+            }
+            shouldChangeText = false
+        }
+    }
+}
+
+@Composable
+fun DrawerContainer(
+    myPoemsViewModel: MyPoemsViewModel,
+    drawerState: DrawerState,
+    scope: CoroutineScope
+) {
+    val onAlbumClick: (String) -> Unit = {
+        myPoemsViewModel.setAlbumSelection(it)
+        scope.launch { drawerState.close() }
+    }
+    val albums = myPoemsViewModel.getAlbums(LocalContext.current)
+    LazyColumn(
+        modifier = Modifier
+            .padding(10.dp)
+    ) {
+        item {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                Image(
+                    modifier = Modifier
+                        .height(48.dp)
+                        .width(48.dp)
+                        .clickable { myPoemsViewModel.displayAlbumsDialog = true },
+                    painter = painterResource(id = R.drawable.baseline_add_circle_outline_24),
+                    contentDescription = stringResource(
+                        id = R.string.add_new_album_content_description
+                    ),
+                    colorFilter = ColorFilter.tint(color = androidx.compose.material.MaterialTheme.colors.primaryVariant)
+                )
+            }
+            Text(
+                text = stringResource(id = R.string.albums),
+                style = androidx.compose.material.MaterialTheme.typography.h1,
+                color = androidx.compose.material.MaterialTheme.colors.primary
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = myPoemsViewModel.albumNameSelection,
+                style = androidx.compose.material.MaterialTheme.typography.caption,
+                color = androidx.compose.material.MaterialTheme.colors.primary
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+        items(albums.size) {
+            AlbumItem(albums[it], onAlbumClick)
+        }
+    }
+}
+
+@Composable
+fun AlbumItem(albumName: String, onAlbumClick: (String) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onAlbumClick.invoke(albumName) },
+        horizontalArrangement = Arrangement.End
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.folder_svg),
+            contentDescription = stringResource(
+                id = R.string.album_icon_content_description
+            ),
+            modifier = Modifier
+                .weight(0.2f)
+                .fillMaxWidth()
+        )
+
+        Text(
+            text = albumName, style = androidx.compose.material.MaterialTheme.typography.h1,
+            color = androidx.compose.material.MaterialTheme.colors.primary,
+            modifier = Modifier.weight(0.8f)
+        )
     }
 }
 
@@ -219,7 +483,7 @@ fun SearchImageList(myPoemsViewModel: MyPoemsViewModel) {
                     if (subStringLocations.size > 0 && poemBackgroundTypeArrayList.size > 0)
                         SearchResultText(
                             myPoemsViewModel,
-                            backgroundPair =  poemBackgroundTypeArrayList[it],
+                            backgroundPair = poemBackgroundTypeArrayList[it],
                             substringLocations = subStringLocations[it]
                         )
                 }
@@ -321,7 +585,10 @@ fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
             Checkbox(
                 checked = check1,
                 onCheckedChange = { checkManager.invoke("check1") },
-                colors = CheckboxDefaults.colors(checkedColor = DefaultColor),
+                colors = CheckboxDefaults.colors(
+                    checkedColor = DefaultColor,
+                    uncheckedColor = androidx.compose.material.MaterialTheme.colors.primary
+                ),
                 modifier = Modifier.weight(0.2f)
             )
             Text(
@@ -345,7 +612,10 @@ fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
             Checkbox(
                 checked = check2,
                 onCheckedChange = { checkManager.invoke("check2") },
-                colors = CheckboxDefaults.colors(checkedColor = DefaultColor),
+                colors = CheckboxDefaults.colors(
+                    checkedColor = DefaultColor,
+                    uncheckedColor = androidx.compose.material.MaterialTheme.colors.primary
+                ),
                 modifier = Modifier.weight(0.2f)
             )
             Text(
@@ -368,7 +638,10 @@ fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
             Checkbox(
                 checked = check3,
                 onCheckedChange = { checkManager.invoke("check3") },
-                colors = CheckboxDefaults.colors(checkedColor = DefaultColor),
+                colors = CheckboxDefaults.colors(
+                    checkedColor = DefaultColor,
+                    uncheckedColor = androidx.compose.material.MaterialTheme.colors.primary
+                ),
                 modifier = Modifier.weight(0.2f)
             )
             Text(
@@ -386,6 +659,7 @@ fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
         value = textSearch,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = {
+            myPoemsViewModel.updateSearchHistory(textSearch)
             myPoemsViewModel.invokeSearch(
                 textSearch,
                 applicationContext,
@@ -417,6 +691,57 @@ fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
             unfocusedContainerColor = Color.Transparent
         )
     )
+    val searchHistory = myPoemsViewModel.getSearchHistory(LocalContext.current)
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+    ) {
+        item {
+            Divider(color = DefaultStatusBarColor, thickness = 2.dp)
+            Text(
+                text = stringResource(id = R.string.recent_searches),
+                style = androidx.compose.material.MaterialTheme.typography.caption,
+                color = androidx.compose.material.MaterialTheme.colors.secondaryVariant
+            )
+        }
+        items(count = searchHistory.size) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = searchHistory[searchHistory.size - 1 - it],
+                    style = androidx.compose.material.MaterialTheme.typography.h2,
+                    modifier = Modifier
+                        .weight(0.8f)
+                        .fillMaxWidth(),
+                    maxLines = 1,
+                    color = androidx.compose.material.MaterialTheme.colors.primary
+                )
+                Row(
+                    modifier = Modifier
+                        .weight(0.2f),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .widthIn(max = 48.dp)
+                            .clickable { myPoemsViewModel.deleteHistoryItem(searchHistory.size - 1 - it) },
+                        painter = painterResource(id = R.drawable.cancel_close),
+                        contentDescription = stringResource(
+                            id = R.string.cancel_button_content_description
+                        ),
+                        alignment = Alignment.CenterEnd,
+                        colorFilter = ColorFilter.tint(color = androidx.compose.material.MaterialTheme.colors.primary)
+                    )
+                }
+            }
+        }
+        item { Divider(color = DefaultStatusBarColor, thickness = 2.dp) }
+    }
     if (invokeDimmerProgress) {
         DimmerProgress()
         invokeDimmerProgress = false
@@ -434,16 +759,25 @@ fun PoemListView(myPoemsViewModel: MyPoemsViewModel) {
                 "poemTitle",
                 it.name.split(".")[0]
             )
+            val albumNameIfAny = myPoemsViewModel.resolveAlbumName(it)
+            if (albumNameIfAny != null)
+                newActivityIntent.putExtra(
+                    LocalContext.current.getString(R.string.album_argument_name),
+                    albumNameIfAny.replace(' ', '_')
+                )
             LocalContext.current.startActivity(newActivityIntent)
         } else {
-            myPoemsViewModel.savedPoems[it] = !myPoemsViewModel.savedPoems[it]!!
+            myPoemsViewModel.allSavedPoems[it] = !myPoemsViewModel.allSavedPoems[it]!!
         }
     }
     val onLongClick: (File) -> Unit = {
-        myPoemsViewModel.savedPoems[it] = true
+        myPoemsViewModel.allSavedPoems[it] = true
         myPoemsViewModel.setOnLongClick(true)
     }
-    val imageFiles = myPoemsViewModel.getThumbnails(LocalContext.current.applicationContext)
+    val imageFiles = myPoemsViewModel.getThumbnails(
+        LocalContext.current.applicationContext,
+        myPoemsViewModel.albumNameSelection
+    )
     val imageFileKeys = imageFiles.keys.asSequence().sortedByDescending { it.lastModified() }
     LazyVerticalGrid(
         modifier = Modifier.padding(top = 5.dp), columns = GridCells.Fixed(2),
@@ -520,6 +854,28 @@ fun BottomBar(myPoemsViewModel: MyPoemsViewModel) {
                         painter = painterResource(id = R.drawable.ic_baseline_delete_24),
                         contentDescription = "Share Button",
                         contentScale = ContentScale.FillBounds,
+                    )
+
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 5.dp),
+                    shape = RoundedCornerShape(5.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+                    onClick = {
+                        myPoemsViewModel.displayAlbumSelector =
+                            !myPoemsViewModel.displayAlbumSelector
+                    }) {
+                    Image(
+                        painter = painterResource(id = R.drawable.add_to_album),
+                        contentDescription = "Share Button",
+                        contentScale = ContentScale.FillBounds,
+                        colorFilter = ColorFilter.tint(color = androidx.compose.material.MaterialTheme.colors.primaryVariant)
                     )
 
                 }
