@@ -3,6 +3,7 @@ package com.wendorochena.poetskingdom.screens
 import android.content.Context
 import android.content.Intent
 import android.view.KeyEvent
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
@@ -211,7 +212,7 @@ fun AlbumsSelector(myPoemsViewModel: MyPoemsViewModel) {
                 )
         ) {
             items(albums.size) {
-                AlbumItem(albums[it], onAlbumClick)
+                AlbumItem(albums[it], onAlbumClick, {}, {}, false)
             }
         }
     }
@@ -220,14 +221,27 @@ fun AlbumsSelector(myPoemsViewModel: MyPoemsViewModel) {
 @Composable
 fun AlbumNameDialog(myPoemsViewModel: MyPoemsViewModel) {
     var albumName by remember { mutableStateOf("") }
-    var dialogTitle by remember { mutableStateOf(R.string.add_new_album_content_description) }
+    var dialogTitle by remember {
+        if (myPoemsViewModel.shouldRenameAlbum)
+            mutableStateOf(R.string.rename)
+        else
+            mutableStateOf(R.string.add_new_album_content_description)
+    }
     var buttonText by remember { mutableStateOf(R.string.confirm) }
     var inputMessage by remember { mutableStateOf(R.string.valid_input_message) }
     var shouldChangeText by remember { mutableStateOf(false) }
 
     val validateInput: @Composable (String) -> Boolean = {
         if (PoemThemeViewModel.isValidatedInput(it.replace(' ', '_'))) {
-            val boolean = myPoemsViewModel.addAlbumName(it, LocalContext.current)
+
+            val boolean = if (myPoemsViewModel.shouldRenameAlbum)
+                myPoemsViewModel.renameAlbum(
+                    myPoemsViewModel.oldAlbumName,
+                    it,
+                    LocalContext.current
+                )
+            else
+                myPoemsViewModel.addAlbumName(it, LocalContext.current)
             boolean
         } else {
             false
@@ -245,7 +259,11 @@ fun AlbumNameDialog(myPoemsViewModel: MyPoemsViewModel) {
 
     if (myPoemsViewModel.displayAlbumsDialog) {
         Dialog(
-            onDismissRequest = { myPoemsViewModel.displayAlbumsDialog = false },
+            onDismissRequest = {
+                myPoemsViewModel.displayAlbumsDialog =
+                    false; if (myPoemsViewModel.shouldRenameAlbum) myPoemsViewModel.shouldRenameAlbum =
+                false; myPoemsViewModel.oldAlbumName = ""
+            },
             properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)
         ) {
             Card(
@@ -327,13 +345,19 @@ fun AlbumNameDialog(myPoemsViewModel: MyPoemsViewModel) {
         }
         if (shouldChangeText) {
             if (dialogTitle == R.string.retry) {
-                dialogTitle = R.string.add_new_album_content_description
+                dialogTitle = if (myPoemsViewModel.shouldRenameAlbum)
+                    R.string.rename
+                    else
+                        R.string.add_new_album_content_description
                 buttonText = R.string.confirm
                 inputMessage = R.string.valid_input_message
             } else if (!validateInput.invoke(albumName)) {
                 dialogTitle = R.string.retry
                 buttonText = R.string.retry
-                inputMessage = R.string.invalid_input_message
+                inputMessage = if (myPoemsViewModel.shouldRenameAlbum)
+                    R.string.failed_to_rename
+                else
+                    R.string.invalid_input_message
             }
             shouldChangeText = false
         }
@@ -346,10 +370,25 @@ fun DrawerContainer(
     drawerState: DrawerState,
     scope: CoroutineScope
 ) {
+    val context = LocalContext.current
     val onAlbumClick: (String) -> Unit = {
         myPoemsViewModel.setAlbumSelection(it)
         scope.launch { drawerState.close() }
     }
+    val onDeleteAlbum: (String) -> Unit = {
+        if (!myPoemsViewModel.deleteAlbum(it, context))
+            Toast.makeText(
+                context,
+                context.getString(R.string.failed_to_delete, it),
+                Toast.LENGTH_LONG
+            ).show()
+    }
+    val onRenameAlbum: (String) -> Unit = {
+        myPoemsViewModel.displayAlbumsDialog = true
+        myPoemsViewModel.shouldRenameAlbum = true
+        myPoemsViewModel.oldAlbumName = it
+    }
+
     val albums = myPoemsViewModel.getAlbums(LocalContext.current)
     LazyColumn(
         modifier = Modifier
@@ -383,13 +422,20 @@ fun DrawerContainer(
             Spacer(modifier = Modifier.height(10.dp))
         }
         items(albums.size) {
-            AlbumItem(albums[it], onAlbumClick)
+            AlbumItem(albums[it], onAlbumClick, onDeleteAlbum, onRenameAlbum,true)
         }
     }
 }
 
 @Composable
-fun AlbumItem(albumName: String, onAlbumClick: (String) -> Unit) {
+fun AlbumItem(
+    albumName: String,
+    onAlbumClick: (String) -> Unit,
+    onDeleteAlbum: (String) -> Unit,
+    onRenameAlbum: (String) -> Unit,
+    shouldDisplayOptions : Boolean
+) {
+    var albumOptions by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -402,8 +448,8 @@ fun AlbumItem(albumName: String, onAlbumClick: (String) -> Unit) {
                 id = R.string.album_icon_content_description
             ),
             modifier = Modifier
-                .weight(0.2f)
-                .fillMaxWidth()
+                .width(48.dp)
+                .weight(0.1f)
         )
 
         Text(
@@ -411,6 +457,79 @@ fun AlbumItem(albumName: String, onAlbumClick: (String) -> Unit) {
             color = androidx.compose.material.MaterialTheme.colors.primary,
             modifier = Modifier.weight(0.8f)
         )
+
+        if (shouldDisplayOptions) {
+            Image(
+                painter = painterResource(id = R.drawable.baseline_more_vert_24),
+                contentDescription = stringResource(
+                    id = R.string.more_options_content_description
+                ),
+                modifier = Modifier
+                    .width(48.dp)
+                    .clickable { albumOptions = !albumOptions },
+                alignment = Alignment.CenterEnd
+            )
+        }
+    }
+
+    if (shouldDisplayOptions && albumOptions) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth(),
+            shape = com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline,
+            colors = CardDefaults.cardColors(containerColor = Color.White)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+                    .clickable { onDeleteAlbum.invoke(albumName); albumOptions = false },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(id = R.string.delete),
+                    Modifier
+                        .weight(0.8f)
+                        .fillMaxSize(),
+                    style = androidx.compose.material.MaterialTheme.typography.body1
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.ic_baseline_delete_24),
+                    contentDescription = stringResource(
+                        id = R.string.delete_button_description
+                    ),
+                    modifier = Modifier
+                        .weight(0.2f)
+                        .fillMaxSize(),
+                    alignment = Alignment.CenterEnd
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(id = R.string.rename),
+                    Modifier
+                        .weight(0.8f)
+                        .fillMaxSize()
+                        .clickable { onRenameAlbum.invoke(albumName); albumOptions = false },
+                    style = androidx.compose.material.MaterialTheme.typography.body1
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.baseline_drive_file_rename_outline_24),
+                    contentDescription = stringResource(
+                        id = R.string.delete_button_description
+                    ),
+                    alignment = Alignment.CenterEnd,
+                    modifier = Modifier
+                        .weight(0.2f)
+                        .fillMaxSize()
+                )
+            }
+        }
     }
 }
 
@@ -504,7 +623,7 @@ fun SearchImageList(myPoemsViewModel: MyPoemsViewModel) {
                             substringLocations = subStringLocations[it]
                         )
                 }
-                TitleItem(file)
+                TitleItem(myPoemsViewModel.getPoemsFile(file, LocalContext.current))
             }
         }
     }
@@ -816,7 +935,7 @@ fun PoemListView(myPoemsViewModel: MyPoemsViewModel) {
                     onLongClick,
                     myPoemsViewModel.onImageLongPressed
                 )
-                TitleItem(file)
+                TitleItem(myPoemsViewModel.getPoemsFile(file, LocalContext.current))
             }
         }
     }

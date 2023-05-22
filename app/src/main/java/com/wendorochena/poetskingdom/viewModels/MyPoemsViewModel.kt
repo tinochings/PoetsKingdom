@@ -61,9 +61,11 @@ class MyPoemsViewModel : ViewModel() {
     var searchButtonClicked by mutableStateOf(false)
     var displayNoResultsFound by mutableStateOf(false)
     var displayAlbumsDialog by mutableStateOf(false)
+    var shouldRenameAlbum by mutableStateOf(false)
     var displayAlbumSelector by mutableStateOf(false)
     var albumSaveResult = -2
     var hitsFound by mutableStateOf(false)
+    var oldAlbumName = ""
     var stanzaIndexAndText = HashMap<String, ArrayList<Pair<Int, String>>>()
     val poemBackgroundTypeArrayList = mutableStateListOf<Pair<BackgroundType, Int>>()
     val substringLocations = mutableStateListOf<Pair<String, String>>()
@@ -704,10 +706,10 @@ class MyPoemsViewModel : ViewModel() {
         val albumsToMove = mapToUse.filter { it.value }
         if (albumsToMove.isEmpty())
             return false
-        val encodedAlbumName = if(albumName == allPoemsString)
+        val encodedAlbumName = if (albumName == allPoemsString)
             ""
-            else
-                albumName.replace(' ', '_')
+        else
+            albumName.replace(' ', '_')
         val poemFolder =
             context.getDir(
                 context.getString(R.string.poems_folder_name),
@@ -785,5 +787,97 @@ class MyPoemsViewModel : ViewModel() {
     fun resolveAlbumName(file: File): String? {
         val fileName = file.name.split(".")[0].replace('_', ' ')
         return savedPoemAndAlbum[fileName]
+    }
+
+    /**
+     * Deletes an album
+     */
+    fun deleteAlbum(albumName: String, context: Context): Boolean {
+        if (albumName == allPoemsString)
+            return true
+        val poemFolder =
+            context.getDir(
+                context.getString(R.string.poems_folder_name),
+                Context.MODE_PRIVATE
+            )
+
+        val encodedAlbumName = albumName.replace(' ', '_')
+
+        val folderToDelete = File(poemFolder.absolutePath + File.separator + encodedAlbumName)
+
+        try {
+            if (folderToDelete.exists()) {
+                if (folderToDelete.deleteRecursively()) {
+                    savedPoemAndAlbum.remove(albumName)
+                    albumFolderNames.remove(albumName)
+                    updateAlbums(context)
+                    return true
+                }
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            return false
+        }
+
+        return false
+    }
+
+    /**
+     * Renames an album
+     */
+    fun renameAlbum(albumName: String, albumRename: String, context: Context): Boolean {
+        val poemFolder =
+            context.getDir(
+                context.getString(R.string.poems_folder_name),
+                Context.MODE_PRIVATE
+            )
+
+        if (albumName != albumRename) {
+
+            val encodedAlbumName = albumName.replace(' ', '_')
+            val encodedAlbumRename = albumRename.replace(' ', '_')
+
+            val folderToDelete = File(poemFolder.absolutePath, encodedAlbumName)
+
+            val folderToRename = File(poemFolder.absolutePath, encodedAlbumRename)
+
+            try {
+                if (folderToDelete.exists() && !folderToRename.exists()) {
+                    if (folderToDelete.renameTo(folderToRename)) {
+                        albumFolderNames[albumFolderNames.indexOf(albumName)] = albumRename
+                        for (pair in savedPoemAndAlbum) {
+                            if (pair.value == albumName)
+                                pair.setValue(albumRename)
+                        }
+                        albumSaveResult = 0
+                        updateAlbums(context)
+                        return true
+                    }
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+                albumSaveResult = -1
+                return false
+            }
+        }
+        albumSaveResult = -1
+        return false
+    }
+
+    fun getPoemsFile(file: File, context: Context): File {
+        val poemFolder =
+            context.getDir(
+                context.getString(R.string.poems_folder_name),
+                Context.MODE_PRIVATE
+            )
+        val decodedPoemName = file.name.split(".")[0].replace('_', ' ')
+        val encodedPoemName = file.name.split(".")[0]
+        val albumName = savedPoemAndAlbum[decodedPoemName]
+        return if (albumName != null) {
+            val encodedAlbumName = albumName.replace(' ', '_')
+            File(poemFolder.absolutePath + File.separator + encodedAlbumName + File.separator + encodedPoemName + ".xml")
+        } else {
+            File(poemFolder.absolutePath + File.separator + encodedPoemName + ".xml")
+        }
     }
 }

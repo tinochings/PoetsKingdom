@@ -276,4 +276,10 @@
     <string name="menu_icon_content_description">Menu Icon</string>
     <string name="all_poems_album_name">All Poems</string>
     <string name="add_new_album_message">Add a new album name.\n\n Maximum 60 characters. Letters And Numbers Only.</string>
+    <string name="more_options_content_description">More Options</string>
+    <string name="delete">Delete</string>
+    <string name="rename">Rename</string>
+    <string name="rename_content_description">Rename Button</string>
+    <string name="failed_to_delete">Failed to delete %1$s</string>
+    <string name="failed_to_rename">Failed to rename album</string>
 </resources>

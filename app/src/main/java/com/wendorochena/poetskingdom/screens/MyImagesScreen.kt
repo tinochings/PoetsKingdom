@@ -312,7 +312,7 @@ fun TitleItem(imageFile: File, modifier: Modifier = Modifier) {
     val date = Date(imageFile.lastModified())
     val dateText = simpleDateFormat.format(date)
     val titleName =
-        imageFile.name[0].uppercase() + imageFile.name.split(".png")[0].replace('_', ' ')
+        imageFile.name[0].uppercase() + imageFile.name.split(".")[0].replace('_', ' ')
             .removeRange(0, 1)
     Column {
         Box(modifier = modifier, contentAlignment = Alignment.Center) {
