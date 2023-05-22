@@ -38,6 +38,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -61,6 +62,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -216,6 +218,7 @@ fun AlbumsSelector(myPoemsViewModel: MyPoemsViewModel) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlbumNameDialog(myPoemsViewModel: MyPoemsViewModel) {
     var albumName by remember { mutableStateOf("") }
@@ -249,7 +252,12 @@ fun AlbumNameDialog(myPoemsViewModel: MyPoemsViewModel) {
         ) {
             Card(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .border(
+                        width = 3.dp,
+                        color = DefaultStatusBarColor,
+                        com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline
+                    ),
                 shape = com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline
             ) {
                 Column(
@@ -276,9 +284,10 @@ fun AlbumNameDialog(myPoemsViewModel: MyPoemsViewModel) {
 
                     Spacer(modifier = Modifier.height(30.dp))
 
-                    androidx.compose.material.TextField(
-                        colors = androidx.compose.material.TextFieldDefaults.textFieldColors(
-                            textColor = Color.White
+                    TextField(
+                        colors = TextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            disabledTextColor = Color.White
                         ),
                         singleLine = true,
                         value = albumName,
@@ -288,7 +297,9 @@ fun AlbumNameDialog(myPoemsViewModel: MyPoemsViewModel) {
                                 stringResource(id = R.string.create_album_hint),
                                 color = OffWhite
                             )
-                        })
+                        },
+                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+                    )
 
                     Spacer(modifier = Modifier.height(30.dp))
 
@@ -775,7 +786,7 @@ fun PoemListView(myPoemsViewModel: MyPoemsViewModel) {
     }
     val onLongClick: (File) -> Unit = {
         if (myPoemsViewModel.albumNameSelection == myPoemsViewModel.allPoemsString)
-                myPoemsViewModel.allSavedPoems[it] = true
+            myPoemsViewModel.allSavedPoems[it] = true
         else
             myPoemsViewModel.albumSavedPoems[it] = true
         myPoemsViewModel.setOnLongClick(true)

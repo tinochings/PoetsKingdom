@@ -29,6 +29,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
@@ -58,6 +59,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -1276,7 +1278,11 @@ fun SavePoemThemeDialog(poemThemeViewModel: PoemThemeViewModel) {
     ) {
         Card(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth().border(
+                    width = 3.dp,
+                    color = DefaultStatusBarColor,
+                    com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline
+                ),
             shape = com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline
         ) {
             Column(
@@ -1313,7 +1319,8 @@ fun SavePoemThemeDialog(poemThemeViewModel: PoemThemeViewModel) {
                             stringResource(id = R.string.create_poem_edit_text_hint),
                             color = OffWhite
                         )
-                    })
+                    }, keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+                )
 
                 Spacer(modifier = Modifier.height(30.dp))
 
