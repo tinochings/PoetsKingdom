@@ -286,8 +286,13 @@ fun AlbumNameDialog(myPoemsViewModel: MyPoemsViewModel) {
 
                     TextField(
                         colors = TextFieldDefaults.colors(
+                            disabledContainerColor = DefaultColor,
+                            unfocusedContainerColor = Color.Transparent,
+                            focusedContainerColor = DefaultColor,
                             focusedTextColor = Color.White,
-                            disabledTextColor = Color.White
+                            disabledTextColor = Color.White,
+                            focusedIndicatorColor = Color.White,
+                            unfocusedIndicatorColor = Color.White
                         ),
                         singleLine = true,
                         value = albumName,
