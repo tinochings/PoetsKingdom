@@ -81,7 +81,7 @@ class PersonalisationActivity : AppCompatActivity() {
         private fun restartApp() {
             val intent = Intent(
                 requireContext(),
-                MainActivity::class.java
+                MainActivityCompose::class.java
             )
             startActivity(intent)
             finishAffinity(this.requireActivity())
