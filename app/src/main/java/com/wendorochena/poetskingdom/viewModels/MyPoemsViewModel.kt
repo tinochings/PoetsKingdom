@@ -73,7 +73,7 @@ class MyPoemsViewModel : ViewModel() {
     private val albumFolderNames = mutableStateListOf<String>()
 
     // poem name as key and album as value
-    private val savedPoemAndAlbum = HashMap<String, String>()
+    val savedPoemAndAlbum = HashMap<String, String>()
 
 
     fun setAlbumSelection(albumName: String) {
@@ -702,13 +702,23 @@ class MyPoemsViewModel : ViewModel() {
         else
             albumSavedPoems
         val albumsToMove = mapToUse.filter { it.value }
-        val encodedAlbumName = albumName.replace(' ', '_')
+        if (albumsToMove.isEmpty())
+            return false
+        val encodedAlbumName = if(albumName == allPoemsString)
+            ""
+            else
+                albumName.replace(' ', '_')
         val poemFolder =
             context.getDir(
                 context.getString(R.string.poems_folder_name),
                 Context.MODE_PRIVATE
             )
-        val albumFolder = File(poemFolder.absolutePath + File.separator + encodedAlbumName)
+
+        val albumFolder = if (albumNameSelection != allPoemsString && albumName == allPoemsString)
+            poemFolder
+        else
+            File(poemFolder.absolutePath + File.separator + encodedAlbumName)
+
         if (albumFolder.exists()) {
             try {
                 for (poemFilePair in albumsToMove) {
@@ -741,8 +751,12 @@ class MyPoemsViewModel : ViewModel() {
                             )
                             outputStream.close()
                             inputStream.close()
+                            sourceFile.delete()
                         }
-                        savedPoemAndAlbum[poemFileName] = albumName
+                        if (albumName == allPoemsString)
+                            savedPoemAndAlbum.remove(poemFileNameDecoded)
+                        else
+                            savedPoemAndAlbum[poemFileNameDecoded] = albumName
                         if (albumSavedPoems[poemFilePair.key] != null)
                             albumSavedPoems.remove(poemFilePair.key)
                     } else {
@@ -762,7 +776,9 @@ class MyPoemsViewModel : ViewModel() {
             Log.e(MyPoemsViewModel::javaClass.name, "Album name: $albumName does not exist")
             return false
         }
-
+        for (albumFileToDeselect in albumsToMove) {
+            mapToUse[albumFileToDeselect.key] = false
+        }
         return true
     }
 

@@ -24,7 +24,7 @@ class PoemThemeParserTest {
         mockContext = mock {
             on {
                 this.getDir(
-                    getString(R.string.poems_folder_name),
+                    "poems",
                     Context.MODE_PRIVATE
                 )
             } doReturn File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/poems")
