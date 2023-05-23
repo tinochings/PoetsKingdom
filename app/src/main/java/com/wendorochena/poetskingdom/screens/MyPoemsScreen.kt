@@ -903,7 +903,10 @@ fun PoemListView(myPoemsViewModel: MyPoemsViewModel) {
                 )
             LocalContext.current.startActivity(newActivityIntent)
         } else {
-            myPoemsViewModel.allSavedPoems[it] = !myPoemsViewModel.allSavedPoems[it]!!
+            if (myPoemsViewModel.albumNameSelection == myPoemsViewModel.allPoemsString)
+                myPoemsViewModel.allSavedPoems[it] = !myPoemsViewModel.allSavedPoems[it]!!
+            else
+                myPoemsViewModel.albumSavedPoems[it] = !myPoemsViewModel.albumSavedPoems[it]!!
         }
     }
     val onLongClick: (File) -> Unit = {

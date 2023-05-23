@@ -766,10 +766,9 @@ class MyPoemsViewModel : ViewModel() {
                             this::javaClass.name,
                             "Failed to move {${sourceFile.absolutePath}} to $albumFolder"
                         )
-                        return false
+                        // add notification for failure of partial additions
                     }
                 }
-
             } catch (e: IOException) {
                 e.printStackTrace()
                 return false
