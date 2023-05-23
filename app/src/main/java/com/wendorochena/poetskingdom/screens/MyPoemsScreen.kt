@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.view.KeyEvent
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -946,11 +945,9 @@ fun PoemListView(myPoemsViewModel: MyPoemsViewModel) {
 
 @Composable
 fun BottomBar(myPoemsViewModel: MyPoemsViewModel) {
-    val context = LocalContext.current as? ComponentActivity
-    val applicationContext = LocalContext.current
+    val context = LocalContext.current
     val onShareIntent: () -> Unit = {
-        if (context != null)
-            myPoemsViewModel.shareIntent(context.applicationContext)
+        myPoemsViewModel.shareIntent(context.applicationContext)
     }
     Box(
         modifier = Modifier
@@ -991,7 +988,7 @@ fun BottomBar(myPoemsViewModel: MyPoemsViewModel) {
                 Button(elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 5.dp),
                     shape = RoundedCornerShape(5.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
-                    onClick = { myPoemsViewModel.deleteSavedPoems(context = applicationContext) }) {
+                    onClick = { myPoemsViewModel.deleteSavedPoems(context = context) }) {
                     Image(
                         painter = painterResource(id = R.drawable.ic_baseline_delete_24),
                         contentDescription = "Share Button",
@@ -1037,5 +1034,4 @@ fun MyPoemsPreview() {
             MyPoemsApp(viewModel())
         }
     }
-
 }

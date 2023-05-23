@@ -5,15 +5,12 @@ import android.content.SharedPreferences
 import com.wendorochena.poetskingdom.viewModels.MyPoemsViewModel
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
-import org.robolectric.RobolectricTestRunner
 import java.io.File
 
-@RunWith(RobolectricTestRunner::class)
 class MyPoemsViewModelTest {
 
     private val myPoemsViewModel = MyPoemsViewModel()
@@ -27,15 +24,11 @@ class MyPoemsViewModelTest {
             getString(R.string.thumbnails_folder_name)
         } doReturn ("thumbnails")
         on {
-            getDir(
-                getString(R.string.poems_folder_name),
+            this.getDir(
+                "poems",
                 Context.MODE_PRIVATE
             )
         } doReturn File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder")
-
-        on {
-            this.getDir("poemThemes", Context.MODE_PRIVATE)
-        } doReturn File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/themes")
 
         on {
             this.getDir("thumbnails", Context.MODE_PRIVATE)

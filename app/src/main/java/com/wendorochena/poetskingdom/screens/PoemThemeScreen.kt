@@ -555,10 +555,6 @@ fun DisplayOutline(
 fun ThemeOptions(
     poemThemeViewModel: PoemThemeViewModel
 ) {
-//    val sharedPreferences =
-//        LocalContext.current.applicationContext.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
-    val headingSelection = poemThemeViewModel.headingSelection
-    val unselectedHeadings = poemThemeViewModel.unselectedHeadings()
     val onOutlineClicked: (OutlineTypes) -> Unit = { outline ->
         if (poemThemeViewModel.backgroundType == BackgroundType.COLOR ||
             poemThemeViewModel.backgroundType == BackgroundType.OUTLINE_WITH_COLOR
@@ -621,7 +617,6 @@ fun ThemeOptions(
 
                         HeadingSelection.TEXT -> {
                             poemThemeViewModel.setTextColor(envelope.color, envelope.hexCode)
-//                            poemThemeViewModel.fontColor = envelope.color
                         }
 
                         HeadingSelection.OUTLINE -> {
@@ -674,10 +669,10 @@ fun ThemeOptions(
                 .fillMaxWidth()
                 .height(48.dp)
         ) {
-            when (headingSelection) {
+            when (poemThemeViewModel.headingSelection) {
                 HeadingSelection.TEXT -> {
                     UnselectedHeadingBox(
-                        headingName = unselectedHeadings[0],
+                        headingName = poemThemeViewModel.unselectedHeadings()[0],
                         modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight()
@@ -686,7 +681,7 @@ fun ThemeOptions(
                         onItemClick = onHeadingClicked
                     )
                     UnselectedHeadingBox(
-                        headingName = unselectedHeadings[1],
+                        headingName = poemThemeViewModel.unselectedHeadings()[1],
                         modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight()
@@ -695,14 +690,14 @@ fun ThemeOptions(
                         onItemClick = onHeadingClicked
                     )
                     SelectedHeadingBox(
-                        headingName = headingSelection.name,
+                        headingName = poemThemeViewModel.headingSelection.name,
                         modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight()
                             .weight(1f)
                             .align(Alignment.CenterVertically)
                             .border(
-                                BorderStroke(5.dp, DefaultColor),
+                                BorderStroke(5.dp, MaterialTheme.colors.primaryVariant),
                                 shape = RoundedCornerShape(15.dp)
                             )
                     )
@@ -722,7 +717,7 @@ fun ThemeOptions(
 
                 HeadingSelection.BACKGROUND -> {
                     UnselectedHeadingBox(
-                        headingName = unselectedHeadings[0],
+                        headingName = poemThemeViewModel.unselectedHeadings()[0],
                         modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight()
@@ -731,19 +726,19 @@ fun ThemeOptions(
                         onItemClick = onHeadingClicked
                     )
                     SelectedHeadingBox(
-                        headingName = headingSelection.name,
+                        headingName = poemThemeViewModel.headingSelection.name,
                         modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight()
                             .weight(1f)
                             .align(Alignment.CenterVertically)
                             .border(
-                                BorderStroke(5.dp, DefaultColor),
+                                BorderStroke(5.dp, MaterialTheme.colors.primaryVariant),
                                 shape = RoundedCornerShape(15.dp)
                             ),
                     )
                     UnselectedHeadingBox(
-                        headingName = unselectedHeadings[1],
+                        headingName = poemThemeViewModel.unselectedHeadings()[1],
                         modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight()
@@ -766,18 +761,18 @@ fun ThemeOptions(
 
                 HeadingSelection.OUTLINE -> {
                     SelectedHeadingBox(
-                        headingName = headingSelection.name, modifier = Modifier
+                        headingName = poemThemeViewModel.headingSelection.name, modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight()
                             .weight(1f)
                             .align(Alignment.CenterVertically)
                             .border(
-                                BorderStroke(5.dp, DefaultColor),
+                                BorderStroke(5.dp, MaterialTheme.colors.primaryVariant),
                                 shape = RoundedCornerShape(15.dp)
                             )
                     )
                     UnselectedHeadingBox(
-                        headingName = unselectedHeadings[0],
+                        headingName = poemThemeViewModel.unselectedHeadings()[0],
                         modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight()
@@ -786,7 +781,7 @@ fun ThemeOptions(
                         onItemClick = onHeadingClicked
                     )
                     UnselectedHeadingBox(
-                        headingName = unselectedHeadings[1],
+                        headingName = poemThemeViewModel.unselectedHeadings()[1],
                         modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight()
@@ -1360,9 +1355,7 @@ fun AppBar(
     setDisplayDialog: @Composable (Boolean) -> Unit,
     isEditTheme: Boolean
 ) {
-    var shouldDisplayDialog by remember {
-        mutableStateOf(false)
-    }
+    var shouldDisplayDialog by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
             .fillMaxWidth()

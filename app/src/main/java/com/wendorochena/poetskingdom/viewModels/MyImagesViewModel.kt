@@ -11,6 +11,7 @@ import com.wendorochena.poetskingdom.R
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.IOException
 
 enum class CurrentSelection {
     IMAGES, POEMS
@@ -156,7 +157,7 @@ class MyImagesViewModel : ViewModel() {
                 if (savedImageFiles != null) {
                     for (file in savedImageFiles) {
                         val thumbnailFile = File(
-                            thumbnailsFolder?.absolutePath + File.separator + file.name + ".png"
+                            thumbnailsFolder.absolutePath + File.separator + file.name + ".png"
                         )
                         if (thumbnailFile.exists()) {
                             arrayListToRet.add(File(thumbnailFile.absolutePath))
@@ -208,7 +209,7 @@ class MyImagesViewModel : ViewModel() {
                     }
                 }
             }
-        } catch (e: Exception) {
+        } catch (e: IOException) {
             e.printStackTrace()
         }
     }

@@ -30,7 +30,7 @@ class PoemParserTest {
             } doReturn File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/mock_index")
             on {
                 getDir(
-                    "poems",
+                    this.getString(R.string.poems_folder_name),
                     Context.MODE_PRIVATE
                 )
             } doReturn File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/poems")

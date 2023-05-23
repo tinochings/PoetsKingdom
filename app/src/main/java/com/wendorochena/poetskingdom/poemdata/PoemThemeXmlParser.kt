@@ -45,7 +45,7 @@ class PoemThemeXmlParser(
     suspend fun parseTheme(poemTitle: String?): Int {
 
         return withContext(Dispatchers.IO) {
-            val poemThemeFolder = applicationContext.getDir("poemThemes", Context.MODE_PRIVATE)
+            val poemThemeFolder = applicationContext.getDir(applicationContext.getString(R.string.poem_themes_folder_name), Context.MODE_PRIVATE)
             val fileToUse = File(
                 poemThemeFolder?.absolutePath + File.separator + poemTitle?.replace(
                     ' ',
