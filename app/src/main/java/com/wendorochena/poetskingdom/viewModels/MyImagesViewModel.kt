@@ -99,12 +99,32 @@ class MyImagesViewModel : ViewModel() {
     }
 
     /**
+     * Checks to see if there is a saved poem with the corresponding poemname
+     */
+    private fun hasPoemPath(savedPoemsPath : File, poemName: String) : Boolean{
+        if (File(savedPoemsPath.absolutePath + File.separator + poemName).exists())
+            return true
+        val albums = savedPoemsPath.listFiles()
+
+        if (albums != null){
+            for (album in albums){
+                if (File(album.absolutePath + File.separator + poemName).exists())
+                    return true
+            }
+        }
+        return false
+    }
+    /**
      * Deletes saved poem images
      *
      * @param context application context
      */
     fun deleteSavedPoems(context: Context) {
         val filesToDelete = savedPoemImages.filter { it.value }
+        val savedPoemsPath = context.getDir(
+            context.getString(R.string.poems_folder_name),
+            Context.MODE_PRIVATE
+        )
         for (entry in filesToDelete) {
             try {
                 val file = entry.key
@@ -120,9 +140,13 @@ class MyImagesViewModel : ViewModel() {
                         ""
                     )
                 )
+                val hasSavedPoem = hasPoemPath(savedPoemsPath, file.name.replace(".png",".xml"))
                 if (fullPathToDelete.exists())
-                    if(fullPathToDelete.deleteRecursively())
+                    if(fullPathToDelete.deleteRecursively()) {
                         savedPoemImages.remove(file)
+                        if (!hasSavedPoem)
+                            file.delete()
+                    }
                 else {
                     Log.e("Failed to remove file: ", entry.key.name)
                 }

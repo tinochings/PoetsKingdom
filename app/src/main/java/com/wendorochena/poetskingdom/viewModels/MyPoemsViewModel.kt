@@ -79,6 +79,11 @@ class MyPoemsViewModel : ViewModel() {
 
 
     fun setAlbumSelection(albumName: String) {
+        if (onImageLongPressed) {
+            onImageLongPressed = false
+            resetSelectedImages()
+        }
+
         albumNameSelection = albumName
         if (albumSavedPoems.isNotEmpty())
             albumSavedPoems.clear()
@@ -143,9 +148,9 @@ class MyPoemsViewModel : ViewModel() {
                     Context.MODE_PRIVATE
                 )
             try {
-                val savedImageFiles = savedPoemsFolder.listFiles()?.toMutableList()
-                if (savedImageFiles != null) {
-                    for (file in savedImageFiles) {
+                val savedPoemsFiles = savedPoemsFolder.listFiles()?.toMutableList()
+                if (savedPoemsFiles != null) {
+                    for (file in savedPoemsFiles) {
                         if (file.isDirectory) {
                             val allFiles = file.listFiles()
                             if (allFiles != null) {
@@ -197,7 +202,7 @@ class MyPoemsViewModel : ViewModel() {
             allSavedPoems
         else
             albumSavedPoems
-
+        val savedImagesFolder = context.getDir(context.getString(R.string.saved_images_folder_name), Context.MODE_PRIVATE)
         val filesToDelete = mapToUse.filter { it.value }
         for (entry in filesToDelete) {
             try {
@@ -209,7 +214,7 @@ class MyPoemsViewModel : ViewModel() {
                     context.getString(R.string.poems_folder_name),
                     Context.MODE_PRIVATE
                 )
-                val fullPathToDelete = if (encodedAlbumName != null)
+                val fullPoemPathToDelete = if (encodedAlbumName != null)
                     File(
                         savedPoemsPath.absolutePath + File.separator + encodedAlbumName + File.separator + poemName.replace(
                             ".png",
@@ -223,11 +228,15 @@ class MyPoemsViewModel : ViewModel() {
                             ".xml"
                         )
                     )
-                if (fullPathToDelete.exists())
-                    if (fullPathToDelete.deleteRecursively()) {
+                val fullSavedImagesPathToDelete = File(savedImagesFolder.absolutePath + File.separator + poemName.split(".")[0])
+
+                if (fullPoemPathToDelete.exists())
+                    if (fullPoemPathToDelete.deleteRecursively()) {
                         if (albumNameSelection != allPoemsString)
                             allSavedPoems.remove(file)
                         mapToUse.remove(file)
+                        if (!fullSavedImagesPathToDelete.exists())
+                            file.delete()
                     } else {
                         Log.e("Failed to remove file: ", entry.key.name)
                     }
@@ -830,6 +839,9 @@ class MyPoemsViewModel : ViewModel() {
                 context.getString(R.string.poems_folder_name),
                 Context.MODE_PRIVATE
             )
+
+        if (albumRename == allPoemsString)
+            return false
 
         if (albumName != albumRename) {
 

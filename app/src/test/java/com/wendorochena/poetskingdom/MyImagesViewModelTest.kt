@@ -29,6 +29,9 @@ class MyImagesViewModelTest {
         } doReturn ("myImages")
 
         on {
+            getString(R.string.poems_folder_name)
+        } doReturn ("poems")
+        on {
             this.getDir("myImages", Context.MODE_PRIVATE)
         } doReturn File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_images")
 
@@ -40,34 +43,73 @@ class MyImagesViewModelTest {
             this.getDir("thumbnails", Context.MODE_PRIVATE)
         } doReturn File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/thumbnails")
 
+        on {
+            this.getDir("poems", Context.MODE_PRIVATE)
+        } doReturn File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder")
     }
 
     @Before
     fun createPoemsFolders() {
         myImagesViewModel = MyImagesViewModel()
-        if (!File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/Boundary_Test_1").exists()) {
-            File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/Boundary_Test_1").mkdir()
-            File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/dfsdfsdf").mkdir()
-            File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/HELLO").mkdir()
-        }
     }
     @After
-    fun reAddImages() {
+    fun reAddFiles() {
+        //re-add image files
         if (!File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_images/Boundary_Test_1.png").exists()) {
-            File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/thumbnails/Boundary_Test_1.png").copyTo(
+            File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/temp_thumbnails/Boundary_Test_1.png").copyTo(
                 File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_images/Boundary_Test_1.png")
             )
-            File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/thumbnails/dfsdfsdf.png").copyTo(
+            File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/temp_thumbnails/dfsdfsdf.png").copyTo(
                 File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_images/dfsdfsdf.png")
             )
-            File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/thumbnails/HELLO.png").copyTo(
+            File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/temp_thumbnails/HELLO.png").copyTo(
                 File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_images/HELLO.png")
             )
         }
+
+        //re-add thumbnails
+        if (!File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/thumbnails/Boundary_Test_1.png").exists()) {
+            File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/temp_thumbnails/Boundary_Test_1.png").copyTo(
+                File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/thumbnails/Boundary_Test_1.png")
+            )
+            File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/temp_thumbnails/dfsdfsdf.png").copyTo(
+                File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/thumbnails/dfsdfsdf.png")
+            )
+            File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/temp_thumbnails/HELLO.png").copyTo(
+                File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/thumbnails/HELLO.png")
+            )
+        }
+        //delete copied images
         if (File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_images/copy1.png").exists()) {
             File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_images/copy1.png").delete()
             File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_images/copy2.png").delete()
             File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_images/copy3.png").delete()
+        }
+        //re-add poems
+        if (!File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/HELLO.xml").exists()) {
+            File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/poems/HELLO.xml").copyTo(
+                File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/HELLO.xml")
+            )
+            File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/poems/Boundary_Test_1.xml").copyTo(
+                File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/Boundary_Test_1.xml")
+            )
+            File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/poems/dfsdfsdf.xml").copyTo(
+                File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/dfsdfsdf.xml")
+            )
+        }
+
+        // delete album poem files
+        if (File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/album1/HELLO.xml").exists()){
+            File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/album1/HELLO.xml").delete()
+            File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/album1/Boundary_Test_1.xml").delete()
+            File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/album1/dfsdfsdf.xml").delete()
+        }
+
+        //re-add directories
+        if (!File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/Boundary_Test_1").exists()) {
+            File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/Boundary_Test_1").mkdir()
+            File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/dfsdfsdf").mkdir()
+            File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/HELLO").mkdir()
         }
     }
     /**
@@ -165,8 +207,87 @@ class MyImagesViewModelTest {
         assert(!File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/Boundary_Test_1").exists())
         assert(!File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/dfsdfsdf").exists())
         assert(!File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/HELLO").exists())
+
+        // poem files should be there
+        assert(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/HELLO.xml").exists())
+        assert(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/dfsdfsdf.xml").exists())
+        assert(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/Boundary_Test_1.xml").exists())
+        //thumbnails not deleted
+        assert(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/thumbnails/Boundary_Test_1.png").exists())
+        assert(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/thumbnails/dfsdfsdf.png").exists())
+        assert(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/thumbnails/HELLO.png").exists())
     }
 
+    @Test
+    fun testDeleteSavedPoemsWithSavedAlbumPoems() {
+        assert( File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/Boundary_Test_1").exists())
+        assert(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/dfsdfsdf").exists())
+        assert(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/HELLO").exists())
+
+        assert(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/HELLO.xml").copyTo(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/album1/HELLO.xml")).exists())
+        assert(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/dfsdfsdf.xml").copyTo(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/album1/dfsdfsdf.xml")).exists())
+        assert(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/Boundary_Test_1.xml").copyTo(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/album1/Boundary_Test_1.xml")).exists())
+
+        assert(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/HELLO.xml").delete())
+        assert(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/dfsdfsdf.xml").delete())
+        assert(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/Boundary_Test_1.xml").delete())
+        myImagesViewModel.setSelection(CurrentSelection.POEMS)
+        assert(myImagesViewModel.currentSelection == CurrentSelection.POEMS)
+        assert(myImagesViewModel.savedPoemImages.isEmpty())
+        assert(myImagesViewModel.getThumbnails(mockContext).size == 3)
+        assert(myImagesViewModel.imageFiles.isEmpty())
+        assert(myImagesViewModel.savedPoemImages.isNotEmpty())
+        myImagesViewModel.setOnLongClick(true)
+        assert(myImagesViewModel.onImageLongPressed)
+        for (map in myImagesViewModel.getThumbnails(mockContext)) {
+            myImagesViewModel.savedPoemImages[map.key] = true
+        }
+        myImagesViewModel.deleteSavedPoems(mockContext)
+        assert(!File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/Boundary_Test_1").exists())
+        assert(!File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/dfsdfsdf").exists())
+        assert(!File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/HELLO").exists())
+
+        //thumbnails not deleted
+        assert(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/thumbnails/Boundary_Test_1.png").exists())
+        assert(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/thumbnails/dfsdfsdf.png").exists())
+        assert(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/thumbnails/HELLO.png").exists())
+    }
+
+    @Test
+    fun testDeleteSavedPoemsWithNoSavedPoems() {
+        assert( File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/Boundary_Test_1").exists())
+        assert(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/dfsdfsdf").exists())
+        assert(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/HELLO").exists())
+
+        assert(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/HELLO.xml").delete())
+        assert(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/dfsdfsdf.xml").delete())
+        assert(File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/Boundary_Test_1.xml").delete())
+
+        myImagesViewModel.setSelection(CurrentSelection.POEMS)
+        assert(myImagesViewModel.currentSelection == CurrentSelection.POEMS)
+        assert(myImagesViewModel.savedPoemImages.isEmpty())
+        assert(myImagesViewModel.getThumbnails(mockContext).size == 3)
+        assert(myImagesViewModel.imageFiles.isEmpty())
+        assert(myImagesViewModel.savedPoemImages.isNotEmpty())
+        myImagesViewModel.setOnLongClick(true)
+        assert(myImagesViewModel.onImageLongPressed)
+        for (map in myImagesViewModel.getThumbnails(mockContext)) {
+            myImagesViewModel.savedPoemImages[map.key] = true
+        }
+        myImagesViewModel.deleteSavedPoems(mockContext)
+        assert(!File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/Boundary_Test_1").exists())
+        assert(!File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/dfsdfsdf").exists())
+        assert(!File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/saved_images/HELLO").exists())
+
+        // poem files should not be there
+        assert(!File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/HELLO.xml").exists())
+        assert(!File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/dfsdfsdf.xml").exists())
+        assert(!File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/Boundary_Test_1.xml").exists())
+        //thumbnails not deleted
+        assert(!File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/thumbnails/Boundary_Test_1.png").exists())
+        assert(!File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/thumbnails/dfsdfsdf.png").exists())
+        assert(!File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/thumbnails/HELLO.png").exists())
+    }
     /**
      * Test that a back press should deselect all images
      */
