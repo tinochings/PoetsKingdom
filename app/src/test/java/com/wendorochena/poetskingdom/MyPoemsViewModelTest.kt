@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.wendorochena.poetskingdom.poemdata.BackgroundType
 import com.wendorochena.poetskingdom.viewModels.MyPoemsViewModel
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -110,8 +112,10 @@ class MyPoemsViewModelTest {
     }
 
     @Test
-    fun testAddAlbum() {
-        assert(myPoemsViewModel.addAlbumName("dummyFolder", mockContext))
+    fun testAddAlbum() : Unit = runTest {
+        runBlocking {
+            assert(myPoemsViewModel.addAlbumName("dummyFolder", mockContext))
+        }
     }
 
     /**
@@ -781,40 +785,56 @@ class MyPoemsViewModelTest {
      * Tests multiple renames with allowed and not allowed strings
      */
     @Test
-    fun testRenameAlbum() {
-        //add album
-        assert(myPoemsViewModel.addAlbumName("dummyFolder", mockContext))
-        assert(!myPoemsViewModel.renameAlbum("dummyFolder", "dummyFolder", mockContext))
-        assert(myPoemsViewModel.renameAlbum("dummyFolder", "dummyFolderRename", mockContext))
-        assert(!myPoemsViewModel.renameAlbum("dummyFolderRename", "dummyFolderRename", mockContext))
-        assert(
-            !myPoemsViewModel.renameAlbum(
-                "dummyFolderRenamesdfsadsa",
-                "dummyFolderRename",
-                mockContext
+    fun testRenameAlbum() : Unit = runTest {
+        runBlocking {
+            //add album
+            assert(myPoemsViewModel.addAlbumName("dummyFolder", mockContext))
+            assert(!myPoemsViewModel.renameAlbum("dummyFolder", "dummyFolder", mockContext))
+            assert(myPoemsViewModel.renameAlbum("dummyFolder", "dummyFolderRename", mockContext))
+            assert(
+                !myPoemsViewModel.renameAlbum(
+                    "dummyFolderRename",
+                    "dummyFolderRename",
+                    mockContext
+                )
             )
-        )
-        assert(myPoemsViewModel.renameAlbum("dummyFolderRename", "dummyFolderRename2", mockContext))
-        assert(
-            myPoemsViewModel.renameAlbum(
-                "dummyFolderRename2",
-                "dummyFolderRename2 12 2392",
-                mockContext
+            assert(
+                !myPoemsViewModel.renameAlbum(
+                    "dummyFolderRenamesdfsadsa",
+                    "dummyFolderRename",
+                    mockContext
+                )
             )
-        )
-        assert(myPoemsViewModel.renameAlbum("dummyFolderRename2 12 2392", "p", mockContext))
-        assert(!myPoemsViewModel.renameAlbum("p", "All Poems", mockContext))
-        assert(myPoemsViewModel.renameAlbum("p", "dummyFolderRename", mockContext))
+            assert(
+                myPoemsViewModel.renameAlbum(
+                    "dummyFolderRename",
+                    "dummyFolderRename2",
+                    mockContext
+                )
+            )
+            assert(
+                myPoemsViewModel.renameAlbum(
+                    "dummyFolderRename2",
+                    "dummyFolderRename2 12 2392",
+                    mockContext
+                )
+            )
+            assert(myPoemsViewModel.renameAlbum("dummyFolderRename2 12 2392", "p", mockContext))
+            assert(!myPoemsViewModel.renameAlbum("p", "All Poems", mockContext))
+            assert(myPoemsViewModel.renameAlbum("p", "dummyFolderRename", mockContext))
+        }
     }
 
     @Test
-    fun testAlbumDelete() {
+    fun testAlbumDelete() : Unit = runTest {
+        runBlocking {
         assert(myPoemsViewModel.addAlbumName("dummyFolder", mockContext))
         assert(myPoemsViewModel.deleteAlbum(myPoemsViewModel.allPoemsString, mockContext))
         assert(!myPoemsViewModel.deleteAlbum("album does not exist", mockContext))
         assert(myPoemsViewModel.deleteAlbum("dummyFolder", mockContext))
         assert(myPoemsViewModel.addAlbumName("dummy Folder with spaces and 1 2 3", mockContext))
         assert(myPoemsViewModel.deleteAlbum("dummy Folder with spaces and 1 2 3", mockContext))
+    }
 
         assert(myPoemsViewModel.addAlbumName("dummyFolder", mockContext))
 
@@ -834,8 +854,9 @@ class MyPoemsViewModelTest {
                 File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/dummyFolder/dfsdfsdf.xml")
             ).exists()
         )
-
-        assert(myPoemsViewModel.deleteAlbum("dummyFolder", mockContext))
+        runBlocking {
+            assert(myPoemsViewModel.deleteAlbum("dummyFolder", mockContext))
+        }
 
         //delete album folder files
         assert(!File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/dummyFolder/dfsdfsdf.xml").exists())

@@ -1,7 +1,6 @@
 package com.wendorochena.poetskingdom.viewModels
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -91,8 +90,6 @@ class MyImagesViewModel : ViewModel() {
         for (entry in filesToDelete) {
             if (entry.key.delete())
                 imageFiles.remove(entry.key)
-            else
-                Log.e("Failed to remove file: ", entry.key.name)
         }
         onImageLongPressed = false
         setFloatingButtonState(FloatingButtonState.ADDIMAGE)
@@ -147,12 +144,8 @@ class MyImagesViewModel : ViewModel() {
                         if (!hasSavedPoem)
                             file.delete()
                     }
-                else {
-                    Log.e("Failed to remove file: ", entry.key.name)
-                }
             } catch (e: Exception) {
                 e.printStackTrace()
-                Log.e("Failed to remove file: ", entry.key.name)
             }
         }
         onImageLongPressed = false
@@ -185,8 +178,6 @@ class MyImagesViewModel : ViewModel() {
                         )
                         if (thumbnailFile.exists()) {
                             arrayListToRet.add(File(thumbnailFile.absolutePath))
-                        } else {
-                            Log.e("No Such Thumbnail", file.name)
                         }
                     }
                 }

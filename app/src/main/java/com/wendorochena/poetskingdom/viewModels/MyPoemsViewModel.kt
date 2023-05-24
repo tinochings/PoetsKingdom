@@ -11,7 +11,6 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.text.Spannable
 import android.text.SpannableStringBuilder
-import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -37,7 +36,9 @@ import com.wendorochena.poetskingdom.poemdata.PoemThemeXmlParser
 import com.wendorochena.poetskingdom.utils.SearchUtil
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -165,8 +166,6 @@ class MyPoemsViewModel : ViewModel() {
                                     )
                                     if (thumbnailFile.exists()) {
                                         arrayListToRet.add(File(thumbnailFile.absolutePath))
-                                    } else {
-                                        Log.e("No Such Thumbnail", albumFileName)
                                     }
                                 }
                             }
@@ -177,8 +176,6 @@ class MyPoemsViewModel : ViewModel() {
                             )
                             if (thumbnailFile.exists()) {
                                 arrayListToRet.add(File(thumbnailFile.absolutePath))
-                            } else {
-                                Log.e("No Such Thumbnail", file.name)
                             }
                         }
                     }
@@ -237,12 +234,9 @@ class MyPoemsViewModel : ViewModel() {
                         mapToUse.remove(file)
                         if (!fullSavedImagesPathToDelete.exists())
                             file.delete()
-                    } else {
-                        Log.e("Failed to remove file: ", entry.key.name)
                     }
             } catch (e: Exception) {
                 e.printStackTrace()
-                Log.e("Failed to remove file: ", entry.key.name)
             }
         }
         onImageLongPressed = false
@@ -669,31 +663,36 @@ class MyPoemsViewModel : ViewModel() {
         return albumFolderNames
     }
 
-    fun addAlbumName(albumName: String, context: Context): Boolean {
-        albumSaveResult = -1
-        val encodedAlbumName = albumName.replace(' ', '_')
-        val poemFolder =
-            context.getDir(
-                context.getString(R.string.poems_folder_name),
-                Context.MODE_PRIVATE
-            )
-        if (poemFolder.exists()) {
-            try {
-                val newAlbum = File(poemFolder.absolutePath + File.separator + encodedAlbumName)
-                if (newAlbum.exists())
-                    return false
-                if (newAlbum.mkdir()) {
-                    albumFolderNames.add(albumName)
-                    updateAlbums(context)
-                    albumSaveResult = 0
-                    return true
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-                return false
-            }
+    suspend fun addAlbumName(albumName: String, context: Context): Boolean {
+        val handler = CoroutineExceptionHandler { _, exception ->
+            exception.printStackTrace()
         }
-        return false
+        return withContext(viewModelScope.coroutineContext + Dispatchers.IO + handler) {
+            albumSaveResult = -1
+            val encodedAlbumName = albumName.replace(' ', '_')
+            val poemFolder =
+                context.getDir(
+                    context.getString(R.string.poems_folder_name),
+                    Context.MODE_PRIVATE
+                )
+            if (poemFolder.exists()) {
+                try {
+                    val newAlbum = File(poemFolder.absolutePath + File.separator + encodedAlbumName)
+                    if (newAlbum.exists())
+                        return@withContext false
+                    if (newAlbum.mkdir()) {
+                        albumFolderNames.add(albumName)
+                        updateAlbums(context)
+                        albumSaveResult = 0
+                        return@withContext true
+                    }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    return@withContext false
+                }
+            }
+            return@withContext false
+        }
     }
 
     private fun updateAlbums(context: Context) {
@@ -771,10 +770,6 @@ class MyPoemsViewModel : ViewModel() {
                         if (albumSavedPoems[poemFilePair.key] != null)
                             albumSavedPoems.remove(poemFilePair.key)
                     } else {
-                        Log.e(
-                            this::javaClass.name,
-                            "Failed to move {${sourceFile.absolutePath}} to $albumFolder"
-                        )
                         // add notification for failure of partial additions
                     }
                 }
@@ -783,7 +778,6 @@ class MyPoemsViewModel : ViewModel() {
                 return false
             }
         } else {
-            Log.e(MyPoemsViewModel::javaClass.name, "Album name: $albumName does not exist")
             return false
         }
         for (albumFileToDeselect in albumsToMove) {
@@ -800,79 +794,88 @@ class MyPoemsViewModel : ViewModel() {
     /**
      * Deletes an album
      */
-    fun deleteAlbum(albumName: String, context: Context): Boolean {
-        if (albumName == allPoemsString)
-            return true
-        val poemFolder =
-            context.getDir(
-                context.getString(R.string.poems_folder_name),
-                Context.MODE_PRIVATE
-            )
-
-        val encodedAlbumName = albumName.replace(' ', '_')
-
-        val folderToDelete = File(poemFolder.absolutePath + File.separator + encodedAlbumName)
-
-        try {
-            if (folderToDelete.exists()) {
-                if (folderToDelete.deleteRecursively()) {
-                    savedPoemAndAlbum.remove(albumName)
-                    albumFolderNames.remove(albumName)
-                    updateAlbums(context)
-                    return true
-                }
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            return false
+    suspend fun deleteAlbum(albumName: String, context: Context): Boolean {
+        val handler = CoroutineExceptionHandler { _, exception ->
+            exception.printStackTrace()
         }
+        return withContext(viewModelScope.coroutineContext + Dispatchers.IO + handler) {
+            if (albumName == allPoemsString)
+                return@withContext true
+            val poemFolder =
+                context.getDir(
+                    context.getString(R.string.poems_folder_name),
+                    Context.MODE_PRIVATE
+                )
 
-        return false
+            val encodedAlbumName = albumName.replace(' ', '_')
+
+            val folderToDelete = File(poemFolder.absolutePath + File.separator + encodedAlbumName)
+
+            try {
+                if (folderToDelete.exists()) {
+                    if (folderToDelete.deleteRecursively()) {
+                        savedPoemAndAlbum.remove(albumName)
+                        albumFolderNames.remove(albumName)
+                        updateAlbums(context)
+                        return@withContext true
+                    }
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+                return@withContext false
+            }
+            return@withContext false
+        }
     }
 
     /**
      * Renames an album
      */
-    fun renameAlbum(albumName: String, albumRename: String, context: Context): Boolean {
-        val poemFolder =
-            context.getDir(
-                context.getString(R.string.poems_folder_name),
-                Context.MODE_PRIVATE
-            )
-
-        if (albumRename == allPoemsString)
-            return false
-
-        if (albumName != albumRename) {
-
-            val encodedAlbumName = albumName.replace(' ', '_')
-            val encodedAlbumRename = albumRename.replace(' ', '_')
-
-            val folderToDelete = File(poemFolder.absolutePath, encodedAlbumName)
-
-            val folderToRename = File(poemFolder.absolutePath, encodedAlbumRename)
-
-            try {
-                if (folderToDelete.exists() && !folderToRename.exists()) {
-                    if (folderToDelete.renameTo(folderToRename)) {
-                        albumFolderNames[albumFolderNames.indexOf(albumName)] = albumRename
-                        for (pair in savedPoemAndAlbum) {
-                            if (pair.value == albumName)
-                                pair.setValue(albumRename)
-                        }
-                        albumSaveResult = 0
-                        updateAlbums(context)
-                        return true
-                    }
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-                albumSaveResult = -1
-                return false
-            }
+    suspend fun renameAlbum(albumName: String, albumRename: String, context: Context): Boolean {
+        val handler = CoroutineExceptionHandler { _, exception ->
+            exception.printStackTrace()
         }
-        albumSaveResult = -1
-        return false
+        return withContext(viewModelScope.coroutineContext + Dispatchers.IO + handler) {
+            val poemFolder =
+                context.getDir(
+                    context.getString(R.string.poems_folder_name),
+                    Context.MODE_PRIVATE
+                )
+
+            if (albumRename == allPoemsString)
+                return@withContext false
+
+            if (albumName != albumRename) {
+
+                val encodedAlbumName = albumName.replace(' ', '_')
+                val encodedAlbumRename = albumRename.replace(' ', '_')
+
+                val folderToDelete = File(poemFolder.absolutePath, encodedAlbumName)
+
+                val folderToRename = File(poemFolder.absolutePath, encodedAlbumRename)
+
+                try {
+                    if (folderToDelete.exists() && !folderToRename.exists()) {
+                        if (folderToDelete.renameTo(folderToRename)) {
+                            albumFolderNames[albumFolderNames.indexOf(albumName)] = albumRename
+                            for (pair in savedPoemAndAlbum) {
+                                if (pair.value == albumName)
+                                    pair.setValue(albumRename)
+                            }
+                            albumSaveResult = 0
+                            updateAlbums(context)
+                            return@withContext true
+                        }
+                    }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    albumSaveResult = -1
+                    return@withContext false
+                }
+            }
+            albumSaveResult = -1
+            return@withContext false
+        }
     }
 
     fun getPoemsFile(file: File, context: Context): File {

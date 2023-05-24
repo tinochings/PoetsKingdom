@@ -85,7 +85,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
+import java.util.concurrent.atomic.AtomicBoolean
 
+enum class WaitingForResult {
+    WAITING, RECEIVED, NOT_LAUNCHED
+}
 @Composable
 fun MyPoemsApp(myPoemsViewModel: MyPoemsViewModel) {
     val context = LocalContext.current
@@ -169,7 +173,7 @@ fun MyPoemsApp(myPoemsViewModel: MyPoemsViewModel) {
                         SearchView(myPoemsViewModel)
                 }
                 if (myPoemsViewModel.displayAlbumsDialog)
-                    AlbumNameDialog(myPoemsViewModel = myPoemsViewModel)
+                    AlbumNameDialog(myPoemsViewModel = myPoemsViewModel, scope)
 
                 if (isFirstUse) {
                     FirstUseDialog(
@@ -218,7 +222,7 @@ fun AlbumsSelector(myPoemsViewModel: MyPoemsViewModel) {
 }
 
 @Composable
-fun AlbumNameDialog(myPoemsViewModel: MyPoemsViewModel) {
+fun AlbumNameDialog(myPoemsViewModel: MyPoemsViewModel, scope: CoroutineScope) {
     var albumName by remember { mutableStateOf("") }
     var dialogTitle by remember {
         if (myPoemsViewModel.shouldRenameAlbum)
@@ -229,31 +233,47 @@ fun AlbumNameDialog(myPoemsViewModel: MyPoemsViewModel) {
     var buttonText by remember { mutableStateOf(R.string.confirm) }
     var inputMessage by remember { mutableStateOf(R.string.valid_input_message) }
     var shouldChangeText by remember { mutableStateOf(false) }
-
-    val validateInput: @Composable (String) -> Boolean = {
+    var waitingOnResult by remember { mutableStateOf(WaitingForResult.NOT_LAUNCHED) }
+    val context = LocalContext.current
+    val validateInput: (String) -> AtomicBoolean = {
         if (PoemThemeViewModel.isValidatedInput(it.replace(' ', '_'))) {
-
-            val boolean = if (myPoemsViewModel.shouldRenameAlbum)
-                myPoemsViewModel.renameAlbum(
-                    myPoemsViewModel.oldAlbumName,
-                    it,
-                    LocalContext.current
-                )
-            else
-                myPoemsViewModel.addAlbumName(it, LocalContext.current)
+            var boolean = AtomicBoolean(false)
+            scope.launch(Dispatchers.Main) {
+                waitingOnResult = WaitingForResult.WAITING
+               if (myPoemsViewModel.shouldRenameAlbum) {
+                   boolean = AtomicBoolean(
+                       myPoemsViewModel.renameAlbum(
+                           myPoemsViewModel.oldAlbumName,
+                           it,
+                           context
+                       )
+                   )
+                   waitingOnResult = WaitingForResult.RECEIVED
+               }
+                else {
+                   boolean =
+                       AtomicBoolean(myPoemsViewModel.addAlbumName(it, context))
+                   waitingOnResult = WaitingForResult.RECEIVED
+               }
+            }
             boolean
         } else {
-            false
+            waitingOnResult = WaitingForResult.RECEIVED
+            AtomicBoolean(false)
         }
     }
     if (myPoemsViewModel.albumSaveResult == -1) {
         dialogTitle = R.string.retry
         buttonText = R.string.retry
         inputMessage = R.string.file_already_exists
+        waitingOnResult = WaitingForResult.NOT_LAUNCHED
         myPoemsViewModel.albumSaveResult = -2
     } else if (myPoemsViewModel.albumSaveResult == 0) {
         myPoemsViewModel.displayAlbumsDialog = false
+        if (myPoemsViewModel.shouldRenameAlbum)
+            myPoemsViewModel.shouldRenameAlbum = false
         myPoemsViewModel.albumSaveResult = -2
+        waitingOnResult = WaitingForResult.NOT_LAUNCHED
     }
 
     if (myPoemsViewModel.displayAlbumsDialog) {
@@ -350,9 +370,11 @@ fun AlbumNameDialog(myPoemsViewModel: MyPoemsViewModel) {
                         R.string.add_new_album_content_description
                 buttonText = R.string.confirm
                 inputMessage = R.string.valid_input_message
-            } else if (!validateInput.invoke(albumName)) {
+                waitingOnResult = WaitingForResult.NOT_LAUNCHED
+            } else if (!validateInput.invoke(albumName).get() && waitingOnResult == WaitingForResult.RECEIVED) {
                 dialogTitle = R.string.retry
                 buttonText = R.string.retry
+                waitingOnResult = WaitingForResult.NOT_LAUNCHED
                 inputMessage = if (myPoemsViewModel.shouldRenameAlbum)
                     R.string.failed_to_rename
                 else
@@ -375,12 +397,14 @@ fun DrawerContainer(
         scope.launch { drawerState.close() }
     }
     val onDeleteAlbum: (String) -> Unit = {
-        if (!myPoemsViewModel.deleteAlbum(it, context))
-            Toast.makeText(
-                context,
-                context.getString(R.string.failed_to_delete, it),
-                Toast.LENGTH_LONG
-            ).show()
+        scope.launch {
+            if (!myPoemsViewModel.deleteAlbum(it, context))
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.failed_to_delete, it),
+                    Toast.LENGTH_LONG
+                ).show()
+        }
     }
     val onRenameAlbum: (String) -> Unit = {
         myPoemsViewModel.displayAlbumsDialog = true

@@ -1,7 +1,6 @@
 package com.wendorochena.poetskingdom.poemdata
 
 import android.content.Context
-import android.util.Log
 import android.util.Xml
 import com.wendorochena.poetskingdom.R
 import kotlinx.coroutines.CoroutineDispatcher
@@ -193,7 +192,6 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
-                        Log.e(this::javaClass.name, "Failed to parse saved poem")
                     } finally {
                         inputStream.close()
                     }
