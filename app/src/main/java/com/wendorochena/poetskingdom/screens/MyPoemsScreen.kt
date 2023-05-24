@@ -37,6 +37,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -90,6 +91,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 enum class WaitingForResult {
     WAITING, RECEIVED, NOT_LAUNCHED
 }
+
 @Composable
 fun MyPoemsApp(myPoemsViewModel: MyPoemsViewModel) {
     val context = LocalContext.current
@@ -232,48 +234,59 @@ fun AlbumNameDialog(myPoemsViewModel: MyPoemsViewModel, scope: CoroutineScope) {
     }
     var buttonText by remember { mutableStateOf(R.string.confirm) }
     var inputMessage by remember { mutableStateOf(R.string.valid_input_message) }
-    var shouldChangeText by remember { mutableStateOf(false) }
     var waitingOnResult by remember { mutableStateOf(WaitingForResult.NOT_LAUNCHED) }
     val context = LocalContext.current
-    val validateInput: (String) -> AtomicBoolean = {
-        if (PoemThemeViewModel.isValidatedInput(it.replace(' ', '_'))) {
-            var boolean = AtomicBoolean(false)
-            scope.launch(Dispatchers.Main) {
-                waitingOnResult = WaitingForResult.WAITING
-               if (myPoemsViewModel.shouldRenameAlbum) {
-                   boolean = AtomicBoolean(
-                       myPoemsViewModel.renameAlbum(
-                           myPoemsViewModel.oldAlbumName,
-                           it,
-                           context
-                       )
-                   )
-                   waitingOnResult = WaitingForResult.RECEIVED
-               }
-                else {
-                   boolean =
-                       AtomicBoolean(myPoemsViewModel.addAlbumName(it, context))
-                   waitingOnResult = WaitingForResult.RECEIVED
-               }
-            }
-            boolean
+
+    val validateInput: (String) -> Unit = {
+        if (dialogTitle == R.string.retry) {
+            dialogTitle = if (myPoemsViewModel.shouldRenameAlbum)
+                R.string.rename
+            else
+                R.string.add_new_album_content_description
+            buttonText = R.string.confirm
+            inputMessage = R.string.valid_input_message
+            waitingOnResult = WaitingForResult.NOT_LAUNCHED
         } else {
-            waitingOnResult = WaitingForResult.RECEIVED
-            AtomicBoolean(false)
+            if (PoemThemeViewModel.isValidatedInput(it.replace(' ', '_'))) {
+                scope.launch(Dispatchers.Main) {
+                    waitingOnResult = WaitingForResult.WAITING
+                    waitingOnResult = if (myPoemsViewModel.shouldRenameAlbum) {
+                        myPoemsViewModel.renameAlbum(
+                            myPoemsViewModel.oldAlbumName,
+                            it,
+                            context
+                        )
+                        WaitingForResult.RECEIVED
+                    } else {
+                        myPoemsViewModel.addAlbumName(it, context)
+                        WaitingForResult.RECEIVED
+                    }
+                    if (myPoemsViewModel.albumSaveResult == -1) {
+                        dialogTitle = R.string.retry
+                        buttonText = R.string.retry
+                        inputMessage = R.string.file_already_exists
+                        waitingOnResult = WaitingForResult.NOT_LAUNCHED
+                        myPoemsViewModel.albumSaveResult = -2
+                    } else if (myPoemsViewModel.albumSaveResult == 0) {
+                        myPoemsViewModel.displayAlbumsDialog = false
+                        if (myPoemsViewModel.shouldRenameAlbum)
+                            myPoemsViewModel.shouldRenameAlbum = false
+                        myPoemsViewModel.albumSaveResult = -2
+                        waitingOnResult = WaitingForResult.NOT_LAUNCHED
+                    }
+                }
+            } else {
+                dialogTitle = R.string.retry
+                buttonText = R.string.retry
+                waitingOnResult = WaitingForResult.NOT_LAUNCHED
+                inputMessage = if (myPoemsViewModel.shouldRenameAlbum)
+                    R.string.failed_to_rename
+                else
+                    R.string.invalid_input_message
+                waitingOnResult = WaitingForResult.RECEIVED
+                AtomicBoolean(false)
+            }
         }
-    }
-    if (myPoemsViewModel.albumSaveResult == -1) {
-        dialogTitle = R.string.retry
-        buttonText = R.string.retry
-        inputMessage = R.string.file_already_exists
-        waitingOnResult = WaitingForResult.NOT_LAUNCHED
-        myPoemsViewModel.albumSaveResult = -2
-    } else if (myPoemsViewModel.albumSaveResult == 0) {
-        myPoemsViewModel.displayAlbumsDialog = false
-        if (myPoemsViewModel.shouldRenameAlbum)
-            myPoemsViewModel.shouldRenameAlbum = false
-        myPoemsViewModel.albumSaveResult = -2
-        waitingOnResult = WaitingForResult.NOT_LAUNCHED
     }
 
     if (myPoemsViewModel.displayAlbumsDialog) {
@@ -295,92 +308,92 @@ fun AlbumNameDialog(myPoemsViewModel: MyPoemsViewModel, scope: CoroutineScope) {
                     ),
                 shape = com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(DefaultColor),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-
-                    Text(
-                        text = stringResource(id = dialogTitle),
-                        style = androidx.compose.material.MaterialTheme.typography.h1,
-                        color = Color.White
-                    )
-
-                    Spacer(modifier = Modifier.height(30.dp))
-
-                    Text(
-                        text = stringResource(id = inputMessage),
-                        style = androidx.compose.material.MaterialTheme.typography.body1,
-                        color = Color.White
-                    )
-
-                    Spacer(modifier = Modifier.height(30.dp))
-
-                    TextField(
-                        colors = TextFieldDefaults.colors(
-                            disabledContainerColor = DefaultColor,
-                            unfocusedContainerColor = Color.Transparent,
-                            focusedContainerColor = DefaultColor,
-                            focusedTextColor = Color.White,
-                            disabledTextColor = Color.White,
-                            focusedIndicatorColor = Color.White,
-                            unfocusedIndicatorColor = Color.White
-                        ),
-                        singleLine = true,
-                        value = albumName,
-                        onValueChange = { if (it.length <= 60) albumName = it },
-                        label = {
-                            androidx.compose.material.Text(
-                                stringResource(id = R.string.create_album_hint),
-                                color = OffWhite
-                            )
-                        },
-                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
-                    )
-
-                    Spacer(modifier = Modifier.height(30.dp))
-
-                    Button(
-                        onClick = { shouldChangeText = true },
-                        shape = RoundedCornerShape(15.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = DefaultColor
-                        ),
+                if (waitingOnResult == WaitingForResult.WAITING) {
+                    Column(
                         modifier = Modifier
-                            .align(Alignment.End)
+                            .fillMaxSize()
+                            .background(color = DefaultColor),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(
-                            text = stringResource(id = buttonText),
-                            color = Color.White,
-                            style = androidx.compose.material.MaterialTheme.typography.body1
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .width(50.dp)
+                                .height(50.dp)
+                                .zIndex(5f),
+                            color = OffWhite,
+                            trackColor = Color.Transparent,
+                            strokeWidth = 5.dp,
                         )
                     }
-                    Spacer(modifier = Modifier.height(2.dp))
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(DefaultColor),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+
+                        Text(
+                            text = stringResource(id = dialogTitle),
+                            style = androidx.compose.material.MaterialTheme.typography.h1,
+                            color = Color.White
+                        )
+
+                        Spacer(modifier = Modifier.height(30.dp))
+
+                        Text(
+                            text = stringResource(id = inputMessage),
+                            style = androidx.compose.material.MaterialTheme.typography.body1,
+                            color = Color.White
+                        )
+
+                        Spacer(modifier = Modifier.height(30.dp))
+
+                        TextField(
+                            colors = TextFieldDefaults.colors(
+                                disabledContainerColor = DefaultColor,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedContainerColor = DefaultColor,
+                                focusedTextColor = Color.White,
+                                disabledTextColor = Color.White,
+                                focusedIndicatorColor = Color.White,
+                                unfocusedIndicatorColor = Color.White
+                            ),
+                            singleLine = true,
+                            value = albumName,
+                            onValueChange = { if (it.length <= 60) albumName = it },
+                            label = {
+                                androidx.compose.material.Text(
+                                    stringResource(id = R.string.create_album_hint),
+                                    color = OffWhite
+                                )
+                            },
+                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+                        )
+
+                        Spacer(modifier = Modifier.height(30.dp))
+
+                        Button(
+                            onClick = { validateInput.invoke(albumName) },
+                            shape = RoundedCornerShape(15.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = DefaultColor
+                            ),
+                            modifier = Modifier
+                                .align(Alignment.End)
+                        ) {
+                            Text(
+                                text = stringResource(id = buttonText),
+                                color = Color.White,
+                                style = androidx.compose.material.MaterialTheme.typography.body1
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(2.dp))
+                    }
                 }
             }
-        }
-        if (shouldChangeText) {
-            if (dialogTitle == R.string.retry) {
-                dialogTitle = if (myPoemsViewModel.shouldRenameAlbum)
-                    R.string.rename
-                    else
-                        R.string.add_new_album_content_description
-                buttonText = R.string.confirm
-                inputMessage = R.string.valid_input_message
-                waitingOnResult = WaitingForResult.NOT_LAUNCHED
-            } else if (!validateInput.invoke(albumName).get() && waitingOnResult == WaitingForResult.RECEIVED) {
-                dialogTitle = R.string.retry
-                buttonText = R.string.retry
-                waitingOnResult = WaitingForResult.NOT_LAUNCHED
-                inputMessage = if (myPoemsViewModel.shouldRenameAlbum)
-                    R.string.failed_to_rename
-                else
-                    R.string.invalid_input_message
-            }
-            shouldChangeText = false
         }
     }
 }
@@ -445,7 +458,7 @@ fun DrawerContainer(
             Spacer(modifier = Modifier.height(10.dp))
         }
         items(albums.size) {
-            AlbumItem(albums[it], onAlbumClick, onDeleteAlbum, onRenameAlbum,true)
+            AlbumItem(albums[it], onAlbumClick, onDeleteAlbum, onRenameAlbum, true)
         }
     }
 }
@@ -456,7 +469,7 @@ fun AlbumItem(
     onAlbumClick: (String) -> Unit,
     onDeleteAlbum: (String) -> Unit,
     onRenameAlbum: (String) -> Unit,
-    shouldDisplayOptions : Boolean
+    shouldDisplayOptions: Boolean
 ) {
     var albumOptions by remember { mutableStateOf(false) }
     Row(
