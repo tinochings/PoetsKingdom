@@ -3,7 +3,9 @@ package com.wendorochena.poetskingdom
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Typeface
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
@@ -12,6 +14,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.setPadding
 import com.bumptech.glide.Glide
 import java.io.File
 import kotlin.math.min
@@ -48,9 +51,32 @@ class ImageViewer : AppCompatActivity() {
 
     private fun onFirstUse() {
         val alertDialogBuilder = AlertDialog.Builder(this)
-        alertDialogBuilder.setTitle(R.string.guide_title).setPositiveButton(R.string.builder_understood) { dialog, _ ->
+        val customTitleView = TextView(this)
+        customTitleView.setTextColor(resources.getColor(R.color.white, null))
+        customTitleView.text = resources.getString(R.string.guide_title)
+
+        customTitleView.setTypeface(null, Typeface.BOLD)
+        customTitleView.textSize = resources.getDimension(R.dimen.normal_text_size)
+
+        val customMessageView = TextView(this)
+        customMessageView.setTextColor(resources.getColor(R.color.white, null))
+        customMessageView.text = resources.getString(R.string.guide_image_viewer)
+        val typedValue = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15f, resources.displayMetrics).toInt()
+        customTitleView.setPadding(typedValue, typedValue, typedValue,0)
+        customMessageView.setPadding(typedValue)
+
+        alertDialogBuilder.setCustomTitle(customTitleView)
+        alertDialogBuilder.setView(customMessageView)
+        alertDialogBuilder.setPositiveButton(R.string.builder_understood) { dialog, _ ->
             dialog.dismiss()
-        }.setMessage(R.string.guide_image_viewer).show()
+        }
+        val dialog = alertDialogBuilder.create()
+        dialog.window?.setBackgroundDrawableResource(R.drawable.selected_rounded_rectangle)
+        dialog.show()
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(getColor(R.color.off_white))
+//        alertDialogBuilder.setTitle(R.string.guide_title).setPositiveButton(R.string.builder_understood) { dialog, _ ->
+//            dialog.dismiss()
+//        }.setMessage(R.string.guide_image_viewer).show()
     }
 
     private fun setupTextView(currentIndex : Int, totalImages : Int){

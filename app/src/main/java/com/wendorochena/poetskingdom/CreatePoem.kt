@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.print.PrintManager
 import android.text.*
 import android.util.Log
+import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.Gravity
 import android.view.MotionEvent
@@ -25,6 +26,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.core.view.setMargins
+import androidx.core.view.setPadding
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -168,10 +170,30 @@ class CreatePoem : AppCompatActivity() {
 
     private fun onFirstUse() {
         val alertDialogBuilder = AlertDialog.Builder(this)
-        alertDialogBuilder.setTitle(R.string.guide_title)
-            .setPositiveButton(R.string.builder_understood) { dialog, _ ->
-                dialog.dismiss()
-            }.setMessage(R.string.guide_create_poem).show()
+
+        val customTitleView = TextView(this)
+        customTitleView.setTextColor(resources.getColor(R.color.white, null))
+        customTitleView.text = resources.getString(R.string.guide_title)
+
+        customTitleView.setTypeface(null, Typeface.BOLD)
+        customTitleView.textSize = resources.getDimension(R.dimen.normal_text_size)
+
+        val customMessageView = TextView(this)
+        customMessageView.setTextColor(resources.getColor(R.color.white, null))
+        customMessageView.text = resources.getString(R.string.guide_create_poem)
+        val typedValue = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15f, resources.displayMetrics).toInt()
+        customTitleView.setPadding(typedValue, typedValue, typedValue,0)
+        customMessageView.setPadding(typedValue)
+
+        alertDialogBuilder.setCustomTitle(customTitleView)
+        alertDialogBuilder.setView(customMessageView)
+        alertDialogBuilder.setPositiveButton(R.string.builder_understood) { dialog, _ ->
+            dialog.dismiss()
+        }
+        val dialog = alertDialogBuilder.create()
+        dialog.window?.setBackgroundDrawableResource(R.drawable.selected_rounded_rectangle)
+        dialog.show()
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(getColor(R.color.off_white))
     }
 
 
@@ -233,11 +255,17 @@ class CreatePoem : AppCompatActivity() {
         textview.setOnLongClickListener {
             val customTitleView = TextView(this)
             customTitleView.setTextColor(resources.getColor(R.color.white, null))
+            val alertDialogParams =  LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            alertDialogParams.setMargins(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, resources.displayMetrics).toInt())
+            val typedValue = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15f, resources.displayMetrics).toInt()
+            customTitleView.setPadding(typedValue)
             customTitleView.text = resources.getString(R.string.title_change)
             customTitleView.setTypeface(null, Typeface.BOLD)
             customTitleView.gravity = Gravity.CENTER
             customTitleView.textSize = resources.getDimension(R.dimen.normal_text_size)
             val editText = EditText(this)
+            editText.layoutParams = alertDialogParams
+            editText.setPadding(typedValue)
             editText.inputType = InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
             editText.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(60))
             editText.setHint(R.string.change_title_hint)
@@ -325,10 +353,10 @@ class CreatePoem : AppCompatActivity() {
             dialog.setOnShowListener {
                 val button = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 val button2 = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-                button.setTextColor(resources.getColor(R.color.white, null))
-                button2.setTextColor(resources.getColor(R.color.white, null))
+                button.setTextColor(resources.getColor(R.color.off_white, null))
+                button2.setTextColor(resources.getColor(R.color.off_white, null))
             }
-            dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_rectangle)
+            dialog.window?.setBackgroundDrawableResource(R.drawable.selected_rounded_rectangle)
             dialog.show()
             true
         }
