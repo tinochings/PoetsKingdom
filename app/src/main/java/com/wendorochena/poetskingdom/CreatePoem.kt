@@ -176,15 +176,16 @@ class CreatePoem : AppCompatActivity() {
         customTitleView.text = resources.getString(R.string.guide_title)
 
         customTitleView.setTypeface(null, Typeface.BOLD)
-        customTitleView.textSize = resources.getDimension(R.dimen.normal_text_size)
-
+        customTitleView.textSize = 20f
+        customTitleView.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
         val customMessageView = TextView(this)
         customMessageView.setTextColor(resources.getColor(R.color.white, null))
         customMessageView.text = resources.getString(R.string.guide_create_poem)
         val typedValue = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15f, resources.displayMetrics).toInt()
         customTitleView.setPadding(typedValue, typedValue, typedValue,0)
         customMessageView.setPadding(typedValue)
-
+        customMessageView.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
+        customMessageView.textSize = 14f
         alertDialogBuilder.setCustomTitle(customTitleView)
         alertDialogBuilder.setView(customMessageView)
         alertDialogBuilder.setPositiveButton(R.string.builder_understood) { dialog, _ ->
@@ -262,7 +263,7 @@ class CreatePoem : AppCompatActivity() {
             customTitleView.text = resources.getString(R.string.title_change)
             customTitleView.setTypeface(null, Typeface.BOLD)
             customTitleView.gravity = Gravity.CENTER
-            customTitleView.textSize = resources.getDimension(R.dimen.normal_text_size)
+            customTitleView.textSize = 20f
             val editText = EditText(this)
             editText.layoutParams = alertDialogParams
             editText.setPadding(typedValue)

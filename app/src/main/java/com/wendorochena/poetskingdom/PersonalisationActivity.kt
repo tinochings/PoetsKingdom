@@ -54,11 +54,13 @@ class PersonalisationActivity : AppCompatActivity() {
             val customTitleView = TextView(context)
             customTitleView.setTextColor(resources.getColor(R.color.white, null))
             customTitleView.text = resources.getString(R.string.personalisation)
-
+            customTitleView.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
             customTitleView.setTypeface(null, Typeface.BOLD)
-            customTitleView.textSize = resources.getDimension(R.dimen.normal_text_size)
+            customTitleView.textSize = 20f
 
             val customMessageView = TextView(context)
+            customMessageView.textSize = 14f
+            customMessageView.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
             customMessageView.setTextColor(resources.getColor(R.color.white, null))
             customMessageView.text = resources.getString(R.string.guide_personalisation)
             val typedValue = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15f, resources.displayMetrics).toInt()

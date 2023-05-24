@@ -56,11 +56,14 @@ class ImageViewer : AppCompatActivity() {
         customTitleView.text = resources.getString(R.string.guide_title)
 
         customTitleView.setTypeface(null, Typeface.BOLD)
-        customTitleView.textSize = resources.getDimension(R.dimen.normal_text_size)
+        customTitleView.textSize = 20f
 
+        customTitleView.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
         val customMessageView = TextView(this)
         customMessageView.setTextColor(resources.getColor(R.color.white, null))
         customMessageView.text = resources.getString(R.string.guide_image_viewer)
+        customMessageView.textSize = 14f
+        customMessageView.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
         val typedValue = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15f, resources.displayMetrics).toInt()
         customTitleView.setPadding(typedValue, typedValue, typedValue,0)
         customMessageView.setPadding(typedValue)
