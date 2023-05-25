@@ -199,7 +199,10 @@ class MyPoemsViewModel : ViewModel() {
             allSavedPoems
         else
             albumSavedPoems
-        val savedImagesFolder = context.getDir(context.getString(R.string.saved_images_folder_name), Context.MODE_PRIVATE)
+        val savedImagesFolder = context.getDir(
+            context.getString(R.string.saved_images_folder_name),
+            Context.MODE_PRIVATE
+        )
         val filesToDelete = mapToUse.filter { it.value }
         for (entry in filesToDelete) {
             try {
@@ -225,7 +228,8 @@ class MyPoemsViewModel : ViewModel() {
                             ".xml"
                         )
                     )
-                val fullSavedImagesPathToDelete = File(savedImagesFolder.absolutePath + File.separator + poemName.split(".")[0])
+                val fullSavedImagesPathToDelete =
+                    File(savedImagesFolder.absolutePath + File.separator + poemName.split(".")[0])
 
                 if (fullPoemPathToDelete.exists())
                     if (fullPoemPathToDelete.deleteRecursively()) {
@@ -267,9 +271,11 @@ class MyPoemsViewModel : ViewModel() {
             if (poemSavedImagesFolder.exists()) {
                 val filesToShare = poemSavedImagesFolder.listFiles()
                 if (filesToShare != null && filesToShare.isNotEmpty()) {
+                    var toShare = arrayOf(selectedElements.keys.first())
+                    toShare += filesToShare
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         shareIntentAndroidQPlus(
-                            filesToShare,
+                            toShare,
                             poemName,
                             applicationContext = applicationContext
                         )
@@ -293,10 +299,18 @@ class MyPoemsViewModel : ViewModel() {
                                 if (!subDirectory.exists())
                                     subDirectory.mkdir()
 
-                                for (file in poemSavedImagesFolder.listFiles()!!) {
+                                for ((counter, file) in toShare.withIndex()) {
                                     val inputStream = FileInputStream(file)
-                                    val newFile =
-                                        File(subDirectory.absolutePath + File.separator + file.name)
+                                    val newFile = if (counter == 0)
+                                        File(
+                                            subDirectory.absolutePath + File.separator + file.name.replace(
+                                                '_',
+                                                ' '
+                                            ) + " thumbnail"
+                                        )
+                                    else
+                                        File(
+                                            subDirectory.absolutePath + File.separator + poemName + " Stanza $counter")
                                     if (newFile.createNewFile()) {
                                         val outputStream = FileOutputStream(newFile)
                                         outputStream.channel.transferFrom(
@@ -328,8 +342,19 @@ class MyPoemsViewModel : ViewModel() {
                             permissionsResultLauncher.value =
                                 android.Manifest.permission.WRITE_EXTERNAL_STORAGE
                         }
+                        onImageLongPressed = false
                     }
                 }
+            } else {
+                Toast.makeText(
+                    applicationContext,
+                    applicationContext.getString(
+                        R.string.failed_to_share,
+                        selectedElements.keys.first().name.split(".")[0].replace('_', ' ')
+                    ),
+                    Toast.LENGTH_LONG
+                )
+                    .show()
             }
         }
     }
@@ -343,40 +368,64 @@ class MyPoemsViewModel : ViewModel() {
         poemName: String,
         applicationContext: Context
     ) {
-        val imageUris = kotlin.collections.ArrayList<Uri>()
+        try {
+            val imageUris = kotlin.collections.ArrayList<Uri>()
+            for ((counter, file) in filesToShare.withIndex()) {
+                val contentValues = if (counter == 0)
+                    ContentValues().apply {
+                        put(
+                            MediaStore.MediaColumns.DISPLAY_NAME,
+                            "Thumbnail"
+                        )
+                        put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
+                        put(
+                            MediaStore.MediaColumns.RELATIVE_PATH,
+                            Environment.DIRECTORY_DOWNLOADS + File.separator + applicationContext.getString(
+                                R.string.app_name
+                            ) + File.separator + poemName.replace('_', ' ')
+                        )
+                    }
+                else
+                    ContentValues().apply {
+                        put(
+                            MediaStore.MediaColumns.DISPLAY_NAME,
+                            "Stanza $counter"
+                        )
+                        put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
+                        put(
+                            MediaStore.MediaColumns.RELATIVE_PATH,
+                            Environment.DIRECTORY_DOWNLOADS + File.separator + applicationContext.getString(
+                                R.string.app_name
+                            ) + File.separator + poemName.replace('_', ' ')
+                        )
+                    }
+                val resolver = applicationContext.contentResolver
+                val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
 
-        for (file in filesToShare) {
-            val contentValues = ContentValues().apply {
-                put(
-                    MediaStore.MediaColumns.DISPLAY_NAME,
-                    poemName.replace('_', ' ') + " " + file.name
-                )
-                put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
-                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-            }
-            val resolver = applicationContext.contentResolver
-            val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+                val inputStream = FileInputStream(file)
 
-            val inputStream = FileInputStream(file)
-
-            if (uri != null) {
-                resolver.openOutputStream(uri).use { outStream ->
-                    if (outStream != null) {
-                        inputStream.copyTo(outStream, DEFAULT_BUFFER_SIZE)
+                if (uri != null) {
+                    resolver.openOutputStream(uri).use { outStream ->
+                        if (outStream != null) {
+                            inputStream.copyTo(outStream, DEFAULT_BUFFER_SIZE)
+                        }
                     }
                 }
-            }
 
-            if (uri != null) {
-                imageUris.add(uri)
+                if (uri != null) {
+                    imageUris.add(uri)
+                }
             }
+            val shareIntent = Intent().apply {
+                action = Intent.ACTION_SEND_MULTIPLE
+                putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris)
+                type = "image/*"
+            }
+            this.shareIntent.value = shareIntent
+            onImageLongPressed = false
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
-        val shareIntent = Intent().apply {
-            action = Intent.ACTION_SEND_MULTIPLE
-            putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris)
-            type = "image/*"
-        }
-        this.shareIntent.value = shareIntent
     }
 
     /**

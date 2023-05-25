@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PoetsKingdom</string>
+    <string name="app_name">Poets Kingdom</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
@@ -282,4 +282,5 @@
     <string name="rename_content_description">Rename Button</string>
     <string name="failed_to_delete">Failed to delete %1$s</string>
     <string name="failed_to_rename">Failed to rename album</string>
+    <string name="failed_to_share">No saved images for %1$s</string>
 </resources>
