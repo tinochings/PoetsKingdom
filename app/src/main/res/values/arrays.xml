@@ -15,7 +15,10 @@
         <item>1280 * 720</item>
         <item>1080 * 1080</item>
         <item>1920 * 1080</item>
+        <item>1920 * 1200</item>
         <item>1920 * 1920</item>
+        <item>2048 * 1080</item>
+        <item>2560 * 1440</item>
     </string-array>
 
     <!-- Numbers delimited by string, the first value is width, last is height -->
@@ -24,7 +27,10 @@
         <item>1280 720</item>
         <item>1080 1080</item>
         <item>1920 1080</item>
+        <item>1920 1200</item>
         <item>1920 1920</item>
+        <item>2048 1080</item>
+        <item>2560 1440</item>
     </string-array>
 
     <string-array name="cover_page_entries">

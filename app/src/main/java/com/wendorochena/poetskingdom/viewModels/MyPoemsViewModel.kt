@@ -79,6 +79,12 @@ class MyPoemsViewModel : ViewModel() {
     val savedPoemAndAlbum = HashMap<String, String>()
 
 
+    /**
+     * Sets album selection to the selected user album and clears state if state was previously
+     * invoked
+     *
+     * @param albumName the name of the album to set as selected
+     */
     fun setAlbumSelection(albumName: String) {
         if (onImageLongPressed) {
             onImageLongPressed = false
@@ -92,6 +98,8 @@ class MyPoemsViewModel : ViewModel() {
 
     /**
      * Adds all files and sets to long press as false to to the savedPoems Map
+     * @param arrayList the arraylist containing files in a map
+     * @param isAlbumAdd true when adding poems to an album
      */
     private fun addAllFiles(
         arrayList: ArrayList<File>,
@@ -118,12 +126,19 @@ class MyPoemsViewModel : ViewModel() {
         searchResultFiles.clear()
     }
 
+    /**
+     * Sets long click to boolean value
+     * @param boolean true if user long pressed else false
+     */
     fun setOnLongClick(boolean: Boolean) {
         onImageLongPressed = boolean
     }
 
     /**
      * Gets an arraylist containing thumbnails to display
+     * @param context the activity context
+     * @param albumName the name of the album to get thumbnails for
+     * @return a map containing file locations of thumbnails and their long click value
      */
     fun getThumbnails(context: Context, albumName: String): MutableMap<File, Boolean> {
         val arrayListToRet = ArrayList<File>()
@@ -247,7 +262,9 @@ class MyPoemsViewModel : ViewModel() {
     }
 
     /**
-     * Shares images
+     * Shares images outside the application
+     *
+     * @param applicationContext context of the application
      */
     fun shareIntent(applicationContext: Context) {
         val mapToUse = if (albumNameSelection == allPoemsString)
@@ -360,7 +377,10 @@ class MyPoemsViewModel : ViewModel() {
     }
 
     /**
-     * Starts a share intent
+     * Starts a share intent for Android Q and above
+     * @param filesToShare the files to share outside the application
+     * @param poemName the name of the poem
+     * @param applicationContext context of the application
      */
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun shareIntentAndroidQPlus(
@@ -643,6 +663,7 @@ class MyPoemsViewModel : ViewModel() {
 
     /**
      * Loads the search history from shared preferences if necessary
+     * @param context context of the activity
      */
     fun getSearchHistory(context: Context): SnapshotStateList<String> {
         if (searchHistory.isEmpty() && !initialisedSearchHistory) {

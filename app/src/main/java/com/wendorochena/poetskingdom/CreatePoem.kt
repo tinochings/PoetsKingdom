@@ -1347,7 +1347,7 @@ class CreatePoem : AppCompatActivity() {
         textOptions.setOnLongClickListener {
             Toast.makeText(
                 applicationContext,
-                "Shows alignment options on click",
+                getString(R.string.text_options_toast),
                 Toast.LENGTH_LONG
             ).show()
             true
@@ -1375,7 +1375,7 @@ class CreatePoem : AppCompatActivity() {
         val textSizeContainer = findViewById<FrameLayout>(R.id.textSizeContainer)
 
         textSize.setOnLongClickListener {
-            Toast.makeText(applicationContext, "Allows you to change text size", Toast.LENGTH_LONG)
+            Toast.makeText(applicationContext, getString(R.string.text_size_toast), Toast.LENGTH_LONG)
                 .show()
             true
         }
@@ -1400,7 +1400,7 @@ class CreatePoem : AppCompatActivity() {
         val textColor = findViewById<ImageButton>(R.id.textColor)
 
         textColor.setOnLongClickListener {
-            Toast.makeText(applicationContext, "Changes the text color", Toast.LENGTH_LONG).show()
+            Toast.makeText(applicationContext, getString(R.string.text_color_toast), Toast.LENGTH_LONG).show()
             true
         }
         textColor.setOnClickListener {
@@ -1514,7 +1514,7 @@ class CreatePoem : AppCompatActivity() {
         saveButton.setOnClickListener {
             Toast.makeText(
                 applicationContext,
-                "Saves the current poem by desired choice",
+                getString(R.string.saved_button_toast),
                 Toast.LENGTH_LONG
             ).show()
         }

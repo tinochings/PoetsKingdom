@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Poets Kingdom</string>
+    <string name="app_name" translatable="false">Poets Kingdom</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
@@ -10,16 +10,15 @@
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="title_activity_personalisation">PersonalisationActivity</string>
-    <string name="saved_images_folder_name">savedImages</string>
-    <string name="poems_folder_name">poems</string>
-    <string name="poem_themes_folder_name">poemThemes</string>
-    <string name="thumbnails_folder_name">thumbnails</string>
-    <string name="background_image_drawable_folder">background</string>
-    <string name="my_images_folder_name">myImages</string>
+    <string name="saved_images_folder_name" translatable="false">savedImages</string>
+    <string name="poems_folder_name" translatable="false">poems</string>
+    <string name="poem_themes_folder_name" translatable="false">poemThemes</string>
+    <string name="thumbnails_folder_name" translatable="false">thumbnails</string>
+    <string name="background_image_drawable_folder" translatable="false">background</string>
+    <string name="my_images_folder_name" translatable="false">myImages</string>
 
     <!-- Preference Titles -->
     <string name="poem_preferences">Poem Preferences</string>
-    <string name="sync_header">Sync</string>
 
     <!-- Messages Preferences -->
     <string name="signature_title">Poem signature</string>
@@ -31,12 +30,14 @@
     <string name="custom_theme">Customise Application</string>
     <string name="app_background">App Background</string>
 
-    <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <!-- Personalisation Preferences -->
+    <string name="signature_pref" translatable="false">signature</string>
+    <string name="orientation_pref" translatable="false">orientation</string>
+    <string name="cover_page_pref" translatable="false">coverPage</string>
+    <string name="author_pref" translatable="false">author</string>
+    <string name="resolution_pref" translatable="false">resolution</string>
+    <string name="app_nickname_pref" translatable="false">appNickname</string>
+
     <string name="create_poem">Create Poem</string>
     <string name="my_poem">My Poems</string>
     <string name="personalisation">Personalisation</string>
@@ -61,19 +62,19 @@
     <string name="text_color_image">Text Color Image</string>
     <string name="text_size_default">Text Size: 14sp</string>
     <string name="text_size_changeable">Text Size: %0$dsp</string>
-    <string name="casual_font_family">Casual</string>
-    <string name="cursive_font_family">Cursive</string>
-    <string name="monospace_font_family">Monospace</string>
-    <string name="sans_serif_font_family">Sans-Serif</string>
-    <string name="adinekirnbirg_family">Adine Kirnbirg</string>
-    <string name="bangers_family">Bangers </string>
-    <string name="flaemische_family">Flaemische</string>
-    <string name="opensansregular_family">Open Sans Regular</string>
-    <string name="serif_font_family">Serif</string>
-    <string name="sacramento_family">Sacramento</string>
-    <string name="scriptin_family">Scriptin</string>
-    <string name="sourcesansproregular_family">Source Sans Regular</string>
-    <string name="thesignature_family">The Signature</string>
+    <string name="casual_font_family" translatable="false">Casual</string>
+    <string name="cursive_font_family" translatable="false">Cursive</string>
+    <string name="monospace_font_family" translatable="false">Monospace</string>
+    <string name="sans_serif_font_family" translatable="false">Sans-Serif</string>
+    <string name="adinekirnbirg_family" translatable="false">Adine Kirnbirg</string>
+    <string name="bangers_family" translatable="false">Bangers</string>
+    <string name="flaemische_family" translatable="false">Flaemische</string>
+    <string name="opensansregular_family" translatable="false">Open Sans Regular</string>
+    <string name="serif_font_family" translatable="false">Serif</string>
+    <string name="sacramento_family" translatable="false">Sacramento</string>
+    <string name="scriptin_family" translatable="false">Scriptin</string>
+    <string name="sourcesansproregular_family" translatable="false">Source Sans Regular</string>
+    <string name="thesignature_family" translatable="false">The Signature</string>
     <string name="menu_button">Menu</string>
     <string name="more_options">More Options</string>
     <string name="view_type">View Type</string>
@@ -92,12 +93,11 @@
     <string name="permission_denial">Refuse</string>
     <string name="nickname_placeholder">Nickname Placeholder</string>
 
-
-    <string name="ariana_violeta_font">Ariana Violeta</string>
-    <string name="cabal_font">Cabal</string>
-    <string name="cabal_bold_font">Cabal Bold</string>
-    <string name="lobster_regular_font">Lobster Regular</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="ariana_violeta_font" translatable="false">Ariana Violeta</string>
+    <string name="cabal_font" translatable="false">Cabal</string>
+    <string name="cabal_bold_font" translatable="false">Cabal Bold</string>
+    <string name="lobster_regular_font" translatable="false">Lobster Regular</string>
+    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
     <string name="add_new_image">Add New Image</string>
     <string name="color_picker_title">Select Color</string>
     <string name="remove_background_color_outline_popup">Would you like to remove the outline or the background color</string>
@@ -258,11 +258,11 @@
     <string name="check">check</string>
     <string name="circle">circle</string>
     <string name="image_size_orientation">Image Orientation Size</string>
-    <string name="glide_cache_clear">clearGlideCache</string>
-    <string name="shared_pref">my_shared_pref</string>
-    <string name="title_activity_poem_theme_compose">PoemThemeActivityCompose</string>
-    <string name="title_activity_main_compose">MainActivityCompose</string>
-    <string name="title_activity_my_poems_compose">MyPoemsCompose</string>
+    <string name="glide_cache_clear" translatable="false">clearGlideCache</string>
+    <string name="shared_pref" translatable="false">my_shared_pref</string>
+    <string name="title_activity_poem_theme_compose" translatable="false">PoemThemeActivityCompose</string>
+    <string name="title_activity_main_compose" translatable="false">MainActivityCompose</string>
+    <string name="title_activity_my_poems_compose" translatable="false">MyPoemsCompose</string>
     <string name="register_launcher_success">Thank you for granting share access. Try sharing the image again</string>
     <string name="register_launcher_fail">You have decided not to allow share access</string>
     <string name="title_activity_create_poem_compose">CreatePoemCompose</string>
@@ -283,4 +283,8 @@
     <string name="failed_to_delete">Failed to delete %1$s</string>
     <string name="failed_to_rename">Failed to rename album</string>
     <string name="failed_to_share">No saved images for %1$s</string>
+    <string name="text_options_toast">Shows alignment options on click</string>
+    <string name="text_size_toast">Allows you to change text size</string>
+    <string name="text_color_toast">Changes the text color</string>
+    <string name="saved_button_toast">Saves the current poem by desired choice</string>
 </resources>

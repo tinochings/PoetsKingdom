@@ -21,12 +21,11 @@
         <EditTextPreference
             app:key="appNickname"
             app:title="@string/nickname_preferences"
-            android:maxLength="20"
+            android:maxLength="30"
             app:entries="@array/cover_page_entries"
             app:entryValues="@array/cover_page_values"
             app:defaultValue="@string/nickname_placeholder"
             app:useSimpleSummaryProvider="true"/>
-
 
         <ListPreference
             app:key="orientation"

@@ -104,6 +104,9 @@ class PersonalisationActivity : AppCompatActivity() {
             resolution?.isVisible = orientationSelected?.value == "landscape"
         }
 
+        /**
+         * Restarts the application to make sure the
+         */
         private fun restartApp() {
             val intent = Intent(
                 requireContext(),

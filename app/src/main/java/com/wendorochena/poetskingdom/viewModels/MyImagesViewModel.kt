@@ -33,16 +33,25 @@ class MyImagesViewModel : ViewModel() {
     var imageFiles = mutableStateMapOf<File, Boolean>()
         private set
 
+    /**
+     * @param selection the selection to set the current value to
+     */
     fun setSelection(selection: CurrentSelection) {
         currentSelection = selection
     }
 
+    /**
+     * @param state the state to set the floating button
+     */
     fun setFloatingButtonState(state: FloatingButtonState) {
         floatingButtonStateVar = state
     }
 
     /**
      * Adds all files and sets the long press boolean value to false
+     * @param arrayList an arraylist containing files in a map
+     * @param listFiles an array containing files in a map
+     * @param isImages true when the current selection is images
      */
     private fun addAllFiles(
         arrayList: ArrayList<File>?,
@@ -87,16 +96,23 @@ class MyImagesViewModel : ViewModel() {
      */
     fun deleteImages() {
         val filesToDelete = imageFiles.filter { it.value }
-        for (entry in filesToDelete) {
-            if (entry.key.delete())
-                imageFiles.remove(entry.key)
+        try {
+            for (entry in filesToDelete) {
+                if (entry.key.delete())
+                    imageFiles.remove(entry.key)
+            }
+            onImageLongPressed = false
+            setFloatingButtonState(FloatingButtonState.ADDIMAGE)
+        } catch (e : IOException){
+            e.printStackTrace()
         }
-        onImageLongPressed = false
-        setFloatingButtonState(FloatingButtonState.ADDIMAGE)
     }
 
     /**
-     * Checks to see if there is a saved poem with the corresponding poemname
+     * Checks to see if there is a saved poem with the corresponding poem name
+     *
+     * @param savedPoemsPath the file with the path to consider
+     * @param poemName the name of the poem
      */
     private fun hasPoemPath(savedPoemsPath : File, poemName: String) : Boolean{
         if (File(savedPoemsPath.absolutePath + File.separator + poemName).exists())
@@ -114,7 +130,7 @@ class MyImagesViewModel : ViewModel() {
     /**
      * Deletes saved poem images
      *
-     * @param context application context
+     * @param context activity context
      */
     fun deleteSavedPoems(context: Context) {
         val filesToDelete = savedPoemImages.filter { it.value }
@@ -154,6 +170,7 @@ class MyImagesViewModel : ViewModel() {
 
     /**
      * Gets an arraylist containing thumbnail images to display
+     * @param context context of the activity
      */
     fun getThumbnails(context: Context): MutableMap<File, Boolean> {
         val arrayListToRet = ArrayList<File>()
@@ -181,7 +198,7 @@ class MyImagesViewModel : ViewModel() {
                         }
                     }
                 }
-            } catch (exception: Exception) {
+            } catch (exception: IOException) {
                 exception.printStackTrace()
             }
             addAllFiles(arrayListToRet, null, false)
@@ -229,6 +246,9 @@ class MyImagesViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Sets the on click value of each file to false if it was selected
+     */
     fun resetSelectedImages() {
         if(currentSelection == CurrentSelection.IMAGES) {
             val keys = imageFiles.filter { it.value }
