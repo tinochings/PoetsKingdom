@@ -1073,7 +1073,7 @@ class CreatePoem : AppCompatActivity() {
             getString(R.string.personalisation_sharedpreferences_key),
             MODE_PRIVATE
         )
-        val marginTopAsPixels = resources.getDimension(R.dimen.action_bar_size).toInt()
+        val marginTopAsPixels = resources.getDimensionPixelSize(R.dimen.action_bar_size)
         val resolution = settingsPref.getString("resolution", "1080 1080")?.split(" ")
         val landscapeWidth = resolution?.get(0)?.toFloat()
         val landscapeHeight = resolution?.get(1)?.toFloat()
