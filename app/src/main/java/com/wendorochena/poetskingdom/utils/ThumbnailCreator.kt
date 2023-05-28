@@ -34,7 +34,7 @@ class ThumbnailCreator(
     private var poemName = "Default"
     private var poetsName = "Default"
     private var poetsSignature = "Default"
-    private var poemTextSize = 12f
+    private var poemTextSize = 14f
     private lateinit var textPaintAlignment: Paint.Align
     private lateinit var paint: Paint
     private var xPoint: Float = 0f

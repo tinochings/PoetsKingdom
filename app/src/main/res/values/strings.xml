@@ -287,4 +287,8 @@
     <string name="text_size_toast">Allows you to change text size</string>
     <string name="text_color_toast">Changes the text color</string>
     <string name="saved_button_toast">Saves the current poem by desired choice</string>
+    <string name="poem_thumbnail_settings">Thumbnail Settings</string>
+    <string name="poem_layout">Layout Settings</string>
+    <string name="application_nickname">App Nickname</string>
+    <string name="enter_text_hint">Enter Text Here</string>
 </resources>

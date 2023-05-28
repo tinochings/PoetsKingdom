@@ -12,7 +12,6 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.text.Editable
 import android.text.SpannableStringBuilder
-import android.util.Log
 import android.util.TypedValue
 import android.widget.EditText
 import android.widget.FrameLayout
@@ -194,7 +193,7 @@ class ImageSaverUtil(
                     paint.getTextBounds(currentWord, 0, currentWord.length, bounds)
                     if (bounds.width() > width) {
                         if (!lines.addAll(updateLongWordBounds(currentWord, paint, width)))
-                            Log.e(missingLineTag, indexCounter.toString())
+                            println("$missingLineTag $indexCounter")
                         indexCounter++
                     } else {
                         currentLine += if (currentLine.isNotEmpty())
@@ -727,7 +726,6 @@ class ImageSaverUtil(
                 }
             } catch (exception: Exception) {
                 exception.printStackTrace()
-                Log.e(this::javaClass.name, "Failed to save poem as images")
                 return@withContext -1
             }
             return@withContext -1
