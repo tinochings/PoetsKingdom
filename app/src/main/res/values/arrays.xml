@@ -98,44 +98,52 @@
 
     <string-array name="customFontNamesCompose">
         <item>adinekirnberg</item>
+        <item>alegreya_sans_sc_medium</item>
         <item>ariana_violeta</item>
+        <item>attic</item>
+        <item>ayuma</item>
         <item>bangers</item>
+        <item>bungasai</item>
         <item>cabal_bold</item>
         <item>cabal</item>
-        <item>flaemische</item>
-        <item>lobster_regular</item>
-        <item>opensansregular</item>
-        <item>sacramento</item>
-        <item>scriptin</item>
-        <item>sourcesansproregular</item>
-        <item>thesignature</item>
-        <item>alegreya_sans_sc_medium</item>
-        <item>ayuma</item>
-        <item>bungasai</item>
+        <item>chopin_script</item>
         <item>clicker_script</item>
+        <item>code_new_roman</item>
         <item>comfortaa</item>
         <item>crimson_bold</item>
         <item>crimson_roman</item>
         <item>dense_regular</item>
+        <item>default</item>
+        <item>flaemische</item>
         <item>glass_antiqua</item>
         <item>honey_script</item>
+        <item>lobster_regular</item>
         <item>josefin_sans</item>
         <item>libre_baskerville</item>
         <item>life_savers</item>
+        <item>lm_monocaps_regular</item>
         <item>lucian_schoenschrift</item>
         <item>magnolia_script</item>
         <item>medula_one</item>
+        <item>monofonto</item>
+        <item>monospace</item>
         <item>nautilus</item>
         <item>nickainley</item>
         <item>oldenglishfive</item>
+        <item>opensansregular</item>
         <item>quattrocento</item>
-        <item>rogue_script</item>
-        <item>sexsmith</item>
-        <item>typerighter_medium</item>
         <item>righteous_regular</item>
-        <item>chopin_script</item>
         <item>rochester_regular</item>
+        <item>rogue_script</item>
+        <item>sacramento</item>
+        <item>sans-Serif</item>
+        <item>scriptin</item>
+        <item>serif</item>
+        <item>sexsmith</item>
         <item>steelfish_rounded</item>
+        <item>sourcesansproregular</item>
+        <item>thesignature</item>
+        <item>typerighter_medium</item>
         <item>vinque</item>
     </string-array>
 </resources>

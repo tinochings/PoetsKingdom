@@ -83,11 +83,7 @@
         <item name="android:textSize">20sp</item>
         <item name="android:textStyle">bold</item>
     </style>
-
-    <style name="BodyStyle" parent="@style/Preference.DialogPreference.EditTextPreference">
-        <item name="android:textSize">66sp</item>
-        <item name="android:textColor">@color/white</item>
-    </style>
+    
     <!-- on below line creating a theme for our Alert Dialog -->
     <style name="AlertDialogCustom" parent="@style/ThemeOverlay.MaterialComponents.MaterialAlertDialog">
         <!-- on below line adding text color for our text in alert dialog -->

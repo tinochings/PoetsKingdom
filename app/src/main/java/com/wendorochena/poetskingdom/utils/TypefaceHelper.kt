@@ -153,6 +153,21 @@ class TypefaceHelper {
                 "vinque_font" -> {
                     return ResourcesCompat.getFont(applicationContext, R.font.vinque_font)
                 }
+                "rm_typerighter_old_font" -> {
+                    return ResourcesCompat.getFont(applicationContext, R.font.rm_typerighter_old_font)
+                }
+                "lm_monocaps_regular_font" -> {
+                    return ResourcesCompat.getFont(applicationContext,R.font.lm_monocaps_regular_font)
+                }
+                "monofonto_font" -> {
+                    return ResourcesCompat.getFont(applicationContext, R.font.monofonto_font)
+                }
+                "code_new_roman_font" -> {
+                    return ResourcesCompat.getFont(applicationContext, R.font.code_new_roman_font)
+                }
+                "attic_font" -> {
+                    return ResourcesCompat.getFont(applicationContext,R.font.attic_font)
+                }
             }
             return DEFAULT
         }
@@ -291,6 +306,21 @@ class TypefaceHelper {
                 }
                 "vinque" -> {
                     return FontFamily(Font(R.font.vinque))
+                }
+                "rm_typerighter_old" -> {
+                    return FontFamily(Font(R.font.rm_typerighter_old))
+                }
+                "lm_monocaps_regular" -> {
+                    return FontFamily(Font(R.font.lm_monocaps_regular))
+                }
+                "monofonto" -> {
+                    return FontFamily(Font(R.font.monofonto))
+                }
+                "code_new_roman" -> {
+                    return FontFamily(Font(R.font.code_new_roman))
+                }
+                "attic" -> {
+                    return FontFamily(Font(R.font.attic))
                 }
             }
             return FontFamily(DEFAULT)

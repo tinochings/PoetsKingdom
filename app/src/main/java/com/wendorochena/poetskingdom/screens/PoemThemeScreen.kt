@@ -814,7 +814,8 @@ fun ThemeOptions(
                     colorPickerDialog = colorPickerDialog,
                     textColor = poemThemeViewModel.fontColor,
                     onFontItemClicked = onFontItemClicked,
-                    onTextAlignClicked = onTextAlignClicked
+                    onTextAlignClicked = onTextAlignClicked,
+                    defaultTextValue = if (poemThemeViewModel.isEditTheme) poemThemeViewModel.fontSize else 14f
                 )
             }
         }
@@ -894,9 +895,9 @@ fun BackgroundLayout(
 }
 
 @Composable
-fun SliderLayout(textSizeChange: (Float) -> Unit) {
-    var sliderPosition by remember { mutableStateOf(14f) }
-    val thumbColor = if(isSystemInDarkTheme())
+fun SliderLayout(textSizeChange: (Float) -> Unit, defaultTextValue: Float) {
+    var sliderPosition by remember { mutableStateOf(defaultTextValue) }
+    val thumbColor = if (isSystemInDarkTheme())
         OffWhite
     else
         DefaultColor
@@ -1017,13 +1018,18 @@ fun TextLayout(
     colorPickerDialog: @Composable (HeadingSelection) -> Unit,
     textColor: Int,
     onFontItemClicked: (FontFamily, String) -> Unit,
-    onTextAlignClicked: (TextAlignment) -> Unit
+    onTextAlignClicked: (TextAlignment) -> Unit,
+    defaultTextValue: Float
 ) {
-    val defaultFonts = arrayOf("monospace", "sans-Serif", "serif", "default")
-    val allFonts = defaultFonts.plus(stringArrayResource(id = R.array.customFontNamesCompose))
+    val allFonts = stringArrayResource(id = R.array.customFontNamesCompose)
     val numOfFonts = allFonts.size
     LazyVerticalGrid(columns = GridCells.Fixed(2)) {
-        item(span = { GridItemSpan(2) }) { SliderLayout(textSizeChange = textSizeChange) }
+        item(span = { GridItemSpan(2) }) {
+            SliderLayout(
+                textSizeChange = textSizeChange,
+                defaultTextValue = defaultTextValue
+            )
+        }
         item(span = { GridItemSpan(2) }) {
             TextColorAndAlignment(
                 colorPickerDialog,
@@ -1273,7 +1279,8 @@ fun SavePoemThemeDialog(poemThemeViewModel: PoemThemeViewModel) {
     ) {
         Card(
             modifier = Modifier
-                .fillMaxWidth().border(
+                .fillMaxWidth()
+                .border(
                     width = 3.dp,
                     color = DefaultStatusBarColor,
                     com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline
@@ -1314,7 +1321,8 @@ fun SavePoemThemeDialog(poemThemeViewModel: PoemThemeViewModel) {
                             stringResource(id = R.string.create_poem_edit_text_hint),
                             color = OffWhite
                         )
-                    }, keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+                    },
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
                 )
 
                 Spacer(modifier = Modifier.height(30.dp))
