@@ -411,7 +411,7 @@ fun ImagesView(
             myImagesViewModel.setFloatingButtonState(FloatingButtonState.DELETEIMAGE)
     }
     val imageFiles = myImagesViewModel.getImageFiles(LocalContext.current.applicationContext)
-    val imageFileKeys = imageFiles.keys.asSequence()
+    val imageFileKeys = imageFiles.keys.asSequence().sortedByDescending { it.lastModified() }
     LazyVerticalGrid(
         modifier = modifier.padding(top = 5.dp), columns = GridCells.Fixed(3),
         verticalArrangement = Arrangement.spacedBy(5.dp),
