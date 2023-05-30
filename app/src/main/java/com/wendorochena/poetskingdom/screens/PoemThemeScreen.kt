@@ -1096,7 +1096,7 @@ fun ImagesGrid(onImageItemClick: (File) -> Unit) {
         stringResource(id = R.string.my_images_folder_name),
         Context.MODE_PRIVATE
     )
-    val imageFiles = imagesFolder?.listFiles()
+    val imageFiles = imagesFolder?.listFiles()?.toMutableList()?.sortedByDescending { it.lastModified() }
     LazyVerticalGrid(
         modifier = Modifier.padding(top = 5.dp), columns = GridCells.Fixed(4),
         verticalArrangement = Arrangement.spacedBy(5.dp),

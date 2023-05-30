@@ -1,5 +1,4 @@
 <resources>
-    <!-- Reply Preference -->
     <string-array name="orientation_entries">
         <item>Portrait</item>
         <item>Landscape</item>
