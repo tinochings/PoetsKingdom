@@ -80,14 +80,14 @@ class SearchUtilTest {
 
         assert(results.size == 3)
 
-        assert(results.contains("Search_Test_1.xml"))
-        assert(results.contains("Search_Test_2.xml"))
-        assert(results.contains("Search_Test_3.xml"))
+        assert(results.contains("Search Test 1"))
+        assert(results.contains("Search Test 2"))
+        assert(results.contains("Search Test 3"))
 
         for (pair in substringLocation) {
 
             when (pair.first) {
-                "Search_Test_1" -> {
+                "Search Test 1" -> {
                     val location = pair.second.split(" ")
                     val stanzaNum = location[0].toInt()
                     val startIndex = location[1].toInt()
@@ -97,7 +97,7 @@ class SearchUtilTest {
                     assert(startIndex == 0)
                     assert(endIndex == 10)
                 }
-                "Search_Test_2" -> {
+                "Search Test 2" -> {
                     val location = pair.second.split(" ")
                     val stanzaNum = location[0].toInt()
                     val startIndex = location[1].toInt()
@@ -109,7 +109,7 @@ class SearchUtilTest {
                     assert(startIndex == 936 + lines)
                     assert(endIndex == 946 + lines)
                 }
-                "Search_Test_3" -> {
+                "Search Test 3" -> {
                     val location = pair.second.split(" ")
                     val stanzaNum = location[0].toInt()
                     val startIndex = location[1].toInt()
@@ -151,14 +151,14 @@ class SearchUtilTest {
         assert(substringLocation.isNotEmpty())
         assert(results.size == 3)
 
-        assert(results.contains("This_is_search_1.xml"))
-        assert(results.contains("This_is_search_2.xml"))
-        assert(results.contains("This_is_search_3.xml"))
+        assert(results.contains("This is search 1"))
+        assert(results.contains("This is search 2"))
+        assert(results.contains("This is search 3"))
 
         for (pair in substringLocation) {
 
             when (pair.first) {
-                "This_is_search_1" -> {
+                "This is search 1" -> {
                     val location = pair.second.split(" ")
                     val stanzaNum = location[0].toInt()
                     val startIndex = location[1].toInt()
@@ -168,7 +168,7 @@ class SearchUtilTest {
                     assert(startIndex == 0)
                     assert(endIndex == 114)
                 }
-                "This_is_search_2" -> {
+                "This is search 2" -> {
                     val location = pair.second.split(" ")
                     val stanzaNum = location[0].toInt()
                     val startIndex = location[1].toInt()
@@ -180,7 +180,7 @@ class SearchUtilTest {
                     assert(startIndex == 936 + lines)
                     assert(endIndex == 1050 + lines)
                 }
-                "This_is_search_3" -> {
+                "This is search 3" -> {
                     val location = pair.second.split(" ")
                     val stanzaNum = location[0].toInt()
                     val startIndex = location[1].toInt()
@@ -223,13 +223,13 @@ class SearchUtilTest {
 
         assert(results.size == 3)
 
-        assert(results.contains("Boundary_Test_1.xml"))
-        assert(results.contains("Boundary_Test_2.xml"))
-        assert(results.contains("Boundary_Test_3.xml"))
+        assert(results.contains("Boundary Test 1"))
+        assert(results.contains("Boundary Test 2"))
+        assert(results.contains("Boundary Test 3"))
         for (pair in substringLocation) {
 
             when (pair.first) {
-                "Boundary_Test_1" -> {
+                "Boundary Test 1" -> {
                     val location = pair.second.split(" ")
                     val stanzaNum = location[0].toInt()
                     val startIndex = location[1].toInt()
@@ -239,7 +239,7 @@ class SearchUtilTest {
                     assert(startIndex == 0)
                     assert(endIndex == 981)
                 }
-                "Boundary_Test_2" -> {
+                "Boundary Test 2" -> {
                     val location = pair.second.split(" ")
                     val stanzaNum = location[0].toInt()
                     val startIndex = location[1].toInt()
@@ -251,7 +251,7 @@ class SearchUtilTest {
                     assert(startIndex == 936 + lines)
                     assert(endIndex == 1917 + lines)
                 }
-                "Boundary_Test_3" -> {
+                "Boundary Test 3" -> {
                     val location = pair.second.split(" ")
                     val stanzaNum = location[0].toInt()
                     val startIndex = location[1].toInt()

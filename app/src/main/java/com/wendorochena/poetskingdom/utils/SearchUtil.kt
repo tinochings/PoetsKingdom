@@ -1,7 +1,6 @@
 package com.wendorochena.poetskingdom.utils
 
 import android.content.Context
-import android.util.Log
 import androidx.databinding.ObservableArrayList
 import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.poemdata.PoemXMLParser
@@ -20,6 +19,7 @@ import org.apache.lucene.search.TopScoreDocCollector
 import org.apache.lucene.store.FSDirectory
 import org.apache.lucene.util.Version
 import java.io.FileReader
+import java.io.IOException
 
 /**
  * The search phrase input by the user is run through Lucene with a boosted scoring of 2.
@@ -119,14 +119,12 @@ class SearchUtil(
                                 document.add(
                                     StringField(
                                         "fileName",
-                                        poemFile.name,
+                                        poemFile.name.split(".")[0].replace('_', ' '),
                                         Field.Store.YES
                                     )
                                 )
-
                                 indexWriter.addDocument(document)
-                                println("added : ${poemFile.name}")
-                            } catch (e: Exception) {
+                            } catch (e: IOException) {
                                 e.printStackTrace()
                             } finally {
                                 fileReader.close()
@@ -154,7 +152,6 @@ class SearchUtil(
                                     val approximatePhrase = "\"$searchPhrase\"~"
                                     val query = queryParser.parse(approximatePhrase)
                                     indexSearcher.search(query, collector)
-                                    println(approximatePhrase)
                                 }
                                 else -> {
                                     val query = queryParser.parse(searchPhrase)
@@ -164,7 +161,6 @@ class SearchUtil(
 
                             val scoreDocHits = collector.topDocs().scoreDocs
 
-                            println("${scoreDocHits.size} hits have been found")
 
                             for (hit in scoreDocHits) {
                                 val currDocument = indexSearcher.doc(hit.doc)
@@ -172,16 +168,15 @@ class SearchUtil(
                                 if (!this::titleSearchResults.isInitialized)
                                     titleSearchResults = ArrayList()
 
-                                titleSearchResults.add(currDocument.get("fileName"))
-                                println(currDocument.get("fileName") + " score= ${hit.score}")
+                                titleSearchResults.add(currDocument.get("fileName").replace(' ','_') + ".xml")
+//                                println(currDocument.get("fileName") + " score= ${hit.score}")
                             }
                         } catch (e: Exception) {
-                            Log.e("Search Error: ", "Error Searching for $searchPhrase and error ${e.message}")
+                            e.printStackTrace()
                         }
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    Log.e(this::javaClass.name, "Lucene search failed")
                 }
             }
 

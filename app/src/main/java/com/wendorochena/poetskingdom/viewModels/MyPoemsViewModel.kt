@@ -672,6 +672,8 @@ class MyPoemsViewModel : ViewModel() {
             val savedHistory = sharedPreferences.getStringSet("search_history", HashSet())
             if (savedHistory?.isNotEmpty() == true) {
                 searchHistory.addAll(savedHistory)
+            } else{
+                saveSearchHistory(context)
             }
             initialisedSearchHistory = true
         }
@@ -707,6 +709,10 @@ class MyPoemsViewModel : ViewModel() {
             val sharedPreferences =
                 context.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
             sharedPreferences.edit().putStringSet("search_history", searchHistory.toSet()).apply()
+        } else {
+            val sharedPreferences =
+                context.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
+            sharedPreferences.edit().putStringSet("search_history", HashSet()).apply()
         }
     }
 

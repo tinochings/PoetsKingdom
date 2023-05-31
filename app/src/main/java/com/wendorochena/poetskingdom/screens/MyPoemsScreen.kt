@@ -703,6 +703,7 @@ fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
     var check1 by remember { mutableStateOf(true) }
     var check2 by remember { mutableStateOf(false) }
     var check3 by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     val checkManager: (String) -> Unit = {
         when (it) {
@@ -832,6 +833,7 @@ fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = {
             myPoemsViewModel.updateSearchHistory(textSearch)
+            myPoemsViewModel.saveSearchHistory(context)
             myPoemsViewModel.invokeSearch(
                 textSearch,
                 applicationContext,
@@ -889,7 +891,9 @@ fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
                     style = androidx.compose.material.MaterialTheme.typography.h2,
                     modifier = Modifier
                         .weight(0.8f)
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .clickable { textSearch =  searchHistory[searchHistory.size - 1 - it]}
+                    ,
                     maxLines = 1,
                     color = androidx.compose.material.MaterialTheme.colors.primary
                 )
