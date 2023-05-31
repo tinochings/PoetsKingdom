@@ -1,3 +1,5 @@
+
+<img src="app/src/main/res/drawable-v24/logo.pngg" width="170">
 # Poets Kingdom
 
 Poets Kingdom is an application targeted at making poems with a custom-selected user theme. 
