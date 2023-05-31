@@ -368,7 +368,7 @@ class PoemThemeViewModel : ViewModel() {
         val exceptionHandler = CoroutineExceptionHandler { _, exception ->
             exception.printStackTrace()
             //add a better wayy to manage failure
-            println("Error saving file")
+//            println("Error saving file")
         }
         uiState.value.poemTitle = poemName
          poemTitle = poemName

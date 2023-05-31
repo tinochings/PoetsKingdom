@@ -78,11 +78,11 @@ class SearchUtilTest {
 
         assert(substringLocation.isNotEmpty())
 
-        assert(results.size == 3)
+        assert(results.size == 6)
 
-        assert(results.contains("Search Test 1"))
-        assert(results.contains("Search Test 2"))
-        assert(results.contains("Search Test 3"))
+        assert(results.contains("Search_Test_1.xml"))
+        assert(results.contains("Search_Test_2.xml"))
+        assert(results.contains("Search_Test_3.xml"))
 
         for (pair in substringLocation) {
 
@@ -97,6 +97,7 @@ class SearchUtilTest {
                     assert(startIndex == 0)
                     assert(endIndex == 10)
                 }
+
                 "Search Test 2" -> {
                     val location = pair.second.split(" ")
                     val stanzaNum = location[0].toInt()
@@ -109,7 +110,85 @@ class SearchUtilTest {
                     assert(startIndex == 936 + lines)
                     assert(endIndex == 946 + lines)
                 }
+
                 "Search Test 3" -> {
+                    val location = pair.second.split(" ")
+                    val stanzaNum = location[0].toInt()
+                    val startIndex = location[1].toInt()
+                    val endIndex = location[2].split("\n")[0].toInt()
+                    // there are 35 lines in each stanza with the search keyword and a line is a character
+                    val lines = 35
+
+                    assert(stanzaNum == 5)
+                    assert(startIndex == 936 + lines)
+                    assert(endIndex == 946 + lines)
+                }
+            }
+        }
+
+    }
+
+    /**
+     * Search Keyword "I want you"
+     *
+     * Files ("Album_Test_1.xml","Album_Test_2.xml","Album_Test_3.xml","Search_Test_1.xml", "Search_Test_2.xml", "Search_Test_3.xml") are the only files
+     * containing the keyword
+     *
+     * This test tests that the correct files are found and that the correct
+     * highlighted text positions are found
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun testIWantYouWithAlbumFiles(): Unit = runTest {
+
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        searchUtil = SearchUtil("I want you", mockContext, exactSearch, dispatcher, dispatcher)
+        searchUtil.initiateLuceneSearch()
+        advanceUntilIdle()
+        val results: ArrayList<String> = searchUtil.getTitleSearchResults()
+        val substringLocation = searchUtil.getSubStringLocations()
+
+        assert(results.isNotEmpty())
+
+        assert(substringLocation.isNotEmpty())
+
+        assert(results.size == 6)
+
+        assert(results.contains("Search_Test_1.xml"))
+        assert(results.contains("Album_test_folder" + File.separator + "Album_Test_1.xml"))
+        assert(results.contains("Search_Test_2.xml"))
+        assert(results.contains("Album_test_folder" + File.separator +"Album_Test_2.xml"))
+        assert(results.contains("Search_Test_3.xml"))
+        assert(results.contains("Album_test_folder" + File.separator +"Album_Test_3.xml"))
+
+        for (pair in substringLocation) {
+
+            when (pair.first) {
+                "Search Test 1", "Album Test 1" -> {
+                    val location = pair.second.split(" ")
+                    val stanzaNum = location[0].toInt()
+                    val startIndex = location[1].toInt()
+                    val endIndex = location[2].split("\n")[0].toInt()
+
+                    assert(stanzaNum == 1)
+                    assert(startIndex == 0)
+                    assert(endIndex == 10)
+                }
+
+                "Search Test 2", "Album Test 2" -> {
+                    val location = pair.second.split(" ")
+                    val stanzaNum = location[0].toInt()
+                    val startIndex = location[1].toInt()
+                    val endIndex = location[2].split("\n")[0].toInt()
+                    // there are 35 lines in each stanza with the search keyword and a line is a character
+                    val lines = 35
+
+                    assert(stanzaNum == 10)
+                    assert(startIndex == 936 + lines)
+                    assert(endIndex == 946 + lines)
+                }
+
+                "Search Test 3", "Album Test 3" -> {
                     val location = pair.second.split(" ")
                     val stanzaNum = location[0].toInt()
                     val startIndex = location[1].toInt()
@@ -151,9 +230,9 @@ class SearchUtilTest {
         assert(substringLocation.isNotEmpty())
         assert(results.size == 3)
 
-        assert(results.contains("This is search 1"))
-        assert(results.contains("This is search 2"))
-        assert(results.contains("This is search 3"))
+        assert(results.contains("This_is_search_1.xml"))
+        assert(results.contains("This_is_search_2.xml"))
+        assert(results.contains("This_is_search_3.xml"))
 
         for (pair in substringLocation) {
 
@@ -168,6 +247,7 @@ class SearchUtilTest {
                     assert(startIndex == 0)
                     assert(endIndex == 114)
                 }
+
                 "This is search 2" -> {
                     val location = pair.second.split(" ")
                     val stanzaNum = location[0].toInt()
@@ -180,6 +260,7 @@ class SearchUtilTest {
                     assert(startIndex == 936 + lines)
                     assert(endIndex == 1050 + lines)
                 }
+
                 "This is search 3" -> {
                     val location = pair.second.split(" ")
                     val stanzaNum = location[0].toInt()
@@ -223,9 +304,9 @@ class SearchUtilTest {
 
         assert(results.size == 3)
 
-        assert(results.contains("Boundary Test 1"))
-        assert(results.contains("Boundary Test 2"))
-        assert(results.contains("Boundary Test 3"))
+        assert(results.contains("Boundary_Test_1.xml"))
+        assert(results.contains("Boundary_Test_2.xml"))
+        assert(results.contains("Boundary_Test_3.xml"))
         for (pair in substringLocation) {
 
             when (pair.first) {
@@ -239,6 +320,7 @@ class SearchUtilTest {
                     assert(startIndex == 0)
                     assert(endIndex == 981)
                 }
+
                 "Boundary Test 2" -> {
                     val location = pair.second.split(" ")
                     val stanzaNum = location[0].toInt()
@@ -251,6 +333,7 @@ class SearchUtilTest {
                     assert(startIndex == 936 + lines)
                     assert(endIndex == 1917 + lines)
                 }
+
                 "Boundary Test 3" -> {
                     val location = pair.second.split(" ")
                     val stanzaNum = location[0].toInt()

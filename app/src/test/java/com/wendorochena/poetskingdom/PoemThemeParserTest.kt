@@ -153,5 +153,43 @@ class PoemThemeParserTest {
         assert(currTheme.textFontFamily == "Default")
     }
 
+    /**
+     * Tests different scenarios in which saving a new poem theme should not succeed
+     */
+    @Test
+    fun testFileAlreadyExists() : Unit = runTest{
+        val result = PoemThemeXmlParser(poemTheme,mockContext)
+        //file already exists in the local folder
+        poemTheme.poemTitle = "Outline With Image"
+        assert(result.savePoemThemeToLocalFile(null,null,null) == -1)
 
+        //file exists but user decided to encode
+        poemTheme.poemTitle = "Outline_With_Image"
+        assert(result.savePoemThemeToLocalFile(null,null,null) == -1)
+
+        poemTheme.poemTitle = "Default"
+        assert(result.savePoemThemeToLocalFile(null,null,null) == -1)
+
+        poemTheme.poemTitle = "Image"
+        assert(result.savePoemThemeToLocalFile(null,null,null) == -1)
+        //file already exists in album folder
+        poemTheme.poemTitle = "Album Test 1"
+        assert(result.savePoemThemeToLocalFile(null,null,null) == -1)
+
+        poemTheme.poemTitle = "Album_Test_1"
+        assert(result.savePoemThemeToLocalFile(null,null,null) == -1)
+
+        poemTheme.poemTitle = "Album Test 2"
+        assert(result.savePoemThemeToLocalFile(null,null,null) == -1)
+
+        poemTheme.poemTitle = "Album_Test_2"
+        assert(result.savePoemThemeToLocalFile(null,null,null) == -1)
+
+        poemTheme.poemTitle = "Album Test 3"
+        assert(result.savePoemThemeToLocalFile(null,null,null) == -1)
+
+        poemTheme.poemTitle = "Album_Test_3"
+        assert(result.savePoemThemeToLocalFile(null,null,null) == -1)
+
+    }
 }

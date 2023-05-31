@@ -100,16 +100,13 @@ class CreatePoem : AppCompatActivity() {
                     turnOnDimmerProgressBar()
 
                 val poemThemeResult = poemParser.parseTheme(intentExtras.getString(poemTitleArg))
-               val poemPath =  if (albumName != null)
-                   albumName + File.separator + poemParser.getPoemTheme().poemTitle.replace(' ','_')
-                else
-                   poemParser.getPoemTheme().poemTitle
 
                 val poemLoadResult =
                     if (isLoadPoem) PoemXMLParser.parseSavedPoem(
-                        poemPath,
+                        poemParser.getPoemTheme().poemTitle,
                         applicationContext,
-                        Dispatchers.IO
+                        Dispatchers.IO,
+                        albumName
                     )
                     else
                         null

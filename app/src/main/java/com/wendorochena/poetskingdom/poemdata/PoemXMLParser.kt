@@ -20,7 +20,7 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
      * @return 0 is returned if operation was successful
      * @return -1 if operation failed
      */
-    suspend fun saveToXmlFile(albumName : String?): Int {
+    suspend fun saveToXmlFile(albumName: String?): Int {
         return withContext(Dispatchers.IO) {
             try {
                 val poemFolder =
@@ -99,17 +99,29 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
         suspend fun parseSavedPoem(
             poemTitle: String,
             applicationContext: Context,
-            ioDispatcher: CoroutineDispatcher
+            ioDispatcher: CoroutineDispatcher,
+            albumName: String?
         ): ArrayList<String> {
             return withContext(ioDispatcher) {
                 val stanzas = ArrayList<String>()
-                val poemsFolder = applicationContext.getDir(applicationContext.getString(R.string.poems_folder_name), Context.MODE_PRIVATE)
-                val fileToUse = File(
-                    poemsFolder?.absolutePath + File.separator + poemTitle.replace(
-                        ' ',
-                        '_'
-                    ) + ".xml"
+                val poemsFolder = applicationContext.getDir(
+                    applicationContext.getString(R.string.poems_folder_name),
+                    Context.MODE_PRIVATE
                 )
+                val fileToUse = if (albumName != null)
+                    File(
+                        poemsFolder.absolutePath + File.separator + albumName.replace(' ', '_') + File.separator + poemTitle.replace(
+                            ' ',
+                            '_'
+                        ) + ".xml"
+                    )
+                else
+                    File(
+                        poemsFolder.absolutePath + File.separator + poemTitle.replace(
+                            ' ',
+                            '_'
+                        ) + ".xml"
+                    )
 
                 if (fileToUse.exists()) {
                     val inputStream =
@@ -139,6 +151,7 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
                                         parser.nextTag()
                                         parser.require(XmlPullParser.END_TAG, null, "pages")
                                     }
+
                                     "category" -> {
                                         parser.require(XmlPullParser.START_TAG, null, "category")
                                         if (parser.next() == XmlPullParser.TEXT) {
@@ -146,12 +159,14 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
                                         parser.nextTag()
                                         parser.require(XmlPullParser.END_TAG, null, "category")
                                     }
+
                                     "title" -> {
                                         parser.require(XmlPullParser.START_TAG, null, "title")
                                         parser.next()
                                         parser.nextTag()
                                         parser.require(XmlPullParser.END_TAG, null, "title")
                                     }
+
                                     "stanza1" -> {
                                         parser.require(XmlPullParser.START_TAG, null, "stanza1")
                                         if (parser.next() == XmlPullParser.TEXT) {
@@ -215,11 +230,26 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
                 val stanzasArrayList = ArrayList<Pair<String, ArrayList<String>>>()
 
                 for (fileName in fileNames) {
-                    val fileNameSplit = fileName.split(".")[0]
+                    val isAlbumPoem = fileName.contains(File.separator)
+                    val albumName = if (isAlbumPoem)
+                        fileName.split(File.separator)[0]
+                    else
+                        null
+
+                    val fileNameSplit = if (isAlbumPoem)
+                        fileName.split(File.separator)[1].split(".")[0]
+                    else
+                        fileName.split(".")[0]
+
                     stanzasArrayList.add(
                         Pair(
                             fileNameSplit,
-                            parseSavedPoem(fileNameSplit, applicationContext, ioDispatcher)
+                            parseSavedPoem(
+                                fileNameSplit,
+                                applicationContext,
+                                ioDispatcher,
+                                albumName
+                            )
                         )
                     )
                 }

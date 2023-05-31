@@ -54,7 +54,8 @@ class CreatePoemCompose : ComponentActivity() {
                     if (isLoadPoem) PoemXMLParser.parseSavedPoem(
                         poemParser.getPoemTheme().poemTitle,
                         applicationContext,
-                        Dispatchers.IO
+                        Dispatchers.IO,
+                        null
                     )
                     else
                         null

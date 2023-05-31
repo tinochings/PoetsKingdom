@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<root>
+  <backgroundType>DEFAULT</backgroundType>
+  <backgroundColor>#FFFFFF</backgroundColor>
+  <backgroundColorAsInt>-1</backgroundColorAsInt>
+  <textSize>14</textSize>
+  <textColor>#000000</textColor>
+  <textColorAsInt>-16777216</textColorAsInt>
+  <textAlignment>LEFT</textAlignment>
+  <textFont>Default</textFont>
+</root>

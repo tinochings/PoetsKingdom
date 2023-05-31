@@ -298,6 +298,9 @@ class PoemThemeXmlParser(
         }
     }
 
+    /**
+     *
+     */
     private fun checkIsInAlbum(poemFolder: File, poemTitle: String): Boolean {
         val allFiles = poemFolder.listFiles()
         if (allFiles != null) {
@@ -318,6 +321,9 @@ class PoemThemeXmlParser(
     }
 
     /**
+     * N.B. This was initially designed to support MVI instead of MVVVM. To show a contrast between
+     * the two I have kept both implementations.
+     *
      * Encodes an xml file with the entire poem theme
      *
      * @param backgroundColorChosen the color of the background if any else this is null
@@ -347,7 +353,8 @@ class PoemThemeXmlParser(
                                 File(poemFolder.absolutePath + File.separator + poemFileName)
                             val poemFile =
                                 File(poemThemeFolder.absolutePath + File.separator + poemFileName)
-                            if (isEditTheme || (!savedPoem.exists() || !checkIsInAlbum(poemFolder, poemTheme.poemTitle) || poemFile.createNewFile())) {
+
+                            if (isEditTheme || (!savedPoem.exists() && !checkIsInAlbum(poemFolder, poemTheme.poemTitle) || poemFile.createNewFile())) {
                                 val fileOutStream = FileOutputStream(poemFile)
 
                                 val stringWriter = StringWriter()

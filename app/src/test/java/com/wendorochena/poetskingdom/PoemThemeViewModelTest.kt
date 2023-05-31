@@ -123,4 +123,9 @@ class PoemThemeViewModelTest {
         assert(uiState.textAlignment == TextAlignment.LEFT)
         assert(uiState.textFontFamily == "Default")
     }
+
+    @Test
+    fun testNameAlreadyExists(){
+
+    }
 }

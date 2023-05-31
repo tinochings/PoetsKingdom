@@ -624,6 +624,12 @@ fun SearchImageList(myPoemsViewModel: MyPoemsViewModel) {
             "poemTitle",
             it.name.split(".")[0]
         )
+        val albumNameIfAny = myPoemsViewModel.resolveAlbumName(it)
+        if (albumNameIfAny != null)
+            newActivityIntent.putExtra(
+                LocalContext.current.getString(R.string.album_argument_name),
+                albumNameIfAny.replace(' ', '_')
+            )
         LocalContext.current.startActivity(newActivityIntent)
     }
     val subStringLocations = myPoemsViewModel.substringLocations
@@ -703,7 +709,6 @@ fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
     var check1 by remember { mutableStateOf(true) }
     var check2 by remember { mutableStateOf(false) }
     var check3 by remember { mutableStateOf(false) }
-    val context = LocalContext.current
 
     val checkManager: (String) -> Unit = {
         when (it) {
@@ -833,7 +838,7 @@ fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = {
             myPoemsViewModel.updateSearchHistory(textSearch)
-            myPoemsViewModel.saveSearchHistory(context)
+            myPoemsViewModel.saveSearchHistory(applicationContext)
             myPoemsViewModel.invokeSearch(
                 textSearch,
                 applicationContext,
