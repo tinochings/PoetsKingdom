@@ -195,22 +195,23 @@
         or select a color it will be displayed on the top view</string>
     <string name="guide_text">At the bottom you will see text options. You can choose different fonts.
     You can change the color of the text and the size of the text. All clicks will be registered in the preview</string>
-    <string name="guide_create_poem">At the top you will see your poem title. If you double tap
-        areas on the poem view
-        without text a drawer with buttons will appear from the bottom. You
-        can long press them to see what they do. There are buttons to edit text size and alignment.
-        There is a button that initiates a stanzas view. This page tries to emulate
-    stanzas by allowing a user to add many different page views. The number of stanzas is shown at the bottom right of each page view
-    To delete a stanza, long hold that stanza and it will delete the stanza. You can also save the
-        current stanza as an image, pdf or a local application file. By default when you leave
-        this page the application saves the current poem as a file</string>
+    <string name="guide_create_poem">At the top you will see your poem title. Long press the title of your poem
+        to change its name.\n\n Double clicking areas on the poem view without text initiates the
+        view of a drawer with buttons from the bottom. Double clicking areas not encompassed by the poem
+        invokes the same behaviour. You can long press the buttons on the drawer to see what they do.\n\n
+        There is a button that initiates a stanzas view. This page shows the number of stanzas in a poem, and allows adding a new stanza
+        . The number of stanzas is shown at the bottom right of each stanza view To delete a stanza,
+        long press that stanza and it will be deleted. You can also save the poem as an image, PDF or
+        a local application file. By default when you leave this page the application saves the current poem as a file</string>
+
     <string name="guide_my_images">Spice up the outlook of your poems by adding an image.\n\n
     Click the bottom right floating button to initiate the addition of images.\n\n
     When you long click an image the button helps you delete images.</string>
     <string name="guide_my_poems">All your saved poems will be shown here. Clicking a thumbnail makes you edit that poem. \n\n
         You can long press a poem thumbnail and share that poem outside the application as an image.\n\n
         You can delete many poems. You can only share a singular poem however. When you long click a thumbnail
-    a bottom drawer will appear. The search button allows you to search for a poem.</string>
+    a bottom drawer will appear. The search button allows you to search for a poem.\n\n You can create
+    different albums for different poems by clicking the hamburger button and creating an album name of choice</string>
     <string name="guide_first_fragment">Welcome to The Poets Kingdom.\n\n To get started you will be
         taken to the personalisation page where you shall edit a few things before first use.
     </string>
@@ -218,8 +219,9 @@
         name and it will appear as the top text on a cover page for your poem.\n\n The cover page is the thumbnail
         that will be used to save poems.\n\n Your nickname is the name you would like to see in the home
         page of the application. It is limited to 30 characters. \n\n A poem can be in portrait or landscape mode.
-        The landscape mode is noticeably smaller than the portrait. The landscape images are by default saved with resolution
-        1080 x 1080. They will not however look like this when editing the poem.\n\n The poem signature is a mark or a trademark added
+        The landscape images are by default saved with resolution
+        1080 x 1080. They may not however look like the resolution when editing the poem due to
+        different phone resolutions.\n\n The poem signature is a mark or a trademark added
         to the bottom of the cover page
     </string>
     <string name="guide_image_viewer">This page serves the simple purpose of viewing images. In order
@@ -227,6 +229,7 @@
         that are slightly visible are just guidelines. In actuality the starting 20% of your screen
         is clickable to go to the previous image. Subsequently the last 20% of your screen takes you
         to the next image.</string>
+
     <string name="edit_poem_theme">Edit Poem Theme</string>
     <string name="edit_button_theme">Edit Theme</string>
     <string name="center_horizontal_text">Center Verical Text</string>
