@@ -1,4 +1,6 @@
-<img src="app/src/main/res/drawable-v24/logo.png" width="170">
+<p align="center" width="100%">
+  <img src="app/src/main/res/drawable-v24/logo.png" width="170">
+  </p>
 
 # Poets Kingdom
 
