@@ -15,6 +15,9 @@ Poets Kingdom is a passion project I started for myself. I am a lover of poetry,
 - Poem image viewer for viewing saved poems
 - Custom font types pre-built into application (Available on Android 8.0+)
 
+## Jetpack Compose VS XML
+The majority of Poets Kingdom's UI is in Jetpack Compose. Initially, this application had an MVI implementation. However, I upgraded most of it to an MVVM implementation with the help of Jetpack Compose. In contrast, I have decided to keep the XML implementation alongside the Jetpack Compose one. Currently, saving an image is tightly coupled with the XML implementation. Intricacy is needed to migrate the class CreatePoem to a fully working Jetpack Compose implementation. The ImageViewer class is minimal in logic and implementation, henceforth making it redundant to migrate to Compose. The default Debug APK makes use of all Jetpack Compose implementations.
+
 ## Debug APK File Download
 ### Android 7.0+
 [APK File](https://github.com/tinochings/PoetsKingdom/blob/master/app/Debug%20APK/app-debug.apk)
