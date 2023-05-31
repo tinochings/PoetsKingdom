@@ -16,6 +16,7 @@
 
     <style name="Theme.PoetsKingdom.NoActionBar">
         <item name="colorSecondary">@color/default_color</item>
+        <item name="colorPrimary">@color/default_color</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:statusBarColor">@color/default_status_bar_color</item>

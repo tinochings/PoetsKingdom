@@ -21,6 +21,7 @@ import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
@@ -358,8 +359,49 @@ class CreatePoem : AppCompatActivity() {
             dialog.show()
             true
         }
+        initDoubleTapTopBar()
     }
 
+    private fun initDoubleTapTopBar() {
+        val topBar = findViewById<Toolbar>(R.id.my_toolbar)
+
+        topBar.setOnTouchListener(object :
+            View.OnTouchListener {
+            val bottomDrawer = findViewById<ConstraintLayout>(R.id.bottomDrawer)
+            val gestureDetector = GestureDetector(this@CreatePoem, object :
+                GestureDetector.SimpleOnGestureListener() {
+
+                override fun onDoubleTap(e: MotionEvent): Boolean {
+                    if (bottomDrawer.isVisible) {
+                        val animation = AnimationUtils.loadAnimation(
+                            this@CreatePoem,
+                            com.google.android.apps.common.testing.accessibility.framework.R.anim.abc_slide_out_bottom
+                        )
+                        bottomDrawer.startAnimation(animation)
+                        bottomDrawer.visibility = View.GONE
+                        if (currentContainerView != null)
+                            turnOffCurrentView()
+                    } else {
+                        val animation = AnimationUtils.loadAnimation(
+                            this@CreatePoem,
+                            com.google.android.apps.common.testing.accessibility.framework.R.anim.abc_slide_in_bottom
+                        )
+                        bottomDrawer.startAnimation(animation)
+                        bottomDrawer.visibility = View.VISIBLE
+                    }
+                    return true
+                }
+            })
+
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                if (event != null) {
+                    v?.performClick()
+                    gestureDetector.onTouchEvent(event)
+                }
+                return true
+            }
+        })
+    }
     /**
      * Adds a back pressed listener
      */
