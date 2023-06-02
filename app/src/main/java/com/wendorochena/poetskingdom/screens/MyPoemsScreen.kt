@@ -847,7 +847,6 @@ fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
                 Dispatchers.IO
             )
             invokeDimmerProgress = true
-            myPoemsViewModel.displayNoResultsFound = true
         }),
         onValueChange = { textSearch = it },
         placeholder = {
