@@ -1,7 +1,10 @@
 package com.wendorochena.poetskingdom.screens
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,6 +19,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,7 +33,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -44,10 +47,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -57,6 +60,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.wendorochena.poetskingdom.ImageViewer
+import com.wendorochena.poetskingdom.PersonalisationActivity
 import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.ui.theme.DefaultColor
 import com.wendorochena.poetskingdom.ui.theme.DefaultStatusBarColor
@@ -71,7 +75,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyImagesScreenApp(
     myImagesViewModel: MyImagesViewModel = viewModel(),
@@ -98,6 +101,7 @@ fun MyImagesScreenApp(
                 BackHandler(true) {
                     myImagesViewModel.setOnLongClick(false)
                     myImagesViewModel.setFloatingButtonState(FloatingButtonState.ADDIMAGE)
+                    myImagesViewModel.resetSelectedImages()
                 }
             }
             TopRow(myImagesViewModel = myImagesViewModel)
@@ -106,7 +110,7 @@ fun MyImagesScreenApp(
             else
                 PoemImagesView(myImagesViewModel)
             if (isFirstUse) {
-                FirstUseDialog(R.string.my_images, R.string.guide_my_images)
+                FirstUseDialog(R.string.my_images, R.string.guide_my_images, false)
                 isFirstUse = false
             }
         }
@@ -116,8 +120,10 @@ fun MyImagesScreenApp(
 @Composable
 fun FirstUseDialog(
     heading: Int,
-    guideText: Int
+    guideText: Int,
+    isHomeScreen: Boolean
 ) {
+    val context = LocalContext.current
     var shouldDismiss by remember { mutableStateOf(false) }
     if (!shouldDismiss) {
         Dialog(
@@ -126,13 +132,20 @@ fun FirstUseDialog(
         ) {
             Card(
                 modifier = Modifier
-                    .fillMaxWidth().border(width = 3.dp, color = DefaultStatusBarColor, com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline),
+                    .fillMaxWidth()
+                    .border(
+                        width = 3.dp,
+                        color = DefaultStatusBarColor,
+                        com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline
+                    ),
                 shape = com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline,
                 colors = CardDefaults.cardColors(containerColor = DefaultColor)
             ) {
                 Text(
                     text = stringResource(id = heading),
-                    modifier = Modifier.fillMaxWidth().padding(5.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.h1,
                     color = Color.White
@@ -144,7 +157,9 @@ fun FirstUseDialog(
                     text = stringResource(id = guideText),
                     style = MaterialTheme.typography.body1,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth().padding(5.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp),
                     color = Color.White
                 )
                 Spacer(modifier = Modifier.height(15.dp))
@@ -158,7 +173,14 @@ fun FirstUseDialog(
                             color = OffWhite,
                             com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline
                         ),
-                    onClick = { shouldDismiss = true },
+                    onClick = {
+                        shouldDismiss = true
+                        if (isHomeScreen) {
+                            val personalisationActivityIntent =
+                                Intent(context, PersonalisationActivity::class.java)
+                            context.startActivity(personalisationActivityIntent)
+                        }
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = DefaultColor)
                 ) {
                     Text(text = stringResource(id = R.string.builder_understood))
@@ -187,6 +209,12 @@ fun FloatingActionButton(myImagesViewModel: MyImagesViewModel) {
             }
         }
     )
+    val permissionsResultLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        if (it)
+            imagePicker.launch("image/*")
+    }
     androidx.compose.material.FloatingActionButton(
         onClick = { },
         backgroundColor = DefaultColor
@@ -213,7 +241,18 @@ fun FloatingActionButton(myImagesViewModel: MyImagesViewModel) {
             )
         }
         if (onClick) {
-            imagePicker.launch("image/*")
+            if (Build.VERSION.SDK_INT < 33 && LocalContext.current.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) ==
+                PackageManager.PERMISSION_GRANTED || Build.VERSION.SDK_INT >= 33 && LocalContext.current.checkSelfPermission(
+                    Manifest.permission.READ_MEDIA_IMAGES
+                ) == PackageManager.PERMISSION_GRANTED
+            )
+                imagePicker.launch("image/*")
+            else {
+                if (Build.VERSION.SDK_INT >= 33)
+                    permissionsResultLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                else
+                    permissionsResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
             onClick = false
         }
     }
@@ -244,9 +283,9 @@ fun PoemImagesView(myImagesViewModel: MyImagesViewModel, modifier: Modifier = Mo
     val imageFiles = myImagesViewModel.getThumbnails(LocalContext.current.applicationContext)
     val imageFileKeys = imageFiles.keys.asSequence().sortedByDescending { it.lastModified() }
     LazyVerticalGrid(
-        modifier = modifier.padding(top = 5.dp), columns = GridCells.Fixed(2),
+        modifier = modifier.padding(top = 5.dp).fillMaxWidth(), columns = GridCells.Fixed(2),
         verticalArrangement = Arrangement.spacedBy(10.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+        horizontalArrangement = Arrangement.spacedBy(3.dp)
     ) {
         items(count = imageFileKeys.count()) {
             Column {
@@ -255,7 +294,7 @@ fun PoemImagesView(myImagesViewModel: MyImagesViewModel, modifier: Modifier = Mo
                     Pair(file, imageFiles[file]!!),
                     modifier = Modifier
                         .padding(3.dp)
-                        .height(150.dp),
+                        .aspectRatio(1f),
                     onImageItemClick,
                     onLongClick,
                     myImagesViewModel.onImageLongPressed
@@ -273,13 +312,13 @@ fun TitleItem(imageFile: File, modifier: Modifier = Modifier) {
     val date = Date(imageFile.lastModified())
     val dateText = simpleDateFormat.format(date)
     val titleName =
-        imageFile.name[0].uppercase() + imageFile.name.split(".png")[0].replace('_', ' ')
+        imageFile.name[0].uppercase() + imageFile.name.split(".")[0].replace('_', ' ')
             .removeRange(0, 1)
     Column {
-        Box(modifier = modifier.height(50.dp), contentAlignment = Alignment.Center) {
+        Box(modifier = modifier, contentAlignment = Alignment.Center) {
             Text(
                 text = titleName,
-                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .fillMaxWidth(),
                 style = MaterialTheme.typography.h1,
@@ -289,11 +328,10 @@ fun TitleItem(imageFile: File, modifier: Modifier = Modifier) {
         }
         Text(
             text = dateText, maxLines = 1, modifier = Modifier
-                .fillMaxWidth()
-                .height(25.dp),
+                .fillMaxWidth(),
             style = MaterialTheme.typography.body1,
             textAlign = TextAlign.Center,
-            color = colorResource(id = R.color.light_black)
+            color = MaterialTheme.colors.secondaryVariant
         )
 
     }
@@ -340,7 +378,10 @@ fun ImagesItem(
                     onClick = { imageClicked = true },
                     onLongClick = { onLongClick.invoke(imageFilePair.first) }),
             contentScale = ContentScale.FillBounds
-        )
+        ) { requestBuilder ->
+            requestBuilder.placeholder(R.drawable.baseline_placeholder)
+                .load(imageFilePair.first.absolutePath).error(R.drawable.baseline_broken_image_24)
+        }
         if (imageClicked) {
             onImageItemClick.invoke(imageFilePair.first)
             imageClicked = false
@@ -370,7 +411,7 @@ fun ImagesView(
             myImagesViewModel.setFloatingButtonState(FloatingButtonState.DELETEIMAGE)
     }
     val imageFiles = myImagesViewModel.getImageFiles(LocalContext.current.applicationContext)
-    val imageFileKeys = imageFiles.keys.asSequence()
+    val imageFileKeys = imageFiles.keys.asSequence().sortedByDescending { it.lastModified() }
     LazyVerticalGrid(
         modifier = modifier.padding(top = 5.dp), columns = GridCells.Fixed(3),
         verticalArrangement = Arrangement.spacedBy(5.dp),
@@ -382,7 +423,7 @@ fun ImagesView(
                 Pair(file, imageFiles[file]!!),
                 modifier = Modifier
                     .padding(3.dp)
-                    .height(100.dp),
+                    .aspectRatio(1f),
                 onImageItemClick,
                 onLongClick,
                 myImagesViewModel.onImageLongPressed

@@ -12,7 +12,6 @@ class ShapeAppearanceModelHelper {
 
          fun shapeImageView(imageShape: String, resources : Resources, cornerSize : Float): ShapeAppearanceModel {
             val shapeAppearanceModel = ShapeAppearanceModel().toBuilder()
-             println()
             when (imageShape) {
                 OutlineTypes.ROUNDED_RECTANGLE.toString() -> {
                     shapeAppearanceModel.setAllCornerSizes(cornerSize)

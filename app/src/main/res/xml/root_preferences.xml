@@ -2,13 +2,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
-        app:title="@string/poem_preferences">
-
-        <EditTextPreference
-            app:key="author"
-            app:title="@string/poem_author"
-            app:defaultValue="Not Selected"
-            app:useSimpleSummaryProvider="true"/>
+        app:title="@string/poem_thumbnail_settings">
 
         <ListPreference
             app:key="coverPage"
@@ -19,14 +13,22 @@
             app:useSimpleSummaryProvider="true"/>
 
         <EditTextPreference
-            app:key="appNickname"
-            app:title="@string/nickname_preferences"
-            android:maxLength="20"
-            app:entries="@array/cover_page_entries"
-            app:entryValues="@array/cover_page_values"
-            app:defaultValue="@string/nickname_placeholder"
+            app:key="author"
+            app:title="@string/poem_author"
+            app:defaultValue="Not Selected"
+            android:dialogLayout="@layout/edit_text_dialog"
             app:useSimpleSummaryProvider="true"/>
 
+        <EditTextPreference
+            app:key="signature"
+            app:title="@string/signature_title"
+            app:defaultValue="Not Selected"
+            android:dialogLayout="@layout/edit_text_dialog"
+            app:useSimpleSummaryProvider="true"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:title="@string/poem_layout">
 
         <ListPreference
             app:key="orientation"
@@ -45,12 +47,20 @@
             app:isPreferenceVisible="false"
             app:useSimpleSummaryProvider="true"/>
 
-        <EditTextPreference
-            app:key="signature"
-            app:title="@string/signature_title"
-            app:defaultValue="Not Selected"
-            app:useSimpleSummaryProvider="true"/>
+    </PreferenceCategory>
 
+    <PreferenceCategory
+        app:title="@string/application_nickname">
+
+        <EditTextPreference
+            app:key="appNickname"
+            app:title="@string/nickname_preferences"
+            android:dialogLayout="@layout/edit_text_dialog"
+            android:maxLength="30"
+            app:entries="@array/cover_page_entries"
+            app:entryValues="@array/cover_page_values"
+            app:defaultValue="@string/nickname_placeholder"
+            app:useSimpleSummaryProvider="true"/>
 
     </PreferenceCategory>
 

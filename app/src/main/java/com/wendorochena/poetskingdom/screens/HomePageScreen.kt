@@ -87,11 +87,15 @@ fun QuadrantRowTwo(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(10.dp)
-                    .clickable(interactionSource = MutableInteractionSource(),indication = rememberRipple(color = DefaultStatusBarColor, bounded = true), onClick = { onImagesClick.invoke() }), contentAlignment = Alignment.Center
+                    .padding(10.dp), contentAlignment = Alignment.Center
             ) {
 
-                Column {
+                Column(
+                    modifier = Modifier.clickable(
+                        interactionSource = MutableInteractionSource(),
+                        indication = rememberRipple(color = DefaultStatusBarColor, bounded = true),
+                        onClick = { onImagesClick.invoke() })
+                ) {
                     Image(
                         painter = painterResource(id = R.drawable.myimages),
                         contentDescription = "",
@@ -116,12 +120,16 @@ fun QuadrantRowTwo(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(10.dp)
-                    .clickable(interactionSource = MutableInteractionSource(),indication = rememberRipple(color = DefaultStatusBarColor, bounded = true), onClick =  { onPersonalisationClick.invoke() }),
+                    .padding(10.dp),
                 contentAlignment = Alignment.Center
             ) {
 
-                Column {
+                Column(
+                    modifier = Modifier.clickable(
+                        interactionSource = MutableInteractionSource(),
+                        indication = rememberRipple(color = DefaultStatusBarColor, bounded = true),
+                        onClick = { onPersonalisationClick.invoke() })
+                ) {
                     Image(
                         painter = painterResource(id = R.drawable.personalisation),
                         contentDescription = "",
@@ -160,11 +168,15 @@ fun QuadrantRowOne(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(10.dp)
-                    .clickable(interactionSource = MutableInteractionSource(),indication = rememberRipple(color = DefaultStatusBarColor, bounded = true),onClick = {onCreatePoemClick.invoke()}),
+                    .padding(10.dp),
                 contentAlignment = Alignment.BottomCenter
             ) {
-                Column {
+                Column(
+                    modifier = Modifier.clickable(
+                        interactionSource = MutableInteractionSource(),
+                        indication = rememberRipple(color = DefaultStatusBarColor, bounded = true),
+                        onClick = { onCreatePoemClick.invoke() })
+                ) {
                     Image(
                         painter = painterResource(id = R.drawable.createpoem),
                         contentDescription = "",
@@ -189,12 +201,16 @@ fun QuadrantRowOne(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(10.dp)
-                    .clickable(interactionSource = MutableInteractionSource(),indication = rememberRipple(color = DefaultStatusBarColor, bounded = true), onClick = { onMyPoemsClick.invoke() }),
+                    .padding(10.dp),
                 contentAlignment = Alignment.BottomCenter
             ) {
 
-                Column {
+                Column(
+                    modifier = Modifier.clickable(
+                        interactionSource = MutableInteractionSource(),
+                        indication = rememberRipple(color = DefaultStatusBarColor, bounded = true),
+                        onClick = { onMyPoemsClick.invoke() })
+                ) {
                     Image(
                         painter = painterResource(id = R.drawable.mypoems),
                         contentDescription = "",

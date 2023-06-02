@@ -11,7 +11,6 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.text.Spannable
 import android.text.SpannableStringBuilder
-import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -20,6 +19,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -38,12 +38,22 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import java.util.Collections
 
 class MyPoemsViewModel : ViewModel() {
-    var savedPoems = mutableStateMapOf<File, Boolean>()
+
+    val allPoemsString = "All Poems"
+    var albumNameSelection by mutableStateOf(allPoemsString)
+    var allSavedPoems = mutableStateMapOf<File, Boolean>()
+        private set
+    var albumSavedPoems = mutableStateMapOf<File, Boolean>()
         private set
     var onImageLongPressed by mutableStateOf(false)
         private set
@@ -51,21 +61,55 @@ class MyPoemsViewModel : ViewModel() {
     var shareIntent = MutableLiveData<Intent>()
     var searchButtonClicked by mutableStateOf(false)
     var displayNoResultsFound by mutableStateOf(false)
+    var displayAlbumsDialog by mutableStateOf(false)
+    var shouldRenameAlbum by mutableStateOf(false)
+    var displayAlbumSelector by mutableStateOf(false)
+    var albumSaveResult = -2
     var hitsFound by mutableStateOf(false)
+    var oldAlbumName = ""
     var stanzaIndexAndText = HashMap<String, ArrayList<Pair<Int, String>>>()
     val poemBackgroundTypeArrayList = mutableStateListOf<Pair<BackgroundType, Int>>()
     val substringLocations = mutableStateListOf<Pair<String, String>>()
     var searchResultFiles = mutableListOf<File>()
+    private val searchHistory = mutableStateListOf<String>()
+    private var initialisedSearchHistory = false
+    private val albumFolderNames = mutableStateListOf<String>()
+
+    // poem name as key and album as value
+    val savedPoemAndAlbum = HashMap<String, String>()
 
 
     /**
+     * Sets album selection to the selected user album and clears state if state was previously
+     * invoked
+     *
+     * @param albumName the name of the album to set as selected
+     */
+    fun setAlbumSelection(albumName: String) {
+        if (onImageLongPressed) {
+            onImageLongPressed = false
+            resetSelectedImages()
+        }
+
+        albumNameSelection = albumName
+        if (albumSavedPoems.isNotEmpty())
+            albumSavedPoems.clear()
+    }
+
+    /**
      * Adds all files and sets to long press as false to to the savedPoems Map
+     * @param arrayList the arraylist containing files in a map
+     * @param isAlbumAdd true when adding poems to an album
      */
     private fun addAllFiles(
         arrayList: ArrayList<File>,
+        isAlbumAdd: Boolean
     ) {
         for (file in arrayList) {
-            savedPoems[file] = false
+            if (isAlbumAdd)
+                albumSavedPoems[file] = false
+            else
+                allSavedPoems[file] = false
         }
     }
 
@@ -82,47 +126,81 @@ class MyPoemsViewModel : ViewModel() {
         searchResultFiles.clear()
     }
 
+    /**
+     * Sets long click to boolean value
+     * @param boolean true if user long pressed else false
+     */
     fun setOnLongClick(boolean: Boolean) {
         onImageLongPressed = boolean
     }
 
     /**
      * Gets an arraylist containing thumbnails to display
+     * @param context the activity context
+     * @param albumName the name of the album to get thumbnails for
+     * @return a map containing file locations of thumbnails and their long click value
      */
-    fun getThumbnails(context: Context): MutableMap<File, Boolean> {
+    fun getThumbnails(context: Context, albumName: String): MutableMap<File, Boolean> {
         val arrayListToRet = ArrayList<File>()
+        val encodedAlbumName = albumName.replace(' ', '_')
+        val mapToUse = if (albumName == allPoemsString)
+            allSavedPoems
+        else
+            albumSavedPoems
 
-        if (savedPoems.isEmpty()) {
-            val savedPoemsFolder =
+        if (mapToUse.isEmpty()) {
+            var savedPoemsFolder =
                 context.getDir(
                     context.getString(R.string.poems_folder_name),
                     Context.MODE_PRIVATE
                 )
+            if (albumName != allPoemsString)
+                savedPoemsFolder =
+                    File(savedPoemsFolder.absolutePath + File.separator + encodedAlbumName)
+
             val thumbnailsFolder =
                 context.getDir(
                     context.getString(R.string.thumbnails_folder_name),
                     Context.MODE_PRIVATE
                 )
             try {
-                val savedImageFiles = savedPoemsFolder.listFiles()?.toMutableList()
-                if (savedImageFiles != null) {
-                    for (file in savedImageFiles) {
-                        val thumbnailFile = File(
-                            thumbnailsFolder?.absolutePath + File.separator + file.name.split(".")[0] + ".png"
-                        )
-                        if (thumbnailFile.exists()) {
-                            arrayListToRet.add(File(thumbnailFile.absolutePath))
-                        } else {
-                            Log.e("No Such Thumbnail", file.name)
+                val savedPoemsFiles = savedPoemsFolder.listFiles()?.toMutableList()
+                if (savedPoemsFiles != null) {
+                    for (file in savedPoemsFiles) {
+                        if (file.isDirectory) {
+                            val allFiles = file.listFiles()
+                            if (allFiles != null) {
+                                for (albumFile in allFiles) {
+                                    val albumFileName = albumFile.name.split(".")[0]
+                                    savedPoemAndAlbum[albumFileName.replace(
+                                        '_',
+                                        ' '
+                                    )] = file.name.replace('_', ' ')
+                                    val thumbnailFile = File(
+                                        thumbnailsFolder?.absolutePath + File.separator + albumFileName + ".png"
+                                    )
+                                    if (thumbnailFile.exists()) {
+                                        arrayListToRet.add(File(thumbnailFile.absolutePath))
+                                    }
+                                }
+                            }
+                        }
+                        if (file.isFile) {
+                            val thumbnailFile = File(
+                                thumbnailsFolder?.absolutePath + File.separator + file.name.split(".")[0] + ".png"
+                            )
+                            if (thumbnailFile.exists()) {
+                                arrayListToRet.add(File(thumbnailFile.absolutePath))
+                            }
                         }
                     }
                 }
             } catch (exception: Exception) {
                 exception.printStackTrace()
             }
-            addAllFiles(arrayListToRet)
+            addAllFiles(arrayListToRet, albumName != allPoemsString)
         }
-        return savedPoems
+        return mapToUse
     }
 
 
@@ -132,41 +210,68 @@ class MyPoemsViewModel : ViewModel() {
      * @param context application context
      */
     fun deleteSavedPoems(context: Context) {
-        val filesToDelete = savedPoems.filter { it.value }
+        val mapToUse = if (albumNameSelection == allPoemsString)
+            allSavedPoems
+        else
+            albumSavedPoems
+        val savedImagesFolder = context.getDir(
+            context.getString(R.string.saved_images_folder_name),
+            Context.MODE_PRIVATE
+        )
+        val filesToDelete = mapToUse.filter { it.value }
         for (entry in filesToDelete) {
             try {
                 val file = entry.key
-                val splitString = file.name.split(File.separator)
-                val poemName = splitString[splitString.size - 1]
+                val poemName = file.name
+                val decodedPoemName = poemName.split(".")[0].replace('_', ' ')
+                val encodedAlbumName = savedPoemAndAlbum[decodedPoemName]
                 val savedPoemsPath = context.getDir(
                     context.getString(R.string.poems_folder_name),
                     Context.MODE_PRIVATE
                 )
-                val fullPathToDelete = File(
-                    savedPoemsPath.absolutePath + File.separator + poemName.replace(
-                        ".png",
-                        ".xml"
+                val fullPoemPathToDelete = if (encodedAlbumName != null)
+                    File(
+                        savedPoemsPath.absolutePath + File.separator + encodedAlbumName + File.separator + poemName.replace(
+                            ".png",
+                            ".xml"
+                        )
                     )
-                )
-                if (fullPathToDelete.exists())
-                    if (fullPathToDelete.deleteRecursively())
-                        savedPoems.remove(file)
-                    else {
-                        Log.e("Failed to remove file: ", entry.key.name)
+                else
+                    File(
+                        savedPoemsPath.absolutePath + File.separator + poemName.replace(
+                            ".png",
+                            ".xml"
+                        )
+                    )
+                val fullSavedImagesPathToDelete =
+                    File(savedImagesFolder.absolutePath + File.separator + poemName.split(".")[0])
+
+                if (fullPoemPathToDelete.exists())
+                    if (fullPoemPathToDelete.deleteRecursively()) {
+                        if (albumNameSelection != allPoemsString)
+                            allSavedPoems.remove(file)
+                        mapToUse.remove(file)
+                        if (!fullSavedImagesPathToDelete.exists())
+                            file.delete()
                     }
             } catch (e: Exception) {
                 e.printStackTrace()
-                Log.e("Failed to remove file: ", entry.key.name)
             }
         }
         onImageLongPressed = false
     }
 
     /**
-     * Shares images
+     * Shares images outside the application
+     *
+     * @param applicationContext context of the application
      */
     fun shareIntent(applicationContext: Context) {
-        val selectedElements = savedPoems.filter { it.value }
+        val mapToUse = if (albumNameSelection == allPoemsString)
+            allSavedPoems
+        else
+            albumSavedPoems
+        val selectedElements = mapToUse.filter { it.value }
         if (selectedElements.size > 1) {
             Toast.makeText(applicationContext, R.string.share_as_image_toast, Toast.LENGTH_LONG)
                 .show()
@@ -183,9 +288,11 @@ class MyPoemsViewModel : ViewModel() {
             if (poemSavedImagesFolder.exists()) {
                 val filesToShare = poemSavedImagesFolder.listFiles()
                 if (filesToShare != null && filesToShare.isNotEmpty()) {
+                    var toShare = arrayOf(selectedElements.keys.first())
+                    toShare += filesToShare
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         shareIntentAndroidQPlus(
-                            filesToShare,
+                            toShare,
                             poemName,
                             applicationContext = applicationContext
                         )
@@ -209,10 +316,18 @@ class MyPoemsViewModel : ViewModel() {
                                 if (!subDirectory.exists())
                                     subDirectory.mkdir()
 
-                                for (file in poemSavedImagesFolder.listFiles()!!) {
+                                for ((counter, file) in toShare.withIndex()) {
                                     val inputStream = FileInputStream(file)
-                                    val newFile =
-                                        File(subDirectory.absolutePath + File.separator + file.name)
+                                    val newFile = if (counter == 0)
+                                        File(
+                                            subDirectory.absolutePath + File.separator + file.name.replace(
+                                                '_',
+                                                ' '
+                                            ) + " thumbnail"
+                                        )
+                                    else
+                                        File(
+                                            subDirectory.absolutePath + File.separator + poemName + " Stanza $counter")
                                     if (newFile.createNewFile()) {
                                         val outputStream = FileOutputStream(newFile)
                                         outputStream.channel.transferFrom(
@@ -244,14 +359,28 @@ class MyPoemsViewModel : ViewModel() {
                             permissionsResultLauncher.value =
                                 android.Manifest.permission.WRITE_EXTERNAL_STORAGE
                         }
+                        onImageLongPressed = false
                     }
                 }
+            } else {
+                Toast.makeText(
+                    applicationContext,
+                    applicationContext.getString(
+                        R.string.failed_to_share,
+                        selectedElements.keys.first().name.split(".")[0].replace('_', ' ')
+                    ),
+                    Toast.LENGTH_LONG
+                )
+                    .show()
             }
         }
     }
 
     /**
-     * Starts a share intent
+     * Starts a share intent for Android Q and above
+     * @param filesToShare the files to share outside the application
+     * @param poemName the name of the poem
+     * @param applicationContext context of the application
      */
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun shareIntentAndroidQPlus(
@@ -259,40 +388,64 @@ class MyPoemsViewModel : ViewModel() {
         poemName: String,
         applicationContext: Context
     ) {
-        val imageUris = kotlin.collections.ArrayList<Uri>()
+        try {
+            val imageUris = kotlin.collections.ArrayList<Uri>()
+            for ((counter, file) in filesToShare.withIndex()) {
+                val contentValues = if (counter == 0)
+                    ContentValues().apply {
+                        put(
+                            MediaStore.MediaColumns.DISPLAY_NAME,
+                            "Thumbnail"
+                        )
+                        put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
+                        put(
+                            MediaStore.MediaColumns.RELATIVE_PATH,
+                            Environment.DIRECTORY_DOWNLOADS + File.separator + applicationContext.getString(
+                                R.string.app_name
+                            ) + File.separator + poemName.replace('_', ' ')
+                        )
+                    }
+                else
+                    ContentValues().apply {
+                        put(
+                            MediaStore.MediaColumns.DISPLAY_NAME,
+                            "Stanza $counter"
+                        )
+                        put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
+                        put(
+                            MediaStore.MediaColumns.RELATIVE_PATH,
+                            Environment.DIRECTORY_DOWNLOADS + File.separator + applicationContext.getString(
+                                R.string.app_name
+                            ) + File.separator + poemName.replace('_', ' ')
+                        )
+                    }
+                val resolver = applicationContext.contentResolver
+                val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
 
-        for (file in filesToShare) {
-            val contentValues = ContentValues().apply {
-                put(
-                    MediaStore.MediaColumns.DISPLAY_NAME,
-                    poemName.replace('_', ' ') + " " + file.name
-                )
-                put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
-                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-            }
-            val resolver = applicationContext.contentResolver
-            val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+                val inputStream = FileInputStream(file)
 
-            val inputStream = FileInputStream(file)
-
-            if (uri != null) {
-                resolver.openOutputStream(uri).use { outStream ->
-                    if (outStream != null) {
-                        inputStream.copyTo(outStream, DEFAULT_BUFFER_SIZE)
+                if (uri != null) {
+                    resolver.openOutputStream(uri).use { outStream ->
+                        if (outStream != null) {
+                            inputStream.copyTo(outStream, DEFAULT_BUFFER_SIZE)
+                        }
                     }
                 }
-            }
 
-            if (uri != null) {
-                imageUris.add(uri)
+                if (uri != null) {
+                    imageUris.add(uri)
+                }
             }
+            val shareIntent = Intent().apply {
+                action = Intent.ACTION_SEND_MULTIPLE
+                putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris)
+                type = "image/*"
+            }
+            this.shareIntent.value = shareIntent
+            onImageLongPressed = false
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
-        val shareIntent = Intent().apply {
-            action = Intent.ACTION_SEND_MULTIPLE
-            putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris)
-            type = "image/*"
-        }
-        this.shareIntent.value = shareIntent
     }
 
     /**
@@ -352,7 +505,7 @@ class MyPoemsViewModel : ViewModel() {
                     itemCount: Int
                 ) {
                     // in Search Util we use an addAll to the observed item so we ony iterate once
-                    viewModelScope.launch(Dispatchers.Main + handler) {
+                    viewModelScope.launch(mainDispatcher + handler) {
                         if (sender != null) {
                             substringLocations.addAll(sender)
                             if (displayNoResultsFound)
@@ -492,5 +645,329 @@ class MyPoemsViewModel : ViewModel() {
 
     operator fun Spannable.plus(other: Spannable): Spannable {
         return SpannableStringBuilder(this).append(other)
+    }
+
+    /**
+     * Resets all selected images if there were any
+     */
+    fun resetSelectedImages() {
+        val mapToUse = if (albumNameSelection == allPoemsString)
+            allSavedPoems
+        else
+            albumSavedPoems
+        val keys = mapToUse.filter { it.value }
+        for (selectedKeys in keys) {
+            mapToUse[selectedKeys.key] = false
+        }
+    }
+
+    /**
+     * Loads the search history from shared preferences if necessary
+     * @param context context of the activity
+     */
+    fun getSearchHistory(context: Context): SnapshotStateList<String> {
+        if (searchHistory.isEmpty() && !initialisedSearchHistory) {
+            val sharedPreferences =
+                context.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
+            val savedHistory = sharedPreferences.getStringSet("search_history", HashSet())
+            if (savedHistory?.isNotEmpty() == true) {
+                searchHistory.addAll(savedHistory)
+            } else{
+                saveSearchHistory(context)
+            }
+            initialisedSearchHistory = true
+        }
+        return searchHistory
+    }
+
+    /**
+     * Adds a new item to the search history
+     * @param searchToAdd the search item to add
+     */
+    fun updateSearchHistory(searchToAdd: String) {
+        if (searchHistory.size < 10) {
+            searchHistory.add(searchToAdd)
+        } else {
+            var nextValue = searchHistory[9]
+            var counter = 9
+            while (counter > 0) {
+                val tempNextVal = searchHistory[counter - 1]
+                searchHistory[counter - 1] = nextValue
+                nextValue = tempNextVal
+                counter--
+            }
+            searchHistory[9] = searchToAdd
+        }
+    }
+
+    /**
+     * Saves the search history to shared preferences
+     * @param context the context of MyPoemsScreen
+     */
+    fun saveSearchHistory(context: Context) {
+        if (searchHistory.isNotEmpty()) {
+            val sharedPreferences =
+                context.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
+            sharedPreferences.edit().putStringSet("search_history", searchHistory.toSet()).apply()
+        } else {
+            val sharedPreferences =
+                context.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
+            sharedPreferences.edit().putStringSet("search_history", HashSet()).apply()
+        }
+    }
+
+    /**
+     * Deletes search history item
+     * @param toDelete the index to delete
+     */
+    fun deleteHistoryItem(toDelete: Int) {
+        searchHistory.removeAt(toDelete)
+    }
+
+    /**
+     * Gets all albums
+     */
+    fun getAlbums(context: Context): SnapshotStateList<String> {
+        if (albumFolderNames.isEmpty()) {
+            albumFolderNames.add(context.getString(R.string.all_poems_album_name))
+            val sharedPreferences =
+                context.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
+
+            sharedPreferences.getStringSet("albums", Collections.emptySet())
+                ?.let { albumFolderNames.addAll(it) }
+        }
+        return albumFolderNames
+    }
+
+    suspend fun addAlbumName(albumName: String, context: Context): Boolean {
+        val handler = CoroutineExceptionHandler { _, exception ->
+            exception.printStackTrace()
+        }
+        return withContext(viewModelScope.coroutineContext + Dispatchers.IO + handler) {
+            albumSaveResult = -1
+            val encodedAlbumName = albumName.replace(' ', '_')
+            val poemFolder =
+                context.getDir(
+                    context.getString(R.string.poems_folder_name),
+                    Context.MODE_PRIVATE
+                )
+            if (poemFolder.exists()) {
+                try {
+                    val newAlbum = File(poemFolder.absolutePath + File.separator + encodedAlbumName)
+                    if (newAlbum.exists())
+                        return@withContext false
+                    if (newAlbum.mkdir()) {
+                        albumFolderNames.add(albumName)
+                        updateAlbums(context)
+                        albumSaveResult = 0
+                        return@withContext true
+                    }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    return@withContext false
+                }
+            }
+            return@withContext false
+        }
+    }
+
+    private fun updateAlbums(context: Context) {
+        val sharedPreferences =
+            context.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
+        val albumsToSave = albumFolderNames.filterIndexed { index, _ -> index != 0 }
+
+        sharedPreferences.edit().putStringSet("albums", albumsToSave.toSet()).apply()
+    }
+
+    /**
+     * Moves a poem from its current location to a new album
+     */
+    fun addPoemToAlbum(context: Context, albumName: String): Boolean {
+        val mapToUse = if (albumNameSelection == allPoemsString)
+            allSavedPoems
+        else
+            albumSavedPoems
+        val albumsToMove = mapToUse.filter { it.value }
+        if (albumsToMove.isEmpty())
+            return false
+        val encodedAlbumName = if (albumName == allPoemsString)
+            ""
+        else
+            albumName.replace(' ', '_')
+        val poemFolder =
+            context.getDir(
+                context.getString(R.string.poems_folder_name),
+                Context.MODE_PRIVATE
+            )
+
+        val albumFolder = if (albumNameSelection != allPoemsString && albumName == allPoemsString)
+            poemFolder
+        else
+            File(poemFolder.absolutePath + File.separator + encodedAlbumName)
+
+        if (albumFolder.exists()) {
+            try {
+                for (poemFilePair in albumsToMove) {
+                    val poemFileName = poemFilePair.key.name.split(".")[0]
+                    val poemFileNameDecoded = poemFileName.replace('_', ' ')
+                    val albumFolderToMoveFrom = savedPoemAndAlbum[poemFileNameDecoded]
+                    val encodedAlbumFolderToMoveFrom = albumFolderToMoveFrom?.replace(' ', '_')
+
+                    val sourceFile = if (albumFolderToMoveFrom == null)
+                        File(poemFolder.absolutePath + File.separator + poemFileName + ".xml")
+                    else
+                        File(poemFolder.absolutePath + File.separator + encodedAlbumFolderToMoveFrom + File.separator + poemFileName + ".xml")
+                    val destinationFile =
+                        File(albumFolder.absolutePath + File.separator + poemFileName + ".xml")
+                    if (sourceFile.exists() && destinationFile.createNewFile()) {
+                        if (Build.VERSION.SDK_INT >= 26) {
+                            Files.move(
+                                sourceFile.toPath(),
+                                destinationFile.toPath(),
+                                StandardCopyOption.ATOMIC_MOVE
+                            )
+                        } else {
+                            val inputStream = FileInputStream(sourceFile)
+                            val outputStream = FileOutputStream(destinationFile)
+
+                            outputStream.channel.transferFrom(
+                                inputStream.channel,
+                                0,
+                                sourceFile.totalSpace
+                            )
+                            outputStream.close()
+                            inputStream.close()
+                            sourceFile.delete()
+                        }
+                        if (albumName == allPoemsString)
+                            savedPoemAndAlbum.remove(poemFileNameDecoded)
+                        else
+                            savedPoemAndAlbum[poemFileNameDecoded] = albumName
+                        if (albumSavedPoems[poemFilePair.key] != null)
+                            albumSavedPoems.remove(poemFilePair.key)
+                    } else {
+                        // add notification for failure of partial additions
+                    }
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+                return false
+            }
+        } else {
+            return false
+        }
+        for (albumFileToDeselect in albumsToMove) {
+            mapToUse[albumFileToDeselect.key] = false
+        }
+        return true
+    }
+
+    fun resolveAlbumName(file: File): String? {
+        val fileName = file.name.split(".")[0].replace('_', ' ')
+        return savedPoemAndAlbum[fileName]
+    }
+
+    /**
+     * Deletes an album
+     */
+    suspend fun deleteAlbum(albumName: String, context: Context): Boolean {
+        val handler = CoroutineExceptionHandler { _, exception ->
+            exception.printStackTrace()
+        }
+        return withContext(viewModelScope.coroutineContext + Dispatchers.IO + handler) {
+            if (albumName == allPoemsString)
+                return@withContext true
+            val poemFolder =
+                context.getDir(
+                    context.getString(R.string.poems_folder_name),
+                    Context.MODE_PRIVATE
+                )
+
+            val encodedAlbumName = albumName.replace(' ', '_')
+
+            val folderToDelete = File(poemFolder.absolutePath + File.separator + encodedAlbumName)
+
+            try {
+                if (folderToDelete.exists()) {
+                    if (folderToDelete.deleteRecursively()) {
+                        savedPoemAndAlbum.remove(albumName)
+                        albumFolderNames.remove(albumName)
+                        updateAlbums(context)
+                        return@withContext true
+                    }
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+                return@withContext false
+            }
+            return@withContext false
+        }
+    }
+
+    /**
+     * Renames an album
+     */
+    suspend fun renameAlbum(albumName: String, albumRename: String, context: Context): Boolean {
+        val handler = CoroutineExceptionHandler { _, exception ->
+            exception.printStackTrace()
+        }
+        return withContext(viewModelScope.coroutineContext + Dispatchers.IO + handler) {
+            val poemFolder =
+                context.getDir(
+                    context.getString(R.string.poems_folder_name),
+                    Context.MODE_PRIVATE
+                )
+
+            if (albumRename == allPoemsString)
+                return@withContext false
+
+            if (albumName != albumRename) {
+
+                val encodedAlbumName = albumName.replace(' ', '_')
+                val encodedAlbumRename = albumRename.replace(' ', '_')
+
+                val folderToDelete = File(poemFolder.absolutePath, encodedAlbumName)
+
+                val folderToRename = File(poemFolder.absolutePath, encodedAlbumRename)
+
+                try {
+                    if (folderToDelete.exists() && !folderToRename.exists()) {
+                        if (folderToDelete.renameTo(folderToRename)) {
+                            albumFolderNames[albumFolderNames.indexOf(albumName)] = albumRename
+                            for (pair in savedPoemAndAlbum) {
+                                if (pair.value == albumName)
+                                    pair.setValue(albumRename)
+                            }
+                            albumSaveResult = 0
+                            updateAlbums(context)
+                            return@withContext true
+                        }
+                    }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    albumSaveResult = -1
+                    return@withContext false
+                }
+            }
+            albumSaveResult = -1
+            return@withContext false
+        }
+    }
+
+    fun getPoemsFile(file: File, context: Context): File {
+        val poemFolder =
+            context.getDir(
+                context.getString(R.string.poems_folder_name),
+                Context.MODE_PRIVATE
+            )
+        val decodedPoemName = file.name.split(".")[0].replace('_', ' ')
+        val encodedPoemName = file.name.split(".")[0]
+        val albumName = savedPoemAndAlbum[decodedPoemName]
+        return if (albumName != null) {
+            val encodedAlbumName = albumName.replace(' ', '_')
+            File(poemFolder.absolutePath + File.separator + encodedAlbumName + File.separator + encodedPoemName + ".xml")
+        } else {
+            File(poemFolder.absolutePath + File.separator + encodedPoemName + ".xml")
+        }
     }
 }

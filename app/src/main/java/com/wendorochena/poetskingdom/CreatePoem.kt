@@ -5,10 +5,12 @@ import android.content.Intent
 import android.graphics.*
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
+import android.os.Build
 import android.os.Bundle
 import android.print.PrintManager
 import android.text.*
 import android.util.Log
+import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.Gravity
 import android.view.MotionEvent
@@ -19,11 +21,13 @@ import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.core.view.setMargins
+import androidx.core.view.setPadding
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -53,6 +57,7 @@ class CreatePoem : AppCompatActivity() {
     private lateinit var currentPage: FrameLayout
     private var hasFileBeenEdited = false
     private var currentContainerView: View? = null
+    private var savedAlbumName : String? = null
 
     //key is the page number value is the id
     private val pageNumberAndId: HashMap<Int, Int> = HashMap()
@@ -64,6 +69,7 @@ class CreatePoem : AppCompatActivity() {
         val intentExtras = intent.extras
         val loadPoemArg = getString(R.string.load_poem_argument_name)
         val poemTitleArg = getString(R.string.poem_title_argument_name)
+        val albumArg = getString(R.string.album_argument_name)
 
         // parse users theme. If we cant parse it terminate the activity
         if (intentExtras?.getString(poemTitleArg) != null) {
@@ -87,15 +93,21 @@ class CreatePoem : AppCompatActivity() {
             // load file on background thread and then populate UI
             lifecycleScope.launch(Dispatchers.Main + exceptionHandler) {
                 val isLoadPoem = intentExtras.getBoolean(loadPoemArg, false)
+                val albumName = intentExtras.getString(albumArg)
+                if (albumName != null)
+                    savedAlbumName = albumName
+
                 if (isLoadPoem)
                     turnOnDimmerProgressBar()
 
                 val poemThemeResult = poemParser.parseTheme(intentExtras.getString(poemTitleArg))
+
                 val poemLoadResult =
                     if (isLoadPoem) PoemXMLParser.parseSavedPoem(
                         poemParser.getPoemTheme().poemTitle,
                         applicationContext,
-                        Dispatchers.IO
+                        Dispatchers.IO,
+                        albumName
                     )
                     else
                         null
@@ -156,10 +168,31 @@ class CreatePoem : AppCompatActivity() {
 
     private fun onFirstUse() {
         val alertDialogBuilder = AlertDialog.Builder(this)
-        alertDialogBuilder.setTitle(R.string.guide_title)
-            .setPositiveButton(R.string.builder_understood) { dialog, _ ->
-                dialog.dismiss()
-            }.setMessage(R.string.guide_create_poem).show()
+
+        val customTitleView = TextView(this)
+        customTitleView.setTextColor(resources.getColor(R.color.white, null))
+        customTitleView.text = resources.getString(R.string.guide_title)
+
+        customTitleView.setTypeface(null, Typeface.BOLD)
+        customTitleView.textSize = 20f
+        customTitleView.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
+        val customMessageView = TextView(this)
+        customMessageView.setTextColor(resources.getColor(R.color.white, null))
+        customMessageView.text = resources.getString(R.string.guide_create_poem)
+        val typedValue = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15f, resources.displayMetrics).toInt()
+        customTitleView.setPadding(typedValue, typedValue, typedValue,0)
+        customMessageView.setPadding(typedValue)
+        customMessageView.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
+        customMessageView.textSize = 14f
+        alertDialogBuilder.setCustomTitle(customTitleView)
+        alertDialogBuilder.setView(customMessageView)
+        alertDialogBuilder.setPositiveButton(R.string.builder_understood) { dialog, _ ->
+            dialog.dismiss()
+        }
+        val dialog = alertDialogBuilder.create()
+        dialog.window?.setBackgroundDrawableResource(R.drawable.selected_rounded_rectangle)
+        dialog.show()
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(getColor(R.color.off_white))
     }
 
 
@@ -221,11 +254,17 @@ class CreatePoem : AppCompatActivity() {
         textview.setOnLongClickListener {
             val customTitleView = TextView(this)
             customTitleView.setTextColor(resources.getColor(R.color.white, null))
+            val alertDialogParams =  LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            alertDialogParams.setMargins(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, resources.displayMetrics).toInt())
+            val typedValue = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15f, resources.displayMetrics).toInt()
+            customTitleView.setPadding(typedValue)
             customTitleView.text = resources.getString(R.string.title_change)
             customTitleView.setTypeface(null, Typeface.BOLD)
             customTitleView.gravity = Gravity.CENTER
-            customTitleView.textSize = resources.getDimension(R.dimen.normal_text_size)
+            customTitleView.textSize = 20f
             val editText = EditText(this)
+            editText.layoutParams = alertDialogParams
+            editText.setPadding(typedValue)
             editText.inputType = InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
             editText.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(60))
             editText.setHint(R.string.change_title_hint)
@@ -313,15 +352,56 @@ class CreatePoem : AppCompatActivity() {
             dialog.setOnShowListener {
                 val button = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 val button2 = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-                button.setTextColor(resources.getColor(R.color.white, null))
-                button2.setTextColor(resources.getColor(R.color.white, null))
+                button.setTextColor(resources.getColor(R.color.off_white, null))
+                button2.setTextColor(resources.getColor(R.color.off_white, null))
             }
-            dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_rectangle)
+            dialog.window?.setBackgroundDrawableResource(R.drawable.selected_rounded_rectangle)
             dialog.show()
             true
         }
+        initDoubleTapTopBar()
     }
 
+    private fun initDoubleTapTopBar() {
+        val topBar = findViewById<Toolbar>(R.id.my_toolbar)
+
+        topBar.setOnTouchListener(object :
+            View.OnTouchListener {
+            val bottomDrawer = findViewById<ConstraintLayout>(R.id.bottomDrawer)
+            val gestureDetector = GestureDetector(this@CreatePoem, object :
+                GestureDetector.SimpleOnGestureListener() {
+
+                override fun onDoubleTap(e: MotionEvent): Boolean {
+                    if (bottomDrawer.isVisible) {
+                        val animation = AnimationUtils.loadAnimation(
+                            this@CreatePoem,
+                            com.google.android.apps.common.testing.accessibility.framework.R.anim.abc_slide_out_bottom
+                        )
+                        bottomDrawer.startAnimation(animation)
+                        bottomDrawer.visibility = View.GONE
+                        if (currentContainerView != null)
+                            turnOffCurrentView()
+                    } else {
+                        val animation = AnimationUtils.loadAnimation(
+                            this@CreatePoem,
+                            com.google.android.apps.common.testing.accessibility.framework.R.anim.abc_slide_in_bottom
+                        )
+                        bottomDrawer.startAnimation(animation)
+                        bottomDrawer.visibility = View.VISIBLE
+                    }
+                    return true
+                }
+            })
+
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                if (event != null) {
+                    v?.performClick()
+                    gestureDetector.onTouchEvent(event)
+                }
+                return true
+            }
+        })
+    }
     /**
      * Adds a back pressed listener
      */
@@ -777,7 +857,14 @@ class CreatePoem : AppCompatActivity() {
         else
             findViewById<EditText>(R.id.portraitTextView)
 
-        text.typeface = TypefaceHelper.getTypeFace(poemTheme.textFontFamily, applicationContext)
+
+        if (Build.VERSION.SDK_INT < 26)
+            text.typeface = Typeface.DEFAULT
+        else
+            text.typeface = TypefaceHelper.getTypeFace(poemTheme.textFontFamily + "_font", applicationContext)
+
+        //due to compose integration the xml font array isn't used
+//        text.typeface = TypefaceHelper.getTypeFace(poemTheme.textFontFamily + "_font", applicationContext)
         text.textSize = poemTheme.textSize.toFloat()
         text.setHintTextColor(poemTheme.textColorAsInt)
         text.setTextColor(poemTheme.textColorAsInt)
@@ -1025,7 +1112,7 @@ class CreatePoem : AppCompatActivity() {
             getString(R.string.personalisation_sharedpreferences_key),
             MODE_PRIVATE
         )
-        val marginTopAsPixels = resources.getDimension(R.dimen.action_bar_size).toInt()
+        val marginTopAsPixels = resources.getDimensionPixelSize(R.dimen.action_bar_size)
         val resolution = settingsPref.getString("resolution", "1080 1080")?.split(" ")
         val landscapeWidth = resolution?.get(0)?.toFloat()
         val landscapeHeight = resolution?.get(1)?.toFloat()
@@ -1299,7 +1386,7 @@ class CreatePoem : AppCompatActivity() {
         textOptions.setOnLongClickListener {
             Toast.makeText(
                 applicationContext,
-                "Shows alignment options on click",
+                getString(R.string.text_options_toast),
                 Toast.LENGTH_LONG
             ).show()
             true
@@ -1327,7 +1414,7 @@ class CreatePoem : AppCompatActivity() {
         val textSizeContainer = findViewById<FrameLayout>(R.id.textSizeContainer)
 
         textSize.setOnLongClickListener {
-            Toast.makeText(applicationContext, "Allows you to change text size", Toast.LENGTH_LONG)
+            Toast.makeText(applicationContext, getString(R.string.text_size_toast), Toast.LENGTH_LONG)
                 .show()
             true
         }
@@ -1352,7 +1439,7 @@ class CreatePoem : AppCompatActivity() {
         val textColor = findViewById<ImageButton>(R.id.textColor)
 
         textColor.setOnLongClickListener {
-            Toast.makeText(applicationContext, "Changes the text color", Toast.LENGTH_LONG).show()
+            Toast.makeText(applicationContext, getString(R.string.text_color_toast), Toast.LENGTH_LONG).show()
             true
         }
         textColor.setOnClickListener {
@@ -1387,20 +1474,6 @@ class CreatePoem : AppCompatActivity() {
                 currentContainerView = null
                 dialog?.dismiss()
             }.show()
-//            ColorPickerDialog
-//                .Builder(this)                        // Pass Activity Instance
-//                .setTitle(getString(R.string.color_picker_title))            // Default "Choose Color"
-//                .setColorShape(ColorShape.SQAURE)   // Default ColorShape.CIRCLE
-//                .setDefaultColor(R.color.black)     // Pass Default Color
-//                .setColorListener { color, colorHex ->
-//                    currentEditText?.setTextColor(color)
-//                    poemTheme.textColor = colorHex
-//                    poemTheme.textColorAsInt = color
-//                    updateAllEditTextViews(Float.NaN, "textColor", color)
-//                    actuateSavePoemTheme()
-//                }.setDismissListener {
-//                    currentContainerView = null
-//                }.show()
         }
     }
 
@@ -1480,7 +1553,7 @@ class CreatePoem : AppCompatActivity() {
         saveButton.setOnClickListener {
             Toast.makeText(
                 applicationContext,
-                "Saves the current poem by desired choice",
+                getString(R.string.saved_button_toast),
                 Toast.LENGTH_LONG
             ).show()
         }
@@ -1621,7 +1694,7 @@ class CreatePoem : AppCompatActivity() {
 
         val poemParser = PoemXMLParser(poemDataContainer, applicationContext)
 
-        when (poemParser.saveToXmlFile()) {
+        when (poemParser.saveToXmlFile(savedAlbumName)) {
             0 -> {
                 showSuccessToast(getString(R.string.error_type_file))
             }
@@ -1862,6 +1935,8 @@ class CreatePoem : AppCompatActivity() {
             )
             val activityIntent = Intent(applicationContext, PoemThemeActivityCompose::class.java)
             activityIntent.putExtra("poemThemeName", poemTheme.poemTitle)
+            if (savedAlbumName != null)
+                activityIntent.putExtra(getString(R.string.album_argument_name), savedAlbumName)
             finish()
             startActivity(activityIntent)
         }

@@ -50,10 +50,9 @@ import com.wendorochena.poetskingdom.utils.TextMarginUtil
 import com.wendorochena.poetskingdom.utils.TypefaceHelper
 import com.wendorochena.poetskingdom.viewModels.CreatePoemViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatePoemApp(createPoemViewModel: CreatePoemViewModel) {
-    Scaffold(topBar = { HomeScreenAppBar(displaySearch = false, onSearchClick = {}) }) {
+    Scaffold(topBar = { HomeScreenAppBar(displaySearch = false, onSearchClick = {}, onMenuClicked = {}) }) {
         it
         if (createPoemViewModel.isDimmerDisplayed) {
             DimmerProgress()
@@ -199,10 +198,10 @@ fun PortraitPoemView(modifier: Modifier, createPoemViewModel: CreatePoemViewMode
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(createPoemViewModel.shapeFromOutline()),
-                            colors = TextFieldDefaults.textFieldColors(
-                                textColor = Color(
+                            colors = TextFieldDefaults.colors(
+                                focusedTextColor = Color(
                                     createPoemViewModel.poemTheme.textColorAsInt
-                                ), containerColor = Color.Transparent
+                                ), focusedContainerColor = Color.Transparent
                             ),
                             textStyle = TextStyle(
                                 fontSize = createPoemViewModel.poemTheme.textSize.sp,
@@ -221,11 +220,10 @@ fun PortraitPoemView(modifier: Modifier, createPoemViewModel: CreatePoemViewMode
                             onValueChange = { textToDisplay = it },
                             modifier = Modifier
                                 .fillMaxWidth(),
-                            colors = TextFieldDefaults.textFieldColors(
-                                textColor = Color(
+                            colors = TextFieldDefaults.colors(
+                                focusedTextColor = Color(
                                     createPoemViewModel.poemTheme.textColorAsInt
-                                ), containerColor = Color.Transparent,
-                                
+                                ), focusedContainerColor = Color.Transparent
                             ),
                             textStyle = TextStyle(
                                 fontSize = createPoemViewModel.poemTheme.textSize.sp,

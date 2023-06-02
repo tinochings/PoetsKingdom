@@ -22,18 +22,22 @@ import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 
-//todo
+
 private val DarkColorPalette = darkColors(
     background = DarkDefaultBackgroundColor,
     surface = DarkDefaultBackgroundColor,
     primary = DarkTextColor,
-    secondary = DarkDefaultStatusBarColor
+    primaryVariant = OffWhite,
+    secondary = DarkDefaultStatusBarColor,
+    secondaryVariant = OffWhite
 )
 private val LightColorPalette = lightColors(
     background = DefaultBackgroundColor,
     primary = TextColor,
+    primaryVariant = DefaultColor,
     surface = DefaultBackgroundColor,
-    secondary = DefaultStatusBarColor
+    secondary = DefaultStatusBarColor,
+    secondaryVariant = LightBlack
 )
 
 @Composable

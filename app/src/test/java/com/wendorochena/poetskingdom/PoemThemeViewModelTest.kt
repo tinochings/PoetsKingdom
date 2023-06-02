@@ -30,13 +30,13 @@ class PoemThemeViewModelTest {
     val mockContext : Context = mock {
         on {
             this.getDir(
-                getString(R.string.poems_folder_name),
+                this.getString(R.string.poems_folder_name),
                 Context.MODE_PRIVATE
             )
         } doReturn File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/poems")
 
         on {
-            this.getDir("poemThemes", Context.MODE_PRIVATE)
+            this.getDir(this.getString(R.string.poem_themes_folder_name), Context.MODE_PRIVATE)
         } doReturn File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/themes")
 
     }
@@ -80,9 +80,6 @@ class PoemThemeViewModelTest {
         assert(uiState.backgroundType == BackgroundType.IMAGE)
     }
 
-    fun initmockcontext() {
-
-    }
     @Test
     fun testInitialPoemTheme() : Unit = runTest {
         val uiState = poemThemeViewModel.uiState.value
@@ -125,5 +122,10 @@ class PoemThemeViewModelTest {
         assert(uiState.textColorAsInt == -131841)
         assert(uiState.textAlignment == TextAlignment.LEFT)
         assert(uiState.textFontFamily == "Default")
+    }
+
+    @Test
+    fun testNameAlreadyExists(){
+
     }
 }

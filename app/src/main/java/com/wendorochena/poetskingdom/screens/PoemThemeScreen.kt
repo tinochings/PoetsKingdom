@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
@@ -35,7 +37,6 @@ import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -58,6 +59,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -87,17 +89,23 @@ import com.wendorochena.poetskingdom.viewModels.PoemThemeViewModel
 import java.io.File
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThemePoemApp(
     poemThemeViewModel: PoemThemeViewModel
 ) {
-    val isFirstUse = poemThemeViewModel.determineFirstUse(LocalContext.current.applicationContext,"outlineFirstUse")
+    val isFirstUse = poemThemeViewModel.determineFirstUse(
+        LocalContext.current.applicationContext,
+        "outlineFirstUse"
+    )
 
     Scaffold(topBar = {
         val setDisplayDialog: @Composable (Boolean) -> Unit = {
             if (poemThemeViewModel.isEditTheme) {
-                poemThemeViewModel.savePoemTheme(poemThemeViewModel.poemTitle, LocalContext.current.applicationContext, poemThemeViewModel.isEditTheme)
+                poemThemeViewModel.savePoemTheme(
+                    poemThemeViewModel.poemTitle,
+                    LocalContext.current.applicationContext,
+                    poemThemeViewModel.isEditTheme
+                )
             } else {
                 poemThemeViewModel.setDisplayDialog(it)
             }
@@ -111,6 +119,11 @@ fun ThemePoemApp(
                 "poemTitle",
                 poemThemeViewModel.poemTitle
             )
+            if (poemThemeViewModel.savedAlbumName != null)
+                newActivityIntent.putExtra(
+                    activity.getString(R.string.album_argument_name),
+                    poemThemeViewModel.savedAlbumName
+                )
             poemThemeViewModel.resetResultToDefault()
             activity.finish()
             activity.startActivity(newActivityIntent)
@@ -128,8 +141,12 @@ fun ThemePoemApp(
             if (poemThemeViewModel.shouldDisplayDialog)
                 SavePoemThemeDialog(poemThemeViewModel)
 
-            if (isFirstUse){
-                FirstUseDialog(heading = R.string.outline, guideText = R.string.guide_outline)
+            if (isFirstUse) {
+                FirstUseDialog(
+                    heading = R.string.outline,
+                    guideText = R.string.guide_outline,
+                    false
+                )
             }
         }
     }
@@ -538,10 +555,6 @@ fun DisplayOutline(
 fun ThemeOptions(
     poemThemeViewModel: PoemThemeViewModel
 ) {
-//    val sharedPreferences =
-//        LocalContext.current.applicationContext.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
-    val headingSelection = poemThemeViewModel.headingSelection
-    val unselectedHeadings = poemThemeViewModel.unselectedHeadings()
     val onOutlineClicked: (OutlineTypes) -> Unit = { outline ->
         if (poemThemeViewModel.backgroundType == BackgroundType.COLOR ||
             poemThemeViewModel.backgroundType == BackgroundType.OUTLINE_WITH_COLOR
@@ -604,7 +617,6 @@ fun ThemeOptions(
 
                         HeadingSelection.TEXT -> {
                             poemThemeViewModel.setTextColor(envelope.color, envelope.hexCode)
-//                            poemThemeViewModel.fontColor = envelope.color
                         }
 
                         HeadingSelection.OUTLINE -> {
@@ -657,10 +669,10 @@ fun ThemeOptions(
                 .fillMaxWidth()
                 .height(48.dp)
         ) {
-            when (headingSelection) {
+            when (poemThemeViewModel.headingSelection) {
                 HeadingSelection.TEXT -> {
                     UnselectedHeadingBox(
-                        headingName = unselectedHeadings[0],
+                        headingName = poemThemeViewModel.unselectedHeadings()[0],
                         modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight()
@@ -669,7 +681,7 @@ fun ThemeOptions(
                         onItemClick = onHeadingClicked
                     )
                     UnselectedHeadingBox(
-                        headingName = unselectedHeadings[1],
+                        headingName = poemThemeViewModel.unselectedHeadings()[1],
                         modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight()
@@ -678,26 +690,34 @@ fun ThemeOptions(
                         onItemClick = onHeadingClicked
                     )
                     SelectedHeadingBox(
-                        headingName = headingSelection.name,
+                        headingName = poemThemeViewModel.headingSelection.name,
                         modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight()
                             .weight(1f)
                             .align(Alignment.CenterVertically)
                             .border(
-                                BorderStroke(5.dp, DefaultColor),
+                                BorderStroke(5.dp, MaterialTheme.colors.primaryVariant),
                                 shape = RoundedCornerShape(15.dp)
                             )
                     )
 
-                    if (poemThemeViewModel.determineFirstUse(LocalContext.current.applicationContext,"textFirstUse")) {
-                        FirstUseDialog(heading = R.string.text, guideText = R.string.guide_text)
+                    if (poemThemeViewModel.determineFirstUse(
+                            LocalContext.current.applicationContext,
+                            "textFirstUse"
+                        )
+                    ) {
+                        FirstUseDialog(
+                            heading = R.string.text,
+                            guideText = R.string.guide_text,
+                            false
+                        )
                     }
                 }
 
                 HeadingSelection.BACKGROUND -> {
                     UnselectedHeadingBox(
-                        headingName = unselectedHeadings[0],
+                        headingName = poemThemeViewModel.unselectedHeadings()[0],
                         modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight()
@@ -706,19 +726,19 @@ fun ThemeOptions(
                         onItemClick = onHeadingClicked
                     )
                     SelectedHeadingBox(
-                        headingName = headingSelection.name,
+                        headingName = poemThemeViewModel.headingSelection.name,
                         modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight()
                             .weight(1f)
                             .align(Alignment.CenterVertically)
                             .border(
-                                BorderStroke(5.dp, DefaultColor),
+                                BorderStroke(5.dp, MaterialTheme.colors.primaryVariant),
                                 shape = RoundedCornerShape(15.dp)
                             ),
                     )
                     UnselectedHeadingBox(
-                        headingName = unselectedHeadings[1],
+                        headingName = poemThemeViewModel.unselectedHeadings()[1],
                         modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight()
@@ -726,25 +746,33 @@ fun ThemeOptions(
                             .align(Alignment.CenterVertically),
                         onItemClick = onHeadingClicked
                     )
-                    if (poemThemeViewModel.determineFirstUse(LocalContext.current.applicationContext,"backgroundFirstUse")) {
-                        FirstUseDialog(heading = R.string.background, guideText = R.string.guide_background)
+                    if (poemThemeViewModel.determineFirstUse(
+                            LocalContext.current.applicationContext,
+                            "backgroundFirstUse"
+                        )
+                    ) {
+                        FirstUseDialog(
+                            heading = R.string.background,
+                            guideText = R.string.guide_background,
+                            false
+                        )
                     }
                 }
 
                 HeadingSelection.OUTLINE -> {
                     SelectedHeadingBox(
-                        headingName = headingSelection.name, modifier = Modifier
+                        headingName = poemThemeViewModel.headingSelection.name, modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight()
                             .weight(1f)
                             .align(Alignment.CenterVertically)
                             .border(
-                                BorderStroke(5.dp, DefaultColor),
+                                BorderStroke(5.dp, MaterialTheme.colors.primaryVariant),
                                 shape = RoundedCornerShape(15.dp)
                             )
                     )
                     UnselectedHeadingBox(
-                        headingName = unselectedHeadings[0],
+                        headingName = poemThemeViewModel.unselectedHeadings()[0],
                         modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight()
@@ -753,7 +781,7 @@ fun ThemeOptions(
                         onItemClick = onHeadingClicked
                     )
                     UnselectedHeadingBox(
-                        headingName = unselectedHeadings[1],
+                        headingName = poemThemeViewModel.unselectedHeadings()[1],
                         modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight()
@@ -786,7 +814,8 @@ fun ThemeOptions(
                     colorPickerDialog = colorPickerDialog,
                     textColor = poemThemeViewModel.fontColor,
                     onFontItemClicked = onFontItemClicked,
-                    onTextAlignClicked = onTextAlignClicked
+                    onTextAlignClicked = onTextAlignClicked,
+                    defaultTextValue = if (poemThemeViewModel.isEditTheme) poemThemeViewModel.fontSize else 14f
                 )
             }
         }
@@ -866,8 +895,12 @@ fun BackgroundLayout(
 }
 
 @Composable
-fun SliderLayout(textSizeChange: (Float) -> Unit) {
-    var sliderPosition by remember { mutableStateOf(14f) }
+fun SliderLayout(textSizeChange: (Float) -> Unit, defaultTextValue: Float) {
+    var sliderPosition by remember { mutableStateOf(defaultTextValue) }
+    val thumbColor = if (isSystemInDarkTheme())
+        OffWhite
+    else
+        DefaultColor
     Row(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(
@@ -879,7 +912,7 @@ fun SliderLayout(textSizeChange: (Float) -> Unit) {
             )
             Slider(
                 colors = androidx.compose.material.SliderDefaults.colors(
-                    thumbColor = DefaultColor, inactiveTrackColor = colorResource(
+                    thumbColor = thumbColor, inactiveTrackColor = colorResource(
                         id = R.color.seek_bar_background
                     ), activeTrackColor = colorResource(id = R.color.icon_default_color)
                 ),
@@ -985,13 +1018,18 @@ fun TextLayout(
     colorPickerDialog: @Composable (HeadingSelection) -> Unit,
     textColor: Int,
     onFontItemClicked: (FontFamily, String) -> Unit,
-    onTextAlignClicked: (TextAlignment) -> Unit
+    onTextAlignClicked: (TextAlignment) -> Unit,
+    defaultTextValue: Float
 ) {
-    val defaultFonts = arrayOf("monospace", "sans-Serif", "serif", "default")
-    val allFonts = defaultFonts.plus(stringArrayResource(id = R.array.customFontNamesCompose))
+    val allFonts = stringArrayResource(id = R.array.customFontNamesCompose)
     val numOfFonts = allFonts.size
     LazyVerticalGrid(columns = GridCells.Fixed(2)) {
-        item(span = { GridItemSpan(2) }) { SliderLayout(textSizeChange = textSizeChange) }
+        item(span = { GridItemSpan(2) }) {
+            SliderLayout(
+                textSizeChange = textSizeChange,
+                defaultTextValue = defaultTextValue
+            )
+        }
         item(span = { GridItemSpan(2) }) {
             TextColorAndAlignment(
                 colorPickerDialog,
@@ -1025,7 +1063,8 @@ fun FontFaceItem(fontItem: String, onFontItemClicked: (FontFamily, String) -> Un
     Box(
         modifier = Modifier
             .height(80.dp)
-            .clickable { onFontItemClicked.invoke(fontFamily, fontItem) }, contentAlignment = Alignment.Center
+            .clickable { onFontItemClicked.invoke(fontFamily, fontItem) },
+        contentAlignment = Alignment.Center
     ) {
         Text(
             text = fontText,
@@ -1057,7 +1096,7 @@ fun ImagesGrid(onImageItemClick: (File) -> Unit) {
         stringResource(id = R.string.my_images_folder_name),
         Context.MODE_PRIVATE
     )
-    val imageFiles = imagesFolder?.listFiles()
+    val imageFiles = imagesFolder?.listFiles()?.toMutableList()?.sortedByDescending { it.lastModified() }
     LazyVerticalGrid(
         modifier = Modifier.padding(top = 5.dp), columns = GridCells.Fixed(4),
         verticalArrangement = Arrangement.spacedBy(5.dp),
@@ -1204,7 +1243,7 @@ fun SavePoemThemeDialog(poemThemeViewModel: PoemThemeViewModel) {
     val maxChars by remember { mutableStateOf(60) }
     var shouldChangeText by remember { mutableStateOf(false) }
     val validateInput: @Composable (String) -> Boolean = {
-        if (poemThemeViewModel.isValidatedInput(it.replace(' ', '_'))) {
+        if (PoemThemeViewModel.isValidatedInput(it.replace(' ', '_'))) {
             //save poem theme and start new activity
             poemThemeViewModel.savePoemTheme(
                 it,
@@ -1240,7 +1279,12 @@ fun SavePoemThemeDialog(poemThemeViewModel: PoemThemeViewModel) {
     ) {
         Card(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .border(
+                    width = 3.dp,
+                    color = DefaultStatusBarColor,
+                    com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline
+                ),
             shape = com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline
         ) {
             Column(
@@ -1277,7 +1321,9 @@ fun SavePoemThemeDialog(poemThemeViewModel: PoemThemeViewModel) {
                             stringResource(id = R.string.create_poem_edit_text_hint),
                             color = OffWhite
                         )
-                    })
+                    },
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+                )
 
                 Spacer(modifier = Modifier.height(30.dp))
 
@@ -1317,9 +1363,7 @@ fun AppBar(
     setDisplayDialog: @Composable (Boolean) -> Unit,
     isEditTheme: Boolean
 ) {
-    var shouldDisplayDialog by remember {
-        mutableStateOf(false)
-    }
+    var shouldDisplayDialog by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
             .fillMaxWidth()

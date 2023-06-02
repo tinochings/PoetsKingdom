@@ -1,7 +1,11 @@
 package com.wendorochena.poetskingdom.utils
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.util.Log
@@ -30,7 +34,7 @@ class ThumbnailCreator(
     private var poemName = "Default"
     private var poetsName = "Default"
     private var poetsSignature = "Default"
-    private var poemTextSize = 12f
+    private var poemTextSize = 14f
     private lateinit var textPaintAlignment: Paint.Align
     private lateinit var paint: Paint
     private var xPoint: Float = 0f
@@ -77,7 +81,7 @@ class ThumbnailCreator(
         paint = Paint()
         paint.color = poemTheme.textColorAsInt
         paint.textSize = poemTextSize
-        paint.typeface = TypefaceHelper.getTypeFace(poemTheme.textFontFamily, context)
+        paint.typeface = TypefaceHelper.getTypeFace(poemTheme.textFontFamily + "_font", context)
     }
 
     /**

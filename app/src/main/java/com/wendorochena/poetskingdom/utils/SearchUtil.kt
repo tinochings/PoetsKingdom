@@ -1,7 +1,6 @@
 package com.wendorochena.poetskingdom.utils
 
 import android.content.Context
-import android.util.Log
 import androidx.databinding.ObservableArrayList
 import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.poemdata.PoemXMLParser
@@ -19,7 +18,9 @@ import org.apache.lucene.search.IndexSearcher
 import org.apache.lucene.search.TopScoreDocCollector
 import org.apache.lucene.store.FSDirectory
 import org.apache.lucene.util.Version
+import java.io.File
 import java.io.FileReader
+import java.io.IOException
 
 /**
  * The search phrase input by the user is run through Lucene with a boosted scoring of 2.
@@ -49,6 +50,7 @@ class SearchUtil(
     private lateinit var subStringLocations: ObservableArrayList<Pair<String, String>>
     private lateinit var stanzaIndexAndText: HashMap<String, ArrayList<Pair<Int, String>>>
     private var itemCount = -1
+    private var fileNameAndAlbum : HashMap<String,String> = HashMap()
 
     /**
      * @return An arraylist containing sub-string locations of the search results
@@ -100,6 +102,7 @@ class SearchUtil(
             val configuration = IndexWriterConfig(Version.LUCENE_43, analyzer)
             val directory = FSDirectory.open(indexFolder)
             indexWriter = IndexWriter(directory, configuration)
+            var shouldContinueSearch = true
 
             if (poemFolder.exists()) {
                 try {
@@ -107,81 +110,110 @@ class SearchUtil(
                     val allPoemFiles = poemFolder.listFiles()
                     if (allPoemFiles != null) {
                         for (poemFile in allPoemFiles) {
-                            val fileReader = FileReader(poemFile)
                             try {
-                                val document = Document()
-                                val field = TextField("xmlFile", fileReader)
-                                // the idea behind this is that the scoring probability should be higher
-                                // or equal to 0.5 when boosted. This will help filter really low probabilities
-                                // of finding a sub phrase
-                                field.setBoost(2f)
-                                document.add(field)
-                                document.add(
-                                    StringField(
-                                        "fileName",
-                                        poemFile.name,
-                                        Field.Store.YES
+                                // add poems in an album
+                                if (poemFile.isDirectory){
+                                    val subPoems = poemFile.listFiles()
+                                    if (subPoems != null) {
+                                        for (subPoemFile in subPoems) {
+                                            val fileReader = FileReader(subPoemFile)
+                                            val document = Document()
+                                            val subPoemFileName = subPoemFile.name.split(".")[0].replace('_', ' ')
+                                            val field = TextField("xmlFile", fileReader)
+                                            fileNameAndAlbum[subPoemFileName] = poemFile.name
+                                            field.setBoost(2f)
+                                            document.add(field)
+                                            document.add(
+                                                StringField(
+                                                    "fileName",
+                                                    subPoemFileName,
+                                                    Field.Store.YES
+                                                )
+                                            )
+                                            indexWriter.addDocument(document)
+                                            fileReader.close()
+                                        }
+                                    }
+                                } else {
+                                    val fileReader = FileReader(poemFile)
+                                    val document = Document()
+                                    val field = TextField("xmlFile", fileReader)
+                                    field.setBoost(2f)
+                                    document.add(field)
+                                    document.add(
+                                        StringField(
+                                            "fileName",
+                                            poemFile.name.split(".")[0].replace('_', ' '),
+                                            Field.Store.YES
+                                        )
                                     )
-                                )
-
-                                indexWriter.addDocument(document)
-                                println("added : ${poemFile.name}")
-                            } catch (e: Exception) {
+                                    indexWriter.addDocument(document)
+                                    fileReader.close()
+                                }
+                            } catch (e: IOException) {
                                 e.printStackTrace()
-                            } finally {
-                                fileReader.close()
+                                indexWriter.close()
+                                shouldContinueSearch = false
                             }
                         }
+                        if (shouldContinueSearch) {
+                            indexWriter.commit()
+                            indexWriter.close()
+                            val indexReader = DirectoryReader.open(FSDirectory.open(indexFolder))
+                            val indexSearcher = IndexSearcher(indexReader)
+                            val collector = TopScoreDocCollector.create(10, true)
 
-                        indexWriter.commit()
-                        indexWriter.close()
-                        val indexReader = DirectoryReader.open(FSDirectory.open(indexFolder))
-                        val indexSearcher = IndexSearcher(indexReader)
-                        val collector = TopScoreDocCollector.create(10, true)
-
-                        try {
+                            try {
 
 
-                            val queryParser = QueryParser(Version.LUCENE_43, "xmlFile", analyzer)
+                                val queryParser =
+                                    QueryParser(Version.LUCENE_43, "xmlFile", analyzer)
 
-                            when (searchType) {
-                                applicationContext.getString(R.string.exact_phrase_search) -> {
-                                    val exactSearchSubPhrase = "\"$searchPhrase\""
-                                    val query = queryParser.parse(exactSearchSubPhrase)
-                                    indexSearcher.search(query, collector)
+                                when (searchType) {
+                                    applicationContext.getString(R.string.exact_phrase_search) -> {
+                                        val exactSearchSubPhrase = "\"$searchPhrase\""
+                                        val query = queryParser.parse(exactSearchSubPhrase)
+                                        indexSearcher.search(query, collector)
+                                    }
+
+                                    applicationContext.getString(R.string.approximate_phrase_search) -> {
+                                        val approximatePhrase = "\"$searchPhrase\"~"
+                                        val query = queryParser.parse(approximatePhrase)
+                                        indexSearcher.search(query, collector)
+                                    }
+
+                                    else -> {
+                                        val query = queryParser.parse(searchPhrase)
+                                        indexSearcher.search(query, collector)
+                                    }
                                 }
-                                applicationContext.getString(R.string.approximate_phrase_search) -> {
-                                    val approximatePhrase = "\"$searchPhrase\"~"
-                                    val query = queryParser.parse(approximatePhrase)
-                                    indexSearcher.search(query, collector)
-                                    println(approximatePhrase)
+
+                                val scoreDocHits = collector.topDocs().scoreDocs
+
+
+                                for (hit in scoreDocHits) {
+                                    val currDocument = indexSearcher.doc(hit.doc)
+
+                                    if (!this::titleSearchResults.isInitialized)
+                                        titleSearchResults = ArrayList()
+                                    val albumName = if (fileNameAndAlbum[currDocument.get("fileName")] == null)
+                                        ""
+                                    else
+                                        fileNameAndAlbum[currDocument.get("fileName")] + File.separator
+
+                                    titleSearchResults.add(
+                                        albumName + currDocument.get("fileName").replace(' ', '_') + ".xml"
+                                    )
+//                                    println(currDocument.get("fileName") + " score= ${hit.score}")
                                 }
-                                else -> {
-                                    val query = queryParser.parse(searchPhrase)
-                                    indexSearcher.search(query, collector)
-                                }
+                            } catch (e: IOException) {
+                                e.printStackTrace()
                             }
-
-                            val scoreDocHits = collector.topDocs().scoreDocs
-
-                            println("${scoreDocHits.size} hits have been found")
-
-                            for (hit in scoreDocHits) {
-                                val currDocument = indexSearcher.doc(hit.doc)
-
-                                if (!this::titleSearchResults.isInitialized)
-                                    titleSearchResults = ArrayList()
-
-                                titleSearchResults.add(currDocument.get("fileName"))
-                                println(currDocument.get("fileName") + " score= ${hit.score}")
-                            }
-                        } catch (e: Exception) {
-                            Log.e("Search Error: ", "Error Searching for $searchPhrase and error ${e.message}")
                         }
                     }
-                } catch (e: Exception) {
+                } catch (e: IOException) {
                     e.printStackTrace()
-                    Log.e(this::javaClass.name, "Lucene search failed")
+                    indexWriter.close()
                 }
             }
 
@@ -261,16 +293,10 @@ class SearchUtil(
                         }
                     }
                 }
-                if (preciseLocation.isEmpty()) {
-                    if (fileNameAndStanzas.second.size >= 1) {
-                        val toAdd = Pair(1, fileNameAndStanzas.second[0])
-                        val arrayListPair = ArrayList<Pair<Int, String>>()
-                        arrayListPair.add(toAdd)
-                        stanzaIndexAndText[poemFileName] = arrayListPair
-                        preciseLocation = "1 -1 -1"
-                    }
+                // must be an over approximation by Lucene so we weed them out
+                if (preciseLocation.isNotEmpty()) {
+                    temp.add(Pair(poemFileName, preciseLocation))
                 }
-                temp.add(Pair(poemFileName, preciseLocation))
             }
             subStringLocations.addAll(temp)
         }

@@ -1,5 +1,6 @@
 package com.wendorochena.poetskingdom.screens
 
+import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -12,11 +13,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -37,7 +38,12 @@ enum class HomeScreen {
 }
 
 @Composable
-fun HomeScreenAppBar(modifier: Modifier = Modifier, displaySearch : Boolean, onSearchClick : () -> Unit) {
+fun HomeScreenAppBar(
+    modifier: Modifier = Modifier,
+    displaySearch: Boolean,
+    onSearchClick: () -> Unit,
+    onMenuClicked: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -65,19 +71,30 @@ fun HomeScreenAppBar(modifier: Modifier = Modifier, displaySearch : Boolean, onS
                     painter = painterResource(id = R.drawable.ic_baseline_search_24),
                     contentDescription = stringResource(id = R.string.search_button_content_description),
                 )
+                Image(modifier = Modifier
+                    .width(48.dp)
+                    .height(48.dp)
+                    .padding(5.dp)
+                    .clickable { onMenuClicked.invoke() }
+                    .align(Alignment.CenterStart),
+                    painter = painterResource(id = R.drawable.menu_button_rounded),
+                    contentDescription = stringResource(
+                        id = R.string.menu_icon_content_description
+                    ),
+                    colorFilter = ColorFilter.tint(color = MaterialTheme.colors.primary)
+                )
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenApp() {
     val navController = rememberNavController()
     Scaffold(
         topBar = {
-            HomeScreenAppBar(displaySearch = false, onSearchClick = {})
-        }
+            HomeScreenAppBar(displaySearch = false, onSearchClick = {}, onMenuClicked = {})
+        }, modifier = Modifier.background(MaterialTheme.colors.background)
     ) {
         NavHost(
             navController = navController,
@@ -104,6 +121,16 @@ fun HomeScreenApp() {
                 }
                 val onPersonalisationClicked: () -> Unit = {
                     context.startActivity(personalisationActivityIntent)
+                }
+                val sharedPreferences =
+                    context.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
+                if (sharedPreferences?.getBoolean("firstUse", false) == false) {
+                    sharedPreferences.edit()?.putBoolean("firstUse", true)?.apply()
+                    FirstUseDialog(
+                        heading = R.string.guide_title,
+                        guideText = R.string.guide_first_fragment,
+                        true
+                    )
                 }
                 HomePageScreenApp(
                     onImagesClick = onMyImagesClicked,

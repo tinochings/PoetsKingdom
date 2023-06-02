@@ -1,7 +1,6 @@
 package com.wendorochena.poetskingdom.poemdata
 
 import android.content.Context
-import android.util.Log
 import android.util.Xml
 import android.view.View
 import com.wendorochena.poetskingdom.R
@@ -21,9 +20,10 @@ class PoemThemeXmlParser(
 
     private lateinit var backgroundTypeAsString: String
 
-    constructor(poemTheme : PoemTheme, context: Context) : this(poemTheme) {
+    constructor(poemTheme: PoemTheme, context: Context) : this(poemTheme) {
         this.applicationContext = context
     }
+
     fun getPoemTheme(): PoemTheme {
         return poemTheme
     }
@@ -44,7 +44,7 @@ class PoemThemeXmlParser(
     suspend fun parseTheme(poemTitle: String?): Int {
 
         return withContext(Dispatchers.IO) {
-            val poemThemeFolder = applicationContext.getDir("poemThemes", Context.MODE_PRIVATE)
+            val poemThemeFolder = applicationContext.getDir(applicationContext.getString(R.string.poem_themes_folder_name), Context.MODE_PRIVATE)
             val fileToUse = File(
                 poemThemeFolder?.absolutePath + File.separator + poemTitle?.replace(
                     ' ',
@@ -90,6 +90,7 @@ class PoemThemeXmlParser(
                                         parseBackgroundType(parser)
                                     }
                                 }
+
                                 "textSize" -> {
                                     parser.require(XmlPullParser.START_TAG, null, "textSize")
                                     if (parser.next() == XmlPullParser.TEXT) {
@@ -98,6 +99,7 @@ class PoemThemeXmlParser(
                                         parser.require(XmlPullParser.END_TAG, null, "textSize")
                                     }
                                 }
+
                                 "textColor" -> {
                                     parser.require(XmlPullParser.START_TAG, null, "textColor")
                                     if (parser.next() == XmlPullParser.TEXT) {
@@ -106,6 +108,7 @@ class PoemThemeXmlParser(
                                         parser.require(XmlPullParser.END_TAG, null, "textColor")
                                     }
                                 }
+
                                 "textColorAsInt" -> {
                                     parser.require(XmlPullParser.START_TAG, null, "textColorAsInt")
                                     if (parser.next() == XmlPullParser.TEXT) {
@@ -118,16 +121,19 @@ class PoemThemeXmlParser(
                                         )
                                     }
                                 }
+
                                 "textAlignment" -> {
                                     parser.require(XmlPullParser.START_TAG, null, "textAlignment")
                                     if (parser.next() == XmlPullParser.TEXT) {
-                                        poemTheme.textAlignment =PoemTheme.determineTextAlignment(
-                                                parser.text)
+                                        poemTheme.textAlignment = PoemTheme.determineTextAlignment(
+                                            parser.text
+                                        )
 
                                         parser.nextTag()
                                         parser.require(XmlPullParser.END_TAG, null, "textAlignment")
                                     }
                                 }
+
                                 "textFont" -> {
                                     parser.require(XmlPullParser.START_TAG, null, "textFont")
                                     if (parser.next() == XmlPullParser.TEXT) {
@@ -144,7 +150,6 @@ class PoemThemeXmlParser(
                     }
                 } catch (exception: Exception) {
                     exception.printStackTrace()
-                    Log.e(this::javaClass.name, "Failed to parse user theme")
                     return@withContext -1
                 } finally {
                     inputStream.close()
@@ -167,10 +172,12 @@ class PoemThemeXmlParser(
 
             for (fileNamePair in poemFileNamePair) {
                 if (parseTheme(fileNamePair.first.split(".")[0]) == 0) {
-                    poemThemes.add(Pair(
-                        poemTheme.backgroundType,
-                        poemTheme.textColorAsInt
-                    ))
+                    poemThemes.add(
+                        Pair(
+                            poemTheme.backgroundType,
+                            poemTheme.textColorAsInt
+                        )
+                    )
                 }
             }
 
@@ -218,6 +225,7 @@ class PoemThemeXmlParser(
                             parser.require(XmlPullParser.END_TAG, null, delimitedString[2])
                         }
                     }
+
                     "backgroundColor" -> {
                         parser.require(XmlPullParser.START_TAG, null, delimitedString[0])
                         if (parser.next() == XmlPullParser.TEXT) {
@@ -233,6 +241,7 @@ class PoemThemeXmlParser(
                             parser.require(XmlPullParser.END_TAG, null, delimitedString[1])
                         }
                     }
+
                     "backgroundOutline" -> {
                         parser.require(XmlPullParser.START_TAG, null, delimitedString[0])
                         if (parser.next() == XmlPullParser.TEXT) {
@@ -249,6 +258,7 @@ class PoemThemeXmlParser(
                             parser.require(XmlPullParser.END_TAG, null, delimitedString[1])
                         }
                     }
+
                     "backgroundOutlineWithColor" -> {
                         parser.require(XmlPullParser.START_TAG, null, "backgroundOutline")
                         if (parser.next() == XmlPullParser.TEXT) {
@@ -285,18 +295,42 @@ class PoemThemeXmlParser(
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            Log.e(this::javaClass.name, "Failed to parse background type")
         }
     }
 
     /**
+     *
+     */
+    private fun checkIsInAlbum(poemFolder: File, poemTitle: String): Boolean {
+        val allFiles = poemFolder.listFiles()
+        if (allFiles != null) {
+            for (file in allFiles) {
+                if (file.isDirectory) {
+                    val allAlbumFiles = file.listFiles()
+                    if (allAlbumFiles != null) {
+                        for (albumFile in allAlbumFiles) {
+                            val poemName = albumFile.name.split(".")[0].replace('_', ' ')
+                            if (poemName == poemTitle)
+                                return true
+                        }
+                    }
+                }
+            }
+        }
+        return false
+    }
+
+    /**
+     * N.B. This was initially designed to support MVI instead of MVVVM. To show a contrast between
+     * the two I have kept both implementations.
+     *
      * Encodes an xml file with the entire poem theme
      *
      * @param backgroundColorChosen the color of the background if any else this is null
      * @param backgroundImageChosen the image of the background if any else it is null
      * @return returns 0 on success and -1 otherwise
      */
-   suspend fun savePoemThemeToLocalFile(
+    suspend fun savePoemThemeToLocalFile(
         backgroundImageChosen: String?,
         backgroundColorChosen: String?,
         outlineChosen: View?,
@@ -315,139 +349,144 @@ class PoemThemeXmlParser(
                 if (poemThemeFolder.exists()) {
                     try {
                         val poemFileName = poemTheme.poemTitle.replace(' ', '_') + ".xml"
-                        val savedPoem =
-                            File(poemFolder.absolutePath + File.separator + poemFileName)
-                        val poemFile =
-                            File(poemThemeFolder.absolutePath + File.separator + poemFileName)
-                        if (isEditTheme || (!savedPoem.exists() || poemFile.createNewFile())) {
-                            val fileOutStream = FileOutputStream(poemFile)
+                            val savedPoem =
+                                File(poemFolder.absolutePath + File.separator + poemFileName)
+                            val poemFile =
+                                File(poemThemeFolder.absolutePath + File.separator + poemFileName)
 
-                            val stringWriter = StringWriter()
-                            val xmlSerializer = Xml.newSerializer()
-                            xmlSerializer.setOutput(stringWriter)
-                            xmlSerializer.setFeature(
-                                "http://xmlpull.org/v1/doc/features.html#indent-output",
-                                true
-                            )
-                            xmlSerializer.startDocument("UTF-8", true)
-                            xmlSerializer.startTag(null, "root")
+                            if (isEditTheme || (!savedPoem.exists() && !checkIsInAlbum(poemFolder, poemTheme.poemTitle) || poemFile.createNewFile())) {
+                                val fileOutStream = FileOutputStream(poemFile)
 
-                            xmlSerializer.startTag(null, "backgroundType")
-                            xmlSerializer.text(poemTheme.backgroundType.toString())
-                            xmlSerializer.endTag(null, "backgroundType")
+                                val stringWriter = StringWriter()
+                                val xmlSerializer = Xml.newSerializer()
+                                xmlSerializer.setOutput(stringWriter)
+                                xmlSerializer.setFeature(
+                                    "http://xmlpull.org/v1/doc/features.html#indent-output",
+                                    true
+                                )
+                                xmlSerializer.startDocument("UTF-8", true)
+                                xmlSerializer.startTag(null, "root")
 
-                            when (poemTheme.backgroundType) {
-                                BackgroundType.IMAGE -> {
-                                    xmlSerializer.startTag(null, "imagePath")
-                                    xmlSerializer.text(backgroundImageChosen)
-                                    xmlSerializer.endTag(null, "imagePath")
+                                xmlSerializer.startTag(null, "backgroundType")
+                                xmlSerializer.text(poemTheme.backgroundType.toString())
+                                xmlSerializer.endTag(null, "backgroundType")
+
+                                when (poemTheme.backgroundType) {
+                                    BackgroundType.IMAGE -> {
+                                        xmlSerializer.startTag(null, "imagePath")
+                                        xmlSerializer.text(backgroundImageChosen)
+                                        xmlSerializer.endTag(null, "imagePath")
+                                    }
+
+                                    BackgroundType.COLOR -> {
+                                        xmlSerializer.startTag(null, "backgroundColor")
+                                        xmlSerializer.text(backgroundColorChosen)
+                                        xmlSerializer.endTag(null, "backgroundColor")
+
+                                        xmlSerializer.startTag(null, "backgroundColorAsInt")
+                                        xmlSerializer.text(
+                                            poemTheme.backgroundColorAsInt.toString()
+                                        )
+                                        xmlSerializer.endTag(null, "backgroundColorAsInt")
+                                    }
+
+                                    BackgroundType.OUTLINE -> {
+                                        xmlSerializer.startTag(null, "backgroundOutline")
+                                        if (outlineChosen == null)
+                                            xmlSerializer.text(poemTheme.outline)
+                                        else
+                                            xmlSerializer.text(outlineChosen.contentDescription.toString())
+                                        xmlSerializer.endTag(null, "backgroundOutline")
+
+                                        xmlSerializer.startTag(null, "backgroundOutlineColor")
+                                        xmlSerializer.text(poemTheme.outlineColor.toString())
+                                        xmlSerializer.endTag(null, "backgroundOutlineColor")
+                                    }
+
+                                    BackgroundType.OUTLINE_WITH_IMAGE -> {
+                                        xmlSerializer.startTag(null, "imagePath")
+                                        xmlSerializer.text(backgroundImageChosen)
+                                        xmlSerializer.endTag(null, "imagePath")
+                                        xmlSerializer.startTag(null, "backgroundOutline")
+                                        if (outlineChosen == null)
+                                            xmlSerializer.text(poemTheme.outline)
+                                        else
+                                            xmlSerializer.text(outlineChosen.contentDescription.toString())
+                                        xmlSerializer.endTag(null, "backgroundOutline")
+
+                                        xmlSerializer.startTag(null, "backgroundOutlineColor")
+                                        xmlSerializer.text(poemTheme.outlineColor.toString())
+                                        xmlSerializer.endTag(null, "backgroundOutlineColor")
+                                    }
+
+                                    BackgroundType.OUTLINE_WITH_COLOR -> {
+                                        xmlSerializer.startTag(null, "backgroundOutline")
+                                        if (outlineChosen == null)
+                                            xmlSerializer.text(poemTheme.outline)
+                                        else
+                                            xmlSerializer.text(outlineChosen.contentDescription.toString())
+                                        xmlSerializer.endTag(null, "backgroundOutline")
+
+                                        xmlSerializer.startTag(null, "backgroundOutlineColor")
+                                        xmlSerializer.text(poemTheme.outlineColor.toString())
+                                        xmlSerializer.endTag(null, "backgroundOutlineColor")
+
+                                        xmlSerializer.startTag(null, "backgroundColor")
+                                        xmlSerializer.text(backgroundColorChosen)
+                                        xmlSerializer.endTag(null, "backgroundColor")
+
+                                        xmlSerializer.startTag(null, "backgroundColorAsInt")
+                                        xmlSerializer.text(
+                                            poemTheme.backgroundColorAsInt.toString()
+                                        )
+                                        xmlSerializer.endTag(null, "backgroundColorAsInt")
+                                    }
+
+                                    BackgroundType.DEFAULT -> {
+                                        xmlSerializer.startTag(null, "backgroundColor")
+                                        xmlSerializer.text("#FFFFFF")
+                                        xmlSerializer.endTag(null, "backgroundColor")
+
+                                        xmlSerializer.startTag(null, "backgroundColorAsInt")
+                                        xmlSerializer.text(
+                                            poemTheme.backgroundColorAsInt.toString()
+                                        )
+                                        xmlSerializer.endTag(null, "backgroundColorAsInt")
+                                    }
                                 }
-                                BackgroundType.COLOR -> {
-                                    xmlSerializer.startTag(null, "backgroundColor")
-                                    xmlSerializer.text(backgroundColorChosen)
-                                    xmlSerializer.endTag(null, "backgroundColor")
 
-                                    xmlSerializer.startTag(null, "backgroundColorAsInt")
-                                    xmlSerializer.text(
-                                        poemTheme.backgroundColorAsInt.toString()
-                                    )
-                                    xmlSerializer.endTag(null, "backgroundColorAsInt")
-                                }
-                                BackgroundType.OUTLINE -> {
-                                    xmlSerializer.startTag(null, "backgroundOutline")
-                                    if (outlineChosen == null)
-                                        xmlSerializer.text(poemTheme.outline)
-                                    else
-                                        xmlSerializer.text(outlineChosen.contentDescription.toString())
-                                    xmlSerializer.endTag(null, "backgroundOutline")
+                                xmlSerializer.startTag(null, "textSize")
+                                xmlSerializer.text(poemTheme.textSize.toString())
+                                xmlSerializer.endTag(null, "textSize")
 
-                                    xmlSerializer.startTag(null, "backgroundOutlineColor")
-                                    xmlSerializer.text(poemTheme.outlineColor.toString())
-                                    xmlSerializer.endTag(null, "backgroundOutlineColor")
-                                }
-                                BackgroundType.OUTLINE_WITH_IMAGE -> {
-                                    xmlSerializer.startTag(null, "imagePath")
-                                    xmlSerializer.text(backgroundImageChosen)
-                                    xmlSerializer.endTag(null, "imagePath")
-                                    xmlSerializer.startTag(null, "backgroundOutline")
-                                    if (outlineChosen == null)
-                                        xmlSerializer.text(poemTheme.outline)
-                                    else
-                                        xmlSerializer.text(outlineChosen.contentDescription.toString())
-                                    xmlSerializer.endTag(null, "backgroundOutline")
+                                xmlSerializer.startTag(null, "textColor")
+                                xmlSerializer.text(poemTheme.textColor)
+                                xmlSerializer.endTag(null, "textColor")
 
-                                    xmlSerializer.startTag(null, "backgroundOutlineColor")
-                                    xmlSerializer.text(poemTheme.outlineColor.toString())
-                                    xmlSerializer.endTag(null, "backgroundOutlineColor")
-                                }
-                                BackgroundType.OUTLINE_WITH_COLOR -> {
-                                    xmlSerializer.startTag(null, "backgroundOutline")
-                                    if (outlineChosen == null)
-                                        xmlSerializer.text(poemTheme.outline)
-                                    else
-                                        xmlSerializer.text(outlineChosen.contentDescription.toString())
-                                    xmlSerializer.endTag(null, "backgroundOutline")
+                                xmlSerializer.startTag(null, "textColorAsInt")
+                                xmlSerializer.text(poemTheme.textColorAsInt.toString())
+                                xmlSerializer.endTag(null, "textColorAsInt")
 
-                                    xmlSerializer.startTag(null, "backgroundOutlineColor")
-                                    xmlSerializer.text(poemTheme.outlineColor.toString())
-                                    xmlSerializer.endTag(null, "backgroundOutlineColor")
+                                xmlSerializer.startTag(null, "textAlignment")
+                                xmlSerializer.text(poemTheme.textAlignment.toString())
+                                xmlSerializer.endTag(null, "textAlignment")
 
-                                    xmlSerializer.startTag(null, "backgroundColor")
-                                    xmlSerializer.text(backgroundColorChosen)
-                                    xmlSerializer.endTag(null, "backgroundColor")
+                                xmlSerializer.startTag(null, "textFont")
+                                xmlSerializer.text(poemTheme.textFontFamily)
+                                xmlSerializer.endTag(null, "textFont")
 
-                                    xmlSerializer.startTag(null, "backgroundColorAsInt")
-                                    xmlSerializer.text(
-                                        poemTheme.backgroundColorAsInt.toString()
-                                    )
-                                    xmlSerializer.endTag(null, "backgroundColorAsInt")
-                                }
-                                BackgroundType.DEFAULT -> {
-                                    xmlSerializer.startTag(null, "backgroundColor")
-                                    xmlSerializer.text("#FFFFFF")
-                                    xmlSerializer.endTag(null, "backgroundColor")
+                                xmlSerializer.endTag(null, "root")
 
-                                    xmlSerializer.startTag(null, "backgroundColorAsInt")
-                                    xmlSerializer.text(
-                                        poemTheme.backgroundColorAsInt.toString()
-                                    )
-                                    xmlSerializer.endTag(null, "backgroundColorAsInt")
-                                }
+                                xmlSerializer.endDocument()
+                                xmlSerializer.flush()
+
+                                val dataWritten = stringWriter.toString()
+                                fileOutStream.write(dataWritten.toByteArray())
+                                fileOutStream.close()
+                                return@withContext 0
                             }
-
-                            xmlSerializer.startTag(null, "textSize")
-                            xmlSerializer.text(poemTheme.textSize.toString())
-                            xmlSerializer.endTag(null, "textSize")
-
-                            xmlSerializer.startTag(null, "textColor")
-                            xmlSerializer.text(poemTheme.textColor)
-                            xmlSerializer.endTag(null, "textColor")
-
-                            xmlSerializer.startTag(null, "textColorAsInt")
-                            xmlSerializer.text(poemTheme.textColorAsInt.toString())
-                            xmlSerializer.endTag(null, "textColorAsInt")
-
-                            xmlSerializer.startTag(null, "textAlignment")
-                            xmlSerializer.text(poemTheme.textAlignment.toString())
-                            xmlSerializer.endTag(null, "textAlignment")
-
-                            xmlSerializer.startTag(null, "textFont")
-                            xmlSerializer.text(poemTheme.textFontFamily)
-                            xmlSerializer.endTag(null, "textFont")
-
-                            xmlSerializer.endTag(null, "root")
-
-                            xmlSerializer.endDocument()
-                            xmlSerializer.flush()
-
-                            val dataWritten = stringWriter.toString()
-                            fileOutStream.write(dataWritten.toByteArray())
-                            fileOutStream.close()
-                            return@withContext 0
-                        }
                     } catch (e: java.lang.Exception) {
                         e.printStackTrace()
-                        Log.e(this::javaClass.name, "Failed to save poem theme as a file")
                         return@withContext -1
                     }
                 }
@@ -455,165 +494,5 @@ class PoemThemeXmlParser(
             return@withContext -1
         }
     }
-
-//    suspend fun savePoemThemeToLocalFile(
-//        backgroundImageChosen: String?,
-//        backgroundColorChosen: String?,
-//        outlineChosen: String?,
-//    ): Int {
-//        return withContext(Dispatchers.IO) {
-//            val poemThemeFolder = applicationContext.getDir(
-//                applicationContext.getString(R.string.poem_themes_folder_name),
-//                Context.MODE_PRIVATE
-//            )
-//            val poemFolder = applicationContext.getDir(
-//                applicationContext.getString(R.string.poems_folder_name),
-//                Context.MODE_PRIVATE
-//            )
-//
-//            if (poemThemeFolder != null) {
-//                if (poemThemeFolder.exists()) {
-//                    try {
-//                        val poemFileName = poemTheme.poemTitle.replace(' ', '_') + ".xml"
-//                        val savedPoem =
-//                            File(poemFolder.absolutePath + File.separator + poemFileName)
-//                        val poemFile =
-//                            File(poemThemeFolder.absolutePath + File.separator + poemFileName)
-//                        if (isEditTheme || (!savedPoem.exists() || poemFile.createNewFile())) {
-//                            val fileOutStream = FileOutputStream(poemFile)
-//
-//                            val stringWriter = StringWriter()
-//                            val xmlSerializer = Xml.newSerializer()
-//                            xmlSerializer.setOutput(stringWriter)
-//                            xmlSerializer.setFeature(
-//                                "http://xmlpull.org/v1/doc/features.html#indent-output",
-//                                true
-//                            )
-//                            xmlSerializer.startDocument("UTF-8", true)
-//                            xmlSerializer.startTag(null, "root")
-//
-//                            xmlSerializer.startTag(null, "backgroundType")
-//                            xmlSerializer.text(poemTheme.backgroundType.toString())
-//                            xmlSerializer.endTag(null, "backgroundType")
-//
-//                            when (poemTheme.backgroundType) {
-//                                BackgroundType.IMAGE -> {
-//                                    xmlSerializer.startTag(null, "imagePath")
-//                                    xmlSerializer.text(backgroundImageChosen)
-//                                    xmlSerializer.endTag(null, "imagePath")
-//                                }
-//                                BackgroundType.COLOR -> {
-//                                    xmlSerializer.startTag(null, "backgroundColor")
-//                                    xmlSerializer.text(backgroundColorChosen)
-//                                    xmlSerializer.endTag(null, "backgroundColor")
-//
-//                                    xmlSerializer.startTag(null, "backgroundColorAsInt")
-//                                    xmlSerializer.text(
-//                                        poemTheme.backgroundColorAsInt.toString()
-//                                    )
-//                                    xmlSerializer.endTag(null, "backgroundColorAsInt")
-//                                }
-//                                BackgroundType.OUTLINE -> {
-//                                    xmlSerializer.startTag(null, "backgroundOutline")
-//                                    if (outlineChosen == null)
-//                                        xmlSerializer.text(poemTheme.outline)
-//                                    else
-//                                        xmlSerializer.text(outlineChosen)
-//                                    xmlSerializer.endTag(null, "backgroundOutline")
-//
-//                                    xmlSerializer.startTag(null, "backgroundOutlineColor")
-//                                    xmlSerializer.text(poemTheme.outlineColor.toString())
-//                                    xmlSerializer.endTag(null, "backgroundOutlineColor")
-//                                }
-//                                BackgroundType.OUTLINE_WITH_IMAGE -> {
-//                                    xmlSerializer.startTag(null, "imagePath")
-//                                    xmlSerializer.text(backgroundImageChosen)
-//                                    xmlSerializer.endTag(null, "imagePath")
-//                                    xmlSerializer.startTag(null, "backgroundOutline")
-//                                    if (outlineChosen == null)
-//                                        xmlSerializer.text(poemTheme.outline)
-//                                    else
-//                                        xmlSerializer.text(outlineChosen)
-//                                    xmlSerializer.endTag(null, "backgroundOutline")
-//
-//                                    xmlSerializer.startTag(null, "backgroundOutlineColor")
-//                                    xmlSerializer.text(poemTheme.outlineColor.toString())
-//                                    xmlSerializer.endTag(null, "backgroundOutlineColor")
-//                                }
-//                                BackgroundType.OUTLINE_WITH_COLOR -> {
-//                                    xmlSerializer.startTag(null, "backgroundOutline")
-//                                    if (outlineChosen == null)
-//                                        xmlSerializer.text(poemTheme.outline)
-//                                    else
-//                                        xmlSerializer.text(outlineChosen)
-//                                    xmlSerializer.endTag(null, "backgroundOutline")
-//
-//                                    xmlSerializer.startTag(null, "backgroundOutlineColor")
-//                                    xmlSerializer.text(poemTheme.outlineColor.toString())
-//                                    xmlSerializer.endTag(null, "backgroundOutlineColor")
-//
-//                                    xmlSerializer.startTag(null, "backgroundColor")
-//                                    xmlSerializer.text(backgroundColorChosen)
-//                                    xmlSerializer.endTag(null, "backgroundColor")
-//
-//                                    xmlSerializer.startTag(null, "backgroundColorAsInt")
-//                                    xmlSerializer.text(
-//                                        poemTheme.backgroundColorAsInt.toString()
-//                                    )
-//                                    xmlSerializer.endTag(null, "backgroundColorAsInt")
-//                                }
-//                                BackgroundType.DEFAULT -> {
-//                                    xmlSerializer.startTag(null, "backgroundColor")
-//                                    xmlSerializer.text("#FFFFFF")
-//                                    xmlSerializer.endTag(null, "backgroundColor")
-//
-//                                    xmlSerializer.startTag(null, "backgroundColorAsInt")
-//                                    xmlSerializer.text(
-//                                        poemTheme.backgroundColorAsInt.toString()
-//                                    )
-//                                    xmlSerializer.endTag(null, "backgroundColorAsInt")
-//                                }
-//                            }
-//
-//                            xmlSerializer.startTag(null, "textSize")
-//                            xmlSerializer.text(poemTheme.textSize.toString())
-//                            xmlSerializer.endTag(null, "textSize")
-//
-//                            xmlSerializer.startTag(null, "textColor")
-//                            xmlSerializer.text(poemTheme.textColor)
-//                            xmlSerializer.endTag(null, "textColor")
-//
-//                            xmlSerializer.startTag(null, "textColorAsInt")
-//                            xmlSerializer.text(poemTheme.textColorAsInt.toString())
-//                            xmlSerializer.endTag(null, "textColorAsInt")
-//
-//                            xmlSerializer.startTag(null, "textAlignment")
-//                            xmlSerializer.text(poemTheme.textAlignment.toString())
-//                            xmlSerializer.endTag(null, "textAlignment")
-//
-//                            xmlSerializer.startTag(null, "textFont")
-//                            xmlSerializer.text(poemTheme.textFontFamily)
-//                            xmlSerializer.endTag(null, "textFont")
-//
-//                            xmlSerializer.endTag(null, "root")
-//
-//                            xmlSerializer.endDocument()
-//                            xmlSerializer.flush()
-//
-//                            val dataWritten = stringWriter.toString()
-//                            fileOutStream.write(dataWritten.toByteArray())
-//                            fileOutStream.close()
-//                            return@withContext 0
-//                        }
-//                    } catch (e: java.lang.Exception) {
-//                        e.printStackTrace()
-//                        Log.e(this::javaClass.name, "Failed to save poem theme as a file")
-//                        return@withContext -1
-//                    }
-//                }
-//            }
-//            return@withContext -1
-//        }
-//    }
 
 }

@@ -56,7 +56,7 @@ class PoemThemeViewModel : ViewModel() {
     private set
     var poemTitle =  ""
     var isEditTheme = false
-
+    var savedAlbumName : String? = null
     /**
      * Changes Background Type
      */
@@ -323,22 +323,6 @@ class PoemThemeViewModel : ViewModel() {
     }
 
     /**
-     * Simple algorithm that checks whether the string typed by a user is safe
-     */
-    fun isValidatedInput(toValidate: String): Boolean {
-        if (toValidate.isEmpty())
-            return false
-        for (char in toValidate) {
-            if (char == '_')
-                continue
-            if (!char.isLetterOrDigit() || char.isWhitespace()) {
-                return false
-            }
-        }
-        return true
-    }
-
-    /**
      * Initialises viewModels state by copying the value of the loaded poem
      */
      fun initialisePoemTheme(poemThemeXmlParser: PoemThemeXmlParser) {
@@ -384,7 +368,7 @@ class PoemThemeViewModel : ViewModel() {
         val exceptionHandler = CoroutineExceptionHandler { _, exception ->
             exception.printStackTrace()
             //add a better wayy to manage failure
-            println("Error saving file")
+//            println("Error saving file")
         }
         uiState.value.poemTitle = poemName
          poemTitle = poemName
@@ -412,5 +396,23 @@ class PoemThemeViewModel : ViewModel() {
             return true
         }
         return false
+    }
+
+    companion object {
+        /**
+         * Simple algorithm that checks whether the string typed by a user is safe
+         */
+        fun isValidatedInput(toValidate: String): Boolean {
+            if (toValidate.isEmpty())
+                return false
+            for (char in toValidate) {
+                if (char == '_')
+                    continue
+                if (!char.isLetterOrDigit() || char.isWhitespace()) {
+                    return false
+                }
+            }
+            return true
+        }
     }
 }

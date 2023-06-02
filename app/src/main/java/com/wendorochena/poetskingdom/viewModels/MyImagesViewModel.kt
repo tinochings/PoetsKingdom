@@ -1,7 +1,6 @@
 package com.wendorochena.poetskingdom.viewModels
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -11,6 +10,7 @@ import com.wendorochena.poetskingdom.R
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.IOException
 
 enum class CurrentSelection {
     IMAGES, POEMS
@@ -33,16 +33,25 @@ class MyImagesViewModel : ViewModel() {
     var imageFiles = mutableStateMapOf<File, Boolean>()
         private set
 
+    /**
+     * @param selection the selection to set the current value to
+     */
     fun setSelection(selection: CurrentSelection) {
         currentSelection = selection
     }
 
+    /**
+     * @param state the state to set the floating button
+     */
     fun setFloatingButtonState(state: FloatingButtonState) {
         floatingButtonStateVar = state
     }
 
     /**
      * Adds all files and sets the long press boolean value to false
+     * @param arrayList an arraylist containing files in a map
+     * @param listFiles an array containing files in a map
+     * @param isImages true when the current selection is images
      */
     private fun addAllFiles(
         arrayList: ArrayList<File>?,
@@ -87,23 +96,48 @@ class MyImagesViewModel : ViewModel() {
      */
     fun deleteImages() {
         val filesToDelete = imageFiles.filter { it.value }
-        for (entry in filesToDelete) {
-            if (entry.key.delete())
-                imageFiles.remove(entry.key)
-            else
-                Log.e("Failed to remove file: ", entry.key.name)
+        try {
+            for (entry in filesToDelete) {
+                if (entry.key.delete())
+                    imageFiles.remove(entry.key)
+            }
+            onImageLongPressed = false
+            setFloatingButtonState(FloatingButtonState.ADDIMAGE)
+        } catch (e : IOException){
+            e.printStackTrace()
         }
-        onImageLongPressed = false
-        setFloatingButtonState(FloatingButtonState.ADDIMAGE)
     }
 
     /**
+     * Checks to see if there is a saved poem with the corresponding poem name
+     *
+     * @param savedPoemsPath the file with the path to consider
+     * @param poemName the name of the poem
+     */
+    private fun hasPoemPath(savedPoemsPath : File, poemName: String) : Boolean{
+        if (File(savedPoemsPath.absolutePath + File.separator + poemName).exists())
+            return true
+        val albums = savedPoemsPath.listFiles()
+
+        if (albums != null){
+            for (album in albums){
+                if (File(album.absolutePath + File.separator + poemName).exists())
+                    return true
+            }
+        }
+        return false
+    }
+    /**
      * Deletes saved poem images
      *
-     * @param context application context
+     * @param context activity context
      */
     fun deleteSavedPoems(context: Context) {
         val filesToDelete = savedPoemImages.filter { it.value }
+        val savedPoemsPath = context.getDir(
+            context.getString(R.string.poems_folder_name),
+            Context.MODE_PRIVATE
+        )
         for (entry in filesToDelete) {
             try {
                 val file = entry.key
@@ -119,15 +153,15 @@ class MyImagesViewModel : ViewModel() {
                         ""
                     )
                 )
+                val hasSavedPoem = hasPoemPath(savedPoemsPath, file.name.replace(".png",".xml"))
                 if (fullPathToDelete.exists())
-                    if(fullPathToDelete.deleteRecursively())
+                    if(fullPathToDelete.deleteRecursively()) {
                         savedPoemImages.remove(file)
-                else {
-                    Log.e("Failed to remove file: ", entry.key.name)
-                }
+                        if (!hasSavedPoem)
+                            file.delete()
+                    }
             } catch (e: Exception) {
                 e.printStackTrace()
-                Log.e("Failed to remove file: ", entry.key.name)
             }
         }
         onImageLongPressed = false
@@ -136,6 +170,7 @@ class MyImagesViewModel : ViewModel() {
 
     /**
      * Gets an arraylist containing thumbnail images to display
+     * @param context context of the activity
      */
     fun getThumbnails(context: Context): MutableMap<File, Boolean> {
         val arrayListToRet = ArrayList<File>()
@@ -156,16 +191,14 @@ class MyImagesViewModel : ViewModel() {
                 if (savedImageFiles != null) {
                     for (file in savedImageFiles) {
                         val thumbnailFile = File(
-                            thumbnailsFolder?.absolutePath + File.separator + file.name + ".png"
+                            thumbnailsFolder.absolutePath + File.separator + file.name + ".png"
                         )
                         if (thumbnailFile.exists()) {
                             arrayListToRet.add(File(thumbnailFile.absolutePath))
-                        } else {
-                            Log.e("No Such Thumbnail", file.name)
                         }
                     }
                 }
-            } catch (exception: Exception) {
+            } catch (exception: IOException) {
                 exception.printStackTrace()
             }
             addAllFiles(arrayListToRet, null, false)
@@ -208,8 +241,25 @@ class MyImagesViewModel : ViewModel() {
                     }
                 }
             }
-        } catch (e: Exception) {
+        } catch (e: IOException) {
             e.printStackTrace()
+        }
+    }
+
+    /**
+     * Sets the on click value of each file to false if it was selected
+     */
+    fun resetSelectedImages() {
+        if(currentSelection == CurrentSelection.IMAGES) {
+            val keys = imageFiles.filter { it.value }
+            for (selectedKeys in keys) {
+                imageFiles[selectedKeys.key] = false
+            }
+        } else {
+            val keys = savedPoemImages.filter { it.value }
+            for (selectedKeys in keys) {
+                savedPoemImages[selectedKeys.key] = false
+            }
         }
     }
 }

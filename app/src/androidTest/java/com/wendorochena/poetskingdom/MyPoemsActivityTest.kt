@@ -3,7 +3,6 @@ package com.wendorochena.poetskingdom
 import android.content.Context
 import android.widget.FrameLayout
 import android.widget.TextView
-import androidx.core.view.children
 import androidx.core.view.get
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso
@@ -98,50 +97,6 @@ class MyPoemsActivityTest {
             assert(!File(thumbnailFolder.absolutePath + File.separator + encodedTitle + ".xml").exists())
         }
     }
-
-//    /**
-//     * Tests that 3 successful results containing the exact sub phrase I want you is found.
-//     *
-//     * First poem "Search Test 1" has "I want you" on the first poem line
-//     * Second poem "Search Test 2" has "I want you" on the tenth stanza where each stanza has been completely filled
-//     * Third poem "Search Test 3" has "I want you" on the fifth stanza where each stanza is full of text
-//     */
-//    @Test
-//    fun testSearchIWantYou() {
-//        //click search and check if search comes out
-//        onView(withId(R.id.searchButton)).perform(click())
-//        onView(withId(R.id.advancedSearchContainer)).check(matches(isDisplayed()))
-//
-//        // click on the edit text and type
-//        onView(withId(R.id.advancedSearchText)).perform(click())
-//        onView(withId(R.id.advancedSearchText)).perform(typeText("I want you"))
-//        onView(withId(R.id.advancedSearchText)).perform(pressImeActionButton())
-//
-//        // confirm that the search view is no longer there and that the searchRecycler view is
-//        onView(withId(R.id.advancedSearchContainer)).check(matches(not(isDisplayed())))
-//        onView(withId(R.id.searchRecyclerView)).check(matches(isDisplayed()))
-//        onView(withId(R.id.recyclerView)).check(matches(not(isDisplayed())))
-//
-//        activityRule.scenario.onActivity {
-//            val searchRecyclerView = it.findViewById<RecyclerView>(R.id.searchRecyclerView)
-//
-//            assert(searchRecyclerView.adapter != null)
-//            assert(searchRecyclerView.adapter!!.itemCount == 3)
-//
-//            for (searchItemCont in searchRecyclerView.children) {
-//                val searchItemName = searchItemCont.findViewById<TextView>(R.id.searchTitle).text
-//                val searchItemStanzas = searchItemCont.findViewById<TextView>(R.id.searchStanzas).text
-//
-//                if (searchItemName == "Search Test 1") {
-//                    assert(searchItemStanzas == appContext.getString(R.string.search_stanza_text, "1"))
-//                } else if (searchItemName == "Search Test 2") {
-//                    assert(searchItemStanzas == appContext.getString(R.string.search_stanza_text, "10"))
-//                } else if (searchItemName == "Search Test 3") {
-//                    assert(searchItemStanzas == appContext.getString(R.string.search_stanza_text, "5"))
-//                }
-//            }
-//        }
-//    }
 
     /**
      * Tests the functionality of the search button and back button, asserting the correct views are

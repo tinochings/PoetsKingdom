@@ -2,11 +2,15 @@ package com.wendorochena.poetskingdom
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Typeface
 import android.os.Bundle
 import android.text.InputFilter
+import android.util.TypedValue
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat.finishAffinity
+import androidx.core.view.setPadding
 import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
@@ -47,10 +51,32 @@ class PersonalisationActivity : AppCompatActivity() {
 
         private fun onFirstUse() {
             val alertDialogBuilder = context?.let { AlertDialog.Builder(it) }
-            alertDialogBuilder?.setTitle(R.string.personalisation)
-                ?.setPositiveButton(R.string.builder_understood) { dialog, _ ->
-                    dialog.dismiss()
-                }?.setMessage(R.string.guide_personalisation)?.show()
+            val customTitleView = TextView(context)
+            customTitleView.setTextColor(resources.getColor(R.color.white, null))
+            customTitleView.text = resources.getString(R.string.personalisation)
+            customTitleView.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
+            customTitleView.setTypeface(null, Typeface.BOLD)
+            customTitleView.textSize = 20f
+
+            val customMessageView = TextView(context)
+            customMessageView.textSize = 14f
+            customMessageView.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
+            customMessageView.setTextColor(resources.getColor(R.color.white, null))
+            customMessageView.text = resources.getString(R.string.guide_personalisation)
+            val typedValue = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15f, resources.displayMetrics).toInt()
+            customTitleView.setPadding(typedValue, typedValue, typedValue,0)
+            customMessageView.setPadding(typedValue)
+
+            alertDialogBuilder?.setCustomTitle(customTitleView)
+            alertDialogBuilder?.setView(customMessageView)
+            alertDialogBuilder?.setPositiveButton(R.string.builder_understood) { dialog, _ ->
+                dialog.dismiss()
+            }
+            val dialog = alertDialogBuilder?.create()
+            dialog?.window?.setBackgroundDrawableResource(R.drawable.selected_rounded_rectangle)
+            dialog?.show()
+            context?.getColor(R.color.off_white)
+                ?.let { dialog?.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(it) }
         }
 
         private fun setupPoemPreferencesListeners() {
@@ -78,10 +104,13 @@ class PersonalisationActivity : AppCompatActivity() {
             resolution?.isVisible = orientationSelected?.value == "landscape"
         }
 
+        /**
+         * Restarts the application to make sure the
+         */
         private fun restartApp() {
             val intent = Intent(
                 requireContext(),
-                MainActivity::class.java
+                MainActivityCompose::class.java
             )
             startActivity(intent)
             finishAffinity(this.requireActivity())
