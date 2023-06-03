@@ -293,10 +293,16 @@ class SearchUtil(
                         }
                     }
                 }
-                // must be an over approximation by Lucene so we weed them out
-                if (preciseLocation.isNotEmpty()) {
-                    temp.add(Pair(poemFileName, preciseLocation))
+                if (preciseLocation.isEmpty()) {
+                    if (fileNameAndStanzas.second.size >= 1) {
+                        val toAdd = Pair(1, fileNameAndStanzas.second[0])
+                        val arrayListPair = ArrayList<Pair<Int, String>>()
+                        arrayListPair.add(toAdd)
+                        stanzaIndexAndText[poemFileName] = arrayListPair
+                        preciseLocation = "1 -1 -1"
+                    }
                 }
+                    temp.add(Pair(poemFileName, preciseLocation))
             }
             subStringLocations.addAll(temp)
         }
