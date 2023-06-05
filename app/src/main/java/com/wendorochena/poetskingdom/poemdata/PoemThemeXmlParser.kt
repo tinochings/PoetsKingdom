@@ -90,7 +90,46 @@ class PoemThemeXmlParser(
                                         parseBackgroundType(parser)
                                     }
                                 }
-
+                                // if this case is reached the file has been malformed somehow
+                                "backgroundColor" -> {
+                                    parser.require(XmlPullParser.START_TAG, null, "backgroundColor")
+                                    parser.nextTag()
+                                    parser.require(
+                                        XmlPullParser.END_TAG,
+                                        null,
+                                        "backgroundColor"
+                                    )
+                                }
+                                // if this case is reached the file has been malformed somehow
+                                "imagePath" -> {
+                                    parser.require(XmlPullParser.START_TAG, null, "imagePath")
+                                    parser.nextTag()
+                                    parser.require(
+                                        XmlPullParser.END_TAG,
+                                        null,
+                                        "imagePath"
+                                    )
+                                }
+                                // if this case is reached the file has been malformed somehow
+                                "backgroundOutline" -> {
+                                    parser.require(XmlPullParser.START_TAG, null, "backgroundOutline")
+                                    parser.nextTag()
+                                    parser.require(
+                                        XmlPullParser.END_TAG,
+                                        null,
+                                        "backgroundOutline"
+                                    )
+                                }
+                                // if this case is reached the file has been malformed somehow
+                                "backgroundOutlineColor" -> {
+                                    parser.require(XmlPullParser.START_TAG, null, "backgroundOutlineColor")
+                                    parser.nextTag()
+                                    parser.require(
+                                        XmlPullParser.END_TAG,
+                                        null,
+                                        "backgroundOutlineColor"
+                                    )
+                                }
                                 "textSize" -> {
                                     parser.require(XmlPullParser.START_TAG, null, "textSize")
                                     if (parser.next() == XmlPullParser.TEXT) {

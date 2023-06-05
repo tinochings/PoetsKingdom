@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<root>
+  <backgroundType></backgroundType>
+  <imagePath></imagePath>
+  <backgroundOutline></backgroundOutline>
+  <backgroundOutlineColor></backgroundOutlineColor>
+  <textSize></textSize>
+  <textColor></textColor>
+  <textColorAsInt></textColorAsInt>
+  <textAlignment></textAlignment>
+  <textFont></textFont>
+</root>

@@ -38,13 +38,16 @@ class PoemThemeParserTest {
         poemTheme = PoemTheme(BackgroundType.DEFAULT, mockContext)
     }
 
+    /**
+     * Tests a correctly parsed image background
+     */
     @Test
     fun testImageBackground() : Unit = runTest {
 
         val result = PoemThemeXmlParser(poemTheme,mockContext)
         assert(result.parseTheme("Image") == 0)
         val currTheme = result.getPoemTheme()
-        println(currTheme)
+
         assert(currTheme.backgroundType == BackgroundType.IMAGE)
         assert(currTheme.outline == "")
         assert(currTheme.imagePath == "app/src/test/java/com/wendorochena/poetskingdom/MockFiles/test_images/mypoems.jpg")
@@ -55,6 +58,9 @@ class PoemThemeParserTest {
         assert(currTheme.textFontFamily == "Default")
     }
 
+    /**
+     * Tests correctly parsed default background
+     */
     @Test
     fun testDefaultBackground() : Unit = runTest {
 
@@ -75,6 +81,9 @@ class PoemThemeParserTest {
         assert(currTheme.textFontFamily== "Default")
     }
 
+    /**
+     * Tests correctly parsed  color background
+     */
     @Test
     fun testColorBackground () : Unit = runTest{
         val result = PoemThemeXmlParser(poemTheme,mockContext)
@@ -94,6 +103,9 @@ class PoemThemeParserTest {
         assert(currTheme.textFontFamily == "Default")
     }
 
+    /**
+     * Tests correctly parsed outline background
+     */
     @Test
     fun testOutlineBackground () : Unit = runTest{
         val result = PoemThemeXmlParser(poemTheme,mockContext)
@@ -113,6 +125,9 @@ class PoemThemeParserTest {
         assert(currTheme.textFontFamily == "Default")
     }
 
+    /**
+     * Tests correctly parsed outline with a color inside
+     */
     @Test
     fun testOutlineWithColorBackground () : Unit = runTest{
         val result = PoemThemeXmlParser(poemTheme,mockContext)
@@ -133,6 +148,9 @@ class PoemThemeParserTest {
         assert(currTheme.textFontFamily == "Default")
     }
 
+    /**
+     * Tests correctly parsed outline with image
+     */
     @Test
     fun testOutlineWithImageBackground () : Unit = runTest{
         val result = PoemThemeXmlParser(poemTheme,mockContext)
@@ -191,5 +209,29 @@ class PoemThemeParserTest {
         poemTheme.poemTitle = "Album_Test_3"
         assert(result.savePoemThemeToLocalFile(null,null,null) == -1)
 
+    }
+
+    /**
+     * Tests that a theme with no parameters
+     * should parse a theme correctly but should always return the default theme
+     */
+    @Test
+    fun testMalformedTheme() : Unit = runTest {
+        val result = PoemThemeXmlParser(poemTheme,mockContext)
+
+        assert(result.parseTheme("Malformed") == 0)
+        val currTheme = result.getPoemTheme()
+
+        assert(currTheme.backgroundType == BackgroundType.DEFAULT)
+        assert(currTheme.backgroundColor == "#FFFFFFFF")
+        assert(currTheme.backgroundColorAsInt == -1)
+        assert(currTheme.outlineColor == -7821273)
+        assert(currTheme.imagePath == "")
+        assert(currTheme.outline == "")
+        assert(currTheme.textSize == 14)
+        assert(currTheme.textColor == "#000000")
+        assert(currTheme.textColorAsInt == -16777216)
+        assert(currTheme.textAlignment == TextAlignment.LEFT)
+        assert(currTheme.textFontFamily == "Default")
     }
 }
