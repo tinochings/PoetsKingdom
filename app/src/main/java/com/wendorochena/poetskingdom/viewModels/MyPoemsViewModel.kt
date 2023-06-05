@@ -402,7 +402,7 @@ class MyPoemsViewModel : ViewModel() {
                         put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
                         put(
                             MediaStore.MediaColumns.RELATIVE_PATH,
-                            Environment.DIRECTORY_DOWNLOADS + File.separator + applicationContext.getString(
+                            Environment.DIRECTORY_PICTURES + File.separator + applicationContext.getString(
                                 R.string.app_name
                             ) + File.separator + poemName.replace('_', ' ')
                         )
@@ -416,13 +416,13 @@ class MyPoemsViewModel : ViewModel() {
                         put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
                         put(
                             MediaStore.MediaColumns.RELATIVE_PATH,
-                            Environment.DIRECTORY_DOWNLOADS + File.separator + applicationContext.getString(
+                            Environment.DIRECTORY_PICTURES + File.separator + applicationContext.getString(
                                 R.string.app_name
                             ) + File.separator + poemName.replace('_', ' ')
                         )
                     }
                 val resolver = applicationContext.contentResolver
-                val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+                val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
 
                 val inputStream = FileInputStream(file)
 

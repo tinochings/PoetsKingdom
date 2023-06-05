@@ -635,7 +635,6 @@ fun SearchImageList(myPoemsViewModel: MyPoemsViewModel) {
     }
     val subStringLocations = myPoemsViewModel.substringLocations
     val poemBackgroundTypeArrayList = myPoemsViewModel.poemBackgroundTypeArrayList
-//    val imageFiles = myPoemsViewModel.searchResultFiles
     val imageFileKeys = myPoemsViewModel.searchResultFiles.sortedByDescending { it.lastModified() }
     LazyVerticalGrid(
         modifier = Modifier.padding(top = 5.dp), columns = GridCells.Fixed(1),
