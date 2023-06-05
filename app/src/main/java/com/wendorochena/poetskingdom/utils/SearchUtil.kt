@@ -50,7 +50,7 @@ class SearchUtil(
     private lateinit var subStringLocations: ObservableArrayList<Pair<String, String>>
     private lateinit var stanzaIndexAndText: HashMap<String, ArrayList<Pair<Int, String>>>
     private var itemCount = -1
-    private var fileNameAndAlbum : HashMap<String,String> = HashMap()
+    private var fileNameAndAlbum: HashMap<String, String> = HashMap()
 
     /**
      * @return An arraylist containing sub-string locations of the search results
@@ -69,7 +69,7 @@ class SearchUtil(
     /**
      * @return the title names of all search docs
      */
-    fun getTitleSearchResults() : ArrayList<String> {
+    fun getTitleSearchResults(): ArrayList<String> {
         if (!this::titleSearchResults.isInitialized)
             return ArrayList()
 
@@ -112,13 +112,14 @@ class SearchUtil(
                         for (poemFile in allPoemFiles) {
                             try {
                                 // add poems in an album
-                                if (poemFile.isDirectory){
+                                if (poemFile.isDirectory) {
                                     val subPoems = poemFile.listFiles()
                                     if (subPoems != null) {
                                         for (subPoemFile in subPoems) {
                                             val fileReader = FileReader(subPoemFile)
                                             val document = Document()
-                                            val subPoemFileName = subPoemFile.name.split(".")[0].replace('_', ' ')
+                                            val subPoemFileName =
+                                                subPoemFile.name.split(".")[0].replace('_', ' ')
                                             val field = TextField("xmlFile", fileReader)
                                             fileNameAndAlbum[subPoemFileName] = poemFile.name
                                             field.setBoost(2f)
@@ -196,15 +197,17 @@ class SearchUtil(
 
                                     if (!this::titleSearchResults.isInitialized)
                                         titleSearchResults = ArrayList()
-                                    val albumName = if (fileNameAndAlbum[currDocument.get("fileName")] == null)
-                                        ""
-                                    else
-                                        fileNameAndAlbum[currDocument.get("fileName")] + File.separator
+                                    val albumName =
+                                        if (fileNameAndAlbum[currDocument.get("fileName")] == null)
+                                            ""
+                                        else
+                                            fileNameAndAlbum[currDocument.get("fileName")] + File.separator
 
                                     titleSearchResults.add(
-                                        albumName + currDocument.get("fileName").replace(' ', '_') + ".xml"
+                                        albumName + currDocument.get("fileName")
+                                            .replace(' ', '_') + ".xml"
                                     )
-//                                    println(currDocument.get("fileName") + " score= ${hit.score}")
+                                    println(currDocument.get("fileName") + " score= ${hit.score}")
                                 }
                             } catch (e: IOException) {
                                 e.printStackTrace()
@@ -241,7 +244,11 @@ class SearchUtil(
 
         GlobalScope.launch(mainDispatcher + handler) {
             val stanzasArrayList =
-                PoemXMLParser.parseMultiplePoems(titleSearchResults, applicationContext, ioDispatcher)
+                PoemXMLParser.parseMultiplePoems(
+                    titleSearchResults,
+                    applicationContext,
+                    ioDispatcher
+                )
 
             for (fileNameAndStanzas in stanzasArrayList) {
                 val poemFileName = fileNameAndStanzas.first.split(".")[0]
@@ -293,18 +300,28 @@ class SearchUtil(
                         }
                     }
                 }
+                //filter results in case of false positives
                 if (preciseLocation.isEmpty()) {
-                    if (fileNameAndStanzas.second.size >= 1) {
-                        val toAdd = Pair(1, fileNameAndStanzas.second[0])
-                        val arrayListPair = ArrayList<Pair<Int, String>>()
-                        arrayListPair.add(toAdd)
-                        stanzaIndexAndText[poemFileName] = arrayListPair
-                        preciseLocation = "1 -1 -1"
+                    val poemFileNameSplit = poemFileName.split('_')
+                    for (name in poemFileNameSplit) {
+                        if (searchPhrase.lowercase().contains(name)) {
+                            val toAdd = Pair(1, fileNameAndStanzas.second[0])
+                            val arrayListPair = ArrayList<Pair<Int, String>>()
+                            arrayListPair.add(toAdd)
+                            stanzaIndexAndText[poemFileName] = arrayListPair
+                            preciseLocation = "1 -1 -1"
+                            temp.add(Pair(poemFileName, preciseLocation))
+                            break
+                        }
                     }
                 }
+                else
                     temp.add(Pair(poemFileName, preciseLocation))
             }
-            subStringLocations.addAll(temp)
+            if (temp.isEmpty())
+                subStringLocations.add(Pair("null","null"))
+            else
+                subStringLocations.addAll(temp)
         }
     }
 }

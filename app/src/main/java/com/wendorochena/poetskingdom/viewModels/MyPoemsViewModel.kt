@@ -77,6 +77,7 @@ class MyPoemsViewModel : ViewModel() {
 
     // poem name as key and album as value
     val savedPoemAndAlbum = HashMap<String, String>()
+    val searchResultIndexToUse = HashMap<String,Int>()
 
 
     /**
@@ -327,7 +328,8 @@ class MyPoemsViewModel : ViewModel() {
                                         )
                                     else
                                         File(
-                                            subDirectory.absolutePath + File.separator + poemName + " Stanza $counter")
+                                            subDirectory.absolutePath + File.separator + poemName + " Stanza $counter"
+                                        )
                                     if (newFile.createNewFile()) {
                                         val outputStream = FileOutputStream(newFile)
                                         outputStream.channel.transferFrom(
@@ -507,37 +509,42 @@ class MyPoemsViewModel : ViewModel() {
                     // in Search Util we use an addAll to the observed item so we ony iterate once
                     viewModelScope.launch(mainDispatcher + handler) {
                         if (sender != null) {
-                            substringLocations.addAll(sender)
-                            if (displayNoResultsFound)
-                                displayNoResultsFound = false
-                            stanzaIndexAndText = searchUtil.getStanzaAndText()
-                            val backgroundImageDrawableFolder = applicationContext.getDir(
-                                applicationContext.getString(R.string.background_image_drawable_folder),
-                                Context.MODE_PRIVATE
-                            )
-
-                            for (filePair in subStringLocations) {
-                                val backgroundFileImage =
-                                    File(
-                                        backgroundImageDrawableFolder.absolutePath + File.separator + filePair.first.split(
-                                            "."
-                                        )[0] + ".png"
-                                    )
-                                if (backgroundFileImage.exists())
-                                    searchResultFiles.add(backgroundFileImage)
-                            }
-                            hitsFound = true
-                            val results =
-                                poemThemeXmlParser.parseMultipleThemes(sender as ObservableArrayList)
-
-
-                            for (result in results) {
-                                poemBackgroundTypeArrayList.add(
-                                    Pair(
-                                        result.first,
-                                        result.second
-                                    )
+                            if (itemCount == 1 && sender[0].first == "null" && sender[0].second == "null") {
+                                    displayNoResultsFound = true
+                                    hitsFound = false
+                            } else {
+                                substringLocations.addAll(sender)
+                                if (displayNoResultsFound)
+                                    displayNoResultsFound = false
+                                stanzaIndexAndText = searchUtil.getStanzaAndText()
+                                val backgroundImageDrawableFolder = applicationContext.getDir(
+                                    applicationContext.getString(R.string.background_image_drawable_folder),
+                                    Context.MODE_PRIVATE
                                 )
+
+                                for ((index,filePair) in subStringLocations.withIndex()) {
+                                    val backgroundFileImage =
+                                        File(
+                                            backgroundImageDrawableFolder.absolutePath + File.separator + filePair.first.split(
+                                                "."
+                                            )[0] + ".png"
+                                        )
+                                        searchResultFiles.add(backgroundFileImage)
+                                    searchResultIndexToUse[filePair.first] = index
+                                }
+                                hitsFound = true
+                                val results =
+                                    poemThemeXmlParser.parseMultipleThemes(sender as ObservableArrayList)
+
+
+                                for (result in results) {
+                                    poemBackgroundTypeArrayList.add(
+                                        Pair(
+                                            result.first,
+                                            result.second
+                                        )
+                                    )
+                                }
                             }
                         }
                     }
@@ -561,6 +568,7 @@ class MyPoemsViewModel : ViewModel() {
                 }
 
             })
+
         } else {
             displayNoResultsFound = true
             hitsFound = false
@@ -672,7 +680,7 @@ class MyPoemsViewModel : ViewModel() {
             val savedHistory = sharedPreferences.getStringSet("search_history", HashSet())
             if (savedHistory?.isNotEmpty() == true) {
                 searchHistory.addAll(savedHistory)
-            } else{
+            } else {
                 saveSearchHistory(context)
             }
             initialisedSearchHistory = true
@@ -685,18 +693,20 @@ class MyPoemsViewModel : ViewModel() {
      * @param searchToAdd the search item to add
      */
     fun updateSearchHistory(searchToAdd: String) {
-        if (searchHistory.size < 10) {
-            searchHistory.add(searchToAdd)
-        } else {
-            var nextValue = searchHistory[9]
-            var counter = 9
-            while (counter > 0) {
-                val tempNextVal = searchHistory[counter - 1]
-                searchHistory[counter - 1] = nextValue
-                nextValue = tempNextVal
-                counter--
+        if (!searchHistory.contains(searchToAdd)) {
+            if (searchHistory.size < 10) {
+                searchHistory.add(searchToAdd)
+            } else {
+                var nextValue = searchHistory[9]
+                var counter = 9
+                while (counter > 0) {
+                    val tempNextVal = searchHistory[counter - 1]
+                    searchHistory[counter - 1] = nextValue
+                    nextValue = tempNextVal
+                    counter--
+                }
+                searchHistory[9] = searchToAdd
             }
-            searchHistory[9] = searchToAdd
         }
     }
 

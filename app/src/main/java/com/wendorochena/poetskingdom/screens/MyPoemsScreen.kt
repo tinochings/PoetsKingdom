@@ -151,6 +151,7 @@ fun MyPoemsApp(myPoemsViewModel: MyPoemsViewModel) {
                     if (myPoemsViewModel.hitsFound) {
                         myPoemsViewModel.clearSearchOptions()
                         myPoemsViewModel.searchButtonClicked = true
+                        myPoemsViewModel.searchResultIndexToUse.clear()
                     } else
                         myPoemsViewModel.clearSearchOptions()
                     myPoemsViewModel.saveSearchHistory(context)
@@ -634,8 +635,8 @@ fun SearchImageList(myPoemsViewModel: MyPoemsViewModel) {
     }
     val subStringLocations = myPoemsViewModel.substringLocations
     val poemBackgroundTypeArrayList = myPoemsViewModel.poemBackgroundTypeArrayList
-    val imageFiles = myPoemsViewModel.searchResultFiles
-    val imageFileKeys = imageFiles.sortedByDescending { it.lastModified() }
+//    val imageFiles = myPoemsViewModel.searchResultFiles
+    val imageFileKeys = myPoemsViewModel.searchResultFiles.sortedByDescending { it.lastModified() }
     LazyVerticalGrid(
         modifier = Modifier.padding(top = 5.dp), columns = GridCells.Fixed(1),
         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -644,28 +645,31 @@ fun SearchImageList(myPoemsViewModel: MyPoemsViewModel) {
         items(count = imageFileKeys.count()) {
             Column {
                 val file = imageFileKeys.elementAt(it)
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                ) {
-                    ImagesItem(
-                        Pair(file, false),
+                val indexToUse = myPoemsViewModel.searchResultIndexToUse[file.name.split(".")[0]]
+                if (indexToUse != null) {
+                    Box(
                         modifier = Modifier
-                            .padding(3.dp)
-                            .fillMaxWidth(),
-                        onThumbnailClicked,
-                        {},
-                        myPoemsViewModel.onImageLongPressed
-                    )
-                    if (subStringLocations.size > 0 && poemBackgroundTypeArrayList.size > 0)
-                        SearchResultText(
-                            myPoemsViewModel,
-                            backgroundPair = poemBackgroundTypeArrayList[it],
-                            substringLocations = subStringLocations[it]
+                            .fillMaxWidth()
+                            .height(200.dp)
+                    ) {
+                        ImagesItem(
+                            Pair(file, false),
+                            modifier = Modifier
+                                .padding(3.dp)
+                                .fillMaxWidth(),
+                            onThumbnailClicked,
+                            {},
+                            myPoemsViewModel.onImageLongPressed
                         )
+                        if (subStringLocations.size > 0 && poemBackgroundTypeArrayList.size > 0)
+                            SearchResultText(
+                                myPoemsViewModel,
+                                backgroundPair = poemBackgroundTypeArrayList[indexToUse],
+                                substringLocations = subStringLocations[indexToUse]
+                            )
+                    }
+                    TitleItem(myPoemsViewModel.getPoemsFile(file, LocalContext.current))
                 }
-                TitleItem(myPoemsViewModel.getPoemsFile(file, LocalContext.current))
             }
         }
     }
@@ -688,6 +692,7 @@ fun SearchResultText(
             text = textAndStanzas.first, color = Color(backgroundPair.second),
             fontSize = 14.sp, modifier = Modifier
                 .fillMaxWidth()
+                .padding(start = 10.dp, end = 10.dp)
                 .height(150.dp)
         )
         Text(
@@ -863,6 +868,7 @@ fun SearchView(myPoemsViewModel: MyPoemsViewModel) {
             .onKeyEvent { it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER },
         colors = TextFieldDefaults.colors(
             focusedTextColor = Color.White,
+            unfocusedTextColor = Color.White,
             focusedContainerColor = Color.Transparent,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
