@@ -815,7 +815,7 @@ fun ThemeOptions(
                     textColor = poemThemeViewModel.fontColor,
                     onFontItemClicked = onFontItemClicked,
                     onTextAlignClicked = onTextAlignClicked,
-                    defaultTextValue = if (poemThemeViewModel.isEditTheme) poemThemeViewModel.fontSize else 14f
+                    defaultTextValue = poemThemeViewModel.fontSize
                 )
             }
         }
