@@ -102,6 +102,7 @@
         <item>attic</item>
         <item>ayuma</item>
         <item>bangers</item>
+        <item>buche</item>
         <item>bungasai</item>
         <item>cabal_bold</item>
         <item>cabal</item>
@@ -109,8 +110,10 @@
         <item>clicker_script</item>
         <item>code_new_roman</item>
         <item>comfortaa</item>
+        <item>coolvetica</item>
         <item>crimson_bold</item>
         <item>crimson_roman</item>
+        <item>dearest_winnie</item>
         <item>dense_regular</item>
         <item>default</item>
         <item>flaemische</item>
@@ -123,6 +126,7 @@
         <item>lm_monocaps_regular</item>
         <item>lucian_schoenschrift</item>
         <item>magnolia_script</item>
+        <item>manheart_earthman</item>
         <item>medula_one</item>
         <item>monofonto</item>
         <item>monospace</item>
@@ -130,8 +134,10 @@
         <item>nickainley</item>
         <item>oldenglishfive</item>
         <item>opensansregular</item>
+        <item>postit_penscript</item>
         <item>quattrocento</item>
         <item>righteous_regular</item>
+        <item>rimouski</item>
         <item>rochester_regular</item>
         <item>rogue_script</item>
         <item>sacramento</item>
@@ -143,6 +149,8 @@
         <item>sourcesansproregular</item>
         <item>thesignature</item>
         <item>typerighter_medium</item>
+        <item>typerighter_old</item>
         <item>vinque</item>
+        <item>woodland</item>
     </string-array>
 </resources>
