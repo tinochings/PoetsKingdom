@@ -17,6 +17,7 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.view.drawToBitmap
+import androidx.databinding.ObservableInt
 import com.google.android.material.imageview.ShapeableImageView
 import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.poemdata.TextAlignment
@@ -24,6 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import kotlin.math.roundToInt
 
 /**
@@ -42,6 +44,8 @@ class ImageSaverUtil(
 ) {
     private lateinit var textPaintAlignment: Paint.Align
     private var missingLineTag = "MISSING LINE/LINES AT INDEX: "
+    var progressTracker : ObservableInt = ObservableInt(0)
+    var totalPages = 0
 
     companion object {
         /**
@@ -591,6 +595,7 @@ class ImageSaverUtil(
                         }
                     }
                     if (subFolderWithTitleAsName.exists() || subFolderWithTitleAsName.mkdir()) {
+                        val editTextArrayList =  ArrayList<EditText>()
                         for (editable in editableArrayList) {
                             val editTextsToPrint = if (!isLandscape)
                                 formatPagesToSave(
@@ -606,8 +611,10 @@ class ImageSaverUtil(
                                     width = widthAndHeight.first - textMarginUtil.marginLeft - textMarginUtil.marginRight - imageStrokeMargins,
                                     firstEditText.lineHeight
                                 )
-
-                            for (editTextBox in editTextsToPrint) {
+                            editTextArrayList.addAll(editTextsToPrint)
+                        }
+                        totalPages = editTextArrayList.size
+                            for (editTextBox in editTextArrayList) {
                                 val imageToAdd =
                                     File(subFolderWithTitleAsName.absolutePath + File.separator + "stanza$counter" + ".png")
                                 if (imageToAdd.exists() || imageToAdd.createNewFile()) {
@@ -718,13 +725,14 @@ class ImageSaverUtil(
                                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream)
                                     outStream.close()
                                     counter++
+                                    progressTracker.set(progressTracker.get() + 1)
                                 }
                             }
-                        }
+//                        }
                         return@withContext 0
                     }
                 }
-            } catch (exception: Exception) {
+            } catch (exception: IOException) {
                 exception.printStackTrace()
                 return@withContext -1
             }

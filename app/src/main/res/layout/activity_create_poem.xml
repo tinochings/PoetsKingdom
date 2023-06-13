@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/parent"
@@ -20,10 +19,10 @@
             android:id="@+id/titleTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:ellipsize="end"
             android:fontFamily="cursive"
             android:inputType="none"
-            android:layout_gravity = "center"
             android:maxLines="1"
             android:scrollHorizontally="true"
             android:textColor="@color/white"
@@ -38,16 +37,68 @@
         android:foreground="@drawable/background_dim"
         android:visibility="gone" />
 
+    <androidx.cardview.widget.CardView
+        android:id="@+id/imagesProgressCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:elevation="5dp"
+        android:visibility="gone"
+        app:cardCornerRadius="15dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:background="@drawable/selected_rounded_rectangle"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <ProgressBar
+                    android:id="@+id/progressBarImages"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/circular_shape"
+                    android:indeterminateOnly="false"
+                    android:progress="0"
+                    android:progressDrawable="@drawable/progress"
+                    tools:progress="0" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/progressText"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:layout_marginEnd="5dp"
+                android:text="@string/pre_images_saved_progress"
+                android:textColor="@color/white"
+                android:textSize="@dimen/heading_layout_normal"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
     <ProgressBar
+        android:id="@+id/progessBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:id="@+id/progessBar"
+        android:indeterminate="true"
         android:visibility="gone"
-        android:indeterminate="true" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <FrameLayout
         android:id="@+id/addPage"
@@ -83,12 +134,12 @@
             android:id="@+id/portraitTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:autofillHints="Start Writing Here"
             android:background="@null"
+            android:hint="@string/enter_poem_text"
             android:inputType="textMultiLine|textCapSentences"
             android:scrollbars="vertical"
-            android:textColor="@color/text_color"
-            android:hint="@string/enter_poem_text"
-            android:autofillHints="Start Writing Here" />
+            android:textColor="@color/text_color" />
     </FrameLayout>
 
 
@@ -96,11 +147,11 @@
         android:id="@+id/landscapePoemContainer"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="@dimen/action_bar_size"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.imageview.ShapeableImageView
@@ -114,48 +165,46 @@
             android:id="@+id/landscapeTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:autofillHints="Start Writing Here"
+            android:background="@null"
             android:inputType="textMultiLine|textCapSentences"
             android:scrollbars="vertical"
-            android:background="@null"
-            android:textColor="@color/text_color"
-            android:autofillHints="Start Writing Here"/>
+            android:textColor="@color/text_color" />
     </FrameLayout>
 
     <LinearLayout
+        android:id="@+id/allOptionsContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="60dp"
         android:layout_marginStart="5dp"
         android:layout_marginEnd="5dp"
-        android:elevation="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="60dp"
         android:background="@drawable/transparent_outline"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:elevation="4dp"
         android:orientation="horizontal"
         android:visibility="gone"
-        android:id="@+id/allOptionsContainer"
-        >
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <LinearLayout
-            android:layout_width ="match_parent"
-            android:baselineAligned="false"
-            android:visibility="gone"
             android:id="@+id/textOptionsContainer"
+            android:layout_width="match_parent"
             android:layout_height="80dp"
-            >
+            android:baselineAligned="false"
+            android:visibility="gone">
 
             <FrameLayout
                 android:layout_width="0dp"
                 android:layout_height="50dp"
-                android:layout_marginStart="5dp"
                 android:layout_gravity="center"
+                android:layout_marginStart="5dp"
                 android:layout_weight="1">
 
                 <ImageView
+                    android:id="@+id/leftAlign"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:id="@+id/leftAlign"
                     android:contentDescription="@string/left_text_align"
                     android:src="@drawable/ic_baseline_format_align_left_24" />
             </FrameLayout>
@@ -163,14 +212,14 @@
             <FrameLayout
                 android:layout_width="0dp"
                 android:layout_height="50dp"
-                android:layout_marginStart="5dp"
                 android:layout_gravity="center"
+                android:layout_marginStart="5dp"
                 android:layout_weight="1">
 
                 <ImageView
+                    android:id="@+id/centreAlign"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:id="@+id/centreAlign"
                     android:contentDescription="@string/center_text_align"
                     android:src="@drawable/ic_baseline_format_align_center_24" />
             </FrameLayout>
@@ -178,14 +227,14 @@
             <FrameLayout
                 android:layout_width="0dp"
                 android:layout_height="50dp"
-                android:layout_marginStart="5dp"
                 android:layout_gravity="center"
+                android:layout_marginStart="5dp"
                 android:layout_weight="1">
 
                 <ImageView
+                    android:id="@+id/rightAlign"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:id="@+id/rightAlign"
                     android:contentDescription="@string/right_align_text"
                     android:src="@drawable/ic_baseline_format_align_right_24" />
             </FrameLayout>
@@ -193,14 +242,14 @@
             <FrameLayout
                 android:layout_width="0dp"
                 android:layout_height="50dp"
-                android:layout_marginStart="5dp"
                 android:layout_gravity="center"
+                android:layout_marginStart="5dp"
                 android:layout_weight="1">
 
                 <ImageView
+                    android:id="@+id/centerVerticalAlign"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:id="@+id/centerVerticalAlign"
                     android:contentDescription="@string/center_horizontal_text"
                     android:src="@drawable/ic_baseline_align_horizontal_center_24" />
             </FrameLayout>
@@ -208,14 +257,14 @@
             <FrameLayout
                 android:layout_width="0dp"
                 android:layout_height="50dp"
-                android:layout_marginStart="5dp"
                 android:layout_gravity="center"
+                android:layout_marginStart="5dp"
                 android:layout_weight="1">
 
                 <ImageView
+                    android:id="@+id/centerVerticalLeftAlign"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:id="@+id/centerVerticalLeftAlign"
                     android:contentDescription="@string/center_horizontal_text"
                     android:src="@drawable/ic_baseline_align_horizontal_left_24" />
             </FrameLayout>
@@ -223,14 +272,14 @@
             <FrameLayout
                 android:layout_width="0dp"
                 android:layout_height="50dp"
-                android:layout_marginStart="5dp"
                 android:layout_gravity="center"
+                android:layout_marginStart="5dp"
                 android:layout_weight="1">
 
                 <ImageView
+                    android:id="@+id/centerVerticalRightAlign"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:id="@+id/centerVerticalRightAlign"
                     android:contentDescription="@string/center_horizontal_text"
                     android:src="@drawable/ic_baseline_align_horizontal_right_24" />
             </FrameLayout>
@@ -238,15 +287,15 @@
         </LinearLayout>
 
         <FrameLayout
+            android:id="@+id/textSizeContainer"
             android:layout_width="match_parent"
             android:layout_height="80dp"
-            android:id="@+id/textSizeContainer"
-            android:visibility="gone"
-            >
+            android:visibility="gone">
+
             <TextView
+                android:id="@+id/textSizeText"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/textSizeText"
                 android:text="@string/text_size_default"
                 android:textAlignment="center"
                 android:textColor="@color/text_color"
@@ -258,30 +307,30 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                app:thumbColor="@color/icon_default_color"
-                app:trackColorInactive="@color/seek_bar_background"
-                app:trackColorActive="@color/icon_default_color"
-                android:value="14"
                 android:contentDescription="@string/slider_description"
+                android:value="14"
                 android:valueFrom="0"
-                android:valueTo="75" />
+                android:valueTo="75"
+                app:thumbColor="@color/icon_default_color"
+                app:trackColorActive="@color/icon_default_color"
+                app:trackColorInactive="@color/seek_bar_background" />
 
         </FrameLayout>
 
         <LinearLayout
+            android:id="@+id/saveOptionsContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="gone"
-            android:id="@+id/saveOptionsContainer">
+            android:visibility="gone">
 
             <TextView
-                android:layout_width="match_parent"
                 android:id="@+id/pdfSaveContainer"
+                android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginStart="5dp"
-                android:text="@string/save_pdf"
                 android:gravity="center"
+                android:text="@string/save_pdf"
                 android:textAlignment="center"
                 android:textColor="@color/text_color"
                 android:textSize="@dimen/heading_layout_normal"
@@ -289,50 +338,47 @@
                 app:drawableStartCompat="@drawable/pdf_icon" />
 
             <TextView
-                android:layout_width="match_parent"
-                android:layout_marginTop="5dp"
                 android:id="@+id/imageSaveContainer"
+                android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginStart="5dp"
-                android:text="@string/save_image"
+                android:layout_marginTop="5dp"
                 android:gravity="center"
+                android:text="@string/save_image"
                 android:textAlignment="center"
                 android:textColor="@color/text_color"
                 android:textSize="@dimen/heading_layout_normal"
                 android:textStyle="bold"
-                app:drawableStartCompat="@drawable/image_save"
-                />
+                app:drawableStartCompat="@drawable/image_save" />
 
             <TextView
-                android:layout_width="match_parent"
                 android:id="@+id/fileSave"
+                android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginStart="5dp"
                 android:layout_marginTop="5dp"
+                android:gravity="center"
                 android:text="@string/save_file"
                 android:textAlignment="center"
-                android:gravity="center"
                 android:textColor="@color/text_color"
                 android:textSize="@dimen/heading_layout_normal"
                 android:textStyle="bold"
-                app:drawableStartCompat="@drawable/file_save"
-                />
+                app:drawableStartCompat="@drawable/file_save" />
+
             <TextView
-                android:layout_width="match_parent"
                 android:id="@+id/editPoemTheme"
+                android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginStart="5dp"
                 android:layout_marginTop="5dp"
+                android:gravity="center"
                 android:text="@string/edit_poem_theme"
                 android:textAlignment="center"
-                android:gravity="center"
                 android:textColor="@color/text_color"
                 android:textSize="@dimen/heading_layout_normal"
                 android:textStyle="bold"
-                app:drawableStartCompat="@drawable/ic_baseline_edit_24"
-                />
+                app:drawableStartCompat="@drawable/ic_baseline_edit_24" />
         </LinearLayout>
-
 
 
     </LinearLayout>
@@ -341,10 +387,10 @@
         android:id="@+id/bottomDrawer"
         android:layout_width="match_parent"
         android:layout_height="53dp"
-        android:visibility="gone"
+        android:layout_marginBottom="5dp"
         android:background="@drawable/transparent_outline"
         android:elevation="4dp"
-        android:layout_marginBottom="5dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -364,8 +410,8 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:contentDescription="@string/text_color_button"
-            android:src="@drawable/text_color_states"
             android:elevation="5dp"
+            android:src="@drawable/text_color_states"
             app:layout_constraintEnd_toStartOf="@+id/textSize"
             app:layout_constraintStart_toEndOf="@+id/textOptions" />
 
@@ -384,8 +430,8 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:contentDescription="@string/pages"
-            android:src="@drawable/pages_button_states"
             android:elevation="5dp"
+            android:src="@drawable/pages_button_states"
             app:layout_constraintEnd_toStartOf="@+id/saveOptions"
             app:layout_constraintStart_toEndOf="@+id/textSize" />
 
@@ -393,8 +439,8 @@
             android:id="@+id/saveOptions"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:elevation="5dp"
             android:contentDescription="@string/save_button"
+            android:elevation="5dp"
             android:src="@drawable/save_options_states"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/pagesOptions" />

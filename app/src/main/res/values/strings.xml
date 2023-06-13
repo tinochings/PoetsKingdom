@@ -295,4 +295,6 @@
     <string name="poem_layout">Layout Settings</string>
     <string name="application_nickname">App Nickname</string>
     <string name="enter_text_hint">Enter Text Here</string>
+    <string name="images_saved_progress">%1$d / %2$d Images Created</string>
+    <string name="pre_images_saved_progress">Calculating pages</string>
 </resources>

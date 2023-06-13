@@ -22,12 +22,15 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.core.view.setMargins
 import androidx.core.view.setPadding
+import androidx.databinding.Observable
+import androidx.databinding.Observable.OnPropertyChangedCallback
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -1821,6 +1824,7 @@ class CreatePoem : AppCompatActivity() {
                 widthAndHeight
             )
 
+        setupProgressIndicator(imageSaverUtil)
         val isCenterVertical = poemTheme.textAlignment.toString().contains("CENTRE_VERTICAL")
 
         imageSaverUtil.setPaintAlignment(poemTheme.textAlignment)
@@ -1839,6 +1843,53 @@ class CreatePoem : AppCompatActivity() {
     }
 
     /**
+     *
+     * Sets up the indicator for image saving
+     */
+    private fun setupProgressIndicator(imageSaverUtil: ImageSaverUtil) {
+        val progressBar = findViewById<ProgressBar>(R.id.progressBarImages)
+        val progressText = findViewById<TextView>(R.id.progressText)
+        imageSaverUtil.progressTracker.addOnPropertyChangedCallback(object :
+            OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                if (sender != null) {
+                    runOnUiThread {
+                        val progressValue = imageSaverUtil.progressTracker.get()
+                        val percentage =
+                            progressValue.toFloat() / imageSaverUtil.totalPages.toFloat() * 100
+                        progressBar.setProgress(percentage.toInt(), true)
+                        progressText.text = getString(
+                            R.string.images_saved_progress,
+                            progressValue,
+                            imageSaverUtil.totalPages
+                        )
+                        if (progressValue == imageSaverUtil.totalPages) {
+                            progressBar.progress = 0
+                            progressBar.secondaryProgress = 0
+                            progressText.text = getString(R.string.pre_images_saved_progress)
+                        }
+                    }
+                }
+            }
+
+        })
+    }
+
+    /**
+     * Turns on card view and dimmer
+     */
+    private fun turnOnImagesDimmer(){
+        val cardView = findViewById<CardView>(R.id.imagesProgressCardView)
+        val dimmer = findViewById<FrameLayout>(R.id.backgroundDim)
+        dimmer.visibility = View.VISIBLE
+        dimmer.bringToFront()
+        dimmer.z = 4f
+        cardView.visibility = View.VISIBLE
+        cardView.bringToFront()
+        cardView.z = 5f
+    }
+
+    /**
      * Turns on Dimmer with progress bar
      */
     private fun turnOnDimmerProgressBar() {
@@ -1852,6 +1903,19 @@ class CreatePoem : AppCompatActivity() {
         progressBar.bringToFront()
     }
 
+    /**
+     * Turns of dimmer progress bar for images
+     */
+    private fun turnOffImagesDimmerProgressBar() {
+        val progressBar = findViewById<CardView>(R.id.imagesProgressCardView)
+        val dimmer = findViewById<FrameLayout>(R.id.backgroundDim)
+
+        progressBar.visibility = View.GONE
+        dimmer.visibility = View.GONE
+    }
+    /**
+     * Turns of dimmer progress bar
+     */
     private fun turnOffDimmerProgressBar() {
         val progressBar = findViewById<ProgressBar>(R.id.progessBar)
         val dimmer = findViewById<FrameLayout>(R.id.backgroundDim)
@@ -1880,6 +1944,8 @@ class CreatePoem : AppCompatActivity() {
 
 
         saveAsFile.setOnClickListener {
+            turnOffCurrentView()
+            turnOffBottomDrawer()
             AlertDialog.Builder(this).setTitle(R.string.category)
                 .setSingleChoiceItems(categoryChoices, 3) { dialog, chosenInt ->
                     dialog.dismiss()
@@ -1896,6 +1962,8 @@ class CreatePoem : AppCompatActivity() {
 
         saveAsImage.setOnClickListener {
             turnOffCurrentView()
+            turnOffBottomDrawer()
+            turnOnImagesDimmer()
             val exceptionHandler = CoroutineExceptionHandler { _, exception ->
                 exception.printStackTrace()
 
@@ -1903,15 +1971,15 @@ class CreatePoem : AppCompatActivity() {
                 turnOffDimmerProgressBar()
             }
             lifecycleScope.launch(Dispatchers.Main + exceptionHandler) {
-                turnOnDimmerProgressBar()
                 createThumbnail()
                 initiateSavePagesAsImages()
-                turnOffDimmerProgressBar()
+                turnOffImagesDimmerProgressBar()
                 currentPage.visibility = View.VISIBLE
             }
         }
 
         saveAsPdf.setOnClickListener {
+            turnOffBottomDrawer()
             val exceptionHandler = CoroutineExceptionHandler { _, exception ->
                 exception.printStackTrace()
 
@@ -1940,6 +2008,19 @@ class CreatePoem : AppCompatActivity() {
             finish()
             startActivity(activityIntent)
         }
+    }
+
+    /**
+     * Turns off bottom drawer
+     */
+    private fun turnOffBottomDrawer() {
+        val bottomDrawer = findViewById<ConstraintLayout>(R.id.bottomDrawer)
+        val animation = AnimationUtils.loadAnimation(
+            this@CreatePoem,
+            com.google.android.apps.common.testing.accessibility.framework.R.anim.abc_slide_out_bottom
+        )
+        bottomDrawer.startAnimation(animation)
+        bottomDrawer.visibility = View.GONE
     }
 
     /**
