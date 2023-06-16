@@ -46,6 +46,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -229,12 +230,12 @@ fun AlbumNameDialog(myPoemsViewModel: MyPoemsViewModel, scope: CoroutineScope) {
     var albumName by remember { mutableStateOf("") }
     var dialogTitle by remember {
         if (myPoemsViewModel.shouldRenameAlbum)
-            mutableStateOf(R.string.rename)
+            mutableIntStateOf(R.string.rename)
         else
-            mutableStateOf(R.string.add_new_album_content_description)
+            mutableIntStateOf(R.string.add_new_album_content_description)
     }
-    var buttonText by remember { mutableStateOf(R.string.confirm) }
-    var inputMessage by remember { mutableStateOf(R.string.valid_input_message) }
+    var buttonText by remember { mutableIntStateOf(R.string.confirm) }
+    var inputMessage by remember { mutableIntStateOf(R.string.valid_input_message) }
     var waitingOnResult by remember { mutableStateOf(WaitingForResult.NOT_LAUNCHED) }
     val context = LocalContext.current
 
@@ -377,7 +378,7 @@ fun AlbumNameDialog(myPoemsViewModel: MyPoemsViewModel, scope: CoroutineScope) {
                         Spacer(modifier = Modifier.height(30.dp))
 
                         Button(
-                            onClick = { validateInput.invoke(albumName) },
+                            onClick = { validateInput.invoke(albumName.trim()) },
                             shape = RoundedCornerShape(15.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = DefaultColor

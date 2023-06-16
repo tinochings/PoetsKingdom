@@ -40,6 +40,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -896,7 +898,7 @@ fun BackgroundLayout(
 
 @Composable
 fun SliderLayout(textSizeChange: (Float) -> Unit, defaultTextValue: Float) {
-    var sliderPosition by remember { mutableStateOf(defaultTextValue) }
+    var sliderPosition by remember { mutableFloatStateOf(defaultTextValue) }
     val thumbColor = if (isSystemInDarkTheme())
         OffWhite
     else
@@ -1237,10 +1239,10 @@ fun SelectedHeadingBox(modifier: Modifier, headingName: String) {
 @Composable
 fun SavePoemThemeDialog(poemThemeViewModel: PoemThemeViewModel) {
     var poemName by remember { mutableStateOf("") }
-    var dialogTitle by remember { mutableStateOf(R.string.create_poem_title) }
-    var buttonText by remember { mutableStateOf(R.string.confirm) }
-    var inputMessage by remember { mutableStateOf(R.string.valid_input_message) }
-    val maxChars by remember { mutableStateOf(60) }
+    var dialogTitle by remember { mutableIntStateOf(R.string.create_poem_title) }
+    var buttonText by remember { mutableIntStateOf(R.string.confirm) }
+    var inputMessage by remember { mutableIntStateOf(R.string.valid_input_message) }
+    val maxChars  = 60
     var shouldChangeText by remember { mutableStateOf(false) }
     val validateInput: @Composable (String) -> Boolean = {
         if (PoemThemeViewModel.isValidatedInput(it.replace(' ', '_'))) {
@@ -1349,7 +1351,7 @@ fun SavePoemThemeDialog(poemThemeViewModel: PoemThemeViewModel) {
             dialogTitle = R.string.create_poem_title
             buttonText = R.string.confirm
             inputMessage = R.string.valid_input_message
-        } else if (!validateInput.invoke(poemName)) {
+        } else if (!validateInput.invoke(poemName.trim())) {
             dialogTitle = R.string.retry
             buttonText = R.string.retry
             inputMessage = R.string.invalid_input_message

@@ -60,7 +60,8 @@ class CreatePoem : AppCompatActivity() {
     private lateinit var currentPage: FrameLayout
     private var hasFileBeenEdited = false
     private var currentContainerView: View? = null
-    private var savedAlbumName : String? = null
+    private var savedAlbumName: String? = null
+    private var scaleText = false
 
     //key is the page number value is the id
     private val pageNumberAndId: HashMap<Int, Int> = HashMap()
@@ -182,8 +183,10 @@ class CreatePoem : AppCompatActivity() {
         val customMessageView = TextView(this)
         customMessageView.setTextColor(resources.getColor(R.color.white, null))
         customMessageView.text = resources.getString(R.string.guide_create_poem)
-        val typedValue = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15f, resources.displayMetrics).toInt()
-        customTitleView.setPadding(typedValue, typedValue, typedValue,0)
+        val typedValue =
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15f, resources.displayMetrics)
+                .toInt()
+        customTitleView.setPadding(typedValue, typedValue, typedValue, 0)
         customMessageView.setPadding(typedValue)
         customMessageView.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
         customMessageView.textSize = 14f
@@ -257,9 +260,22 @@ class CreatePoem : AppCompatActivity() {
         textview.setOnLongClickListener {
             val customTitleView = TextView(this)
             customTitleView.setTextColor(resources.getColor(R.color.white, null))
-            val alertDialogParams =  LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            alertDialogParams.setMargins(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, resources.displayMetrics).toInt())
-            val typedValue = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15f, resources.displayMetrics).toInt()
+            val alertDialogParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            alertDialogParams.setMargins(
+                TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    10f,
+                    resources.displayMetrics
+                ).toInt()
+            )
+            val typedValue = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                15f,
+                resources.displayMetrics
+            ).toInt()
             customTitleView.setPadding(typedValue)
             customTitleView.text = resources.getString(R.string.title_change)
             customTitleView.setTypeface(null, Typeface.BOLD)
@@ -405,6 +421,7 @@ class CreatePoem : AppCompatActivity() {
             }
         })
     }
+
     /**
      * Adds a back pressed listener
      */
@@ -582,6 +599,7 @@ class CreatePoem : AppCompatActivity() {
                 toRetEditTextBox.textAlignment = View.TEXT_ALIGNMENT_VIEW_END
                 toRetEditTextBox.gravity = Gravity.TOP or Gravity.END
             }
+
             TextAlignment.CENTRE_VERTICAL -> {
                 val layoutParams = defaultText.layoutParams as FrameLayout.LayoutParams
                 layoutParams.gravity = Gravity.CENTER_VERTICAL or Gravity.CENTER_HORIZONTAL
@@ -589,6 +607,7 @@ class CreatePoem : AppCompatActivity() {
                 toRetEditTextBox.textAlignment = View.TEXT_ALIGNMENT_CENTER
                 toRetEditTextBox.gravity = Gravity.CENTER
             }
+
             TextAlignment.CENTRE_VERTICAL_LEFT -> {
                 val layoutParams = defaultText.layoutParams as FrameLayout.LayoutParams
                 layoutParams.gravity = Gravity.CENTER_VERTICAL or Gravity.START
@@ -596,6 +615,7 @@ class CreatePoem : AppCompatActivity() {
                 toRetEditTextBox.textAlignment = View.TEXT_ALIGNMENT_VIEW_START
                 toRetEditTextBox.gravity = Gravity.START
             }
+
             TextAlignment.CENTRE_VERTICAL_RIGHT -> {
                 val layoutParams = defaultText.layoutParams as FrameLayout.LayoutParams
                 layoutParams.gravity = Gravity.CENTER_VERTICAL or Gravity.END
@@ -864,11 +884,28 @@ class CreatePoem : AppCompatActivity() {
         if (Build.VERSION.SDK_INT < 26)
             text.typeface = Typeface.DEFAULT
         else
-            text.typeface = TypefaceHelper.getTypeFace(poemTheme.textFontFamily + "_font", applicationContext)
+            text.typeface =
+                TypefaceHelper.getTypeFace(poemTheme.textFontFamily + "_font", applicationContext)
 
         //due to compose integration the xml font array isn't used
 //        text.typeface = TypefaceHelper.getTypeFace(poemTheme.textFontFamily + "_font", applicationContext)
-        text.textSize = poemTheme.textSize.toFloat()
+        if (scaleText) {
+            val settingsPref = getSharedPreferences(
+                getString(R.string.personalisation_sharedpreferences_key),
+                MODE_PRIVATE
+            )
+            val resolution = settingsPref.getString("resolution", "1080 1080")?.split(" ")
+            val landscapeWidth = resolution?.get(0)?.toFloat()
+            val landscapeHeight = resolution?.get(1)?.toFloat()
+            val deviceWidth = resources.displayMetrics.widthPixels.toFloat()
+            val deviceHeight = resources.displayMetrics.heightPixels.toFloat()
+            if (landscapeHeight != null && landscapeWidth != null) {
+                val bestRatio =
+                    (deviceWidth / landscapeWidth).coerceAtMost(deviceHeight / landscapeHeight)
+                text.textSize = poemTheme.textSize.toFloat() * bestRatio
+            }
+        } else
+            text.textSize = poemTheme.textSize.toFloat()
         text.setHintTextColor(poemTheme.textColorAsInt)
         text.setTextColor(poemTheme.textColorAsInt)
         text.setHint(R.string.create_poem_text_view_hint)
@@ -892,6 +929,7 @@ class CreatePoem : AppCompatActivity() {
                 text.textAlignment = View.TEXT_ALIGNMENT_VIEW_END
                 text.gravity = Gravity.END
             }
+
             TextAlignment.CENTRE_VERTICAL -> {
                 val layoutParams = text.layoutParams as FrameLayout.LayoutParams
                 layoutParams.gravity = Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL
@@ -900,6 +938,7 @@ class CreatePoem : AppCompatActivity() {
                 text.gravity = Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL
 
             }
+
             TextAlignment.CENTRE_VERTICAL_LEFT -> {
                 val layoutParams = text.layoutParams as FrameLayout.LayoutParams
                 layoutParams.gravity = Gravity.CENTER_VERTICAL or Gravity.START
@@ -907,6 +946,7 @@ class CreatePoem : AppCompatActivity() {
                 text.textAlignment = View.TEXT_ALIGNMENT_VIEW_START
                 text.gravity = Gravity.START
             }
+
             TextAlignment.CENTRE_VERTICAL_RIGHT -> {
                 val layoutParams = text.layoutParams as FrameLayout.LayoutParams
                 layoutParams.gravity = Gravity.CENTER_VERTICAL or Gravity.END
@@ -1122,19 +1162,21 @@ class CreatePoem : AppCompatActivity() {
         val deviceWidth = resources.displayMetrics.widthPixels.toFloat()
         val deviceHeight = resources.displayMetrics.heightPixels.toFloat()
 
-        if (landscapeHeight != null && landscapeWidth != null){
-            landscapeWidth / landscapeHeight
+        if (landscapeHeight != null && landscapeWidth != null) {
+//            landscapeWidth / landscapeHeight
             val bestRatio =
                 (deviceWidth / landscapeWidth).coerceAtMost(deviceHeight / landscapeHeight)
 
-            if (landscapeWidth > deviceWidth)
+            if (landscapeWidth > deviceWidth) {
                 currentPage.layoutParams.width = (landscapeWidth * bestRatio).toInt()
-            else
+                scaleText = true
+            } else
                 currentPage.layoutParams.width = landscapeWidth.toInt()
 
-            if (landscapeHeight > deviceHeight || landscapeHeight - deviceHeight < marginTopAsPixels)
+            if (landscapeHeight > deviceHeight || landscapeHeight - deviceHeight < marginTopAsPixels) {
                 currentPage.layoutParams.height = (landscapeHeight * bestRatio).toInt()
-            else
+                scaleText = true
+            } else
                 currentPage.layoutParams.height = landscapeHeight.toInt()
         }
     }
@@ -1272,6 +1314,7 @@ class CreatePoem : AppCompatActivity() {
                                 child.textAlignment = alignment
                                 child.gravity = Gravity.CENTER
                             }
+
                             Gravity.CENTER_VERTICAL or Gravity.START -> {
                                 val layoutParams = child.layoutParams as FrameLayout.LayoutParams
                                 layoutParams.gravity = gravity
@@ -1279,6 +1322,7 @@ class CreatePoem : AppCompatActivity() {
                                 child.textAlignment = alignment
                                 child.gravity = Gravity.START
                             }
+
                             Gravity.CENTER_VERTICAL or Gravity.END -> {
                                 val layoutParams = child.layoutParams as FrameLayout.LayoutParams
                                 layoutParams.gravity = gravity
@@ -1286,6 +1330,7 @@ class CreatePoem : AppCompatActivity() {
                                 child.textAlignment = alignment
                                 child.gravity = Gravity.END
                             }
+
                             else -> {
                                 val layoutParams = child.layoutParams as FrameLayout.LayoutParams
                                 layoutParams.gravity = if (gravity == Gravity.CENTER)
@@ -1417,7 +1462,11 @@ class CreatePoem : AppCompatActivity() {
         val textSizeContainer = findViewById<FrameLayout>(R.id.textSizeContainer)
 
         textSize.setOnLongClickListener {
-            Toast.makeText(applicationContext, getString(R.string.text_size_toast), Toast.LENGTH_LONG)
+            Toast.makeText(
+                applicationContext,
+                getString(R.string.text_size_toast),
+                Toast.LENGTH_LONG
+            )
                 .show()
             true
         }
@@ -1442,7 +1491,11 @@ class CreatePoem : AppCompatActivity() {
         val textColor = findViewById<ImageButton>(R.id.textColor)
 
         textColor.setOnLongClickListener {
-            Toast.makeText(applicationContext, getString(R.string.text_color_toast), Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                applicationContext,
+                getString(R.string.text_color_toast),
+                Toast.LENGTH_LONG
+            ).show()
             true
         }
         textColor.setOnClickListener {
@@ -1453,26 +1506,29 @@ class CreatePoem : AppCompatActivity() {
                 if (child is EditText)
                     currentEditText = child
 
-            com.skydoves.colorpickerview.ColorPickerDialog.Builder(this).setTitle(getString(R.string.color_picker_title)).setPositiveButton(R.string.confirm, object : ColorEnvelopeListener{
-                override fun onColorSelected(envelope: ColorEnvelope?, fromUser: Boolean) {
-                    if (envelope != null) {
-                        currentEditText?.setTextColor(envelope.color)
-                        poemTheme.textColor = envelope.hexCode
-                        poemTheme.textColorAsInt = envelope.color
-                        updateAllEditTextViews(Float.NaN, "textColor", envelope.color)
-                        actuateSavePoemTheme()
-                    } else{
-                        //default case
-                        val defaultColor = getColor(R.color.white)
-                        currentEditText?.setTextColor(defaultColor)
-                        poemTheme.textColor = "#fff"
-                        poemTheme.textColorAsInt = defaultColor
-                        updateAllEditTextViews(Float.NaN, "textColor", defaultColor)
-                        actuateSavePoemTheme()
+            com.skydoves.colorpickerview.ColorPickerDialog.Builder(this)
+                .setTitle(getString(R.string.color_picker_title))
+                .setPositiveButton(R.string.confirm, object : ColorEnvelopeListener {
+                    override fun onColorSelected(envelope: ColorEnvelope?, fromUser: Boolean) {
+                        if (envelope != null) {
+                            currentEditText?.setTextColor(envelope.color)
+                            poemTheme.textColor = envelope.hexCode
+                            poemTheme.textColorAsInt = envelope.color
+                            updateAllEditTextViews(Float.NaN, "textColor", envelope.color)
+                            actuateSavePoemTheme()
+                        } else {
+                            //default case
+                            val defaultColor = getColor(R.color.white)
+                            currentEditText?.setTextColor(defaultColor)
+                            poemTheme.textColor = "#fff"
+                            poemTheme.textColorAsInt = defaultColor
+                            updateAllEditTextViews(Float.NaN, "textColor", defaultColor)
+                            actuateSavePoemTheme()
+                        }
                     }
-                }
 
-            }).setNegativeButton(R.string.title_change_cancel
+                }).setNegativeButton(
+                R.string.title_change_cancel
             ) { dialog, _ ->
                 currentContainerView = null
                 dialog?.dismiss()
@@ -1538,8 +1594,26 @@ class CreatePoem : AppCompatActivity() {
             )
             poemTheme.textSize = value.roundToInt()
 
-            val newTextSize = poemTheme.textSize.toFloat()
-            currentEditText.textSize = poemTheme.textSize.toFloat()
+            val newTextSize = if (scaleText) {
+                val settingsPref = getSharedPreferences(
+                    getString(R.string.personalisation_sharedpreferences_key),
+                    MODE_PRIVATE
+                )
+                val resolution = settingsPref.getString("resolution", "1080 1080")?.split(" ")
+                val landscapeWidth = resolution?.get(0)?.toFloat()
+                val landscapeHeight = resolution?.get(1)?.toFloat()
+                val deviceWidth = resources.displayMetrics.widthPixels.toFloat()
+                val deviceHeight = resources.displayMetrics.heightPixels.toFloat()
+                if (landscapeHeight != null && landscapeWidth != null) {
+                    val bestRatio =
+                        (deviceWidth / landscapeWidth).coerceAtMost(deviceHeight / landscapeHeight)
+                    poemTheme.textSize.toFloat() * bestRatio
+                } else
+                    poemTheme.textSize.toFloat()
+            } else
+                poemTheme.textSize.toFloat()
+
+            currentEditText.textSize = newTextSize
             updateAllEditTextViews(newTextSize, "textSize", 0)
             actuateSavePoemTheme()
         }
@@ -1701,6 +1775,7 @@ class CreatePoem : AppCompatActivity() {
             0 -> {
                 showSuccessToast(getString(R.string.error_type_file))
             }
+
             -1 -> {
                 turnOffCurrentView()
                 showErrorToast(getString(R.string.error_type_file))
@@ -1878,7 +1953,7 @@ class CreatePoem : AppCompatActivity() {
     /**
      * Turns on card view and dimmer
      */
-    private fun turnOnImagesDimmer(){
+    private fun turnOnImagesDimmer() {
         val cardView = findViewById<CardView>(R.id.imagesProgressCardView)
         val dimmer = findViewById<FrameLayout>(R.id.backgroundDim)
         dimmer.visibility = View.VISIBLE
@@ -1913,6 +1988,7 @@ class CreatePoem : AppCompatActivity() {
         progressBar.visibility = View.GONE
         dimmer.visibility = View.GONE
     }
+
     /**
      * Turns of dimmer progress bar
      */
