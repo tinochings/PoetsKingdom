@@ -1930,19 +1930,42 @@ class CreatePoem : AppCompatActivity() {
                 if (sender != null) {
                     runOnUiThread {
                         val progressValue = imageSaverUtil.progressTracker.get()
+                        val totalPages = imageSaverUtil.totalPages.get()
                         val percentage =
-                            progressValue.toFloat() / imageSaverUtil.totalPages.toFloat() * 100
+                            progressValue.toFloat() / totalPages.toFloat() * 100
                         progressBar.setProgress(percentage.toInt(), true)
                         progressText.text = getString(
                             R.string.images_saved_progress,
                             progressValue,
-                            imageSaverUtil.totalPages
+                            totalPages
                         )
-                        if (progressValue == imageSaverUtil.totalPages) {
+                        if (progressValue == totalPages) {
                             progressBar.progress = 0
                             progressBar.secondaryProgress = 0
                             progressText.text = getString(R.string.pre_images_saved_progress)
                         }
+                    }
+                }
+            }
+
+        })
+        // this is needed to indicate when a singular image is being printed
+        // it is not a pretty solution albeit valid
+        imageSaverUtil.totalPages.addOnPropertyChangedCallback(object :
+            OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                if (sender != null) {
+                    runOnUiThread {
+                        val progressValue = imageSaverUtil.progressTracker.get()
+                        val totalPages = imageSaverUtil.totalPages.get()
+                        val percentage =
+                            progressValue.toFloat() / totalPages.toFloat() * 100
+                        progressBar.setProgress(percentage.toInt(), true)
+                        progressText.text = getString(
+                            R.string.images_saved_progress,
+                            progressValue,
+                            totalPages
+                        )
                     }
                 }
             }

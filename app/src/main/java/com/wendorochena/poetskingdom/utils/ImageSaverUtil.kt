@@ -45,7 +45,7 @@ class ImageSaverUtil(
     private lateinit var textPaintAlignment: Paint.Align
     private var missingLineTag = "MISSING LINE/LINES AT INDEX: "
     var progressTracker : ObservableInt = ObservableInt(0)
-    var totalPages = 0
+    var totalPages = ObservableInt(0)
 
     companion object {
         /**
@@ -495,7 +495,8 @@ class ImageSaverUtil(
         firstEditText: EditText,
         editTextBox: EditText,
         imageStrokeMargins: Int,
-        textMarginUtil: TextMarginUtil
+        textMarginUtil: TextMarginUtil,
+        lineHeight: Float
     ): Float {
         if (!isLandscape && !isCentreVertical)
             return firstEditText.y
@@ -503,14 +504,14 @@ class ImageSaverUtil(
             return determineCentreVerticalYPoint(
                 currentPage.height - imageStrokeMargins,
                 editTextBox.text.lines().size,
-                firstEditText.lineHeight.toFloat()
+                lineHeight
             )
         else
             if (isCentreVertical)
                 return determineCentreVerticalYPoint(
                     widthAndHeight.second - imageStrokeMargins,
                     editTextBox.text.lines().size,
-                    firstEditText.lineHeight.toFloat()
+                    lineHeight
                 )
             else
                 return textMarginUtil.marginTop.toFloat()
@@ -582,6 +583,10 @@ class ImageSaverUtil(
             val shapeAbleImageView = currentPage.getChildAt(0) as ShapeableImageView
             var counter = 0
             val imagesFolder = context.getDir("savedImages", MODE_PRIVATE)
+            val lineHeight = if (!isLandscape)
+                firstEditText.lineHeight.toFloat()
+            else
+                landscapeLineHeight(firstEditText.typeface, textPixelSize)
 
             try {
                 if (imagesFolder.exists()) {
@@ -609,11 +614,11 @@ class ImageSaverUtil(
                                     editable,
                                     height = widthAndHeight.second - textMarginUtil.marginTop - textMarginUtil.marginBottom,
                                     width = widthAndHeight.first - textMarginUtil.marginLeft - textMarginUtil.marginRight - imageStrokeMargins,
-                                    firstEditText.lineHeight
+                                    lineHeight.toInt()
                                 )
                             editTextArrayList.addAll(editTextsToPrint)
                         }
-                        totalPages = editTextArrayList.size
+                        totalPages.set(editTextArrayList.size)
                             for (editTextBox in editTextArrayList) {
                                 val imageToAdd =
                                     File(subFolderWithTitleAsName.absolutePath + File.separator + "stanza$counter" + ".png")
@@ -704,13 +709,10 @@ class ImageSaverUtil(
                                         firstEditText,
                                         editTextBox,
                                         imageStrokeMargins,
-                                        textMarginUtil
+                                        textMarginUtil,
+                                        lineHeight
                                     )
 
-                                    val lineHeight = if (!isLandscape)
-                                        firstEditText.lineHeight.toFloat()
-                                    else
-                                        landscapeLineHeight(firstEditText.typeface, textPixelSize)
                                     val textPaint = Paint()
                                     textPaint.typeface = editTextBox.typeface
                                     textPaint.textSize = textPixelSize
@@ -728,7 +730,6 @@ class ImageSaverUtil(
                                     progressTracker.set(progressTracker.get() + 1)
                                 }
                             }
-//                        }
                         return@withContext 0
                     }
                 }
