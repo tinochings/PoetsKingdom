@@ -181,6 +181,22 @@ class PoemThemeXmlParser(
                                         parser.require(XmlPullParser.END_TAG, null, "textFont")
                                     }
                                 }
+                                "bold" -> {
+                                    parser.require(XmlPullParser.START_TAG, null, "bold")
+                                    if (parser.next() == XmlPullParser.TEXT) {
+                                        poemTheme.bold = parser.text == "true"
+                                        parser.nextTag()
+                                        parser.require(XmlPullParser.END_TAG, null, "bold")
+                                    }
+                                }
+                                "italic" -> {
+                                    parser.require(XmlPullParser.START_TAG, null, "italic")
+                                    if (parser.next() == XmlPullParser.TEXT) {
+                                        poemTheme.italic = parser.text == "true"
+                                        parser.nextTag()
+                                        parser.require(XmlPullParser.END_TAG, null, "italic")
+                                    }
+                                }
                             }
                         }
                         parser.require(XmlPullParser.END_TAG, null, "root")
@@ -509,6 +525,14 @@ class PoemThemeXmlParser(
                                 xmlSerializer.startTag(null, "textAlignment")
                                 xmlSerializer.text(poemTheme.textAlignment.toString())
                                 xmlSerializer.endTag(null, "textAlignment")
+
+                                xmlSerializer.startTag(null, "bold")
+                                xmlSerializer.text(poemTheme.bold.toString())
+                                xmlSerializer.endTag(null, "bold")
+
+                                xmlSerializer.startTag(null, "italic")
+                                xmlSerializer.text(poemTheme.italic.toString())
+                                xmlSerializer.endTag(null, "italic")
 
                                 xmlSerializer.startTag(null, "textFont")
                                 xmlSerializer.text(poemTheme.textFontFamily)

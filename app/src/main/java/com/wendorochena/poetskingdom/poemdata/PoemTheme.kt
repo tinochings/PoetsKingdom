@@ -27,13 +27,15 @@ data class PoemTheme(var backgroundType: BackgroundType) {
     var outlineColor: Int = -7821273
     //        applicationContext.resources.getColor(R.color.madzinza_green, null)
     var poemTitle: String = ""
+    var bold = false
+    var italic = false
 
     override fun toString(): String {
         return "PoemTitle: $poemTitle, BackgroundType $backgroundType, BackgroundColor: " +
                 "$backgroundColor,  BackGroundColorAsInt: $backgroundColorAsInt ImagePath:" +
                 " $imagePath, Outline: $outline, OutlineColor: $outlineColor TextSize: $textSize, " +
                 "TextColor: $textColor, TextColorAsInt: $textColorAsInt, TextAlignment: " +
-                "$textAlignment, TextFontFamily: $textFontFamily"
+                "$textAlignment, Bold: $bold, Italic: $italic, TextFontFamily: $textFontFamily"
     }
 
     companion object PoemThemeHelper {
