@@ -11,11 +11,15 @@ import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.text.Editable
+import android.text.SpannableString
 import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
 import android.util.TypedValue
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.core.text.getSpans
 import androidx.core.view.drawToBitmap
 import androidx.databinding.ObservableInt
 import com.google.android.material.imageview.ShapeableImageView
@@ -44,7 +48,9 @@ class ImageSaverUtil(
 ) {
     private lateinit var textPaintAlignment: Paint.Align
     private var missingLineTag = "MISSING LINE/LINES AT INDEX: "
-    var progressTracker : ObservableInt = ObservableInt(0)
+
+    //    private var spannableStringMetaData
+    var progressTracker: ObservableInt = ObservableInt(0)
     var totalPages = ObservableInt(0)
 
     companion object {
@@ -81,7 +87,6 @@ class ImageSaverUtil(
                         accumulatedChars += "\n"
                         lines.add(accumulatedChars)
                         accumulatedChars = ""
-//                        charIndex++
                     } else if (charIndex + 1 == longWord.length) {
                         accumulatedChars += "\n"
                         lines.add(accumulatedChars)
@@ -93,6 +98,7 @@ class ImageSaverUtil(
             return lines
         }
     }
+
     /**
      * Sets the text alignment to be drawn on bitmap
      *
@@ -104,18 +110,23 @@ class ImageSaverUtil(
             TextAlignment.LEFT -> {
                 Paint.Align.LEFT
             }
+
             TextAlignment.CENTRE -> {
                 Paint.Align.CENTER
             }
+
             TextAlignment.RIGHT -> {
                 Paint.Align.RIGHT
             }
+
             TextAlignment.CENTRE_VERTICAL -> {
                 Paint.Align.CENTER
             }
+
             TextAlignment.CENTRE_VERTICAL_RIGHT -> {
                 Paint.Align.RIGHT
             }
+
             TextAlignment.CENTRE_VERTICAL_LEFT -> {
                 Paint.Align.LEFT
             }
@@ -156,7 +167,8 @@ class ImageSaverUtil(
         width: Int,
         lineHeight: Int,
         height: Int,
-        isLastLine: Boolean
+        isLastLine: Boolean,
+        allSpannableStringsLocations: ArrayList<Triple<Int, Triple<Pair<Int, Int>, StyleSpan?, ForegroundColorSpan?>, String>>
     ): ArrayList<Editable> {
         val textPixelSize = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_SP,
@@ -187,6 +199,18 @@ class ImageSaverUtil(
                 }
             } else {
                 val words = lineToSplit.split(" ")
+                //key is word number to track
+                //value is a pair with the index number of item in allSpannableStringsLocations as first
+                // value is a pair with the exact coordinates in the subtring as second
+                val wordNumbersToTrack = HashMap<Int, Pair<Int, Pair<Int, Int>>>()
+                if (allSpannableStringsLocations.isNotEmpty()) {
+                    for ((index, spannableItem) in allSpannableStringsLocations.withIndex()) {
+                        wordNumbersToTrack[locateWordNumber(
+                            lineToSplit,
+                            spannableItem.second.first.first
+                        )] = Pair(index, spannableItem.second.first)
+                    }
+                }
                 var indexCounter = 0
                 val wordsSize = words.size
 
@@ -196,7 +220,16 @@ class ImageSaverUtil(
                     val currentWord = words[indexCounter]
                     paint.getTextBounds(currentWord, 0, currentWord.length, bounds)
                     if (bounds.width() > width) {
-                        if (!lines.addAll(updateLongWordBounds(currentWord, paint, width)))
+                        val updatedSplitWord = updateLongWordBounds(currentWord, paint, width)
+                        if (wordNumbersToTrack.contains(indexCounter)) {
+                            //add this to updated
+                            val updatedWordBounds = updateNewWordBounds(
+                                updatedSplitWord,
+                                lineToSplit,
+                                wordNumbersToTrack[indexCounter]!!.second
+                            )
+                        }
+                        if (!lines.addAll(updatedSplitWord))
                             println("$missingLineTag $indexCounter")
                         indexCounter++
                     } else {
@@ -213,12 +246,27 @@ class ImageSaverUtil(
                             lines.add(currentLine)
                             currentLine = ""
                         } else if (indexCounter + 1 >= wordsSize) {
+                            if (wordNumbersToTrack.contains(indexCounter)){
+                                val startIndex = currentLine.length - currentWord.length
+                                val endIndex = startIndex + currentWord.length
+                                val toUpdate = allSpannableStringsLocations[wordNumbersToTrack[indexCounter]!!.first]
+                                val updated = Triple(lines.size, Triple(Pair(startIndex,endIndex), toUpdate.second.second, toUpdate.second.third), toUpdate.third)
+
+                                allSpannableStringsLocations[wordNumbersToTrack[indexCounter]!!.first] = updated
+                            }
                             if (!isLastLine)
                                 currentLine += "\n"
 
                             lines.add(currentLine)
                             indexCounter++
                         } else {
+                            if (wordNumbersToTrack.contains(indexCounter)){
+                                val startIndex = currentLine.length - currentWord.length
+                                val endIndex = startIndex + currentWord.length
+                                val toUpdate = allSpannableStringsLocations[wordNumbersToTrack[indexCounter]!!.first]
+                                val updated = Triple( lines.size, Triple(Pair(startIndex,endIndex), toUpdate.second.second, toUpdate.second.third), toUpdate.third)
+                                allSpannableStringsLocations[wordNumbersToTrack[indexCounter]!!.first] = updated
+                            }
                             indexCounter++
                         }
                     }
@@ -240,6 +288,76 @@ class ImageSaverUtil(
             return editableArrayListToReturn
         }
         return ArrayList()
+    }
+
+    /**
+     * This function updates meta data for a spannable string that has been split
+     * into multiple lines
+     */
+    private fun updateNewWordBounds(
+        updatedSplitWord: ArrayList<String>,
+        lineToSplit: String,
+        pair: Pair<Int, Int>
+    ) : ArrayList<Pair<Int, Pair<Int, Int>>>{
+        val exactSubstring = lineToSplit.substring(pair.first, pair.second)
+        val updatedLocations = ArrayList<Pair<Int, Pair<Int, Int>>>()
+        var numOfLeftChars = 0
+        var leftCharCounter = pair.first
+        while (leftCharCounter >= 0 && lineToSplit[leftCharCounter].isLetterOrDigit()) {
+            numOfLeftChars++
+            leftCharCounter--
+        }
+
+        var counterForCharsBeforeSubString = 0
+        var counterForCharsWhenSubstringFound = 0
+        var startIndex = 0
+        for ((index, splitSubStr) in updatedSplitWord.withIndex()) {
+            var shouldBreak = false
+            if (splitSubStr.length + counterForCharsBeforeSubString < numOfLeftChars) {
+                counterForCharsBeforeSubString += splitSubStr.length
+            } else {
+                for ((charIndex, _) in splitSubStr.withIndex()) {
+                    //found sub string
+                    if (counterForCharsBeforeSubString == numOfLeftChars) {
+                        startIndex = charIndex
+                        updatedLocations.add(Pair(index, Pair(charIndex, charIndex)))
+                        counterForCharsBeforeSubString++
+                    } else if (counterForCharsBeforeSubString > numOfLeftChars && counterForCharsWhenSubstringFound != exactSubstring.length) {
+                        if (charIndex == splitSubStr.length - 1)
+                            updatedLocations.add(Pair(index, Pair(startIndex, charIndex)))
+                        counterForCharsWhenSubstringFound++
+                    } else if (counterForCharsWhenSubstringFound == exactSubstring.length) {
+                        updatedLocations.add(Pair(index, Pair(startIndex, charIndex)))
+                        shouldBreak = true
+                        break
+                    } else
+                        counterForCharsBeforeSubString++
+
+                    if (charIndex == splitSubStr.length - 1 && startIndex != 0)
+                        startIndex = 0
+
+                }
+                if (shouldBreak)
+                    break
+            }
+        }
+//        println(updatedLocations)
+        return updatedLocations
+    }
+
+    /**
+     * locates word number to follow
+     */
+    private fun locateWordNumber(lineToSplit: String, spanStartIndex: Int): Int {
+        var counter = 0
+        var wordCounter = 0
+        while (counter <= spanStartIndex) {
+            if (lineToSplit[counter].isWhitespace())
+                wordCounter++
+
+            counter++
+        }
+        return wordCounter
     }
 
 
@@ -282,35 +400,125 @@ class ImageSaverUtil(
     /**
      * Formats the pages to save by formatting text to make sure it fits on the page
      *
-     * @param editableArrayList an arrayList with all the text to be printed
+     * @param initialEditableToFormat an arrayList with all the text to be printed
      * @param height the height of the view port in PX
      * @param width the width of the view port in PX
      * @param lineHeight the height of the line in PX
      */
     fun formatPagesToSave(
-        editableArrayList: Editable,
+        initialEditableToFormat: Editable,
         height: Int,
         width: Int,
         lineHeight: Int
     ): ArrayList<EditText> {
         val editText = currentPage.getChildAt(1) as EditText
         val linesPerPage = (height / lineHeight)
-
+        val foregroundColorSpans = initialEditableToFormat.getSpans<ForegroundColorSpan>()
+        val boldStyleSpans = initialEditableToFormat.getSpans<StyleSpan>()
         val updatedEditableList = ArrayList<Editable>()
+        // first element is the line number
+        //second element is the precise coordinates and type of span
+        //third is the full word
+        val allSpannableStringsLocations =
+            ArrayList<Triple<Int, Triple<Pair<Int, Int>, StyleSpan?, ForegroundColorSpan?>, String>>()
 
-        for ((replaceIndex, line) in editableArrayList.lines().withIndex()) {
+        for ((replaceIndex, line) in initialEditableToFormat.lines().withIndex()) {
+            if (foregroundColorSpans.isNotEmpty()) {
+                foregroundColorSpans.forEach {
+                    val substring = initialEditableToFormat.substring(
+                        initialEditableToFormat.getSpanStart(it),
+                        initialEditableToFormat.getSpanEnd(it)
+                    )
+                    val fullWord = findFullWord(
+                        initialEditableToFormat,
+                        initialEditableToFormat.getSpanStart(it),
+                        initialEditableToFormat.getSpanEnd(it)
+                    )
+                    val startLineIndex = initialEditableToFormat.indexOf(line)
+                    val endLineIndex = startLineIndex + line.length
+                    val spanStartIndex = initialEditableToFormat.getSpanStart(it)
+                    val spanEndIndex = initialEditableToFormat.getSpanEnd(it)
+
+                    if (line.contains(substring) && startLineIndex <= spanStartIndex && endLineIndex >= spanEndIndex) {
+                        val spanStartIndexInLine = spanStartIndex - startLineIndex
+                        val spanEndIndexInLine = spanStartIndexInLine + substring.length
+
+                        allSpannableStringsLocations.add(
+                            (Triple(
+                                replaceIndex,
+                                Triple(
+                                    Pair(spanStartIndexInLine, spanEndIndexInLine),
+                                    null,
+                                    it
+                                ),
+                                fullWord
+                            ))
+                        )
+                    }
+                }
+            }
+            if (boldStyleSpans.isNotEmpty()) {
+                boldStyleSpans.forEach {
+                    val substring = initialEditableToFormat.substring(
+                        initialEditableToFormat.getSpanStart(it),
+                        initialEditableToFormat.getSpanEnd(it)
+                    )
+                    val fullWord = findFullWord(
+                        initialEditableToFormat,
+                        initialEditableToFormat.getSpanStart(it),
+                        initialEditableToFormat.getSpanEnd(it)
+                    )
+                    val startLineIndex = initialEditableToFormat.indexOf(line)
+                    val endLineIndex = startLineIndex + line.length
+                    val spanStartIndex = initialEditableToFormat.getSpanStart(it)
+                    val spanEndIndex = initialEditableToFormat.getSpanEnd(it)
+
+
+                    if (line.contains(substring) && startLineIndex <= spanStartIndex && endLineIndex >= spanEndIndex) {
+                        val spanStartIndexInLine = spanStartIndex - startLineIndex
+                        val spanEndIndexInLine = spanStartIndexInLine + substring.length
+
+                        allSpannableStringsLocations.add(
+                            (Triple(
+                                replaceIndex,
+                                Triple(
+                                    Pair(spanStartIndexInLine, spanEndIndexInLine),
+                                    it,
+                                    null
+                                ),
+                                fullWord
+                            ))
+                        )
+                    }
+                }
+            }
             var tempSpannableString = ""
-            if (replaceIndex == editableArrayList.lines().size - 1) {
-                for (subEditable in updateTextBounds(line, width, lineHeight, height, true)) {
+            if (replaceIndex == initialEditableToFormat.lines().size - 1) {
+                for (subEditable in updateTextBounds(
+                    line,
+                    width,
+                    lineHeight,
+                    height,
+                    true,
+                    allSpannableStringsLocations
+                )) {
                     tempSpannableString += subEditable.toString()
                 }
             } else
-                for (subEditable in updateTextBounds(line, width, lineHeight, height, false)) {
+                for (subEditable in updateTextBounds(
+                    line,
+                    width,
+                    lineHeight,
+                    height,
+                    false,
+                    allSpannableStringsLocations
+                )) {
                     tempSpannableString += subEditable.toString()
                 }
             if (updatedEditableList.isNotEmpty()) {
                 if (updatedEditableList[updatedEditableList.size - 1].lines().size < (linesPerPage + 1)) {
-                    var previousLines = updatedEditableList[updatedEditableList.size - 1].toString()
+                    var previousLines =
+                        updatedEditableList[updatedEditableList.size - 1].toString()
                     previousLines += tempSpannableString
                     updatedEditableList[updatedEditableList.size - 1] =
                         SpannableStringBuilder(previousLines)
@@ -425,8 +633,74 @@ class ImageSaverUtil(
                 }
             }
         }
-
+        println(allSpannableStringsLocations)
         return editTextsToRet
+    }
+
+    /**
+     * Finds the full word containing the spannable string
+     */
+    private fun findFullWord(initialEditableToFormat: Editable, start: Int, end: Int): String {
+        val previousSubstringChar = if (start == 0)
+            initialEditableToFormat.substring(0, 0)
+        else
+            initialEditableToFormat.substring(start - 1, start)
+        val nextSubStringChar = if (end == initialEditableToFormat.length)
+            initialEditableToFormat.substring(end, end)
+        else
+            initialEditableToFormat.substring(end, end + 1)
+
+        //is a substring
+        if (start == 0 || end == initialEditableToFormat.length || previousSubstringChar[0].isLetterOrDigit() || nextSubStringChar[0].isLetterOrDigit()) {
+            var hasFoundStart = false
+            var textStart = -1
+            var textEnd = -2
+            var hasFoundEnd = false
+            var counter = 1
+            if (start == 0) {
+                textStart = 0
+                hasFoundStart = true
+            }
+            while (!hasFoundStart) {
+                if (counter >= 0) {
+                    val charToInspect = initialEditableToFormat.substring(
+                        start - counter,
+                        start - counter + 1
+                    )
+                    //word found
+                    if (charToInspect[0].isWhitespace() || charToInspect[0] == '\n') {
+                        textStart = start - counter + 1
+                        hasFoundStart = true
+                    } else {
+                        counter++
+                    }
+                } else
+                    break
+            }
+            counter = 1
+            if (end == initialEditableToFormat.length) {
+                textEnd = end
+                hasFoundEnd = true
+            }
+            while (!hasFoundEnd) {
+                if (counter <= initialEditableToFormat.length - 1) {
+                    val charToInspect = initialEditableToFormat.substring(
+                        end + counter - 1,
+                        end + counter
+                    )
+                    //word found
+                    if (charToInspect[0].isWhitespace() || charToInspect[0] == '\n') {
+                        textEnd = end + counter - 1
+                        hasFoundEnd = true
+                    } else {
+                        counter++
+                    }
+                } else
+                    break
+            }
+            return initialEditableToFormat.substring(textStart, textEnd)
+        }
+        return initialEditableToFormat.substring(start, end)
     }
 
     /**
@@ -475,10 +749,12 @@ class ImageSaverUtil(
             Paint.Align.LEFT -> if (!isLandscape)
                 firstEditText.x
             else textMarginUtil.marginLeft.toFloat()
+
             Paint.Align.CENTER -> if (!isLandscape)
                 (currentPage.width / 2).toFloat()
             else
                 (widthAndHeight.first / 2).toFloat()
+
             else -> if (!isLandscape)
                 currentPage.width.toFloat() - firstEditText.x
             else
@@ -588,6 +864,8 @@ class ImageSaverUtil(
             else
                 landscapeLineHeight(firstEditText.typeface, textPixelSize)
 
+            val spannableHashMap =
+                TextFormatUtilitySaver.spannedEditableHashMap(editableArrayList)
             try {
                 if (imagesFolder.exists()) {
                     val subFolderWithTitleAsName = File(
@@ -600,8 +878,9 @@ class ImageSaverUtil(
                         }
                     }
                     if (subFolderWithTitleAsName.exists() || subFolderWithTitleAsName.mkdir()) {
-                        val editTextArrayList =  ArrayList<EditText>()
-                        for (editable in editableArrayList) {
+                        val editTextArrayList = ArrayList<Pair<Int, ArrayList<EditText>>>()
+                        var sizeCounter = 0
+                        for ((index, editable) in editableArrayList.withIndex()) {
                             val editTextsToPrint = if (!isLandscape)
                                 formatPagesToSave(
                                     editable,
@@ -616,10 +895,27 @@ class ImageSaverUtil(
                                     width = widthAndHeight.first - textMarginUtil.marginLeft - textMarginUtil.marginRight - imageStrokeMargins,
                                     lineHeight.toInt()
                                 )
-                            editTextArrayList.addAll(editTextsToPrint)
+                            sizeCounter += editTextsToPrint.size
+                            editTextArrayList.add(Pair(index, editTextsToPrint))
                         }
-                        totalPages.set(editTextArrayList.size)
-                            for (editTextBox in editTextArrayList) {
+                        totalPages.set(sizeCounter)
+                        for (editTextBoxPair in editTextArrayList) {
+                            for (editTextBox in editTextBoxPair.second) {
+                                if (spannableHashMap[editTextBoxPair.first] != null) {
+                                    for ((index, styleTextAndTextColor) in spannableHashMap[editTextBoxPair.first]!!.withIndex()) {
+                                        updateSpannableString(
+                                            isLandscape = isLandscape,
+                                            firstEditText = firstEditText,
+                                            lineHeight = lineHeight,
+                                            spannableHashMap = spannableHashMap,
+                                            imageStrokeMargins = imageStrokeMargins,
+                                            textMarginUtil = textMarginUtil,
+                                            styleTextAndTextColor = styleTextAndTextColor,
+                                            spannableHashMapKey = editTextBoxPair.first,
+                                            spannableHashMapValueIndex = index
+                                        )
+                                    }
+                                }
                                 val imageToAdd =
                                     File(subFolderWithTitleAsName.absolutePath + File.separator + "stanza$counter" + ".png")
                                 if (imageToAdd.exists() || imageToAdd.createNewFile()) {
@@ -656,7 +952,12 @@ class ImageSaverUtil(
                                                 widthAndHeight.second
                                             )
                                         else
-                                            Rect(0, 0, widthAndHeight.first, widthAndHeight.second)
+                                            Rect(
+                                                0,
+                                                0,
+                                                widthAndHeight.first,
+                                                widthAndHeight.second
+                                            )
 
                                         if (isLandscape)
                                             canvas.drawBitmap(
@@ -701,7 +1002,11 @@ class ImageSaverUtil(
                                             canvas.drawColor(context.getColor(R.color.white))
                                     }
                                     val xPoint =
-                                        determineXPoint(isLandscape, firstEditText, textMarginUtil)
+                                        determineXPoint(
+                                            isLandscape,
+                                            firstEditText,
+                                            textMarginUtil
+                                        )
 
                                     var yPoint = determineYPoint(
                                         isLandscape,
@@ -718,10 +1023,66 @@ class ImageSaverUtil(
                                     textPaint.textSize = textPixelSize
                                     textPaint.color = editTextBox.currentTextColor
                                     textPaint.textAlign = textPaintAlignment
-
+                                    var linesToSkipOver = 0
                                     for (line in editTextBox.text.lines()) {
-                                        yPoint += lineHeight
-                                        canvas.drawText(line, xPoint, yPoint, textPaint)
+                                        var shouldPrintLine = true
+                                        if (linesToSkipOver > 0) {
+                                            linesToSkipOver--
+                                            continue
+                                        }
+                                        // check if the line is a spanned line
+                                        if (spannableHashMap[editTextBoxPair.first] != null) {
+                                            var tripleToRemove: Triple<CustomTextStyle, SpannableString, Int?>? =
+                                                null
+                                            for (spannedTextTriple in spannableHashMap[editTextBoxPair.first]!!) {
+                                                val spannedString = spannedTextTriple.second
+                                                if (spannedString.lines().size == 1) {
+                                                    if (line == spannedString.toString()) {
+                                                        yPoint += lineHeight
+                                                        drawToCanvas(
+                                                            canvas = canvas,
+                                                            yPoint = yPoint,
+                                                            xPoint = xPoint,
+                                                            spannedTextTriple = spannedTextTriple,
+                                                            editTextBox = editTextBox,
+                                                            textPixelSize = textPixelSize,
+                                                            line = line
+                                                        )
+                                                        shouldPrintLine = false
+                                                        tripleToRemove = spannedTextTriple
+                                                        break
+                                                    }
+                                                } else {
+                                                    if (spannedString.lines()[0] == line) {
+                                                        //one user entered line was split into multiple lines
+                                                        for (spannedTextLine in spannedString.lines()) {
+                                                            yPoint += lineHeight
+                                                            drawToCanvas(
+                                                                canvas = canvas,
+                                                                yPoint = yPoint,
+                                                                xPoint = xPoint,
+                                                                spannedTextTriple = spannedTextTriple,
+                                                                editTextBox = editTextBox,
+                                                                textPixelSize = textPixelSize,
+                                                                line = spannedTextLine
+                                                            )
+                                                            linesToSkipOver++
+                                                        }
+                                                        shouldPrintLine = false
+                                                        tripleToRemove = spannedTextTriple
+                                                        break
+                                                    }
+                                                }
+                                            }
+                                            if (tripleToRemove != null)
+                                                spannableHashMap[editTextBoxPair.first]?.remove(
+                                                    tripleToRemove
+                                                )
+                                        }
+                                        if (shouldPrintLine) {
+                                            yPoint += lineHeight
+                                            canvas.drawText(line, xPoint, yPoint, textPaint)
+                                        }
                                     }
 
                                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream)
@@ -730,6 +1091,7 @@ class ImageSaverUtil(
                                     progressTracker.set(progressTracker.get() + 1)
                                 }
                             }
+                        }
                         return@withContext 0
                     }
                 }
@@ -738,6 +1100,104 @@ class ImageSaverUtil(
                 return@withContext -1
             }
             return@withContext -1
+        }
+    }
+
+    /**
+     * Updates the spannable string in the spannableHashMap to fit bounds in case it did not
+     *
+     * @param isLandscape orientation of poem
+     * @param firstEditText the first edit text to print
+     * @param lineHeight the line height in the edit text
+     * @param spannableHashMap the hashmap to edit
+     * @param textMarginUtil the text margin utility class containing bounds
+     * @param styleTextAndTextColor the pair value to update
+     * @param imageStrokeMargins margin size if there is a stroke
+     * @param spannableHashMapKey the key to edit
+     * @param spannableHashMapValueIndex the arraylist index number to edit
+     */
+    private fun updateSpannableString(
+        isLandscape: Boolean,
+        firstEditText: EditText,
+        lineHeight: Float,
+        spannableHashMap: HashMap<Int, ArrayList<Triple<CustomTextStyle, SpannableString, Int?>>>,
+        textMarginUtil: TextMarginUtil,
+        styleTextAndTextColor: Triple<CustomTextStyle, SpannableString, Int?>,
+        imageStrokeMargins: Int,
+        spannableHashMapKey: Int,
+        spannableHashMapValueIndex: Int
+    ) {
+        val spannableEditableArrayList: ArrayList<Editable>
+        val tempSpannableString = SpannableStringBuilder("")
+        if (!isLandscape)
+            spannableEditableArrayList = updateTextBounds(
+                styleTextAndTextColor.second.toString(),
+                width = currentPage.width - textMarginUtil.marginLeft - textMarginUtil.marginRight - imageStrokeMargins,
+                lineHeight = firstEditText.lineHeight,
+                height = currentPage.height - textMarginUtil.marginBottom,
+                isLastLine = false,
+                ArrayList()
+            )
+        else
+            spannableEditableArrayList = updateTextBounds(
+                styleTextAndTextColor.second.toString(),
+                width = widthAndHeight.first - textMarginUtil.marginLeft - textMarginUtil.marginRight - imageStrokeMargins,
+                lineHeight = lineHeight.toInt(),
+                height = widthAndHeight.second - textMarginUtil.marginTop - textMarginUtil.marginBottom,
+                isLastLine = false,
+                ArrayList()
+            )
+
+        if (spannableEditableArrayList.size > 1) {
+            for (editable in spannableEditableArrayList) {
+                tempSpannableString.append(editable)
+            }
+
+            spannableHashMap[spannableHashMapKey]?.set(
+                spannableHashMapValueIndex,
+                Triple(
+                    styleTextAndTextColor.first,
+                    SpannableString(tempSpannableString),
+                    styleTextAndTextColor.third
+                )
+            )
+        }
+    }
+
+    /**
+     * Draws spanned text to canvas
+     *
+     * @param canvas the canvas to draw on
+     * @param yPoint the current y axis point
+     * @param xPoint the current x axis point
+     * @param spannedTextTriple the spanned text container
+     * @param editTextBox the editText to use when setting typeface
+     * @param textPixelSize size of the text in Pixels
+     * @param line the line to print
+     */
+    private fun drawToCanvas(
+        canvas: Canvas,
+        yPoint: Float,
+        xPoint: Float,
+        spannedTextTriple: Triple<CustomTextStyle, SpannableString, Int?>,
+        editTextBox: EditText,
+        textPixelSize: Float,
+        line: String
+    ) {
+        if (spannedTextTriple.first == CustomTextStyle.CUSTOM_BOLD) {
+            val tempTextPaint = Paint()
+            tempTextPaint.typeface = Typeface.create(editTextBox.typeface, Typeface.BOLD)
+            tempTextPaint.textSize = textPixelSize
+            tempTextPaint.color = editTextBox.currentTextColor
+            tempTextPaint.textAlign = textPaintAlignment
+            canvas.drawText(line, xPoint, yPoint, tempTextPaint)
+        } else {
+            val tempTextPaint = Paint()
+            tempTextPaint.typeface = editTextBox.typeface
+            tempTextPaint.textSize = textPixelSize
+            tempTextPaint.color = spannedTextTriple.third!!
+            tempTextPaint.textAlign = textPaintAlignment
+            canvas.drawText(line, xPoint, yPoint, tempTextPaint)
         }
     }
 }

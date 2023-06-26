@@ -9,10 +9,15 @@ import android.os.Build
 import android.os.Bundle
 import android.print.PrintManager
 import android.text.*
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
 import android.util.Log
 import android.util.TypedValue
+import android.view.ActionMode
 import android.view.GestureDetector
 import android.view.Gravity
+import android.view.Menu
+import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AnimationUtils
@@ -577,6 +582,83 @@ class CreatePoem : AppCompatActivity() {
             }
         })
 
+        toRetEditTextBox.customSelectionActionModeCallback = object : ActionMode.Callback {
+            var addedOption = false
+
+            /**
+             * Called when action mode is first created. The menu supplied will be used to
+             * generate action buttons for the action mode.
+             *
+             * @param mode ActionMode being created
+             * @param menu Menu used to populate action buttons
+             * @return true if the action mode should be created, false if entering this
+             * mode should be aborted.
+             */
+            override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+                return true
+            }
+
+            /**
+             * Called to refresh an action mode's action menu whenever it is invalidated.
+             *
+             * @param mode ActionMode being prepared
+             * @param menu Menu used to populate action buttons
+             * @return true if the menu or action mode was updated, false otherwise.
+             */
+            override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+                if (!addedOption) {
+                    addedOption = true
+                    val boldSpan = toRetEditTextBox.text.getSpans(
+                        toRetEditTextBox.selectionStart,
+                        toRetEditTextBox.selectionEnd,
+                        StyleSpan::class.java
+                    )
+                    val colorSpan = toRetEditTextBox.text.getSpans(
+                        toRetEditTextBox.selectionStart,
+                        toRetEditTextBox.selectionEnd,
+                        ForegroundColorSpan::class.java
+                    )
+
+                    if (boldSpan.isNotEmpty() || colorSpan.isNotEmpty()) {
+                        menu?.add(R.string.remove_special_text)
+                        return true
+                    }
+                }
+                return false
+            }
+
+            /**
+             * Called to report a user click on an action button.
+             *
+             * @param mode The current ActionMode
+             * @param item The item that was clicked
+             * @return true if this callback handled the event, false if the standard MenuItem
+             * invocation should continue.
+             */
+            override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
+                if (item != null) {
+                    if (item.title == getString(R.string.remove_special_text)) {
+                        TextFormatUtilitySaver.removeSpannableText(
+                            toRetEditTextBox.editableText,
+                            toRetEditTextBox.selectionStart,
+                            toRetEditTextBox.selectionEnd
+                        )
+                        return true
+                    }
+                }
+                return false
+            }
+
+            /**
+             * Called when an action mode is about to be exited and destroyed.
+             *
+             * @param mode The current ActionMode being destroyed
+             */
+            override fun onDestroyActionMode(mode: ActionMode?) {
+                addedOption = false
+            }
+        }
+
         if (poemTheme.backgroundType.toString().contains("OUTLINE")) {
             toRetEditTextBox.layoutParams =
                 adjustTextBounds()
@@ -956,6 +1038,173 @@ class CreatePoem : AppCompatActivity() {
             }
         }
 
+        text.customSelectionActionModeCallback = object : ActionMode.Callback {
+            var addedOption = false
+            lateinit var selectedCoordinates: Pair<Int, Int>
+
+            /**
+             * Called when action mode is first created. The menu supplied will be used to
+             * generate action buttons for the action mode.
+             *
+             * @param mode ActionMode being created
+             * @param menu Menu used to populate action buttons
+             * @return true if the action mode should be created, false if entering this
+             * mode should be aborted.
+             */
+            override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+                return true
+            }
+
+            /**
+             * Called to refresh an action mode's action menu whenever it is invalidated.
+             *
+             * @param mode ActionMode being prepared
+             * @param menu Menu used to populate action buttons
+             * @return true if the menu or action mode was updated, false otherwise.
+             */
+            override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+                if (!addedOption) {
+                    addedOption = true
+                    val boldSpan = text.text.getSpans(
+                        text.selectionStart,
+                        text.selectionEnd,
+                        StyleSpan::class.java
+                    )
+                    val colorSpan = text.text.getSpans(
+                        text.selectionStart,
+                        text.selectionEnd,
+                        ForegroundColorSpan::class.java
+                    )
+
+                    if (boldSpan.isNotEmpty() || colorSpan.isNotEmpty()) {
+                        menu?.add(R.string.remove_special_text)
+                        return true
+                    }
+                }
+                return false
+            }
+
+            /**
+             * Called to report a user click on an action button.
+             *
+             * @param mode The current ActionMode
+             * @param item The item that was clicked
+             * @return true if this callback handled the event, false if the standard MenuItem
+             * invocation should continue.
+             */
+            override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
+                if (item != null) {
+                    if (item.title == getString(R.string.remove_special_text)) {
+                        TextFormatUtilitySaver.removeSpannableText(
+                            text.editableText,
+                            text.selectionStart,
+                            text.selectionEnd
+                        )
+
+//                        val substring =
+//                            text.editableText.substring(text.selectionStart, text.selectionEnd)
+//                        val previousSubstringChar =
+//                            text.editableText.substring(text.selectionStart - 1, text.selectionStart)
+//                        val nextSubStringChar =
+//                            text.editableText.substring(text.selectionEnd, text.selectionEnd + 1)
+//
+//                        //is a substring
+//                        if (previousSubstringChar[0].isLetterOrDigit() || nextSubStringChar[0].isLetterOrDigit()) {
+//                            if (this@CreatePoem::spannableTextMetaData.isInitialized) {
+//                                spannableTextMetaData.removeSubstring(substring)
+//                            }
+//                        } else{
+//                            if (this@CreatePoem::spannableTextMetaData.isInitialized) {
+//                                spannableTextMetaData.removeWord(substring)
+//                            }
+//                        }
+                        return true
+                    }
+                }
+                return false
+            }
+
+            /**
+             * Called when an action mode is about to be exited and destroyed.
+             *
+             * @param mode The current ActionMode being destroyed
+             */
+            override fun onDestroyActionMode(mode: ActionMode?) {
+                addedOption = false
+//                val boldSpan = text.text.getSpans(
+//                    text.selectionStart,
+//                    text.selectionEnd,
+//                    StyleSpan::class.java
+//                )
+//                val colorSpan = text.text.getSpans(
+//                    text.selectionStart,
+//                    text.selectionEnd,
+//                    ForegroundColorSpan::class.java
+//                )
+//
+//                if (boldSpan.isNotEmpty() || colorSpan.isNotEmpty()) {
+//                    val substring =
+//                        text.editableText.substring(text.selectionStart, text.selectionEnd)
+//                    val previousSubstringChar =
+//                        text.editableText.substring(text.selectionStart - 1, text.selectionStart)
+//                    val nextSubStringChar =
+//                        text.editableText.substring(text.selectionEnd, text.selectionEnd + 1)
+//
+//                    //is a substring
+//                    if (previousSubstringChar[0].isLetterOrDigit() || nextSubStringChar[0].isLetterOrDigit()) {
+//                        if (!this@CreatePoem::spannableTextMetaData.isInitialized) {
+//                            spannableTextMetaData = SpannableTextMetaData()
+//                        }
+//                        var hasFoundStart = false
+//                        var textStart = -1
+//                        var textEnd = -2
+//                        var hasFoundEnd = false
+//                        var counter = 1
+//                        while (!hasFoundStart) {
+//                            if (counter >= 0) {
+//                                val charToInspect = text.editableText.substring(
+//                                    text.selectionStart - counter,
+//                                    text.selectionStart - counter + 1
+//                                )
+//                                //word found
+//                                if (charToInspect[0].isWhitespace() || charToInspect[0] == '\n') {
+//                                    textStart = text.selectionStart - counter + 1
+//                                    hasFoundStart = true
+//                                } else {
+//                                    counter++
+//                                }
+//                            } else
+//                                break
+//                        }
+//                        counter = 1
+//                        while (!hasFoundEnd) {
+//                            if (counter <= text.editableText.length - 1) {
+//                                val charToInspect = text.editableText.substring(
+//                                    text.selectionEnd + counter - 1,
+//                                    text.selectionEnd + counter
+//                                )
+//                                //word found
+//                                if (charToInspect[0].isWhitespace() || charToInspect[0] == '\n') {
+//                                    textEnd = text.selectionEnd + counter - 1
+//                                    hasFoundEnd = true
+//                                } else {
+//                                    counter++
+//                                }
+//                            } else
+//                                break
+//                        }
+//                        val fullWord = text.editableText.substring(textStart, textEnd)
+//                        spannableTextMetaData.addWordAndSubstring(
+//                            word = fullWord,
+//                            subString = substring,
+//                            wordLocation = Pair(textStart, textEnd),
+//                            subStringLocation = Pair(text.selectionStart, text.selectionEnd)
+//                        )
+//                    }
+//                }
+            }
+
+        }
     }
 
 
@@ -1163,7 +1412,6 @@ class CreatePoem : AppCompatActivity() {
         val deviceHeight = resources.displayMetrics.heightPixels.toFloat()
 
         if (landscapeHeight != null && landscapeWidth != null) {
-//            landscapeWidth / landscapeHeight
             val bestRatio =
                 (deviceWidth / landscapeWidth).coerceAtMost(deviceHeight / landscapeHeight)
 
@@ -1528,11 +1776,11 @@ class CreatePoem : AppCompatActivity() {
                     }
 
                 }).setNegativeButton(
-                R.string.title_change_cancel
-            ) { dialog, _ ->
-                currentContainerView = null
-                dialog?.dismiss()
-            }.show()
+                    R.string.title_change_cancel
+                ) { dialog, _ ->
+                    currentContainerView = null
+                    dialog?.dismiss()
+                }.show()
         }
     }
 
@@ -1745,6 +1993,8 @@ class CreatePoem : AppCompatActivity() {
             entirePoem.add(editText.text)
         }
 
+        val textFormatUtil = TextFormatUtilitySaver(entirePoem)
+        textFormatUtil.saveFormattedPoemText()
         val categoryToAdd = CategoryUtils.stringToCategory(category)
         val poemDataContainer = PoemDataContainer(categoryToAdd, entirePoem, poemTheme)
         poemDataContainer.setPages(pages)
@@ -1863,7 +2113,6 @@ class CreatePoem : AppCompatActivity() {
      */
     private suspend fun initiateSavePagesAsImages() {
         val editableArrayList = getAllTypedText()
-        getTextMarginSize()
         val imageStrokeMargins =
             if (orientation == "portrait" && currentPage.background != null && currentPage.background !is ColorDrawable)
                 resources.getDimensionPixelSize(R.dimen.portraitStrokeSize)
@@ -2041,7 +2290,6 @@ class CreatePoem : AppCompatActivity() {
         val saveAsPdf = findViewById<TextView>(R.id.pdfSaveContainer)
         val editPoemTheme = findViewById<TextView>(R.id.editPoemTheme)
 
-
         saveAsFile.setOnClickListener {
             turnOffCurrentView()
             turnOffBottomDrawer()
@@ -2067,7 +2315,7 @@ class CreatePoem : AppCompatActivity() {
                 exception.printStackTrace()
 
                 showErrorToast(getString(R.string.error_type_image))
-                turnOffDimmerProgressBar()
+                turnOffImagesDimmerProgressBar()
             }
             lifecycleScope.launch(Dispatchers.Main + exceptionHandler) {
                 createThumbnail()
