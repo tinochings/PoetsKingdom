@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
+import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.util.Log
@@ -28,7 +29,8 @@ class ThumbnailCreator(
     private val width: Int,
     private val height: Int,
     private val textMarginUtil: TextMarginUtil,
-    private val generateBackground : Boolean
+    private val generateBackground : Boolean,
+    private val typeface: Typeface
 ) {
 
     private var poemName = "Default"
@@ -39,8 +41,6 @@ class ThumbnailCreator(
     private lateinit var paint: Paint
     private var xPoint: Float = 0f
     private var yPoint: Float = 0f
-
-
     /**
      * Sets the text alignment to be drawn on bitmap
      *
@@ -81,7 +81,7 @@ class ThumbnailCreator(
         paint = Paint()
         paint.color = poemTheme.textColorAsInt
         paint.textSize = poemTextSize
-        paint.typeface = TypefaceHelper.getTypeFace(poemTheme.textFontFamily + "_font", context)
+        paint.typeface = typeface
     }
 
     /**

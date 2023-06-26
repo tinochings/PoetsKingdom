@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Paint
 import android.graphics.Rect
+import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.pdf.PdfDocument
@@ -23,6 +24,7 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.view.children
 import androidx.core.view.drawToBitmap
 import com.google.android.material.imageview.ShapeableImageView
 import com.wendorochena.poetskingdom.poemdata.PoemTheme
@@ -145,7 +147,13 @@ class PdfPrintAdapter(
         page.canvas.apply {
 
             if (thumbnail) {
-                val thumbnailCreator = ThumbnailCreator(context,poemTheme,this.width,this.height,textUtils, generateBackground = false)
+                var typeface : Typeface = Typeface.DEFAULT
+                for (child in currentPage.children){
+                    if (child is EditText) {
+                        typeface = child.typeface
+                    }
+                }
+                val thumbnailCreator = ThumbnailCreator(context,poemTheme,this.width,this.height,textUtils, generateBackground = false, typeface = typeface)
                 thumbnailCreator.pdfInitiateCreateThumbnail()
 
                 val rect = Rect(0, 0, this.width, this.height)
