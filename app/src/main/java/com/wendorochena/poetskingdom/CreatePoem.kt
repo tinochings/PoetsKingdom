@@ -428,7 +428,10 @@ class CreatePoem : AppCompatActivity() {
     private fun setupOnBackPressed() {
         val callBack = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (!findViewById<ProgressBar>(R.id.progessBar).isVisible) {
+                if (!findViewById<ProgressBar>(R.id.progessBar).isVisible && !findViewById<CardView>(
+                        R.id.imagesProgressCardView
+                    ).isVisible
+                ) {
                     if (currentContainerView != null) {
                         turnOffCurrentView()
                         findViewById<LinearLayout>(R.id.allOptionsContainer).visibility = View.GONE
@@ -830,6 +833,8 @@ class CreatePoem : AppCompatActivity() {
                 dimmer.visibility = View.GONE
                 currentPage = newPage
                 currentPage.bringToFront()
+                if (orientation == "landscape")
+                    resizeView()
             } else {
                 currentPage.visibility = View.GONE
                 currentPage = pageNumberAndId[clickedLayout.tag as Int]?.let { findViewById(it) }!!
@@ -838,6 +843,8 @@ class CreatePoem : AppCompatActivity() {
                 currentPage.visibility = View.VISIBLE
                 currentPage.bringToFront()
                 setEditText(currentPage, true)
+                if (orientation == "landscape")
+                    resizeView()
             }
         }
     }
@@ -883,29 +890,43 @@ class CreatePoem : AppCompatActivity() {
 
         if (Build.VERSION.SDK_INT < 26)
             text.typeface = Typeface.DEFAULT
-        else
-            text.typeface =
-                TypefaceHelper.getTypeFace(poemTheme.textFontFamily + "_font", applicationContext)
+        else {
+            if (poemTheme.bold && poemTheme.italic) {
+                text.typeface = Typeface.create(
+                    TypefaceHelper.getTypeFace(
+                        poemTheme.textFontFamily + "_font",
+                        applicationContext
+                    ), Typeface.BOLD_ITALIC
+                )
+            }
+            else if (poemTheme.bold) {
+                text.typeface = Typeface.create(
+                    TypefaceHelper.getTypeFace(
+                        poemTheme.textFontFamily + "_font",
+                        applicationContext
+                    ), Typeface.BOLD
+                )
+            }
+            else if (poemTheme.italic) {
+                text.typeface = Typeface.create(
+                    TypefaceHelper.getTypeFace(
+                        poemTheme.textFontFamily + "_font",
+                        applicationContext
+                    ), Typeface.ITALIC
+                )
+            }
+            else {
+                text.typeface = TypefaceHelper.getTypeFace(
+                    poemTheme.textFontFamily + "_font",
+                    applicationContext
+                )
+            }
+        }
+
 
         //due to compose integration the xml font array isn't used
 //        text.typeface = TypefaceHelper.getTypeFace(poemTheme.textFontFamily + "_font", applicationContext)
-        if (scaleText) {
-            val settingsPref = getSharedPreferences(
-                getString(R.string.personalisation_sharedpreferences_key),
-                MODE_PRIVATE
-            )
-            val resolution = settingsPref.getString("resolution", "1080 1080")?.split(" ")
-            val landscapeWidth = resolution?.get(0)?.toFloat()
-            val landscapeHeight = resolution?.get(1)?.toFloat()
-            val deviceWidth = resources.displayMetrics.widthPixels.toFloat()
-            val deviceHeight = resources.displayMetrics.heightPixels.toFloat()
-            if (landscapeHeight != null && landscapeWidth != null) {
-                val bestRatio =
-                    (deviceWidth / landscapeWidth).coerceAtMost(deviceHeight / landscapeHeight)
-                text.textSize = poemTheme.textSize.toFloat() * bestRatio
-            }
-        } else
-            text.textSize = poemTheme.textSize.toFloat()
+        text.textSize = poemTheme.textSize.toFloat()
         text.setHintTextColor(poemTheme.textColorAsInt)
         text.setTextColor(poemTheme.textColorAsInt)
         text.setHint(R.string.create_poem_text_view_hint)
@@ -1163,7 +1184,6 @@ class CreatePoem : AppCompatActivity() {
         val deviceHeight = resources.displayMetrics.heightPixels.toFloat()
 
         if (landscapeHeight != null && landscapeWidth != null) {
-//            landscapeWidth / landscapeHeight
             val bestRatio =
                 (deviceWidth / landscapeWidth).coerceAtMost(deviceHeight / landscapeHeight)
 
@@ -1178,6 +1198,14 @@ class CreatePoem : AppCompatActivity() {
                 scaleText = true
             } else
                 currentPage.layoutParams.height = landscapeHeight.toInt()
+
+            if (scaleText) {
+                for (child in currentPage.children) {
+                    if (child is EditText) {
+                        child.textSize = poemTheme.textSize.toFloat() * bestRatio
+                    }
+                }
+            }
         }
     }
 
@@ -1190,11 +1218,10 @@ class CreatePoem : AppCompatActivity() {
         else
             findViewById(R.id.portraitPoemContainer)
 
+        setBackground()
+        prepareText()
         if (orientation == "landscape")
             resizeView()
-        setBackground()
-
-        prepareText()
         currentPage.visibility = View.VISIBLE
         currentPage.tag = 1
 
@@ -1351,6 +1378,54 @@ class CreatePoem : AppCompatActivity() {
     }
 
     /**
+     * Sets the type face for all editTexts
+     *
+     * @param varToChange either bold or italic
+     * @param bold true if changing to bold false otherwise
+     * @param italic true if changing to italic false otherwise
+     */
+    private fun setEditTextTypeface(varToChange: String, bold: Boolean, italic: Boolean) {
+        for (key in pageNumberAndId.keys) {
+            pageNumberAndId[key]?.let {
+                val currFrame = findViewById<FrameLayout>(it)
+                for (child in currFrame.children) {
+                    if (child is EditText) {
+                        if (varToChange == "bold" && bold) {
+                            if (italic)
+                                child.typeface =
+                                    Typeface.create(child.typeface, Typeface.BOLD_ITALIC)
+                            else
+                                child.typeface = Typeface.create(child.typeface, Typeface.BOLD)
+                        } else if (varToChange == "italic" && italic) {
+                            if (bold)
+                                child.typeface =
+                                    Typeface.create(child.typeface, Typeface.BOLD_ITALIC)
+                            else
+                                child.typeface = Typeface.create(child.typeface, Typeface.ITALIC)
+                        } else if (varToChange == "italic") {
+                            if (bold)
+                                child.typeface = Typeface.create(child.typeface, Typeface.BOLD)
+                            else
+                                child.typeface = TypefaceHelper.getTypeFace(
+                                    poemTheme.textFontFamily + "_font",
+                                    applicationContext
+                                )
+                        } else if (varToChange == "bold") {
+                            if (italic)
+                                child.typeface = Typeface.create(child.typeface, Typeface.ITALIC)
+                            else
+                                child.typeface = TypefaceHelper.getTypeFace(
+                                    poemTheme.textFontFamily + "_font",
+                                    applicationContext
+                                )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      *
      * Saves poem as a theme on IO thread
      */
@@ -1383,6 +1458,8 @@ class CreatePoem : AppCompatActivity() {
         val centreVerticalAlign = findViewById<ImageView>(R.id.centerVerticalAlign)
         val centreVerticalLeftAlign = findViewById<ImageView>(R.id.centerVerticalLeftAlign)
         val centreVerticalRightAlign = findViewById<ImageView>(R.id.centerVerticalRightAlign)
+        val italicText = findViewById<ImageView>(R.id.italicFormat)
+        val boldText = findViewById<ImageView>(R.id.boldFormat)
 
 
         leftAlign.setOnClickListener {
@@ -1419,6 +1496,18 @@ class CreatePoem : AppCompatActivity() {
                 TextView.TEXT_ALIGNMENT_TEXT_START,
                 Gravity.CENTER_VERTICAL or Gravity.START
             )
+            actuateSavePoemTheme()
+        }
+
+        boldText.setOnClickListener {
+            poemTheme.bold = !poemTheme.bold
+            setEditTextTypeface("bold", poemTheme.bold, poemTheme.italic)
+            actuateSavePoemTheme()
+        }
+
+        italicText.setOnClickListener {
+            poemTheme.italic = !poemTheme.italic
+            setEditTextTypeface("italic", poemTheme.bold, poemTheme.italic)
             actuateSavePoemTheme()
         }
     }
@@ -1528,11 +1617,11 @@ class CreatePoem : AppCompatActivity() {
                     }
 
                 }).setNegativeButton(
-                R.string.title_change_cancel
-            ) { dialog, _ ->
-                currentContainerView = null
-                dialog?.dismiss()
-            }.show()
+                    R.string.title_change_cancel
+                ) { dialog, _ ->
+                    currentContainerView = null
+                    dialog?.dismiss()
+                }.show()
         }
     }
 
@@ -1690,9 +1779,14 @@ class CreatePoem : AppCompatActivity() {
                 this@CreatePoem.resources,
                 resources.getDimensionPixelSize(R.dimen.strokeSize)
             )
-
+        var typeface :Typeface = Typeface.DEFAULT
+        for (child in currentPage.children){
+            if (child is EditText) {
+                typeface = child.typeface
+            }
+        }
         val thumbnailCreator =
-            ThumbnailCreator(this@CreatePoem, poemTheme, 1080, 1080, textMarginUtil, false)
+            ThumbnailCreator(this@CreatePoem, poemTheme, 1080, 1080, textMarginUtil, false, typeface)
         thumbnailCreator.initiateCreateThumbnail()
     }
 
@@ -1738,6 +1832,12 @@ class CreatePoem : AppCompatActivity() {
     ) {
         val entirePoem = ArrayList<Editable>()
 
+        var typeface :Typeface = Typeface.DEFAULT
+        for (child in currentPage.children){
+            if (child is EditText) {
+                typeface = child.typeface
+            }
+        }
         for (keys in pageNumberAndId.keys) {
             val frame = pageNumberAndId[keys]?.let { findViewById<FrameLayout>(it) }
             val editText = frame?.getChildAt(1) as EditText
@@ -1764,7 +1864,8 @@ class CreatePoem : AppCompatActivity() {
                 1080,
                 1080,
                 textMarginUtil,
-                generateBackground = shouldGenerateBackground
+                generateBackground = shouldGenerateBackground,
+                typeface
             )
             thumbnailCreator.initiateCreateThumbnail()
         }
@@ -2199,6 +2300,8 @@ class CreatePoem : AppCompatActivity() {
         poemTheme.backgroundColorAsInt = poemThemeXmlParser.getPoemTheme().backgroundColorAsInt
         poemTheme.backgroundColor = poemThemeXmlParser.getPoemTheme().backgroundColor
         poemTheme.imagePath = poemThemeXmlParser.getPoemTheme().imagePath
+        poemTheme.bold = poemThemeXmlParser.getPoemTheme().bold
+        poemTheme.italic = poemThemeXmlParser.getPoemTheme().italic
     }
 
 }

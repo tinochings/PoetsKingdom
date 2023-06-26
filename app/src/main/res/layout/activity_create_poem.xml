@@ -181,8 +181,8 @@
         android:layout_marginBottom="60dp"
         android:background="@drawable/transparent_outline"
         android:elevation="4dp"
-        android:orientation="horizontal"
         android:visibility="gone"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -190,10 +190,17 @@
         <LinearLayout
             android:id="@+id/textOptionsContainer"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:baselineAligned="false"
-            android:visibility="gone">
+            android:visibility="gone"
+            >
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:baselineAligned="false">
             <FrameLayout
                 android:layout_width="0dp"
                 android:layout_height="50dp"
@@ -204,6 +211,7 @@
                 <ImageView
                     android:id="@+id/leftAlign"
                     android:layout_width="match_parent"
+                    android:background="@drawable/ripple_effect"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/left_text_align"
                     android:src="@drawable/ic_baseline_format_align_left_24" />
@@ -220,6 +228,7 @@
                     android:id="@+id/centreAlign"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:background="@drawable/ripple_effect"
                     android:contentDescription="@string/center_text_align"
                     android:src="@drawable/ic_baseline_format_align_center_24" />
             </FrameLayout>
@@ -235,6 +244,7 @@
                     android:id="@+id/rightAlign"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:background="@drawable/ripple_effect"
                     android:contentDescription="@string/right_align_text"
                     android:src="@drawable/ic_baseline_format_align_right_24" />
             </FrameLayout>
@@ -249,6 +259,7 @@
                 <ImageView
                     android:id="@+id/centerVerticalAlign"
                     android:layout_width="match_parent"
+                    android:background="@drawable/ripple_effect"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/center_horizontal_text"
                     android:src="@drawable/ic_baseline_align_horizontal_center_24" />
@@ -265,6 +276,7 @@
                     android:id="@+id/centerVerticalLeftAlign"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:background="@drawable/ripple_effect"
                     android:contentDescription="@string/center_horizontal_text"
                     android:src="@drawable/ic_baseline_align_horizontal_left_24" />
             </FrameLayout>
@@ -279,10 +291,45 @@
                 <ImageView
                     android:id="@+id/centerVerticalRightAlign"
                     android:layout_width="match_parent"
+                    android:background="@drawable/ripple_effect"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/center_horizontal_text"
                     android:src="@drawable/ic_baseline_align_horizontal_right_24" />
             </FrameLayout>
+        </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false">
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="48dp">
+                    <ImageView
+                        android:id="@+id/boldFormat"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ripple_effect"
+                        android:contentDescription="@string/bold_format_text"
+                        android:src="@drawable/baseline_format_bold_24" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="48dp">
+                    <ImageView
+                        android:id="@+id/italicFormat"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ripple_effect"
+                        android:contentDescription="@string/italicise_text"
+                        android:src="@drawable/baseline_format_italic_24" />
+                </FrameLayout>
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -335,6 +382,7 @@
                 android:textColor="@color/text_color"
                 android:textSize="@dimen/heading_layout_normal"
                 android:textStyle="bold"
+                android:background="@drawable/ripple_effect"
                 app:drawableStartCompat="@drawable/pdf_icon" />
 
             <TextView
@@ -345,6 +393,7 @@
                 android:layout_marginTop="5dp"
                 android:gravity="center"
                 android:text="@string/save_image"
+                android:background="@drawable/ripple_effect"
                 android:textAlignment="center"
                 android:textColor="@color/text_color"
                 android:textSize="@dimen/heading_layout_normal"
@@ -359,6 +408,7 @@
                 android:layout_marginTop="5dp"
                 android:gravity="center"
                 android:text="@string/save_file"
+                android:background="@drawable/ripple_effect"
                 android:textAlignment="center"
                 android:textColor="@color/text_color"
                 android:textSize="@dimen/heading_layout_normal"
@@ -376,6 +426,7 @@
                 android:textAlignment="center"
                 android:textColor="@color/text_color"
                 android:textSize="@dimen/heading_layout_normal"
+                android:background="@drawable/ripple_effect"
                 android:textStyle="bold"
                 app:drawableStartCompat="@drawable/ic_baseline_edit_24" />
         </LinearLayout>
