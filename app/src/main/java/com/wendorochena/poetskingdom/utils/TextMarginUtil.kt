@@ -6,8 +6,8 @@ import com.wendorochena.poetskingdom.poemdata.OutlineTypes
 
 class TextMarginUtil {
 
-    var marginLeft = 1
-    var marginRight = 1
+    var marginLeft = 0
+    var marginRight = 0
     var marginTop = 0
     var marginBottom = 0
 
