@@ -278,6 +278,30 @@ class TypefaceHelper {
                 "dearest_winnie_font" -> {
                     return ResourcesCompat.getFont(applicationContext, R.font.dearest_winnie_font)
                 }
+                "x_typewriter_font" -> {
+                    return ResourcesCompat.getFont(applicationContext, R.font.x_typewriter)
+                }
+                "turpis_serif_font" -> {
+                    return ResourcesCompat.getFont(applicationContext, R.font.turpis_serif)
+                }
+                "santello_font" -> {
+                    return ResourcesCompat.getFont(applicationContext, R.font.santello)
+                }
+                "handwritten_madness_font" -> {
+                    return ResourcesCompat.getFont(applicationContext, R.font.handwritten_madness)
+                }
+                "desard_font" -> {
+                    return ResourcesCompat.getFont(applicationContext, R.font.desard)
+                }
+                "helvetica_font" -> {
+                    return ResourcesCompat.getFont(applicationContext, R.font.helvetica)
+                }
+                "arial_font" -> {
+                    return ResourcesCompat.getFont(applicationContext, R.font.arial)
+                }
+                "calibri_font" -> {
+                    return ResourcesCompat.getFont(applicationContext, R.font.calibri)
+                }
             }
             return DEFAULT
         }
@@ -508,6 +532,30 @@ class TypefaceHelper {
                 }
                 "dearest_winnie" -> {
                     return FontFamily(Font(R.font.dearest_winnie))
+                }
+                "x_typewriter" -> {
+                    return FontFamily(Font(R.font.x_typewriter))
+                }
+                "turpis_serif" -> {
+                    return FontFamily(Font(R.font.turpis_serif))
+                }
+                "santello" -> {
+                    return FontFamily(Font(R.font.santello))
+                }
+                "handwritten_madness" -> {
+                    return FontFamily(Font(R.font.handwritten_madness))
+                }
+                "desard" -> {
+                    return FontFamily(Font(R.font.desard))
+                }
+                "helvetica" -> {
+                    return FontFamily(Font(R.font.helvetica))
+                }
+                "arial" -> {
+                    return FontFamily(Font(R.font.arial))
+                }
+                "calibri" -> {
+                    return FontFamily(Font(R.font.calibri))
                 }
             }
             return FontFamily(DEFAULT)
