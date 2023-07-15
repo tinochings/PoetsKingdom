@@ -464,22 +464,6 @@ class CreatePoem : AppCompatActivity() {
     }
 
     /**
-     * Returns the margin size for text
-     */
-    private fun getTextMarginSize(): Int {
-        return if (poemTheme.outline == OutlineTypes.ROTATED_TEARDROP.toString())
-            resources.getDimensionPixelSize(R.dimen.previewWithOutlineTextMarginTeardrop)
-        else if (poemTheme.outline == OutlineTypes.TEARDROP.toString())
-            resources.getDimensionPixelSize(R.dimen.rotatedTeardropCornerSizeTopLeft)
-        else if (poemTheme.backgroundType.toString()
-                .contains("OUTLINE")
-        )
-            resources.getDimensionPixelSize(R.dimen.portraitStrokeSizeMarginText)
-        else
-            0
-    }
-
-    /**
      * Initialises recycler view and the adapter for it
      */
     private fun setupRecyclerView() {
@@ -1964,7 +1948,6 @@ class CreatePoem : AppCompatActivity() {
      */
     private suspend fun initiateSavePagesAsImages() {
         val editableArrayList = getAllTypedText()
-        getTextMarginSize()
         val imageStrokeMargins =
             if (orientation == "portrait" && currentPage.background != null && currentPage.background !is ColorDrawable)
                 resources.getDimensionPixelSize(R.dimen.portraitStrokeSize)
