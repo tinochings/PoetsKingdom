@@ -43,10 +43,9 @@ class ImageSaverUtil(
     private val widthAndHeight: Pair<Int, Int>
 ) {
     private lateinit var textPaintAlignment: Paint.Align
-    private var missingLineTag = "MISSING LINE/LINES AT INDEX: "
     var progressTracker: ObservableInt = ObservableInt(0)
     var totalPages = ObservableInt(0)
-    private var isTextCentred : Boolean = false
+    private var isTextCentred: Boolean = false
 
     companion object {
         /**
@@ -106,10 +105,12 @@ class ImageSaverUtil(
             TextAlignment.LEFT -> {
                 Paint.Align.LEFT
             }
+
             TextAlignment.CENTRE, TextAlignment.CENTRE_VERTICAL -> {
                 isTextCentred = true
                 Paint.Align.LEFT
             }
+
             TextAlignment.RIGHT -> {
                 Paint.Align.RIGHT
             }
@@ -198,8 +199,18 @@ class ImageSaverUtil(
                     val currentWord = words[indexCounter]
                     paint.getTextBounds(currentWord, 0, currentWord.length, bounds)
                     if (bounds.width() > width) {
-                        if (!lines.addAll(updateLongWordBounds(currentWord, paint, width)))
-                            println("$missingLineTag $indexCounter")
+                        val longWordLines = updateLongWordBounds(currentWord, paint, width)
+                        for ((index, line) in longWordLines.withIndex()) {
+                            if (index < longWordLines.size - 1)
+                                lines.add(line)
+                            else {
+                                paint.getTextBounds(line, 0, line.length, bounds)
+                                if (bounds.width() < width)
+                                    currentLine = line.slice(0 until (line.length - 1))
+                                else
+                                    lines.add(line)
+                            }
+                        }
                         indexCounter++
                     } else {
                         currentLine += if (currentLine.isNotEmpty())
@@ -506,7 +517,7 @@ class ImageSaverUtil(
             return firstEditText.y
         else if (!isLandscape)
             return determineCentreVerticalYPoint(
-                currentPage.height - imageStrokeMargins,
+                firstEditText.height,
                 editTextBox.text.lines().size,
                 lineHeight
             )
@@ -609,15 +620,15 @@ class ImageSaverUtil(
                             val editTextsToPrint = if (!isLandscape)
                                 formatPagesToSave(
                                     editable,
-                                    currentPage.height - textMarginUtil.marginBottom,
-                                    currentPage.width - textMarginUtil.marginLeft - textMarginUtil.marginRight - imageStrokeMargins,
+                                    firstEditText.height,
+                                    firstEditText.width,
                                     firstEditText.lineHeight
                                 )
                             else
                                 formatPagesToSave(
                                     editable,
                                     height = widthAndHeight.second - textMarginUtil.marginTop - textMarginUtil.marginBottom,
-                                    width = widthAndHeight.first - textMarginUtil.marginLeft - textMarginUtil.marginRight - imageStrokeMargins,
+                                    width = widthAndHeight.first - textMarginUtil.marginLeft - textMarginUtil.marginRight,
                                     lineHeight.toInt()
                                 )
                             editTextArrayList.addAll(editTextsToPrint)
@@ -625,7 +636,7 @@ class ImageSaverUtil(
                         totalPages.set(editTextArrayList.size)
                         for (editTextBox in editTextArrayList) {
                             val imageToAdd =
-                                File(subFolderWithTitleAsName.absolutePath + File.separator + "stanza$counter" + ".png")
+                                File(subFolderWithTitleAsName.absolutePath + File.separator + "$title Stanza$counter" + ".png")
                             if (imageToAdd.exists() || imageToAdd.createNewFile()) {
                                 val outStream = FileOutputStream(imageToAdd)
 
@@ -727,11 +738,10 @@ class ImageSaverUtil(
                                     yPoint += lineHeight
                                     if (isTextCentred) {
                                         val bounds = Rect()
-                                        textPaint.getTextBounds(line,0,line.length,bounds)
+                                        textPaint.getTextBounds(line, 0, line.length, bounds)
                                         val xOffset = (canvas.width / 2F) - (bounds.width() / 2F)
                                         canvas.drawText(line, xOffset, yPoint, textPaint)
-                                    }
-                                    else
+                                    } else
                                         canvas.drawText(line, xPoint, yPoint, textPaint)
                                 }
 
