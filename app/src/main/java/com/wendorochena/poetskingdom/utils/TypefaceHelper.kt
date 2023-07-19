@@ -316,6 +316,7 @@ class TypefaceHelper {
                 "fathia_font" -> {
                     return ResourcesCompat.getFont(applicationContext, R.font.fathia)
                 }
+
                 "cursivesans_book_font" -> {
                     return ResourcesCompat.getFont(applicationContext, R.font.cursivesans_book)
                 }
@@ -588,6 +589,7 @@ class TypefaceHelper {
                 "fathia" -> {
                     return FontFamily(Font(R.font.fathia))
                 }
+
                 "cursivesans_book" -> {
                     return FontFamily(Font(R.font.cursivesans_book))
                 }
