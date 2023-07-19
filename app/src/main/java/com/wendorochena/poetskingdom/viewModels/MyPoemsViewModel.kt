@@ -77,7 +77,7 @@ class MyPoemsViewModel : ViewModel() {
 
     // poem name as key and album as value
     val savedPoemAndAlbum = HashMap<String, String>()
-    val searchResultIndexToUse = HashMap<String,Int>()
+    val searchResultIndexToUse = HashMap<String, Int>()
 
 
     /**
@@ -267,7 +267,7 @@ class MyPoemsViewModel : ViewModel() {
      *
      * @param applicationContext context of the application
      */
-    fun shareIntent(applicationContext: Context) {
+    fun shareIntent(applicationContext: Context, poemToShare: File?): ArrayList<Uri>? {
         val mapToUse = if (albumNameSelection == allPoemsString)
             allSavedPoems
         else
@@ -282,27 +282,36 @@ class MyPoemsViewModel : ViewModel() {
                     applicationContext.getString(R.string.saved_images_folder_name),
                     AppCompatActivity.MODE_PRIVATE
                 )
-            val poemName = selectedElements.keys.first().name.split(".")[0].replace(' ', '_')
+            val poemName = if (poemToShare == null)
+                selectedElements.keys.first().name.split(".")[0].replace(' ', '_')
+            else
+                poemToShare.name.split(".")[0]
+
             val poemSavedImagesFolder =
                 File(savedImagesFolder.absolutePath + File.separator + poemName)
 
             if (poemSavedImagesFolder.exists()) {
                 val filesToShare = poemSavedImagesFolder.listFiles()
                 if (filesToShare != null && filesToShare.isNotEmpty()) {
-                    var toShare = arrayOf(selectedElements.keys.first())
+                    var toShare = if (poemToShare == null)
+                        arrayOf(selectedElements.keys.first())
+                    else
+                        arrayOf(poemToShare)
+
                     toShare += filesToShare
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        shareIntentAndroidQPlus(
+                        return shareIntentAndroidQPlus(
                             toShare,
                             poemName,
-                            applicationContext = applicationContext
+                            applicationContext = applicationContext,
+                            poemToShare != null
                         )
                     } else {
                         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && applicationContext.checkSelfPermission(
                                 android.Manifest.permission.WRITE_EXTERNAL_STORAGE
                             ) == PackageManager.PERMISSION_GRANTED
                         ) {
-                            val imageUris: java.util.ArrayList<Uri> = java.util.ArrayList()
+                            val imageUris: ArrayList<Uri> = ArrayList()
                             try {
                                 val directory = File(
                                     Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
@@ -351,6 +360,9 @@ class MyPoemsViewModel : ViewModel() {
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
+                            if (poemToShare != null)
+                                return imageUris
+
                             val shareIntent = Intent().apply {
                                 action = Intent.ACTION_SEND_MULTIPLE
                                 putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris)
@@ -376,6 +388,7 @@ class MyPoemsViewModel : ViewModel() {
                     .show()
             }
         }
+        return null
     }
 
     /**
@@ -388,8 +401,9 @@ class MyPoemsViewModel : ViewModel() {
     private fun shareIntentAndroidQPlus(
         filesToShare: Array<File>,
         poemName: String,
-        applicationContext: Context
-    ) {
+        applicationContext: Context,
+        isExternalShareIntent: Boolean
+    ): ArrayList<Uri>? {
         try {
             val imageUris = kotlin.collections.ArrayList<Uri>()
             for ((counter, file) in filesToShare.withIndex()) {
@@ -422,7 +436,8 @@ class MyPoemsViewModel : ViewModel() {
                         )
                     }
                 val resolver = applicationContext.contentResolver
-                val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+                val uri =
+                    resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
 
                 val inputStream = FileInputStream(file)
 
@@ -438,16 +453,21 @@ class MyPoemsViewModel : ViewModel() {
                     imageUris.add(uri)
                 }
             }
+            if (isExternalShareIntent)
+                return imageUris
+
             val shareIntent = Intent().apply {
                 action = Intent.ACTION_SEND_MULTIPLE
                 putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris)
                 type = "image/*"
             }
+
             this.shareIntent.value = shareIntent
             onImageLongPressed = false
         } catch (e: IOException) {
             e.printStackTrace()
         }
+        return null
     }
 
     /**
@@ -510,8 +530,8 @@ class MyPoemsViewModel : ViewModel() {
                     viewModelScope.launch(mainDispatcher + handler) {
                         if (sender != null) {
                             if (itemCount == 1 && sender[0].first == "null" && sender[0].second == "null") {
-                                    displayNoResultsFound = true
-                                    hitsFound = false
+                                displayNoResultsFound = true
+                                hitsFound = false
                             } else {
                                 substringLocations.addAll(sender)
                                 if (displayNoResultsFound)
@@ -522,14 +542,14 @@ class MyPoemsViewModel : ViewModel() {
                                     Context.MODE_PRIVATE
                                 )
 
-                                for ((index,filePair) in subStringLocations.withIndex()) {
+                                for ((index, filePair) in subStringLocations.withIndex()) {
                                     val backgroundFileImage =
                                         File(
                                             backgroundImageDrawableFolder.absolutePath + File.separator + filePair.first.split(
                                                 "."
                                             )[0] + ".png"
                                         )
-                                        searchResultFiles.add(backgroundFileImage)
+                                    searchResultFiles.add(backgroundFileImage)
                                     searchResultIndexToUse[filePair.first] = index
                                 }
                                 hitsFound = true

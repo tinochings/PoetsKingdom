@@ -999,7 +999,7 @@ fun PoemListView(myPoemsViewModel: MyPoemsViewModel) {
 fun BottomBar(myPoemsViewModel: MyPoemsViewModel) {
     val context = LocalContext.current
     val onShareIntent: () -> Unit = {
-        myPoemsViewModel.shareIntent(context.applicationContext)
+        myPoemsViewModel.shareIntent(context.applicationContext, null)
     }
     Box(
         modifier = Modifier

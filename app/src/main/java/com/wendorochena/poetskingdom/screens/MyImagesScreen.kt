@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -47,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -193,7 +195,7 @@ fun FirstUseDialog(
 @Composable
 fun FloatingActionButton(myImagesViewModel: MyImagesViewModel) {
     val context = LocalContext.current
-
+    LocalLifecycleOwner.current
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents(),
         onResult = { uriList ->
@@ -215,46 +217,65 @@ fun FloatingActionButton(myImagesViewModel: MyImagesViewModel) {
         if (it)
             imagePicker.launch("image/*")
     }
-    androidx.compose.material.FloatingActionButton(
-        onClick = { },
-        backgroundColor = DefaultColor
-    ) {
-        var onClick by remember {
-            mutableStateOf(false)
-        }
-        if (myImagesViewModel.floatingButtonStateVar == FloatingButtonState.ADDIMAGE) {
+    var onClick by remember {
+        mutableStateOf(false)
+    }
+    if (myImagesViewModel.floatingButtonStateVar == FloatingButtonState.ADDIMAGE) {
+        androidx.compose.material3.FloatingActionButton(
+            onClick = { },
+            containerColor = DefaultColor,
+            shape = CircleShape
+        ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_baseline_add_a_photo_24),
                 contentDescription = "",
                 colorFilter = ColorFilter.tint(color = Color.White),
                 modifier = Modifier.clickable { onClick = true }
             )
-        } else {
-            Image(
-                painter = painterResource(id = R.drawable.ic_baseline_delete_24),
-                contentDescription = "",
-                colorFilter = ColorFilter.tint(color = Color.White),
-                modifier = Modifier.clickable {
+        }
+    } else {
+        Column {
+            if (myImagesViewModel.currentSelection == CurrentSelection.POEMS) {
+                androidx.compose.material3.FloatingActionButton(
+                    onClick = { myImagesViewModel.initiateShareIntent(context) },
+                    containerColor = DefaultColor,
+                    shape = CircleShape
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_baseline_share_24),
+                        contentDescription = "",
+                        colorFilter = ColorFilter.tint(color = Color.White),
+                    )
+                }
+                Spacer(modifier = Modifier.height(5.dp))
+            }
+            androidx.compose.material3.FloatingActionButton(
+                onClick = {
                     if (myImagesViewModel.currentSelection == CurrentSelection.IMAGES) myImagesViewModel.deleteImages()
                     else myImagesViewModel.deleteSavedPoems(context = context)
-                }
-            )
-        }
-        if (onClick) {
-            if (Build.VERSION.SDK_INT < 33 && LocalContext.current.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) ==
-                PackageManager.PERMISSION_GRANTED || Build.VERSION.SDK_INT >= 33 && LocalContext.current.checkSelfPermission(
-                    Manifest.permission.READ_MEDIA_IMAGES
-                ) == PackageManager.PERMISSION_GRANTED
-            )
-                imagePicker.launch("image/*")
-            else {
-                if (Build.VERSION.SDK_INT >= 33)
-                    permissionsResultLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
-                else
-                    permissionsResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                },
+                containerColor = DefaultColor,
+                shape = CircleShape
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_baseline_delete_24),
+                    contentDescription = "",
+                    colorFilter = ColorFilter.tint(color = Color.White),
+                )
             }
-            onClick = false
         }
+    }
+    if (onClick) {
+        if (Build.VERSION.SDK_INT < 33 && LocalContext.current.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) ==
+            PackageManager.PERMISSION_GRANTED || Build.VERSION.SDK_INT >= 33 && LocalContext.current.checkSelfPermission(
+                Manifest.permission.READ_MEDIA_IMAGES
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+            imagePicker.launch("image/*")
+        else {
+            permissionsResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+        onClick = false
     }
 
 }
@@ -283,7 +304,9 @@ fun PoemImagesView(myImagesViewModel: MyImagesViewModel, modifier: Modifier = Mo
     val imageFiles = myImagesViewModel.getThumbnails(LocalContext.current.applicationContext)
     val imageFileKeys = imageFiles.keys.asSequence().sortedByDescending { it.lastModified() }
     LazyVerticalGrid(
-        modifier = modifier.padding(top = 5.dp).fillMaxWidth(), columns = GridCells.Fixed(2),
+        modifier = modifier
+            .padding(top = 5.dp)
+            .fillMaxWidth(), columns = GridCells.Fixed(2),
         verticalArrangement = Arrangement.spacedBy(10.dp),
         horizontalArrangement = Arrangement.spacedBy(3.dp)
     ) {

@@ -1,10 +1,13 @@
 package com.wendorochena.poetskingdom.viewModels
 
 import android.content.Context
+import android.content.Intent
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import com.wendorochena.poetskingdom.R
 import java.io.File
@@ -32,6 +35,7 @@ class MyImagesViewModel : ViewModel() {
         private set
     var imageFiles = mutableStateMapOf<File, Boolean>()
         private set
+    private lateinit var myPoemsViewModel: MyPoemsViewModel
 
     /**
      * @param selection the selection to set the current value to
@@ -103,7 +107,7 @@ class MyImagesViewModel : ViewModel() {
             }
             onImageLongPressed = false
             setFloatingButtonState(FloatingButtonState.ADDIMAGE)
-        } catch (e : IOException){
+        } catch (e: IOException) {
             e.printStackTrace()
         }
     }
@@ -114,19 +118,20 @@ class MyImagesViewModel : ViewModel() {
      * @param savedPoemsPath the file with the path to consider
      * @param poemName the name of the poem
      */
-    private fun hasPoemPath(savedPoemsPath : File, poemName: String) : Boolean{
+    private fun hasPoemPath(savedPoemsPath: File, poemName: String): Boolean {
         if (File(savedPoemsPath.absolutePath + File.separator + poemName).exists())
             return true
         val albums = savedPoemsPath.listFiles()
 
-        if (albums != null){
-            for (album in albums){
+        if (albums != null) {
+            for (album in albums) {
                 if (File(album.absolutePath + File.separator + poemName).exists())
                     return true
             }
         }
         return false
     }
+
     /**
      * Deletes saved poem images
      *
@@ -153,9 +158,9 @@ class MyImagesViewModel : ViewModel() {
                         ""
                     )
                 )
-                val hasSavedPoem = hasPoemPath(savedPoemsPath, file.name.replace(".png",".xml"))
+                val hasSavedPoem = hasPoemPath(savedPoemsPath, file.name.replace(".png", ".xml"))
                 if (fullPathToDelete.exists())
-                    if(fullPathToDelete.deleteRecursively()) {
+                    if (fullPathToDelete.deleteRecursively()) {
                         savedPoemImages.remove(file)
                         if (!hasSavedPoem)
                             file.delete()
@@ -205,6 +210,7 @@ class MyImagesViewModel : ViewModel() {
         }
         return savedPoemImages
     }
+
     /**
      * @param imagePath the path to the image that we want to copy
      * @param context Context
@@ -212,7 +218,8 @@ class MyImagesViewModel : ViewModel() {
      * This function copies any selected image or images to our own local folder
      */
     fun copyToLocalFolder(imagePath: String?, context: Context) {
-        val localImageFolder = context.getDir(context.getString(R.string.my_images_folder_name), Context.MODE_PRIVATE)
+        val localImageFolder =
+            context.getDir(context.getString(R.string.my_images_folder_name), Context.MODE_PRIVATE)
         try {
             var newFileName = ""
             if (imagePath != null) {
@@ -250,7 +257,7 @@ class MyImagesViewModel : ViewModel() {
      * Sets the on click value of each file to false if it was selected
      */
     fun resetSelectedImages() {
-        if(currentSelection == CurrentSelection.IMAGES) {
+        if (currentSelection == CurrentSelection.IMAGES) {
             val keys = imageFiles.filter { it.value }
             for (selectedKeys in keys) {
                 imageFiles[selectedKeys.key] = false
@@ -261,5 +268,31 @@ class MyImagesViewModel : ViewModel() {
                 savedPoemImages[selectedKeys.key] = false
             }
         }
+    }
+
+    /**
+     * Initiates a share intent
+     */
+    fun initiateShareIntent(context: Context) {
+        if (!this::myPoemsViewModel.isInitialized)
+            myPoemsViewModel = MyPoemsViewModel()
+
+        val fileToShare = savedPoemImages.filter { it.value }
+
+        if (fileToShare.size > 1)
+            Toast.makeText(context, R.string.share_as_image_toast, Toast.LENGTH_LONG)
+                .show()
+
+        val imageUris = myPoemsViewModel.shareIntent(context, fileToShare.keys.first())
+
+        val shareIntent = Intent().apply {
+            action = Intent.ACTION_SEND_MULTIPLE
+            putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris)
+            type = "image/*"
+        }
+        onImageLongPressed = false
+        setFloatingButtonState(FloatingButtonState.ADDIMAGE)
+        resetSelectedImages()
+        ContextCompat.startActivity(context,shareIntent,null)
     }
 }
