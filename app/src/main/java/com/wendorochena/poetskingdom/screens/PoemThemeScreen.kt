@@ -61,6 +61,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -349,6 +351,8 @@ fun ThemePreview(
                         fontSize = poemThemeViewModel.fontSize.sp,
                         color = Color(poemThemeViewModel.fontColor),
                         fontFamily = poemThemeViewModel.textFontFamily,
+                        fontWeight = if (poemThemeViewModel.isBold) FontWeight.Bold else null,
+                        fontStyle = if (poemThemeViewModel.isItalic) FontStyle.Italic else null,
                         textAlign = poemThemeViewModel.texAlignmentToTextAlign()
                     )
                 }
@@ -661,6 +665,9 @@ fun ThemeOptions(
     val onTextAlignClicked: (TextAlignment) -> Unit = {
         poemThemeViewModel.setTextAlign(it)
     }
+    val onBoldOrItalicClicked: (String) -> Unit = {
+        poemThemeViewModel.boldenOrItaliciseText(it)
+    }
     Column(
         modifier = Modifier
             .fillMaxHeight()
@@ -817,7 +824,11 @@ fun ThemeOptions(
                     textColor = poemThemeViewModel.fontColor,
                     onFontItemClicked = onFontItemClicked,
                     onTextAlignClicked = onTextAlignClicked,
-                    defaultTextValue = poemThemeViewModel.fontSize
+                    onBoldOrItalicClicked = onBoldOrItalicClicked,
+                    defaultTextValue = poemThemeViewModel.fontSize,
+                    selectedFont = poemThemeViewModel.textFontFamilyString,
+                    isBold = poemThemeViewModel.isBold,
+                    isItalic = poemThemeViewModel.isItalic
                 )
             }
         }
@@ -930,82 +941,134 @@ fun SliderLayout(textSizeChange: (Float) -> Unit, defaultTextValue: Float) {
 @Composable
 fun TextColorAndAlignment(
     colorPickerDialog: @Composable (HeadingSelection) -> Unit, textColor: Int,
-    onTextAlignClicked: (TextAlignment) -> Unit
+    onTextAlignClicked: (TextAlignment) -> Unit,
+    onBoldOrItalicClicked: (String) -> Unit,
+    isBold: Boolean,
+    isItalic: Boolean
 ) {
     var shouldDisplayDialog by remember { mutableStateOf(false) }
-    Row(modifier = Modifier.fillMaxWidth()) {
-        Column(
-            modifier = Modifier
-                .weight(1f, true)
-                .height(80.dp)
-                .clickable { shouldDisplayDialog = true }
-        ) {
-            Text(
-                text = stringResource(id = R.string.text_color),
-                style = MaterialTheme.typography.h1,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                color = Color(textColor)
-            )
-            Image(
-                painter = painterResource(id = R.drawable.text_color),
-                contentDescription = "Text Color Image",
+    Column {
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Column(
                 modifier = Modifier
-                    .height(48.dp)
-                    .fillMaxWidth()
-                    .align(Alignment.CenterHorizontally),
-                colorFilter = ColorFilter.tint(color = Color(textColor))
-            )
+                    .weight(1f, true)
+                    .height(80.dp)
+                    .clickable { shouldDisplayDialog = true }
+            ) {
+                Text(
+                    text = stringResource(id = R.string.text_color),
+                    style = MaterialTheme.typography.h1,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    color = Color(textColor)
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.text_color),
+                    contentDescription = "Text Color Image",
+                    modifier = Modifier
+                        .height(48.dp)
+                        .fillMaxWidth()
+                        .align(Alignment.CenterHorizontally),
+                    colorFilter = ColorFilter.tint(color = Color(textColor))
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .weight(1f, true)
+                    .height(80.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_baseline_format_align_left_24),
+                    contentDescription = stringResource(
+                        id = R.string.left_text_align
+                    ),
+                    Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .clickable { onTextAlignClicked.invoke(TextAlignment.LEFT) }
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.ic_baseline_format_align_center_24),
+                    contentDescription = stringResource(
+                        id = R.string.center_text_align
+                    ),
+                    Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .clickable { onTextAlignClicked.invoke(TextAlignment.CENTRE) }
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.ic_baseline_align_horizontal_center_24),
+                    contentDescription = stringResource(
+                        id = R.string.center_horizontal_text
+                    ),
+                    Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .clickable { onTextAlignClicked.invoke(TextAlignment.CENTRE_VERTICAL) }
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.ic_baseline_format_align_right_24),
+                    contentDescription = stringResource(
+                        id = R.string.right_align_text
+                    ),
+                    Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .clickable { onTextAlignClicked.invoke(TextAlignment.RIGHT) }
+                )
+            }
         }
-        Row(
-            modifier = Modifier
-                .weight(1f, true)
-                .height(80.dp)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_baseline_format_align_left_24),
-                contentDescription = stringResource(
-                    id = R.string.left_text_align
-                ),
-                Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .clickable { onTextAlignClicked.invoke(TextAlignment.LEFT) }
-            )
-            Image(
-                painter = painterResource(id = R.drawable.ic_baseline_format_align_center_24),
-                contentDescription = stringResource(
-                    id = R.string.center_text_align
-                ),
-                Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .clickable { onTextAlignClicked.invoke(TextAlignment.CENTRE) }
-            )
-            Image(
-                painter = painterResource(id = R.drawable.ic_baseline_align_horizontal_center_24),
-                contentDescription = stringResource(
-                    id = R.string.center_horizontal_text
-                ),
-                Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .clickable { onTextAlignClicked.invoke(TextAlignment.CENTRE_VERTICAL) }
-            )
-            Image(
-                painter = painterResource(id = R.drawable.ic_baseline_format_align_right_24),
-                contentDescription = stringResource(
-                    id = R.string.right_align_text
-                ),
-                Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .clickable { onTextAlignClicked.invoke(TextAlignment.RIGHT) }
-            )
+
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .weight(1f, true)
+                    .height(80.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.baseline_format_bold_24),
+                    contentDescription = stringResource(
+                        id = R.string.bold_format_text
+                    ),
+                    if (isBold)
+                        Modifier
+                            .fillMaxHeight()
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .background(color = MaterialTheme.colors.secondary)
+                            .clickable { onBoldOrItalicClicked.invoke("bold") }
+                else
+                        Modifier
+                            .fillMaxHeight()
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .clickable { onBoldOrItalicClicked.invoke("bold") }
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.baseline_format_italic_24),
+                    contentDescription = stringResource(
+                        id = R.string.italicise_text
+                    ),
+                    if (isItalic)
+                        Modifier
+                            .fillMaxHeight()
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .background(color = MaterialTheme.colors.secondary)
+                            .clickable { onBoldOrItalicClicked.invoke("italic") }
+                    else
+                        Modifier
+                            .fillMaxHeight()
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .clickable { onBoldOrItalicClicked.invoke("italic") }
+                )
+            }
         }
     }
     if (shouldDisplayDialog) {
@@ -1021,7 +1084,11 @@ fun TextLayout(
     textColor: Int,
     onFontItemClicked: (FontFamily, String) -> Unit,
     onTextAlignClicked: (TextAlignment) -> Unit,
-    defaultTextValue: Float
+    onBoldOrItalicClicked: (String) -> Unit,
+    defaultTextValue: Float,
+    selectedFont: String,
+    isBold : Boolean,
+    isItalic : Boolean,
 ) {
     val allFonts = stringArrayResource(id = R.array.customFontNamesCompose)
     val numOfFonts = allFonts.size
@@ -1036,19 +1103,37 @@ fun TextLayout(
             TextColorAndAlignment(
                 colorPickerDialog,
                 textColor = textColor,
-                onTextAlignClicked = onTextAlignClicked
+                onTextAlignClicked = onTextAlignClicked,
+                onBoldOrItalicClicked = onBoldOrItalicClicked,
+                isBold = isBold,
+                isItalic = isItalic
             )
         }
         items(numOfFonts) {
-            FontFaceItem(allFonts[it], onFontItemClicked)
+            val fontItem = allFonts[it]
+            val fontFamily = TypefaceHelper.getTypeFace(fontItem)
+            val modifier = if (selectedFont == fontItem)
+                Modifier
+                    .height(80.dp)
+                    .clickable { onFontItemClicked.invoke(fontFamily, fontItem) }
+                    .background(color = MaterialTheme.colors.secondary)
+            else
+                Modifier
+                    .height(80.dp)
+                    .clickable { onFontItemClicked.invoke(fontFamily, fontItem) }
+
+            FontFaceItem(modifier, fontItem, fontFamily)
         }
     }
 }
 
 
 @Composable
-fun FontFaceItem(fontItem: String, onFontItemClicked: (FontFamily, String) -> Unit) {
-    val fontFamily = TypefaceHelper.getTypeFace(fontItem)
+fun FontFaceItem(
+    modifier: Modifier,
+    fontItem: String,
+    fontFamily: FontFamily
+) {
     val typefaceNameArr = fontItem.split('_')
     var fontText = if (typefaceNameArr.size > 1)
         ""
@@ -1063,9 +1148,7 @@ fun FontFaceItem(fontItem: String, onFontItemClicked: (FontFamily, String) -> Un
         }
     }
     Box(
-        modifier = Modifier
-            .height(80.dp)
-            .clickable { onFontItemClicked.invoke(fontFamily, fontItem) },
+        modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -1098,7 +1181,8 @@ fun ImagesGrid(onImageItemClick: (File) -> Unit) {
         stringResource(id = R.string.my_images_folder_name),
         Context.MODE_PRIVATE
     )
-    val imageFiles = imagesFolder?.listFiles()?.toMutableList()?.sortedByDescending { it.lastModified() }
+    val imageFiles =
+        imagesFolder?.listFiles()?.toMutableList()?.sortedByDescending { it.lastModified() }
     LazyVerticalGrid(
         modifier = Modifier.padding(top = 5.dp), columns = GridCells.Fixed(4),
         verticalArrangement = Arrangement.spacedBy(5.dp),
@@ -1242,7 +1326,7 @@ fun SavePoemThemeDialog(poemThemeViewModel: PoemThemeViewModel) {
     var dialogTitle by remember { mutableIntStateOf(R.string.create_poem_title) }
     var buttonText by remember { mutableIntStateOf(R.string.confirm) }
     var inputMessage by remember { mutableIntStateOf(R.string.valid_input_message) }
-    val maxChars  = 60
+    val maxChars = 60
     var shouldChangeText by remember { mutableStateOf(false) }
     val validateInput: @Composable (String) -> Boolean = {
         if (PoemThemeViewModel.isValidatedInput(it.replace(' ', '_'))) {

@@ -2,6 +2,8 @@ package com.wendorochena.poetskingdom.viewModels
 
 import android.content.Context
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -44,17 +46,20 @@ class PoemThemeViewModel : ViewModel() {
     var backgroundColorChosen: String? = null
     var backgroundColorChosenAsInt: Int? by mutableStateOf(null)
     var outlineType: OutlineTypes? by mutableStateOf(null)
-    var outlineColor: Int by mutableStateOf(MadzinzaGreen.toArgb())
-    var fontColor: Int by mutableStateOf(Color.Black.toArgb())
+    var outlineColor: Int by mutableIntStateOf(MadzinzaGreen.toArgb())
+    var fontColor: Int by mutableIntStateOf(Color.Black.toArgb())
     var textFontFamily: FontFamily by mutableStateOf(FontFamily(android.graphics.Typeface.DEFAULT))
-    var fontSize: Float by mutableStateOf(14f)
+    var textFontFamilyString : String by mutableStateOf("default")
+    var fontSize: Float by mutableFloatStateOf(14f)
         private set
     var textAlignment: TextAlignment by mutableStateOf(TextAlignment.LEFT)
     var shouldDisplayDialog by mutableStateOf(false)
         private set
-    var poemThemeResult by mutableStateOf(-2)
+    var poemThemeResult by mutableIntStateOf(-2)
     private set
     var poemTitle =  ""
+    var isBold by mutableStateOf(false)
+    var isItalic by mutableStateOf(false)
     var isEditTheme = false
     var savedAlbumName : String? = null
     /**
@@ -242,6 +247,7 @@ class PoemThemeViewModel : ViewModel() {
 
     fun setFontFamily(fontFamily: FontFamily, fontFamilyString: String) {
         this.textFontFamily = fontFamily
+        textFontFamilyString = fontFamilyString
         uiState.value.textFontFamily = fontFamilyString
     }
 
@@ -349,6 +355,10 @@ class PoemThemeViewModel : ViewModel() {
         backgroundColorChosen = uiState.value.backgroundColor
         uiState.value.imagePath = poemThemeXmlParser.getPoemTheme().imagePath
         backgroundImageChosen = uiState.value.imagePath
+        uiState.value.bold = poemThemeXmlParser.getPoemTheme().bold
+        isBold = uiState.value.bold
+        uiState.value.italic = poemThemeXmlParser.getPoemTheme().italic
+        isItalic = uiState.value.italic
     }
     fun resetResultToDefault() {
         poemThemeResult = -2
@@ -367,7 +377,7 @@ class PoemThemeViewModel : ViewModel() {
     fun savePoemTheme(poemName : String, context : Context, isEditTheme : Boolean)  {
         val exceptionHandler = CoroutineExceptionHandler { _, exception ->
             exception.printStackTrace()
-            //add a better wayy to manage failure
+            //add a better way to manage failure
 //            println("Error saving file")
         }
         uiState.value.poemTitle = poemName
@@ -396,6 +406,16 @@ class PoemThemeViewModel : ViewModel() {
             return true
         }
         return false
+    }
+
+    /**
+     * Bold-ens or italicises text
+     */
+    fun boldenOrItaliciseText(boldOrItalic : String) {
+        if (boldOrItalic == "bold")
+            isBold = !isBold
+        else
+            isItalic = !isItalic
     }
 
     companion object {
