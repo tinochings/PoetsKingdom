@@ -412,10 +412,14 @@ class PoemThemeViewModel : ViewModel() {
      * Bold-ens or italicises text
      */
     fun boldenOrItaliciseText(boldOrItalic : String) {
-        if (boldOrItalic == "bold")
+        if (boldOrItalic == "bold") {
             isBold = !isBold
-        else
+            uiState.value.bold = isBold
+        }
+        else {
             isItalic = !isItalic
+            uiState.value.italic = isItalic
+        }
     }
 
     companion object {
