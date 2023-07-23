@@ -43,13 +43,14 @@ class PdfPrintAdapter(
     //first is margin size for stroke
     //second is margin size for text
     private val layoutMarginAndTextMargin: Pair<Int, Int>,
-    private val outline : String,
+    private val outline: String,
     private val textUtils: TextMarginUtil,
     private val poemTheme: PoemTheme
 ) : PrintDocumentAdapter() {
     private var editTextToPrint = ArrayList<EditText>()
     private var pdfDocument: PrintedPdfDocument? = null
-    private var reshapedBitmap : Bitmap? = null
+    private var reshapedBitmap: Bitmap? = null
+    private var isTextCentred = false
     override fun onLayout(
         oldAttributes: PrintAttributes?,
         newAttributes: PrintAttributes?,
@@ -67,21 +68,28 @@ class PdfPrintAdapter(
         val width = pdfDocument?.pageWidth ?: 0
         val height = pdfDocument?.pageHeight ?: 0
         val imageView = currentPage.getChildAt(0) as ShapeableImageView
-        val tag : String = if (imageView.tag != null)
+        val tag: String = if (imageView.tag != null)
             imageView.tag as String
         else
             ""
 
         val pdfPrinterHelper =
             PdfPrinterHelper(
-                height * 4 / 3 - (textUtils.marginTop * 4 / 3 + textUtils.marginBottom * 4 / 3) - layoutMarginAndTextMargin.first * 4/3,
-                (width * 4 / 3) - (textUtils.marginLeft * 4 / 3 + textUtils.marginRight * 4 / 3) - layoutMarginAndTextMargin.first * 4/3,
+                height * 4 / 3 - (textUtils.marginTop * 4 / 3 - textUtils.marginBottom * 4 / 3) - layoutMarginAndTextMargin.first * 4 / 3,
+                (width * 4 / 3) - (textUtils.marginLeft * 4 / 3 - textUtils.marginRight * 4 / 3) - layoutMarginAndTextMargin.first * 4 / 3,
                 textSize,
                 ArrayList(),
                 outline,
                 tag,
             )
-        val pages = pdfPrinterHelper.calculatePages(editableArrayList, context, currentPage, layoutMarginAndTextMargin.first * 4/3, width * 4/3,height * 4 / 3) + 1
+        val pages = pdfPrinterHelper.calculatePages(
+            editableArrayList,
+            context,
+            currentPage,
+            layoutMarginAndTextMargin.first * 4 / 3,
+            width * 4 / 3,
+            height * 4 / 3
+        ) + 1
         reshapedBitmap = pdfPrinterHelper.getReshapedBitmapIfAny()
         editTextToPrint = pdfPrinterHelper.getEditTextsToPrint()
         if (pages > 0) {
@@ -147,13 +155,21 @@ class PdfPrintAdapter(
         page.canvas.apply {
 
             if (thumbnail) {
-                var typeface : Typeface = Typeface.DEFAULT
-                for (child in currentPage.children){
+                var typeface: Typeface = Typeface.DEFAULT
+                for (child in currentPage.children) {
                     if (child is EditText) {
                         typeface = child.typeface
                     }
                 }
-                val thumbnailCreator = ThumbnailCreator(context,poemTheme,this.width,this.height,textUtils, generateBackground = false, typeface = typeface)
+                val thumbnailCreator = ThumbnailCreator(
+                    context,
+                    poemTheme,
+                    this.width,
+                    this.height,
+                    textUtils,
+                    generateBackground = false,
+                    typeface = typeface
+                )
                 thumbnailCreator.pdfInitiateCreateThumbnail()
 
                 val rect = Rect(0, 0, this.width, this.height)
@@ -178,9 +194,9 @@ class PdfPrintAdapter(
                     val offset = layoutMarginAndTextMargin.first
                     val imageRect =
                         if (currentPage.background != null)
-                        Rect(offset, offset, this.width, this.height)
-                    else
-                        Rect(0, 0, this.width, this.height)
+                            Rect(offset, offset, this.width, this.height)
+                        else
+                            Rect(0, 0, this.width, this.height)
                     try {
                         if (reshapedBitmap != null)
                             this.drawBitmap(reshapedBitmap!!, null, imageRect, null)
@@ -223,12 +239,18 @@ class PdfPrintAdapter(
                 samplePaint.typeface = editText.typeface
                 samplePaint.textSize = textPixelSize
                 samplePaint.textAlign = getPaintAlignment()
-                val lineHeight = (samplePaint.descent() - samplePaint.ascent() + samplePaint.fontMetrics.leading).roundToInt().toFloat()
+                val lineHeight =
+                    (samplePaint.descent() - samplePaint.ascent() + samplePaint.fontMetrics.leading).roundToInt()
+                        .toFloat()
 
                 var yPoint = if (poemTheme.textAlignment.toString().contains("CENTRE_VERTICAL"))
-                    determineYPoint(this.height - layoutMarginAndTextMargin.first, editText.text.lines().size, lineHeight)
-                    else
-                        textUtils.marginTop.toFloat()
+                    determineYPoint(
+                        this.height - layoutMarginAndTextMargin.first,
+                        editText.text.lines().size,
+                        lineHeight
+                    )
+                else
+                    textUtils.marginTop.toFloat()
 
                 for (line in editText.text.lines()) {
                     val textPaint = Paint()
@@ -236,8 +258,15 @@ class PdfPrintAdapter(
                     textPaint.textSize = textPixelSize
                     textPaint.color = editText.currentTextColor
                     textPaint.textAlign = getPaintAlignment()
-                    yPoint += (textPaint.descent() - textPaint.ascent() + textPaint.fontMetrics.leading).roundToInt().toFloat()
-                    this.drawText(line, xPoint, yPoint, textPaint)
+                    yPoint += (textPaint.descent() - textPaint.ascent() + textPaint.fontMetrics.leading).roundToInt()
+                        .toFloat()
+                    if (isTextCentred) {
+                        val bounds = Rect()
+                        textPaint.getTextBounds(line, 0, line.length, bounds)
+                        val xOffset = (this.width / 2F) - (bounds.width() / 2F)
+                        this.drawText(line, xOffset, yPoint, textPaint)
+                    } else
+                        this.drawText(line, xPoint, yPoint, textPaint)
                 }
             }
         }
@@ -252,60 +281,60 @@ class PdfPrintAdapter(
                 Paint.Align.LEFT
             }
 
-            TextAlignment.CENTRE -> {
-                Paint.Align.CENTER
+            TextAlignment.CENTRE, TextAlignment.CENTRE_VERTICAL -> {
+                isTextCentred = true
+                Paint.Align.LEFT
             }
 
             TextAlignment.RIGHT -> {
                 Paint.Align.RIGHT
             }
-            TextAlignment.CENTRE_VERTICAL -> {
-                Paint.Align.CENTER
-            }
+
             TextAlignment.CENTRE_VERTICAL_RIGHT -> {
                 Paint.Align.RIGHT
             }
+
             TextAlignment.CENTRE_VERTICAL_LEFT -> {
                 Paint.Align.LEFT
             }
         }
     }
 
-    private fun determineXPoint(width : Int) : Float {
+    private fun determineXPoint(width: Int): Float {
         when (poemTheme.textAlignment) {
-            TextAlignment.LEFT -> {
-                return  textUtils.marginLeft.toFloat()
+            TextAlignment.LEFT, TextAlignment.CENTRE -> {
+                return textUtils.marginLeft.toFloat()
             }
+
             TextAlignment.CENTRE_VERTICAL_LEFT -> {
                 return textUtils.marginLeft.toFloat()
             }
 
-            TextAlignment.CENTRE -> {
-                return (width / 2).toFloat()
+            TextAlignment.RIGHT -> {
+                return width.toFloat() - textUtils.marginRight
             }
 
-            TextAlignment.RIGHT -> {
-               return width.toFloat() - textUtils.marginRight
-            }
             TextAlignment.CENTRE_VERTICAL_RIGHT -> {
-               return width.toFloat() - textUtils.marginRight
+                return width.toFloat() - textUtils.marginRight
             }
+
             TextAlignment.CENTRE_VERTICAL -> {
-                return (width / 2).toFloat()
+                return width / 2F
             }
         }
     }
+
     /**
      * Determines the beginning Y point
      */
-    private fun determineYPoint(pageHeight : Int, numOfLines: Int, landscapeLineHeight: Float): Float {
-        val halfOfPage = (pageHeight / 2).toFloat()
-        val topHalf = (numOfLines / 2) + 0.5
-        val result = (halfOfPage - (landscapeLineHeight * topHalf)).roundToInt().toFloat()
+    private fun determineYPoint(
+        pageHeight: Int,
+        numOfLines: Int,
+        landscapeLineHeight: Float
+    ): Float {
+        val halfOfPage = (pageHeight.toFloat() / 2f) + landscapeLineHeight
+        val topHalf = (numOfLines.toDouble() / 2.0)
 
-        return if (result < 0)
-            0F
-        else
-            result
+        return (halfOfPage - (landscapeLineHeight * topHalf)).roundToInt().toFloat()
     }
 }
