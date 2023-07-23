@@ -466,14 +466,10 @@ class ImageSaverUtil(
         numOfLines: Int,
         lineHeight: Float
     ): Float {
-        val halfOfPage = (pageHeight.toFloat() / 2f)
+        val halfOfPage = (pageHeight.toFloat() / 2f) + lineHeight
         val topHalf = (numOfLines.toDouble() / 2.0)
-        val result = (halfOfPage - (lineHeight * topHalf)).roundToInt().toFloat()
 
-        return if (result < 0)
-            0F
-        else
-            result
+        return (halfOfPage - (lineHeight * topHalf)).roundToInt().toFloat()
     }
 
     /**
@@ -508,6 +504,7 @@ class ImageSaverUtil(
         isLandscape: Boolean,
         isCentreVertical: Boolean,
         firstEditText: EditText,
+        currentPage: FrameLayout,
         editTextBox: EditText,
         imageStrokeMargins: Int,
         textMarginUtil: TextMarginUtil,
@@ -517,7 +514,7 @@ class ImageSaverUtil(
             return firstEditText.y
         else if (!isLandscape)
             return determineCentreVerticalYPoint(
-                firstEditText.height,
+                currentPage.height,
                 editTextBox.text.lines().size,
                 lineHeight
             )
@@ -620,8 +617,8 @@ class ImageSaverUtil(
                             val editTextsToPrint = if (!isLandscape)
                                 formatPagesToSave(
                                     editable,
-                                    firstEditText.height,
-                                    firstEditText.width,
+                                    currentPage.height,
+                                    currentPage.width,
                                     firstEditText.lineHeight
                                 )
                             else
@@ -722,6 +719,7 @@ class ImageSaverUtil(
                                     isLandscape,
                                     isCentreVertical,
                                     firstEditText,
+                                    currentPage,
                                     editTextBox,
                                     imageStrokeMargins,
                                     textMarginUtil,
