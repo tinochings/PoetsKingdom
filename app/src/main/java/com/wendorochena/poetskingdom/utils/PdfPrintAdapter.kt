@@ -332,7 +332,7 @@ class PdfPrintAdapter(
         numOfLines: Int,
         landscapeLineHeight: Float
     ): Float {
-        val halfOfPage = (pageHeight.toFloat() / 2f) + landscapeLineHeight
+        val halfOfPage = (pageHeight.toFloat() / 2f)
         val topHalf = (numOfLines.toDouble() / 2.0)
 
         return (halfOfPage - (landscapeLineHeight * topHalf)).roundToInt().toFloat()

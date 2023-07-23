@@ -466,7 +466,7 @@ class ImageSaverUtil(
         numOfLines: Int,
         lineHeight: Float
     ): Float {
-        val halfOfPage = (pageHeight.toFloat() / 2f) + lineHeight
+        val halfOfPage = (pageHeight.toFloat() / 2f)
         val topHalf = (numOfLines.toDouble() / 2.0)
 
         return (halfOfPage - (lineHeight * topHalf)).roundToInt().toFloat()
