@@ -302,7 +302,7 @@ class PdfPrintAdapter(
 
     private fun determineXPoint(width: Int): Float {
         when (poemTheme.textAlignment) {
-            TextAlignment.LEFT, TextAlignment.CENTRE -> {
+            TextAlignment.LEFT -> {
                 return textUtils.marginLeft.toFloat()
             }
 
@@ -318,8 +318,9 @@ class PdfPrintAdapter(
                 return width.toFloat() - textUtils.marginRight
             }
 
-            TextAlignment.CENTRE_VERTICAL -> {
-                return width / 2F
+            TextAlignment.CENTRE, TextAlignment.CENTRE_VERTICAL -> {
+                isTextCentred = true
+                return textUtils.marginLeft.toFloat()
             }
         }
     }
