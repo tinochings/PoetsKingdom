@@ -102,7 +102,7 @@ class ImageSaverUtil(
     fun setPaintAlignment(textAlignment: TextAlignment) {
         textPaintAlignment = when (textAlignment) {
 
-            TextAlignment.LEFT -> {
+            TextAlignment.LEFT, TextAlignment.CENTRE_VERTICAL_LEFT -> {
                 Paint.Align.LEFT
             }
 
@@ -111,16 +111,8 @@ class ImageSaverUtil(
                 Paint.Align.LEFT
             }
 
-            TextAlignment.RIGHT -> {
+            TextAlignment.RIGHT, TextAlignment.CENTRE_VERTICAL_RIGHT -> {
                 Paint.Align.RIGHT
-            }
-
-            TextAlignment.CENTRE_VERTICAL_RIGHT -> {
-                Paint.Align.RIGHT
-            }
-
-            TextAlignment.CENTRE_VERTICAL_LEFT -> {
-                Paint.Align.LEFT
             }
         }
     }
