@@ -191,7 +191,6 @@ class SearchUtil(
 
                                 val scoreDocHits = collector.topDocs().scoreDocs
 
-
                                 for (hit in scoreDocHits) {
                                     val currDocument = indexSearcher.doc(hit.doc)
 
@@ -302,17 +301,13 @@ class SearchUtil(
                 }
                 //filter results in case of false positives
                 if (preciseLocation.isEmpty()) {
-                    val poemFileNameSplit = poemFileName.split('_')
-                    for (name in poemFileNameSplit) {
-                        if (searchPhrase.lowercase().contains(name)) {
-                            val toAdd = Pair(1, fileNameAndStanzas.second[0])
-                            val arrayListPair = ArrayList<Pair<Int, String>>()
-                            arrayListPair.add(toAdd)
-                            stanzaIndexAndText[poemFileName] = arrayListPair
-                            preciseLocation = "1 -1 -1"
-                            temp.add(Pair(poemFileName, preciseLocation))
-                            break
-                        }
+                    if (poemFileName.replace('_',' ').lowercase().contains(searchPhrase.lowercase())) {
+                        val toAdd = Pair(1, fileNameAndStanzas.second[0])
+                        val arrayListPair = ArrayList<Pair<Int, String>>()
+                        arrayListPair.add(toAdd)
+                        stanzaIndexAndText[poemFileName] = arrayListPair
+                        preciseLocation = "1 -1 -1"
+                        temp.add(Pair(poemFileName, preciseLocation))
                     }
                 }
                 else
