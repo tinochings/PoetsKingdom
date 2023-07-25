@@ -197,10 +197,15 @@ class ImageSaverUtil(
                                 lines.add(line)
                             else {
                                 paint.getTextBounds(line, 0, line.length, bounds)
-                                if (bounds.width() < width)
-                                    currentLine = line.slice(0 until (line.length - 1))
+                                if (bounds.width() < width){
+                                    if (indexCounter != wordsSize - 1)
+                                        currentLine = line.slice(0 until (line.length - 1))
+                                    else
+                                        lines.add(line)
+                                    }
                                 else
                                     lines.add(line)
+
                             }
                         }
                         indexCounter++
@@ -483,7 +488,7 @@ class ImageSaverUtil(
                 (widthAndHeight.first / 2).toFloat()
 
             else -> if (!isLandscape)
-                currentPage.width.toFloat() - firstEditText.x
+                currentPage.width.toFloat() - textMarginUtil.marginRight
             else
                 widthAndHeight.first - textMarginUtil.marginRight.toFloat()
         }
@@ -609,8 +614,8 @@ class ImageSaverUtil(
                             val editTextsToPrint = if (!isLandscape)
                                 formatPagesToSave(
                                     editable,
-                                    currentPage.height,
-                                    currentPage.width,
+                                    currentPage.height - textMarginUtil.marginTop - textMarginUtil.marginBottom,
+                                    currentPage.width - textMarginUtil.marginLeft - textMarginUtil.marginRight,
                                     firstEditText.lineHeight
                                 )
                             else
@@ -730,7 +735,7 @@ class ImageSaverUtil(
                                         val bounds = Rect()
                                         textPaint.getTextBounds(line, 0, line.length, bounds)
                                         val xOffset = (canvas.width / 2F) - (bounds.width() / 2F)
-                                        canvas.drawText(line, xOffset, yPoint, textPaint)
+                                        canvas.drawText(line, xPoint + xOffset, yPoint, textPaint)
                                     } else
                                         canvas.drawText(line, xPoint, yPoint, textPaint)
                                 }
