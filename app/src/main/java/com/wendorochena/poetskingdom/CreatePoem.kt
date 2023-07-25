@@ -18,6 +18,7 @@ import android.view.View
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import android.widget.FrameLayout.LayoutParams
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -564,13 +565,9 @@ class CreatePoem : AppCompatActivity() {
             }
         })
 
-        if (poemTheme.backgroundType.toString().contains("OUTLINE")) {
-            toRetEditTextBox.layoutParams =
-                adjustTextBounds()
-        }
-
         frameToReturn.addView(toRetEditTextBox)
 
+        adjustMargins(toRetEditTextBox.layoutParams as LayoutParams)
         when (poemTheme.textAlignment) {
             TextAlignment.LEFT -> {
                 toRetEditTextBox.textAlignment = View.TEXT_ALIGNMENT_VIEW_START
@@ -588,15 +585,15 @@ class CreatePoem : AppCompatActivity() {
             }
 
             TextAlignment.CENTRE_VERTICAL -> {
-                val layoutParams = defaultText.layoutParams as FrameLayout.LayoutParams
+                val layoutParams = defaultText.layoutParams as LayoutParams
                 layoutParams.gravity = Gravity.CENTER_VERTICAL or Gravity.CENTER_HORIZONTAL
-                toRetEditTextBox.layoutParams = defaultText.layoutParams as FrameLayout.LayoutParams
+                toRetEditTextBox.layoutParams = defaultText.layoutParams as LayoutParams
                 toRetEditTextBox.textAlignment = View.TEXT_ALIGNMENT_CENTER
                 toRetEditTextBox.gravity = Gravity.CENTER
             }
 
             TextAlignment.CENTRE_VERTICAL_LEFT -> {
-                val layoutParams = defaultText.layoutParams as FrameLayout.LayoutParams
+                val layoutParams = defaultText.layoutParams as LayoutParams
                 layoutParams.gravity = Gravity.CENTER_VERTICAL or Gravity.START
                 toRetEditTextBox.layoutParams = layoutParams
                 toRetEditTextBox.textAlignment = View.TEXT_ALIGNMENT_VIEW_START
@@ -604,7 +601,7 @@ class CreatePoem : AppCompatActivity() {
             }
 
             TextAlignment.CENTRE_VERTICAL_RIGHT -> {
-                val layoutParams = defaultText.layoutParams as FrameLayout.LayoutParams
+                val layoutParams = defaultText.layoutParams as LayoutParams
                 layoutParams.gravity = Gravity.CENTER_VERTICAL or Gravity.END
                 toRetEditTextBox.layoutParams = layoutParams
                 toRetEditTextBox.textAlignment = View.TEXT_ALIGNMENT_VIEW_END
@@ -835,28 +832,15 @@ class CreatePoem : AppCompatActivity() {
 
 
     /**
-     * Adjust the bounds of the text view so it does not intrude into the boarder of the outline
+     * Returns the current poem theme margin
      */
-    private fun adjustTextBounds(): FrameLayout.LayoutParams {
-        val layoutParams = FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            FrameLayout.LayoutParams.WRAP_CONTENT
-        )
-
-        val outlineStrokeSize: Int = if (orientation == "portrait")
-            resources.getDimensionPixelSize(R.dimen.portraitStrokeSize)
-        else
-            resources.getDimensionPixelSize(R.dimen.strokeSize)
-
-        val textUtil = TextMarginUtil()
-
-        textUtil.determineTextMargins(poemTheme.outline, resources, outlineStrokeSize)
+    private fun adjustMargins(layoutParams: LayoutParams): LayoutParams {
 
         layoutParams.setMargins(
-            textUtil.marginLeft,
-            textUtil.marginTop,
-            textUtil.marginRight,
-            textUtil.marginBottom
+            poemTheme.textMarginUtil.marginLeft,
+            poemTheme.textMarginUtil.marginTop,
+            poemTheme.textMarginUtil.marginRight,
+            poemTheme.textMarginUtil.marginBottom
         )
 
         return layoutParams
@@ -871,6 +855,7 @@ class CreatePoem : AppCompatActivity() {
         else
             findViewById<EditText>(R.id.portraitTextView)
 
+        adjustMargins(text.layoutParams as LayoutParams)
 
         if (Build.VERSION.SDK_INT < 26)
             text.typeface = Typeface.DEFAULT
@@ -882,24 +867,21 @@ class CreatePoem : AppCompatActivity() {
                         applicationContext
                     ), Typeface.BOLD_ITALIC
                 )
-            }
-            else if (poemTheme.bold) {
+            } else if (poemTheme.bold) {
                 text.typeface = Typeface.create(
                     TypefaceHelper.getTypeFace(
                         poemTheme.textFontFamily + "_font",
                         applicationContext
                     ), Typeface.BOLD
                 )
-            }
-            else if (poemTheme.italic) {
+            } else if (poemTheme.italic) {
                 text.typeface = Typeface.create(
                     TypefaceHelper.getTypeFace(
                         poemTheme.textFontFamily + "_font",
                         applicationContext
                     ), Typeface.ITALIC
                 )
-            }
-            else {
+            } else {
                 text.typeface = TypefaceHelper.getTypeFace(
                     poemTheme.textFontFamily + "_font",
                     applicationContext
@@ -909,15 +891,11 @@ class CreatePoem : AppCompatActivity() {
 
 
         //due to compose integration the xml font array isn't used
-//        text.typeface = TypefaceHelper.getTypeFace(poemTheme.textFontFamily + "_font", applicationContext)
         text.textSize = poemTheme.textSize.toFloat()
         text.setHintTextColor(poemTheme.textColorAsInt)
         text.setTextColor(poemTheme.textColorAsInt)
         text.setHint(R.string.create_poem_text_view_hint)
 
-        if (poemTheme.backgroundType.toString().contains("OUTLINE")) {
-            text.layoutParams = adjustTextBounds()
-        }
 
         when (poemTheme.textAlignment) {
             TextAlignment.LEFT -> {
@@ -936,7 +914,7 @@ class CreatePoem : AppCompatActivity() {
             }
 
             TextAlignment.CENTRE_VERTICAL -> {
-                val layoutParams = text.layoutParams as FrameLayout.LayoutParams
+                val layoutParams = text.layoutParams as LayoutParams
                 layoutParams.gravity = Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL
                 text.layoutParams = layoutParams
                 text.textAlignment = View.TEXT_ALIGNMENT_CENTER
@@ -945,7 +923,7 @@ class CreatePoem : AppCompatActivity() {
             }
 
             TextAlignment.CENTRE_VERTICAL_LEFT -> {
-                val layoutParams = text.layoutParams as FrameLayout.LayoutParams
+                val layoutParams = text.layoutParams as LayoutParams
                 layoutParams.gravity = Gravity.CENTER_VERTICAL or Gravity.START
                 text.layoutParams = layoutParams
                 text.textAlignment = View.TEXT_ALIGNMENT_VIEW_START
@@ -953,7 +931,7 @@ class CreatePoem : AppCompatActivity() {
             }
 
             TextAlignment.CENTRE_VERTICAL_RIGHT -> {
-                val layoutParams = text.layoutParams as FrameLayout.LayoutParams
+                val layoutParams = text.layoutParams as LayoutParams
                 layoutParams.gravity = Gravity.CENTER_VERTICAL or Gravity.END
                 text.layoutParams = layoutParams
                 text.textAlignment = View.TEXT_ALIGNMENT_VIEW_END
@@ -997,10 +975,8 @@ class CreatePoem : AppCompatActivity() {
             }
 
             BackgroundType.OUTLINE_WITH_IMAGE -> {
-                val strokeSize: Int = if (orientation == "portrait")
-                    resources.getDimensionPixelSize(R.dimen.portraitStrokeSize)
-                else
-                    resources.getDimensionPixelSize(R.dimen.strokeSize)
+                val strokeSize: Int = resources.getDimensionPixelSize(R.dimen.strokeSize)
+
                 frame.background = PoemTheme.getOutlineAndColor(
                     orientation!!,
                     poemTheme,
@@ -1020,9 +996,9 @@ class CreatePoem : AppCompatActivity() {
                 if (file.exists()) {
                     Glide.with(applicationContext).load(file.absolutePath).into(image)
                 }
-                val layoutParams = FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT
+                val layoutParams = LayoutParams(
+                    LayoutParams.MATCH_PARENT,
+                    LayoutParams.MATCH_PARENT
                 )
 
                 layoutParams.setMargins(strokeSize)
@@ -1206,6 +1182,7 @@ class CreatePoem : AppCompatActivity() {
         prepareText()
         if (orientation == "landscape")
             resizeView()
+
         currentPage.visibility = View.VISIBLE
         currentPage.tag = 1
 
@@ -1319,7 +1296,7 @@ class CreatePoem : AppCompatActivity() {
                     if (child is EditText) {
                         when (gravity) {
                             Gravity.CENTER_VERTICAL -> {
-                                val layoutParams = child.layoutParams as FrameLayout.LayoutParams
+                                val layoutParams = child.layoutParams as LayoutParams
                                 layoutParams.gravity = gravity or Gravity.CENTER_HORIZONTAL
                                 child.layoutParams = layoutParams
                                 child.textAlignment = alignment
@@ -1327,7 +1304,7 @@ class CreatePoem : AppCompatActivity() {
                             }
 
                             Gravity.CENTER_VERTICAL or Gravity.START -> {
-                                val layoutParams = child.layoutParams as FrameLayout.LayoutParams
+                                val layoutParams = child.layoutParams as LayoutParams
                                 layoutParams.gravity = gravity
                                 child.layoutParams = layoutParams
                                 child.textAlignment = alignment
@@ -1335,7 +1312,7 @@ class CreatePoem : AppCompatActivity() {
                             }
 
                             Gravity.CENTER_VERTICAL or Gravity.END -> {
-                                val layoutParams = child.layoutParams as FrameLayout.LayoutParams
+                                val layoutParams = child.layoutParams as LayoutParams
                                 layoutParams.gravity = gravity
                                 child.layoutParams = layoutParams
                                 child.textAlignment = alignment
@@ -1343,7 +1320,7 @@ class CreatePoem : AppCompatActivity() {
                             }
 
                             else -> {
-                                val layoutParams = child.layoutParams as FrameLayout.LayoutParams
+                                val layoutParams = child.layoutParams as LayoutParams
                                 layoutParams.gravity = if (gravity == Gravity.CENTER)
                                     Gravity.TOP or gravity
                                 else
@@ -1444,8 +1421,24 @@ class CreatePoem : AppCompatActivity() {
         val centreVerticalRightAlign = findViewById<ImageView>(R.id.centerVerticalRightAlign)
         val italicText = findViewById<ImageView>(R.id.italicFormat)
         val boldText = findViewById<ImageView>(R.id.boldFormat)
+        val numberPickerLeftMargin = findViewById<NumberPicker>(R.id.formatLeftMarginNumberPicker)
+        val numberPickerRightMargin = findViewById<NumberPicker>(R.id.formatRightMarginNumberPicker)
+        val textMarginUtil = TextMarginUtil()
 
+        if (poemTheme.outline.isNotEmpty())
+            textMarginUtil.determineTextMargins(
+                poemTheme.outline,
+                resources,
+                resources.getDimensionPixelSize(R.dimen.strokeSize)
+            )
 
+        numberPickerLeftMargin.minValue = 0
+        numberPickerRightMargin.minValue = 0
+        numberPickerLeftMargin.maxValue = 100
+        numberPickerRightMargin.maxValue = 100
+
+        numberPickerLeftMargin.value = poemTheme.textMarginUtil.marginLeft
+        numberPickerRightMargin.value = poemTheme.textMarginUtil.marginRight
         leftAlign.setOnClickListener {
             poemTheme.textAlignment = TextAlignment.LEFT
             setEditTextAlignment(TextView.TEXT_ALIGNMENT_TEXT_START, Gravity.START)
@@ -1492,6 +1485,35 @@ class CreatePoem : AppCompatActivity() {
         italicText.setOnClickListener {
             poemTheme.italic = !poemTheme.italic
             setEditTextTypeface("italic", poemTheme.bold, poemTheme.italic)
+            actuateSavePoemTheme()
+        }
+
+        numberPickerLeftMargin.setOnValueChangedListener { _, _, newVal ->
+
+            if (poemTheme.outline.isNotEmpty())
+                poemTheme.textMarginUtil.marginLeft = textMarginUtil.marginLeft + newVal
+            else
+                poemTheme.textMarginUtil.marginLeft = newVal
+
+            pageNumberAndId.keys.forEach {
+                val editText =
+                    findViewById<FrameLayout>(pageNumberAndId[it]!!).getChildAt(1) as EditText
+                editText.layoutParams = adjustMargins(editText.layoutParams as LayoutParams)
+                actuateSavePoemTheme()
+            }
+        }
+        numberPickerRightMargin.setOnValueChangedListener { _, _, newVal ->
+
+            if (poemTheme.outline.isNotEmpty())
+                poemTheme.textMarginUtil.marginRight = textMarginUtil.marginRight + newVal
+            else
+                poemTheme.textMarginUtil.marginRight = newVal
+
+            pageNumberAndId.keys.forEach {
+                val editText =
+                    findViewById<FrameLayout>(pageNumberAndId[it]!!).getChildAt(1) as EditText
+                editText.layoutParams = adjustMargins(editText.layoutParams as LayoutParams)
+            }
             actuateSavePoemTheme()
         }
     }
@@ -1763,14 +1785,22 @@ class CreatePoem : AppCompatActivity() {
                 this@CreatePoem.resources,
                 resources.getDimensionPixelSize(R.dimen.strokeSize)
             )
-        var typeface :Typeface = Typeface.DEFAULT
-        for (child in currentPage.children){
+        var typeface: Typeface = Typeface.DEFAULT
+        for (child in currentPage.children) {
             if (child is EditText) {
                 typeface = child.typeface
             }
         }
         val thumbnailCreator =
-            ThumbnailCreator(this@CreatePoem, poemTheme, 1080, 1080, textMarginUtil, false, typeface)
+            ThumbnailCreator(
+                this@CreatePoem,
+                poemTheme,
+                1080,
+                1080,
+                textMarginUtil,
+                false,
+                typeface
+            )
         thumbnailCreator.initiateCreateThumbnail()
     }
 
@@ -1816,8 +1846,8 @@ class CreatePoem : AppCompatActivity() {
     ) {
         val entirePoem = ArrayList<Editable>()
 
-        var typeface :Typeface = Typeface.DEFAULT
-        for (child in currentPage.children){
+        var typeface: Typeface = Typeface.DEFAULT
+        for (child in currentPage.children) {
             if (child is EditText) {
                 typeface = child.typeface
             }
@@ -1887,33 +1917,13 @@ class CreatePoem : AppCompatActivity() {
      * Initiates the saving of pages as PDF
      */
     private fun initiateSavePagesAsPdf() {
-        val textMargin: Int = if (orientation == "portrait" && poemTheme.backgroundType.toString()
-                .contains("OUTLINE")
-        )
-            resources.getDimensionPixelSize(R.dimen.portraitStrokeSize)
-        else
-            resources.getDimensionPixelSize(R.dimen.strokeSize)
-
-        val strokeMargin = if (orientation == "portrait" && poemTheme.backgroundType.toString()
-                .contains("OUTLINE")
-        )
-            resources.getDimensionPixelSize(R.dimen.portraitStrokeSize)
-        else if (orientation == "landscape" && poemTheme.backgroundType.toString()
-                .contains("OUTLINE")
-        )
+        val strokeMargin = if (poemTheme.backgroundType.toString().contains("OUTLINE"))
             resources.getDimensionPixelSize(R.dimen.strokeSize)
         else
             0
 
         try {
             this.also {
-                val textMarginUtil = TextMarginUtil()
-                if (strokeMargin != 0)
-                    textMarginUtil.determineTextMargins(
-                        poemTheme.outline,
-                        resources,
-                        strokeMargin
-                    )
                 // Get a PrintManager instance
                 val printManager = this.getSystemService(Context.PRINT_SERVICE) as PrintManager
                 // Set job name, which will be displayed in the print queue
@@ -1929,9 +1939,9 @@ class CreatePoem : AppCompatActivity() {
                         poemTheme.poemTitle,
                         currentPage,
                         this,
-                        Pair(strokeMargin, textMargin),
+                        strokeMargin,
                         poemTheme.outline,
-                        textMarginUtil,
+                        poemTheme.textMarginUtil,
                         poemTheme
                     ),
                     null
@@ -1949,12 +1959,11 @@ class CreatePoem : AppCompatActivity() {
     private suspend fun initiateSavePagesAsImages() {
         val editableArrayList = getAllTypedText()
         val imageStrokeMargins =
-            if (orientation == "portrait" && currentPage.background != null && currentPage.background !is ColorDrawable)
-                resources.getDimensionPixelSize(R.dimen.portraitStrokeSize)
-            else if (orientation == "landscape" && currentPage.background != null && currentPage.background !is ColorDrawable)
+            if (currentPage.background != null && currentPage.background !is ColorDrawable)
                 resources.getDimensionPixelSize(R.dimen.strokeSize)
             else
                 0
+
         val isLandscape = orientation == "landscape"
         val settingsPref = getSharedPreferences(
             getString(R.string.personalisation_sharedpreferences_key),
@@ -1965,14 +1974,6 @@ class CreatePoem : AppCompatActivity() {
             Pair(resolution[0].toInt(), resolution[1].toInt())
         else
             Pair(1080, 1080)
-
-        val textMarginUtil = TextMarginUtil()
-        if (imageStrokeMargins != 0)
-            textMarginUtil.determineTextMargins(
-                poemTheme.outline,
-                resources,
-                imageStrokeMargins
-            )
 
         val imageSaverUtil =
             ImageSaverUtil(
@@ -1990,7 +1991,7 @@ class CreatePoem : AppCompatActivity() {
         if (imageSaverUtil.savePagesAsImages(
                 editableArrayList,
                 poemTheme.poemTitle,
-                textMarginUtil,
+                poemTheme.textMarginUtil,
                 imageStrokeMargins,
                 isLandscape,
                 isCenterVertical
@@ -2285,6 +2286,7 @@ class CreatePoem : AppCompatActivity() {
         poemTheme.imagePath = poemThemeXmlParser.getPoemTheme().imagePath
         poemTheme.bold = poemThemeXmlParser.getPoemTheme().bold
         poemTheme.italic = poemThemeXmlParser.getPoemTheme().italic
+        poemTheme.textMarginUtil = poemThemeXmlParser.getPoemTheme().textMarginUtil
     }
 
 }
