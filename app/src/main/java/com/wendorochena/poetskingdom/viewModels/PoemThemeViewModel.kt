@@ -21,6 +21,7 @@ import com.wendorochena.poetskingdom.poemdata.PoemTheme
 import com.wendorochena.poetskingdom.poemdata.PoemThemeXmlParser
 import com.wendorochena.poetskingdom.poemdata.TextAlignment
 import com.wendorochena.poetskingdom.ui.theme.MadzinzaGreen
+import com.wendorochena.poetskingdom.utils.TextMarginUtil
 import com.wendorochena.poetskingdom.utils.TypefaceHelper
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
@@ -56,7 +57,7 @@ class PoemThemeViewModel : ViewModel() {
     var shouldDisplayDialog by mutableStateOf(false)
         private set
     var poemThemeResult by mutableIntStateOf(-2)
-    private set
+    var textMarginUtil = TextMarginUtil()
     var poemTitle =  ""
     var isBold by mutableStateOf(false)
     var isItalic by mutableStateOf(false)
@@ -89,6 +90,9 @@ class PoemThemeViewModel : ViewModel() {
         backgroundColor: String,
         backgroundColorAsInt: Int
     ) {
+        if (uiState.value.textMarginUtil != textMarginUtil)
+            uiState.value.textMarginUtil = textMarginUtil
+
         uiState.value.backgroundType = backgroundType
         changeBackgroundType(backgroundType)
         backgroundColorChosen = backgroundColor
@@ -155,7 +159,7 @@ class PoemThemeViewModel : ViewModel() {
             }
         }
     }
-    //outline and color background
+
     /**
      * Updates an OUTLINE_WITH_COLOR background
      */
@@ -175,7 +179,6 @@ class PoemThemeViewModel : ViewModel() {
         uiState.value.backgroundColor = backgroundColor
         uiState.value.backgroundColorAsInt = backgroundColorAsInt
     }
-    //outline and image background
     /**
      * Updates an OUTLINE_WITH_IMAGE background
      */
@@ -194,7 +197,7 @@ class PoemThemeViewModel : ViewModel() {
         uiState.value.outline = outline
         uiState.value.imagePath = imagePath
     }
-    //outline background
+
     /**
      * Updates an OUTLINE background
      */
@@ -206,17 +209,30 @@ class PoemThemeViewModel : ViewModel() {
         changeBackgroundType(backgroundType)
         uiState.value.outlineColor = outlineColor
     }
-    //image background
     /**
      * Updates an IMAGE BACKGROUND
      */
     fun updateBackground(backgroundType: BackgroundType, imagePath: String) {
+        if (uiState.value.textMarginUtil != textMarginUtil)
+            uiState.value.textMarginUtil = textMarginUtil
+
         uiState.value.backgroundType = backgroundType
         changeBackgroundType(backgroundType)
         backgroundImageChosen = imagePath
         uiState.value.imagePath = imagePath
     }
 
+
+    /**
+     * Sets the text margin when outline clicked
+     */
+    fun setTextMarginUtility(textMarginUtility : TextMarginUtil) {
+        uiState.value.textMarginUtil = textMarginUtility
+    }
+
+    /**
+     * Changes heading selection
+     */
     fun changeSelection(headingSelection: HeadingSelection) {
         this.headingSelection = headingSelection
     }
@@ -359,6 +375,8 @@ class PoemThemeViewModel : ViewModel() {
         isBold = uiState.value.bold
         uiState.value.italic = poemThemeXmlParser.getPoemTheme().italic
         isItalic = uiState.value.italic
+        uiState.value.textMarginUtil = poemThemeXmlParser.getPoemTheme().textMarginUtil
+        textMarginUtil = uiState.value.textMarginUtil
     }
     fun resetResultToDefault() {
         poemThemeResult = -2

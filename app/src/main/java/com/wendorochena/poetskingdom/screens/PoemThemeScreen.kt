@@ -182,6 +182,7 @@ fun ThemePreview(
                 setPositiveButton(
                     positiveButton
                 ) { _, _ ->
+                    poemThemeViewModel.textMarginUtil = TextMarginUtil()
                     if (returnedPair.second == "Image")
                         poemThemeViewModel.updateBackground(
                             BackgroundType.IMAGE,
@@ -561,32 +562,42 @@ fun DisplayOutline(
 fun ThemeOptions(
     poemThemeViewModel: PoemThemeViewModel
 ) {
+    val context = LocalContext.current
     val onOutlineClicked: (OutlineTypes) -> Unit = { outline ->
-        if (poemThemeViewModel.backgroundType == BackgroundType.COLOR ||
-            poemThemeViewModel.backgroundType == BackgroundType.OUTLINE_WITH_COLOR
-        ) {
-            poemThemeViewModel.updateBackground(
-                backgroundType = BackgroundType.OUTLINE_WITH_COLOR,
-                outline = outline.name,
-                outlineColor = poemThemeViewModel.outlineColor,
-                backgroundColor = poemThemeViewModel.backgroundColorChosen!!,
-                backgroundColorAsInt = poemThemeViewModel.backgroundColorChosenAsInt!!
-            )
-        } else if (poemThemeViewModel.backgroundType == BackgroundType.IMAGE ||
-            poemThemeViewModel.backgroundType == BackgroundType.OUTLINE_WITH_IMAGE
-        ) {
-            poemThemeViewModel.updateBackground(
-                backgroundType = BackgroundType.OUTLINE_WITH_IMAGE,
-                outlineColor = poemThemeViewModel.outlineColor,
-                outline = outline.name,
-                imagePath = poemThemeViewModel.backgroundImageChosen!!
-            )
-        } else {
-            poemThemeViewModel.updateBackground(
-                backgroundType = BackgroundType.OUTLINE,
-                outlineColor = poemThemeViewModel.outlineColor,
-                outline
-            )
+        val textMarginUtil = TextMarginUtil()
+        textMarginUtil.determineTextMargins(
+            outline.name,
+            context.resources,
+            context.resources.getDimensionPixelSize(R.dimen.strokeSize)
+        )
+        poemThemeViewModel.setTextMarginUtility(textMarginUtil)
+        when (poemThemeViewModel.backgroundType) {
+            BackgroundType.COLOR, BackgroundType.OUTLINE_WITH_COLOR -> {
+                poemThemeViewModel.updateBackground(
+                    backgroundType = BackgroundType.OUTLINE_WITH_COLOR,
+                    outline = outline.name,
+                    outlineColor = poemThemeViewModel.outlineColor,
+                    backgroundColor = poemThemeViewModel.backgroundColorChosen!!,
+                    backgroundColorAsInt = poemThemeViewModel.backgroundColorChosenAsInt!!
+                )
+            }
+
+            BackgroundType.IMAGE, BackgroundType.OUTLINE_WITH_IMAGE -> {
+                poemThemeViewModel.updateBackground(
+                    backgroundType = BackgroundType.OUTLINE_WITH_IMAGE,
+                    outlineColor = poemThemeViewModel.outlineColor,
+                    outline = outline.name,
+                    imagePath = poemThemeViewModel.backgroundImageChosen!!
+                )
+            }
+
+            else -> {
+                poemThemeViewModel.updateBackground(
+                    backgroundType = BackgroundType.OUTLINE,
+                    outlineColor = poemThemeViewModel.outlineColor,
+                    outline
+                )
+            }
         }
     }
     val colorPickerDialog: @Composable (HeadingSelection) -> Unit = {
@@ -1042,7 +1053,7 @@ fun TextColorAndAlignment(
                             .weight(1f)
                             .background(color = MaterialTheme.colors.secondary)
                             .clickable { onBoldOrItalicClicked.invoke("bold") }
-                else
+                    else
                         Modifier
                             .fillMaxHeight()
                             .fillMaxWidth()
@@ -1087,8 +1098,8 @@ fun TextLayout(
     onBoldOrItalicClicked: (String) -> Unit,
     defaultTextValue: Float,
     selectedFont: String,
-    isBold : Boolean,
-    isItalic : Boolean,
+    isBold: Boolean,
+    isItalic: Boolean,
 ) {
     val allFonts = stringArrayResource(id = R.array.customFontNamesCompose)
     val numOfFonts = allFonts.size
