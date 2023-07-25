@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Xml
 import android.view.View
 import com.wendorochena.poetskingdom.R
+import com.wendorochena.poetskingdom.utils.TextMarginUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.xmlpull.v1.XmlPullParser
@@ -195,6 +196,20 @@ class PoemThemeXmlParser(
                                         poemTheme.italic = parser.text == "true"
                                         parser.nextTag()
                                         parser.require(XmlPullParser.END_TAG, null, "italic")
+                                    }
+                                }
+                                "textMargins" -> {
+                                    parser.require(XmlPullParser.START_TAG, null, "textMargins")
+                                    if (parser.next() == XmlPullParser.TEXT) {
+                                        try {
+                                            val margins = parser.text.split(" ")
+                                            poemTheme.textMarginUtil = TextMarginUtil(margins[0].toInt(), margins[1].toInt(), margins[2].toInt(), margins[3].toInt())
+                                        } catch (e : NumberFormatException) {
+                                            e.printStackTrace()
+                                            println("failed to parse margins")
+                                        }
+                                        parser.nextTag()
+                                        parser.require(XmlPullParser.END_TAG, null, "textMargins")
                                     }
                                 }
                             }
@@ -537,6 +552,10 @@ class PoemThemeXmlParser(
                                 xmlSerializer.startTag(null, "textFont")
                                 xmlSerializer.text(poemTheme.textFontFamily)
                                 xmlSerializer.endTag(null, "textFont")
+
+                                xmlSerializer.startTag(null, "textMargins")
+                                xmlSerializer.text(poemTheme.textMarginUtil.toString())
+                                xmlSerializer.endTag(null, "textMargins")
 
                                 xmlSerializer.endTag(null, "root")
 
