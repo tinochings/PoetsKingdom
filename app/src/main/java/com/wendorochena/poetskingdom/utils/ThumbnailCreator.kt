@@ -28,8 +28,8 @@ class ThumbnailCreator(
     private val poemTheme: PoemTheme,
     private val width: Int,
     private val height: Int,
-    private val textMarginUtil: TextMarginUtil,
-    private val generateBackground : Boolean,
+    private var textMarginUtil: TextMarginUtil,
+    private val generateBackground: Boolean,
     private val typeface: Typeface
 ) {
 
@@ -41,6 +41,17 @@ class ThumbnailCreator(
     private lateinit var paint: Paint
     private var xPoint: Float = 0f
     private var yPoint: Float = 0f
+
+    init {
+        // the util passed has margin data that does not apply to this
+        textMarginUtil = TextMarginUtil()
+        textMarginUtil.determineTextMargins(
+            poemTheme.outline,
+            context.resources,
+            context.resources.getDimensionPixelSize(R.dimen.strokeSize)
+        )
+    }
+
     /**
      * Sets the text alignment to be drawn on bitmap
      *
@@ -53,22 +64,27 @@ class ThumbnailCreator(
                 xPoint = textMarginUtil.marginLeft.toFloat()
                 textPaintAlignment = Paint.Align.LEFT
             }
+
             TextAlignment.CENTRE -> {
                 xPoint = width / 2f
                 textPaintAlignment = Paint.Align.CENTER
             }
+
             TextAlignment.RIGHT -> {
                 xPoint = width - textMarginUtil.marginRight.toFloat()
                 textPaintAlignment = Paint.Align.RIGHT
             }
+
             TextAlignment.CENTRE_VERTICAL -> {
                 xPoint = width.toFloat() / 2f
                 textPaintAlignment = Paint.Align.CENTER
             }
+
             TextAlignment.CENTRE_VERTICAL_RIGHT -> {
                 xPoint = width - textMarginUtil.marginRight.toFloat()
                 textPaintAlignment = Paint.Align.RIGHT
             }
+
             TextAlignment.CENTRE_VERTICAL_LEFT -> {
                 xPoint = textMarginUtil.marginLeft.toFloat()
                 textPaintAlignment = Paint.Align.LEFT
@@ -129,7 +145,7 @@ class ThumbnailCreator(
             TypedValue.COMPLEX_UNIT_SP,
             poemTheme.textSize.toFloat(),
             context.resources.displayMetrics
-        )
+        ) * 3 / 4
         setupPaint()
         setPaintAlignment(poemTheme.textAlignment)
         validateLines()
@@ -139,7 +155,7 @@ class ThumbnailCreator(
     private fun centreAlign(string: String) {
         val bounds = Rect()
         paint.getTextBounds(string, 0, string.length, bounds)
-        xPoint = ((width / 2) -  (bounds.width() / 2)).toFloat()
+        xPoint = ((width / 2) - (bounds.width() / 2)).toFloat()
     }
 
 
@@ -300,20 +316,22 @@ class ThumbnailCreator(
                 }
             }
 
-            if (generateBackground){
+            if (generateBackground) {
                 val backgroundImageDrawableFolder = context.getDir(
                     context.getString(R.string.background_image_drawable_folder),
                     Context.MODE_PRIVATE
                 )
                 val backgroundFile =
-                    File(backgroundImageDrawableFolder.absolutePath + File.separator + poemTheme.poemTitle.replace(
-                        ' ',
-                        '_'
-                    ) + ".png")
+                    File(
+                        backgroundImageDrawableFolder.absolutePath + File.separator + poemTheme.poemTitle.replace(
+                            ' ',
+                            '_'
+                        ) + ".png"
+                    )
 
                 if (backgroundFile.exists() || backgroundFile.createNewFile()) {
                     val backgroundOutputStream = FileOutputStream(backgroundFile)
-                    thumbnailBitmap.compress(Bitmap.CompressFormat.PNG,100,backgroundOutputStream)
+                    thumbnailBitmap.compress(Bitmap.CompressFormat.PNG, 100, backgroundOutputStream)
                     backgroundOutputStream.close()
                 }
             }
