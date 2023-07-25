@@ -33,17 +33,16 @@ class PdfPrinterHelper(
         editables: ArrayList<Editable>,
         context: Context,
         currentPage: FrameLayout,
-        strokeSize: Int,
-        fullWidth: Int,
-        fullHeight : Int
+        strokeSize: Int
     ): Int {
         val textPixelSize = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_SP,
             textSize.toFloat(),
             context.resources.displayMetrics
-        ) * 4 / 3
-        var imageSaverUtil = ImageSaverUtil(
-            context, currentPage, textSize * 4 / 3, outline,
+        )
+
+        val imageSaverUtil = ImageSaverUtil(
+            context, currentPage, textSize, outline,
             Pair(pageWidth, height)
         )
 
@@ -62,10 +61,6 @@ class PdfPrinterHelper(
 
 
         if (outline != "" && imagePath != "") {
-            imageSaverUtil = ImageSaverUtil(
-                context, currentPage, textSize * 4 / 3, outline,
-                Pair(fullWidth, fullHeight)
-            )
             reshapedBitmap = imageSaverUtil.rebuildImageShape(strokeSize, imagePath)
         }
 

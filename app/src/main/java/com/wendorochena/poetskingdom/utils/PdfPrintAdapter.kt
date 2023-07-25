@@ -42,7 +42,7 @@ class PdfPrintAdapter(
     private val activity: Activity,
     //first is margin size for stroke
     //second is margin size for text
-    private val layoutMarginAndTextMargin: Pair<Int, Int>,
+    private val strokeMargin : Int,
     private val outline: String,
     private val textUtils: TextMarginUtil,
     private val poemTheme: PoemTheme
@@ -75,8 +75,8 @@ class PdfPrintAdapter(
 
         val pdfPrinterHelper =
             PdfPrinterHelper(
-                height * 4 / 3 - (textUtils.marginTop * 4 / 3 - textUtils.marginBottom * 4 / 3) - layoutMarginAndTextMargin.first * 4 / 3,
-                (width * 4 / 3) - (textUtils.marginLeft * 4 / 3 - textUtils.marginRight * 4 / 3) - layoutMarginAndTextMargin.first * 4 / 3,
+                height * 4 / 3 - (textUtils.marginTop- textUtils.marginBottom),
+                width * 4 / 3 - (textUtils.marginLeft - textUtils.marginRight) ,
                 textSize,
                 ArrayList(),
                 outline,
@@ -86,15 +86,13 @@ class PdfPrintAdapter(
             editableArrayList,
             context,
             currentPage,
-            layoutMarginAndTextMargin.first * 4 / 3,
-            width * 4 / 3,
-            height * 4 / 3
+            strokeMargin * 4 / 3
         ) + 1
         reshapedBitmap = pdfPrinterHelper.getReshapedBitmapIfAny()
         editTextToPrint = pdfPrinterHelper.getEditTextsToPrint()
         if (pages > 0) {
             PrintDocumentInfo.Builder(poemTitle)
-                .setContentType(PrintDocumentInfo.CONTENT_TYPE_UNKNOWN).setPageCount(pages).build()
+                .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT).setPageCount(pages).build()
                 .also { info ->
                     // Content layout reflow is complete
                     callback?.onLayoutFinished(info, true)
@@ -191,7 +189,7 @@ class PdfPrintAdapter(
             } else {
                 val imageView = currentPage.getChildAt(0) as ShapeableImageView
                 if (imageView.tag != null && imageView.tag.toString().startsWith("/")) {
-                    val offset = layoutMarginAndTextMargin.first
+                    val offset = strokeMargin
                     val imageRect =
                         if (currentPage.background != null)
                             Rect(offset, offset, this.width, this.height)
@@ -231,7 +229,7 @@ class PdfPrintAdapter(
                         TypedValue.COMPLEX_UNIT_SP,
                         textSize.toFloat(),
                         context.resources.displayMetrics
-                    )
+                    ) * 3 / 4
 
                 val xPoint = determineXPoint(this.width)
 
@@ -245,7 +243,7 @@ class PdfPrintAdapter(
 
                 var yPoint = if (poemTheme.textAlignment.toString().contains("CENTRE_VERTICAL"))
                     determineYPoint(
-                        this.height - layoutMarginAndTextMargin.first,
+                        this.height - strokeMargin,
                         editText.text.lines().size,
                         lineHeight
                     )
@@ -264,7 +262,7 @@ class PdfPrintAdapter(
                         val bounds = Rect()
                         textPaint.getTextBounds(line, 0, line.length, bounds)
                         val xOffset = (this.width / 2F) - (bounds.width() / 2F)
-                        this.drawText(line, xOffset, yPoint, textPaint)
+                        this.drawText(line, xPoint + xOffset, yPoint, textPaint)
                     } else
                         this.drawText(line, xPoint, yPoint, textPaint)
                 }
@@ -303,16 +301,16 @@ class PdfPrintAdapter(
     private fun determineXPoint(width: Int): Float {
         return when (poemTheme.textAlignment) {
             TextAlignment.LEFT,TextAlignment.CENTRE_VERTICAL_LEFT  -> {
-                textUtils.marginLeft.toFloat()
+                textUtils.marginLeft.toFloat() * 3 / 4
             }
 
             TextAlignment.RIGHT,TextAlignment.CENTRE_VERTICAL_RIGHT -> {
-                width.toFloat() - textUtils.marginRight
+                (width.toFloat() - textUtils.marginRight) * 3 / 4
             }
 
             TextAlignment.CENTRE, TextAlignment.CENTRE_VERTICAL -> {
                 isTextCentred = true
-                textUtils.marginLeft.toFloat()
+                textUtils.marginLeft.toFloat() * 3 / 4
             }
         }
     }
