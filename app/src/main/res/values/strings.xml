@@ -299,4 +299,6 @@
     <string name="pre_images_saved_progress">Calculating pages</string>
     <string name="italicise_text">Italicise text</string>
     <string name="bold_format_text">Bold format text</string>
+    <string name="margin_left_description">Increase margin size of the left side</string>
+    <string name="margin_right_increase_description">Increase size of the margin from the right</string>
 </resources>
