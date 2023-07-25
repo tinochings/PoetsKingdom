@@ -10,7 +10,7 @@
     <dimen name="imageRowMarginTop">5dp</dimen>
     <dimen name="seek_bar_thickness">8dp</dimen>
     <dimen name="seek_bar_thumb_size">20dp</dimen>
-    <dimen name="strokeSize">8dp</dimen>
+    <dimen name="strokeSize">10dp</dimen>
     <dimen name="strokeSizeMargin">7dp</dimen>
     <dimen name="strokeSizeMarginText">9dp</dimen>
     <dimen name="portraitStrokeSize">10dp</dimen>
