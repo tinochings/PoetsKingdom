@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import androidx.core.content.res.ResourcesCompat
 import com.wendorochena.poetskingdom.R
+import com.wendorochena.poetskingdom.utils.TextMarginUtil
 
 data class PoemTheme(var backgroundType: BackgroundType) {
 
@@ -19,14 +20,12 @@ data class PoemTheme(var backgroundType: BackgroundType) {
     var textSize = 14
     var textColor: String = "#000000"
     var textColorAsInt = -16777216
-    //        applicationContext.resources.getColor(R.color.black, null)
     var backgroundColorAsInt = -1
-    //        applicationContext.resources.getColor(R.color.white,null)
     var textAlignment: TextAlignment = TextAlignment.LEFT
     var textFontFamily: String = "Default"
     var outlineColor: Int = -7821273
-    //        applicationContext.resources.getColor(R.color.madzinza_green, null)
     var poemTitle: String = ""
+    var textMarginUtil = TextMarginUtil()
     var bold = false
     var italic = false
 
@@ -35,7 +34,7 @@ data class PoemTheme(var backgroundType: BackgroundType) {
                 "$backgroundColor,  BackGroundColorAsInt: $backgroundColorAsInt ImagePath:" +
                 " $imagePath, Outline: $outline, OutlineColor: $outlineColor TextSize: $textSize, " +
                 "TextColor: $textColor, TextColorAsInt: $textColorAsInt, TextAlignment: " +
-                "$textAlignment, Bold: $bold, Italic: $italic, TextFontFamily: $textFontFamily"
+                "$textAlignment, Bold: $bold, Italic: $italic, TextFontFamily: $textFontFamily, TextMarginUtil: $textMarginUtil"
     }
 
     companion object PoemThemeHelper {
