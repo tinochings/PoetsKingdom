@@ -197,13 +197,12 @@ class ImageSaverUtil(
                                 lines.add(line)
                             else {
                                 paint.getTextBounds(line, 0, line.length, bounds)
-                                if (bounds.width() < width){
+                                if (bounds.width() < width) {
                                     if (indexCounter != wordsSize - 1)
                                         currentLine = line.slice(0 until (line.length - 1))
                                     else
                                         lines.add(line)
-                                    }
-                                else
+                                } else
                                     lines.add(line)
 
                             }
@@ -592,10 +591,85 @@ class ImageSaverUtil(
             val shapeAbleImageView = currentPage.getChildAt(0) as ShapeableImageView
             var counter = 0
             val imagesFolder = context.getDir("savedImages", MODE_PRIVATE)
+            var rect = if (shapeAbleImageView.tag != null && shapeAbleImageView.tag.toString()
+                .startsWith("/"))
+                Rect()
+            else
+                null
             val lineHeight = if (!isLandscape)
                 firstEditText.lineHeight.toFloat()
             else
                 landscapeLineHeight(firstEditText.typeface, textPixelSize)
+
+            val backgroundColor = if (currentPage.getTag(1) != null)
+                currentPage.getTag(1) as Int
+            else
+                null
+            val landscapeBitmap =
+                if (isLandscape && shapeAbleImageView.tag != null && shapeAbleImageView.tag.toString()
+                        .startsWith("/")
+                )
+                    rebuildImageShape(
+                        imageStrokeMargins,
+                        shapeAbleImageView.tag as String
+                    )
+                else
+                    null
+
+            val background =
+                if (currentPage.background != null && currentPage.background.constantState?.newDrawable() is ColorDrawable)
+                    currentPage.background.constantState?.newDrawable() as ColorDrawable
+                else if (currentPage.background != null)
+                    currentPage.background.constantState?.newDrawable() as GradientDrawable
+                else null
+
+            background?.setBounds(
+                0,
+                0,
+                widthAndHeight.first,
+                widthAndHeight.second
+            )
+
+            if (shapeAbleImageView.tag != null && shapeAbleImageView.tag.toString()
+                    .startsWith("/")
+            ) {
+                rect = if (!isLandscape)
+                    Rect(
+                        shapeAbleImageView.left,
+                        shapeAbleImageView.top,
+                        shapeAbleImageView.right,
+                        shapeAbleImageView.bottom
+                    )
+                else if (currentPage.background != null)
+                    Rect(
+                        imageStrokeMargins,
+                        imageStrokeMargins,
+                        widthAndHeight.first,
+                        widthAndHeight.second
+                    )
+                else
+                    Rect(0, 0, widthAndHeight.first, widthAndHeight.second)
+            }
+
+            val bitmap = if (isLandscape)
+                Bitmap.createBitmap(
+                    widthAndHeight.first,
+                    widthAndHeight.second,
+                    Bitmap.Config.ARGB_8888
+                ) else
+                Bitmap.createBitmap(
+                    currentPage.width,
+                    currentPage.height,
+                    Bitmap.Config.ARGB_8888
+                )
+            val textPaint = Paint()
+            textPaint.typeface = firstEditText.typeface
+            textPaint.textSize = textPixelSize
+            textPaint.color = firstEditText.currentTextColor
+            textPaint.textAlign = textPaintAlignment
+
+            val xPoint =
+                determineXPoint(isLandscape, firstEditText, textMarginUtil)
 
             try {
                 if (imagesFolder.exists()) {
@@ -634,45 +708,14 @@ class ImageSaverUtil(
                             if (imageToAdd.exists() || imageToAdd.createNewFile()) {
                                 val outStream = FileOutputStream(imageToAdd)
 
-                                val bitmap = if (isLandscape)
-                                    Bitmap.createBitmap(
-                                        widthAndHeight.first,
-                                        widthAndHeight.second,
-                                        Bitmap.Config.ARGB_8888
-                                    ) else
-                                    Bitmap.createBitmap(
-                                        currentPage.width,
-                                        currentPage.height,
-                                        Bitmap.Config.ARGB_8888
-                                    )
                                 val canvas = Canvas(bitmap)
 
                                 if (shapeAbleImageView.tag != null && shapeAbleImageView.tag.toString()
-                                        .startsWith("/")
+                                        .startsWith("/") && rect != null
                                 ) {
-                                    val rect = if (!isLandscape)
-                                        Rect(
-                                            shapeAbleImageView.left,
-                                            shapeAbleImageView.top,
-                                            shapeAbleImageView.right,
-                                            shapeAbleImageView.bottom
-                                        )
-                                    else if (currentPage.background != null)
-                                        Rect(
-                                            imageStrokeMargins,
-                                            imageStrokeMargins,
-                                            widthAndHeight.first,
-                                            widthAndHeight.second
-                                        )
-                                    else
-                                        Rect(0, 0, widthAndHeight.first, widthAndHeight.second)
-
                                     if (isLandscape)
                                         canvas.drawBitmap(
-                                            rebuildImageShape(
-                                                imageStrokeMargins,
-                                                shapeAbleImageView.tag as String
-                                            ),
+                                            landscapeBitmap!!,
                                             null,
                                             rect,
                                             null
@@ -688,29 +731,16 @@ class ImageSaverUtil(
 
                                 if (currentPage.background != null) {
                                     if (isLandscape) {
-                                        val background =
-                                            if (currentPage.background.constantState?.newDrawable() is ColorDrawable)
-                                                currentPage.background.constantState?.newDrawable() as ColorDrawable
-                                            else
-                                                currentPage.background.constantState?.newDrawable() as GradientDrawable
-                                        background.setBounds(
-                                            0,
-                                            0,
-                                            widthAndHeight.first,
-                                            widthAndHeight.second
-                                        )
-                                        background.draw(canvas)
+                                        background?.draw(canvas)
                                     } else {
                                         currentPage.background.draw(canvas)
                                     }
-                                } else if (currentPage.getTag(1) != null) {
-                                    canvas.drawColor(currentPage.getTag(1) as Int)
+                                } else if (backgroundColor != null) {
+                                    canvas.drawColor(backgroundColor)
                                 } else {
                                     if (shapeAbleImageView.tag == null)
                                         canvas.drawColor(context.getColor(R.color.white))
                                 }
-                                val xPoint =
-                                    determineXPoint(isLandscape, firstEditText, textMarginUtil)
 
                                 var yPoint = determineYPoint(
                                     isLandscape,
@@ -723,18 +753,12 @@ class ImageSaverUtil(
                                     lineHeight
                                 )
 
-                                val textPaint = Paint()
-                                textPaint.typeface = editTextBox.typeface
-                                textPaint.textSize = textPixelSize
-                                textPaint.color = editTextBox.currentTextColor
-                                textPaint.textAlign = textPaintAlignment
-
                                 for (line in editTextBox.text.lines()) {
                                     yPoint += lineHeight
                                     if (isTextCentred) {
                                         val bounds = Rect()
                                         textPaint.getTextBounds(line, 0, line.length, bounds)
-                                        val xOffset = (canvas.width / 2F) - (bounds.width() / 2F)
+                                        val xOffset = (canvas.width / 2F) - (bounds.width() / 2F) - textMarginUtil.marginLeft
                                         canvas.drawText(line, xPoint + xOffset, yPoint, textPaint)
                                     } else
                                         canvas.drawText(line, xPoint, yPoint, textPaint)
