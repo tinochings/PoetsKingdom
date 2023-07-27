@@ -1974,19 +1974,16 @@ class CreatePoem : AppCompatActivity() {
             ImageSaverUtil(
                 this,
                 currentPage,
-                poemTheme.textSize,
-                poemTheme.outline,
+                poemTheme,
                 widthAndHeight
             )
 
         setupProgressIndicator(imageSaverUtil)
         val isCenterVertical = poemTheme.textAlignment.toString().contains("CENTRE_VERTICAL")
 
-        imageSaverUtil.setPaintAlignment(poemTheme.textAlignment)
+        imageSaverUtil.setPaintAlignment()
         if (imageSaverUtil.savePagesAsImages(
                 editableArrayList,
-                poemTheme.poemTitle,
-                poemTheme.textMarginUtil,
                 imageStrokeMargins,
                 isLandscape,
                 isCenterVertical
