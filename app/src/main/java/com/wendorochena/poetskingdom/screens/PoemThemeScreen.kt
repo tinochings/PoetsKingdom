@@ -1046,18 +1046,11 @@ fun TextColorAndAlignment(
                     contentDescription = stringResource(
                         id = R.string.bold_format_text
                     ),
-                    if (isBold)
                         Modifier
                             .fillMaxHeight()
                             .fillMaxWidth()
                             .weight(1f)
-                            .background(color = MaterialTheme.colors.secondary)
-                            .clickable { onBoldOrItalicClicked.invoke("bold") }
-                    else
-                        Modifier
-                            .fillMaxHeight()
-                            .fillMaxWidth()
-                            .weight(1f)
+                            .background(color = if (isBold) MaterialTheme.colors.secondary else MaterialTheme.colors.background)
                             .clickable { onBoldOrItalicClicked.invoke("bold") }
                 )
                 Image(
@@ -1065,18 +1058,11 @@ fun TextColorAndAlignment(
                     contentDescription = stringResource(
                         id = R.string.italicise_text
                     ),
-                    if (isItalic)
                         Modifier
                             .fillMaxHeight()
                             .fillMaxWidth()
                             .weight(1f)
-                            .background(color = MaterialTheme.colors.secondary)
-                            .clickable { onBoldOrItalicClicked.invoke("italic") }
-                    else
-                        Modifier
-                            .fillMaxHeight()
-                            .fillMaxWidth()
-                            .weight(1f)
+                            .background(color = if (isItalic) MaterialTheme.colors.secondary else MaterialTheme.colors.background)
                             .clickable { onBoldOrItalicClicked.invoke("italic") }
                 )
             }
