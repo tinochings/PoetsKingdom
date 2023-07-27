@@ -759,7 +759,11 @@ class ImageSaverUtil(
                                         val bounds = Rect()
                                         textPaint.getTextBounds(line, 0, line.length, bounds)
                                         val xOffset = (canvas.width / 2F) - (bounds.width() / 2F) - textMarginUtil.marginLeft
-                                        canvas.drawText(line, xPoint + xOffset, yPoint, textPaint)
+                                        val xPointToUse = if (xOffset < 0)
+                                            xPoint - xOffset
+                                        else
+                                            xPoint + xOffset
+                                        canvas.drawText(line, xPointToUse, yPoint, textPaint)
                                     } else
                                         canvas.drawText(line, xPoint, yPoint, textPaint)
                                 }
