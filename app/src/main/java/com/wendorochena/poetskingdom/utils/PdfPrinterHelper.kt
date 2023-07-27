@@ -7,14 +7,14 @@ import android.text.Editable
 import android.util.TypedValue
 import android.widget.EditText
 import android.widget.FrameLayout
+import com.wendorochena.poetskingdom.poemdata.PoemTheme
 import kotlin.math.roundToInt
 
 class PdfPrinterHelper(
     private val height: Int,
     private val pageWidth: Int,
-    private val textSize: Int,
+    private val poemTheme: PoemTheme,
     private var editTextsToPrint: ArrayList<EditText>,
-    private val outline: String,
     private val imagePath: String
 ) {
 
@@ -37,12 +37,12 @@ class PdfPrinterHelper(
     ): Int {
         val textPixelSize = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_SP,
-            textSize.toFloat(),
+            poemTheme.textSize.toFloat(),
             context.resources.displayMetrics
         )
 
         val imageSaverUtil = ImageSaverUtil(
-            context, currentPage, textSize, outline,
+            context, currentPage, poemTheme,
             Pair(pageWidth, height)
         )
 
@@ -60,7 +60,7 @@ class PdfPrinterHelper(
         }
 
 
-        if (outline != "" && imagePath != "") {
+        if (poemTheme.outline != "" && imagePath != "") {
             reshapedBitmap = imageSaverUtil.rebuildImageShape(strokeSize, imagePath)
         }
 

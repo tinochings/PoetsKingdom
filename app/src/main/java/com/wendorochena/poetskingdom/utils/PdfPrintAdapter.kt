@@ -70,9 +70,8 @@ class PdfPrintAdapter(
             PdfPrinterHelper(
                 height - topAndBottomMargins,
                 width - startAndEndMargins,
-                poemTheme.textSize,
+                poemTheme,
                 ArrayList(),
-                poemTheme.outline,
                 tag,
             )
         val pages = pdfPrinterHelper.calculatePages(
