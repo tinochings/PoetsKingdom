@@ -63,6 +63,7 @@ class CreatePoem : AppCompatActivity() {
     private var currentContainerView: View? = null
     private var savedAlbumName: String? = null
     private var scaleText = false
+    private lateinit var previousAlignment : FrameLayout
 
     //key is the page number value is the id
     private val pageNumberAndId: HashMap<Int, Int> = HashMap()
@@ -1425,6 +1426,87 @@ class CreatePoem : AppCompatActivity() {
         val numberPickerRightMargin = findViewById<NumberPicker>(R.id.formatRightMarginNumberPicker)
         val textMarginUtil = TextMarginUtil()
 
+        val leftAlignParent = findViewById<FrameLayout>(R.id.leftAlignParent)
+        val centreAlignParent = findViewById<FrameLayout>(R.id.centreAlignParent)
+        val rightAlignParent = findViewById<FrameLayout>(R.id.rightAlignParent)
+        val centreVerticalAlignParent = findViewById<FrameLayout>(R.id.centerVerticalAlignParent)
+        val centreVerticalLeftAlignParent =
+            findViewById<FrameLayout>(R.id.centerVerticalLeftAlignParent)
+        val centreVerticalRightAlignParent =
+            findViewById<FrameLayout>(R.id.centerVerticalRightAlignParent)
+        val italicTextParent = findViewById<FrameLayout>(R.id.italicFormatParent)
+        val boldTextParent = findViewById<FrameLayout>(R.id.boldFormatParent)
+
+        if (poemTheme.italic)
+            italicTextParent.background = ResourcesCompat.getDrawable(
+                resources,
+                R.drawable.rounded_selected_solid_color,
+                theme
+            )
+
+        if (poemTheme.bold)
+            boldTextParent.background = ResourcesCompat.getDrawable(
+                resources,
+                R.drawable.rounded_selected_solid_color,
+                theme
+            )
+
+        when (poemTheme.textAlignment) {
+            TextAlignment.LEFT -> {
+                leftAlignParent.background = ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.rounded_selected_solid_color,
+                    theme
+                )
+                previousAlignment = leftAlignParent
+            }
+
+            TextAlignment.CENTRE -> {
+                centreAlignParent.background = ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.rounded_selected_solid_color,
+                    theme
+                )
+                previousAlignment = centreAlignParent
+            }
+
+            TextAlignment.RIGHT -> {
+                rightAlignParent.background = ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.rounded_selected_solid_color,
+                    theme
+                )
+                previousAlignment = rightAlignParent
+            }
+
+            TextAlignment.CENTRE_VERTICAL -> {
+                centreVerticalAlignParent.background = ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.rounded_selected_solid_color,
+                    theme
+                )
+                previousAlignment = centreVerticalAlignParent
+            }
+
+            TextAlignment.CENTRE_VERTICAL_LEFT -> {
+                centreVerticalLeftAlign.background = ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.rounded_selected_solid_color,
+                    theme
+                )
+                previousAlignment = centreVerticalLeftAlignParent
+            }
+
+            TextAlignment.CENTRE_VERTICAL_RIGHT -> {
+                centreVerticalRightAlignParent.background = ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.rounded_selected_solid_color,
+                    theme
+                )
+                previousAlignment = centreVerticalRightAlignParent
+            }
+        }
+
         if (poemTheme.outline.isNotEmpty())
             textMarginUtil.determineTextMargins(
                 poemTheme.outline,
@@ -1439,25 +1521,64 @@ class CreatePoem : AppCompatActivity() {
 
         numberPickerLeftMargin.value = poemTheme.textMarginUtil.marginLeft
         numberPickerRightMargin.value = poemTheme.textMarginUtil.marginRight
+
         leftAlign.setOnClickListener {
             poemTheme.textAlignment = TextAlignment.LEFT
             setEditTextAlignment(TextView.TEXT_ALIGNMENT_TEXT_START, Gravity.START)
             actuateSavePoemTheme()
+            leftAlignParent.background = ResourcesCompat.getDrawable(
+                resources,
+                R.drawable.rounded_selected_solid_color,
+                theme
+            )
+            if (previousAlignment != leftAlignParent) {
+                previousAlignment.background = null
+                previousAlignment = leftAlignParent
+            }
         }
         centreAlign.setOnClickListener {
             poemTheme.textAlignment = TextAlignment.CENTRE
             setEditTextAlignment(TextView.TEXT_ALIGNMENT_CENTER, Gravity.CENTER)
             actuateSavePoemTheme()
+            centreAlignParent.background = ResourcesCompat.getDrawable(
+                resources,
+                R.drawable.rounded_selected_solid_color,
+                theme
+            )
+            if (previousAlignment != centreAlignParent) {
+                previousAlignment.background = null
+                previousAlignment = centreAlignParent
+            }
+
         }
         rightAlign.setOnClickListener {
             poemTheme.textAlignment = TextAlignment.RIGHT
             setEditTextAlignment(TextView.TEXT_ALIGNMENT_TEXT_END, Gravity.END)
             actuateSavePoemTheme()
+            rightAlignParent.background = ResourcesCompat.getDrawable(
+                resources,
+                R.drawable.rounded_selected_solid_color,
+                theme
+            )
+            if (previousAlignment != rightAlignParent) {
+                previousAlignment.background = null
+                previousAlignment = rightAlignParent
+            }
         }
         centreVerticalAlign.setOnClickListener {
             poemTheme.textAlignment = TextAlignment.CENTRE_VERTICAL
             setEditTextAlignment(TextView.TEXT_ALIGNMENT_CENTER, Gravity.CENTER_VERTICAL)
             actuateSavePoemTheme()
+            centreVerticalAlignParent.background = ResourcesCompat.getDrawable(
+                resources,
+                R.drawable.rounded_selected_solid_color,
+                theme
+            )
+            if (previousAlignment != centreVerticalAlignParent) {
+                previousAlignment.background = null
+                previousAlignment = centreVerticalAlignParent
+            }
+
         }
         centreVerticalRightAlign.setOnClickListener {
             poemTheme.textAlignment = TextAlignment.CENTRE_VERTICAL_RIGHT
@@ -1466,6 +1587,15 @@ class CreatePoem : AppCompatActivity() {
                 Gravity.CENTER_VERTICAL or Gravity.END
             )
             actuateSavePoemTheme()
+            centreVerticalRightAlignParent.background = ResourcesCompat.getDrawable(
+                resources,
+                R.drawable.rounded_selected_solid_color,
+                theme
+            )
+            if (previousAlignment != centreVerticalRightAlignParent) {
+                previousAlignment.background = null
+                previousAlignment = centreVerticalRightAlignParent
+            }
         }
         centreVerticalLeftAlign.setOnClickListener {
             poemTheme.textAlignment = TextAlignment.CENTRE_VERTICAL_LEFT
@@ -1474,18 +1604,43 @@ class CreatePoem : AppCompatActivity() {
                 Gravity.CENTER_VERTICAL or Gravity.START
             )
             actuateSavePoemTheme()
+            centreVerticalLeftAlignParent.background = ResourcesCompat.getDrawable(
+                resources,
+                R.drawable.rounded_selected_solid_color,
+                theme
+            )
+            if (previousAlignment != centreVerticalLeftAlignParent) {
+                previousAlignment.background = null
+                previousAlignment = centreVerticalLeftAlignParent
+            }
         }
 
         boldText.setOnClickListener {
             poemTheme.bold = !poemTheme.bold
             setEditTextTypeface("bold", poemTheme.bold, poemTheme.italic)
             actuateSavePoemTheme()
+            if (poemTheme.bold)
+                boldTextParent.background = ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.rounded_selected_solid_color,
+                    theme
+                )
+            else
+                boldTextParent.background = null
         }
 
         italicText.setOnClickListener {
             poemTheme.italic = !poemTheme.italic
             setEditTextTypeface("italic", poemTheme.bold, poemTheme.italic)
             actuateSavePoemTheme()
+            if (poemTheme.italic)
+                italicTextParent.background = ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.rounded_selected_solid_color,
+                    theme
+                )
+            else
+                italicTextParent.background = null
         }
 
         numberPickerLeftMargin.setOnValueChangedListener { _, _, newVal ->

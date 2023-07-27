@@ -212,6 +212,7 @@
 
                 <FrameLayout
                     android:layout_width="0dp"
+                    android:id="@+id/leftAlignParent"
                     android:layout_height="50dp"
                     android:layout_gravity="center"
                     android:layout_marginStart="5dp"
@@ -228,6 +229,7 @@
 
                 <FrameLayout
                     android:layout_width="0dp"
+                    android:id="@+id/centreAlignParent"
                     android:layout_height="50dp"
                     android:layout_gravity="center"
                     android:layout_marginStart="5dp"
@@ -244,6 +246,7 @@
 
                 <FrameLayout
                     android:layout_width="0dp"
+                    android:id="@+id/rightAlignParent"
                     android:layout_height="50dp"
                     android:layout_gravity="center"
                     android:layout_marginStart="5dp"
@@ -260,6 +263,7 @@
 
                 <FrameLayout
                     android:layout_width="0dp"
+                    android:id="@+id/centerVerticalAlignParent"
                     android:layout_height="50dp"
                     android:layout_gravity="center"
                     android:layout_marginStart="5dp"
@@ -277,6 +281,7 @@
                 <FrameLayout
                     android:layout_width="0dp"
                     android:layout_height="50dp"
+                    android:id="@+id/centerVerticalLeftAlignParent"
                     android:layout_gravity="center"
                     android:layout_marginStart="5dp"
                     android:layout_weight="1">
@@ -292,6 +297,7 @@
 
                 <FrameLayout
                     android:layout_width="0dp"
+                    android:id="@+id/centerVerticalRightAlignParent"
                     android:layout_height="50dp"
                     android:layout_gravity="center"
                     android:layout_marginStart="5dp"
@@ -371,6 +377,8 @@
 
                 <FrameLayout
                     android:layout_width="0dp"
+                    android:layout_margin="2dp"
+                    android:id="@+id/boldFormatParent"
                     android:layout_height="48dp"
                     android:layout_weight="1">
 
@@ -386,6 +394,8 @@
                 <FrameLayout
                     android:layout_width="0dp"
                     android:layout_height="48dp"
+                    android:layout_margin="5dp"
+                    android:id="@+id/italicFormatParent"
                     android:layout_weight="1">
 
                     <ImageView
