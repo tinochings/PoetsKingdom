@@ -20,6 +20,7 @@ import androidx.core.view.drawToBitmap
 import androidx.databinding.ObservableInt
 import com.google.android.material.imageview.ShapeableImageView
 import com.wendorochena.poetskingdom.R
+import com.wendorochena.poetskingdom.poemdata.PoemTheme
 import com.wendorochena.poetskingdom.poemdata.TextAlignment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -31,15 +32,13 @@ import kotlin.math.roundToInt
 /**
  * @param context context of the activity
  * @param currentPage the frame layout currently displayed
- * @param textSize the size of the text in SP
- * @param outline the outline set
+ * @param poemTheme the theme of the poem
  * @param widthAndHeight a Pair with the width as the first value, height as second value
  */
 class ImageSaverUtil(
     private val context: Context,
     private val currentPage: FrameLayout,
-    private val textSize: Int,
-    private val outline: String,
+    private val poemTheme: PoemTheme,
     private val widthAndHeight: Pair<Int, Int>
 ) {
     private lateinit var textPaintAlignment: Paint.Align
@@ -81,7 +80,6 @@ class ImageSaverUtil(
                         accumulatedChars += "\n"
                         lines.add(accumulatedChars)
                         accumulatedChars = ""
-//                        charIndex++
                     } else if (charIndex + 1 == longWord.length) {
                         accumulatedChars += "\n"
                         lines.add(accumulatedChars)
@@ -97,10 +95,9 @@ class ImageSaverUtil(
     /**
      * Sets the text alignment to be drawn on bitmap
      *
-     * @param textAlignment the text alignment of the poem
      */
-    fun setPaintAlignment(textAlignment: TextAlignment) {
-        textPaintAlignment = when (textAlignment) {
+    fun setPaintAlignment() {
+        textPaintAlignment = when (poemTheme.textAlignment) {
 
             TextAlignment.LEFT, TextAlignment.CENTRE_VERTICAL_LEFT -> {
                 Paint.Align.LEFT
@@ -155,7 +152,7 @@ class ImageSaverUtil(
     ): ArrayList<Editable> {
         val textPixelSize = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_SP,
-            textSize.toFloat(),
+            poemTheme.textSize.toFloat(),
             context.resources.displayMetrics
         )
 
@@ -473,13 +470,10 @@ class ImageSaverUtil(
      */
     private fun determineXPoint(
         isLandscape: Boolean,
-        firstEditText: EditText,
         textMarginUtil: TextMarginUtil
     ): Float {
         return when (textPaintAlignment) {
-            Paint.Align.LEFT -> if (!isLandscape)
-                firstEditText.x
-            else textMarginUtil.marginLeft.toFloat()
+            Paint.Align.LEFT -> textMarginUtil.marginLeft.toFloat()
 
             Paint.Align.CENTER -> if (!isLandscape)
                 (currentPage.width / 2).toFloat()
@@ -553,7 +547,7 @@ class ImageSaverUtil(
         imageView.scaleType = ImageView.ScaleType.FIT_XY
 
         imageView.shapeAppearanceModel = ShapeAppearanceModelHelper.shapeImageView(
-            outline,
+            poemTheme.outline,
             context.resources,
             imageStrokeMargins.toFloat()
         )
@@ -567,16 +561,12 @@ class ImageSaverUtil(
     /**
      * Creates a folder with the pictures that is accessible in the application
      * @param editableArrayList Arraylist containing text user entered per page
-     * @param title of the poem
-     * @param textMarginUtil the utility class containing the text margins
      * @param isLandscape
      * @return 0 when we successfully generated images
      * @return -1 when we failed to
      */
     suspend fun savePagesAsImages(
         editableArrayList: ArrayList<Editable>,
-        title: String,
-        textMarginUtil: TextMarginUtil,
         imageStrokeMargins: Int,
         isLandscape: Boolean,
         isCentreVertical: Boolean
@@ -585,14 +575,15 @@ class ImageSaverUtil(
             val firstEditText = currentPage.getChildAt(1) as EditText
             val textPixelSize = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_SP,
-                textSize.toFloat(),
+                poemTheme.textSize.toFloat(),
                 context.resources.displayMetrics
             )
             val shapeAbleImageView = currentPage.getChildAt(0) as ShapeableImageView
             var counter = 0
             val imagesFolder = context.getDir("savedImages", MODE_PRIVATE)
             var rect = if (shapeAbleImageView.tag != null && shapeAbleImageView.tag.toString()
-                .startsWith("/"))
+                    .startsWith("/")
+            )
                 Rect()
             else
                 null
@@ -669,12 +660,12 @@ class ImageSaverUtil(
             textPaint.textAlign = textPaintAlignment
 
             val xPoint =
-                determineXPoint(isLandscape, firstEditText, textMarginUtil)
+                determineXPoint(isLandscape, poemTheme.textMarginUtil)
 
             try {
                 if (imagesFolder.exists()) {
                     val subFolderWithTitleAsName = File(
-                        imagesFolder.absolutePath + File.separator + title
+                        imagesFolder.absolutePath + File.separator + poemTheme.poemTitle
                             .replace(' ', '_')
                     )
                     if (subFolderWithTitleAsName.exists() && subFolderWithTitleAsName.listFiles() != null && subFolderWithTitleAsName.listFiles()?.size!! > 0) {
@@ -688,15 +679,15 @@ class ImageSaverUtil(
                             val editTextsToPrint = if (!isLandscape)
                                 formatPagesToSave(
                                     editable,
-                                    currentPage.height - textMarginUtil.marginTop - textMarginUtil.marginBottom,
-                                    currentPage.width - textMarginUtil.marginLeft - textMarginUtil.marginRight,
+                                    currentPage.height - poemTheme.textMarginUtil.marginTop - poemTheme.textMarginUtil.marginBottom,
+                                    currentPage.width - poemTheme.textMarginUtil.marginLeft - poemTheme.textMarginUtil.marginRight,
                                     firstEditText.lineHeight
                                 )
                             else
                                 formatPagesToSave(
                                     editable,
-                                    height = widthAndHeight.second - textMarginUtil.marginTop - textMarginUtil.marginBottom,
-                                    width = widthAndHeight.first - textMarginUtil.marginLeft - textMarginUtil.marginRight,
+                                    height = widthAndHeight.second - poemTheme.textMarginUtil.marginTop - poemTheme.textMarginUtil.marginBottom,
+                                    width = widthAndHeight.first - poemTheme.textMarginUtil.marginLeft - poemTheme.textMarginUtil.marginRight,
                                     lineHeight.toInt()
                                 )
                             editTextArrayList.addAll(editTextsToPrint)
@@ -704,7 +695,7 @@ class ImageSaverUtil(
                         totalPages.set(editTextArrayList.size)
                         for (editTextBox in editTextArrayList) {
                             val imageToAdd =
-                                File(subFolderWithTitleAsName.absolutePath + File.separator + "$title Stanza$counter" + ".png")
+                                File(subFolderWithTitleAsName.absolutePath + File.separator + "${poemTheme.poemTitle} Stanza$counter" + ".png")
                             if (imageToAdd.exists() || imageToAdd.createNewFile()) {
                                 val outStream = FileOutputStream(imageToAdd)
 
@@ -749,7 +740,7 @@ class ImageSaverUtil(
                                     currentPage,
                                     editTextBox,
                                     imageStrokeMargins,
-                                    textMarginUtil,
+                                    poemTheme.textMarginUtil,
                                     lineHeight
                                 )
 
@@ -758,7 +749,8 @@ class ImageSaverUtil(
                                     if (isTextCentred) {
                                         val bounds = Rect()
                                         textPaint.getTextBounds(line, 0, line.length, bounds)
-                                        val xOffset = (canvas.width / 2F) - (bounds.width() / 2F) - textMarginUtil.marginLeft
+                                        val xOffset =
+                                            (canvas.width / 2F) - (bounds.width() / 2F) - poemTheme.textMarginUtil.marginLeft
                                         val xPointToUse = if (xOffset < 0)
                                             xPoint - xOffset
                                         else
