@@ -145,7 +145,7 @@ class ThumbnailCreator(
             TypedValue.COMPLEX_UNIT_SP,
             poemTheme.textSize.toFloat(),
             context.resources.displayMetrics
-        ) * 3 / 4
+        )
         setupPaint()
         setPaintAlignment(poemTheme.textAlignment)
         validateLines()
