@@ -1933,15 +1933,10 @@ class CreatePoem : AppCompatActivity() {
                 printManager.print(
                     jobName,
                     PdfPrintAdapter(
-                        baseContext,
-                        poemTheme.textSize,
-                        getAllTypedText(),
-                        poemTheme.poemTitle,
-                        currentPage,
                         this,
+                        getAllTypedText(),
+                        currentPage,
                         strokeMargin,
-                        poemTheme.outline,
-                        poemTheme.textMarginUtil,
                         poemTheme
                     ),
                     null
