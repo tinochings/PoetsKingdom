@@ -18,7 +18,7 @@ class PdfPrinterHelper(
     private val imagePath: String
 ) {
 
-    lateinit var reshapedBitmap: Bitmap
+    private lateinit var reshapedBitmap: Bitmap
 
     /**
      * Initiates the calculating of pages of a PDF document

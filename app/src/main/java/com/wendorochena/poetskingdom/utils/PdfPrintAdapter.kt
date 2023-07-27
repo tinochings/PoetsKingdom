@@ -1,12 +1,10 @@
 package com.wendorochena.poetskingdom.utils
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Paint
 import android.graphics.Rect
-import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.pdf.PdfDocument
@@ -24,7 +22,6 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.drawable.toBitmap
-import androidx.core.view.children
 import androidx.core.view.drawToBitmap
 import com.google.android.material.imageview.ShapeableImageView
 import com.wendorochena.poetskingdom.poemdata.PoemTheme
@@ -35,16 +32,9 @@ import kotlin.math.roundToInt
 
 class PdfPrintAdapter(
     private val context: Context,
-    private val textSize: Int,
     private val editableArrayList: ArrayList<Editable>,
-    private val poemTitle: String,
     private val currentPage: FrameLayout,
-    private val activity: Activity,
-    //first is margin size for stroke
-    //second is margin size for text
-    private val strokeMargin : Int,
-    private val outline: String,
-    private val textUtils: TextMarginUtil,
+    private val strokeMargin: Int,
     private val poemTheme: PoemTheme
 ) : PrintDocumentAdapter() {
     private var editTextToPrint = ArrayList<EditText>()
@@ -58,7 +48,7 @@ class PdfPrintAdapter(
         callback: LayoutResultCallback?,
         extras: Bundle?
     ) {
-        pdfDocument = newAttributes?.let { PrintedPdfDocument(activity, it) }
+        pdfDocument = newAttributes?.let { PrintedPdfDocument(context, it) }
         // Respond to cancellation request
         if (cancellationSignal?.isCanceled == true) {
             callback?.onLayoutCancelled()
@@ -72,26 +62,29 @@ class PdfPrintAdapter(
             imageView.tag as String
         else
             ""
-
+        val startAndEndMargins =
+            (poemTheme.textMarginUtil.marginLeft) + (poemTheme.textMarginUtil.marginRight)
+        val topAndBottomMargins =
+            (poemTheme.textMarginUtil.marginTop) + (poemTheme.textMarginUtil.marginBottom)
         val pdfPrinterHelper =
             PdfPrinterHelper(
-                height * 4 / 3 - (textUtils.marginTop- textUtils.marginBottom),
-                width * 4 / 3 - (textUtils.marginLeft - textUtils.marginRight) ,
-                textSize,
+                height - topAndBottomMargins,
+                width - startAndEndMargins,
+                poemTheme.textSize,
                 ArrayList(),
-                outline,
+                poemTheme.outline,
                 tag,
             )
         val pages = pdfPrinterHelper.calculatePages(
             editableArrayList,
             context,
             currentPage,
-            strokeMargin * 4 / 3
+            strokeMargin
         ) + 1
         reshapedBitmap = pdfPrinterHelper.getReshapedBitmapIfAny()
         editTextToPrint = pdfPrinterHelper.getEditTextsToPrint()
         if (pages > 0) {
-            PrintDocumentInfo.Builder(poemTitle)
+            PrintDocumentInfo.Builder(poemTheme.poemTitle)
                 .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT).setPageCount(pages).build()
                 .also { info ->
                     // Content layout reflow is complete
@@ -110,10 +103,22 @@ class PdfPrintAdapter(
         cancellationSignal: CancellationSignal?,
         callback: WriteResultCallback?
     ) {
+        val firstEditText = currentPage.getChildAt(1) as EditText
+        val textPixelSize =
+            TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_SP,
+                poemTheme.textSize.toFloat(),
+                context.resources.displayMetrics
+            )
+        val textPaint = Paint()
+        textPaint.typeface = firstEditText.typeface
+        textPaint.textSize = textPixelSize
+        textPaint.color = firstEditText.currentTextColor
+        textPaint.textAlign = getPaintAlignment()
 
 
         pdfDocument?.startPage(0)?.also { page ->
-            drawPage(page, EditText(context), true)
+            drawPage(page, firstEditText, true, textPaint)
             pdfDocument?.finishPage(page)
         }
 
@@ -128,7 +133,7 @@ class PdfPrintAdapter(
                     return
                 }
                 // Draw page content for printing
-                drawPage(page, editText, false)
+                drawPage(page, editText, false, textPaint)
 
                 // Rendering is complete, so page can be finalized.
                 pdfDocument?.finishPage(page)
@@ -149,24 +154,23 @@ class PdfPrintAdapter(
         callback?.onWriteFinished(pageRange)
     }
 
-    private fun drawPage(page: PdfDocument.Page, editText: EditText, thumbnail: Boolean) {
+    private fun drawPage(
+        page: PdfDocument.Page,
+        editText: EditText,
+        thumbnail: Boolean,
+        textPaint: Paint
+    ) {
         page.canvas.apply {
-
+            val xPoint = determineXPoint(this.width)
             if (thumbnail) {
-                var typeface: Typeface = Typeface.DEFAULT
-                for (child in currentPage.children) {
-                    if (child is EditText) {
-                        typeface = child.typeface
-                    }
-                }
                 val thumbnailCreator = ThumbnailCreator(
                     context,
                     poemTheme,
                     this.width,
                     this.height,
-                    textUtils,
+                    poemTheme.textMarginUtil,
                     generateBackground = false,
-                    typeface = typeface
+                    typeface = editText.typeface
                 )
                 thumbnailCreator.pdfInitiateCreateThumbnail()
 
@@ -176,7 +180,7 @@ class PdfPrintAdapter(
                     AppCompatActivity.MODE_PRIVATE
                 )
 
-                val encodedTitle = poemTitle.replace(' ', '_')
+                val encodedTitle = poemTheme.poemTitle.replace(' ', '_')
                 val thumbnailFile =
                     File(thumbnailsFolder.absolutePath + File.separator + encodedTitle + ".png")
                 try {
@@ -224,21 +228,8 @@ class PdfPrintAdapter(
                     }
                 }
 
-                val textPixelSize =
-                    TypedValue.applyDimension(
-                        TypedValue.COMPLEX_UNIT_SP,
-                        textSize.toFloat(),
-                        context.resources.displayMetrics
-                    ) * 3 / 4
-
-                val xPoint = determineXPoint(this.width)
-
-                val samplePaint = Paint()
-                samplePaint.typeface = editText.typeface
-                samplePaint.textSize = textPixelSize
-                samplePaint.textAlign = getPaintAlignment()
                 val lineHeight =
-                    (samplePaint.descent() - samplePaint.ascent() + samplePaint.fontMetrics.leading).roundToInt()
+                    (textPaint.descent() - textPaint.ascent() + textPaint.fontMetrics.leading).roundToInt()
                         .toFloat()
 
                 var yPoint = if (poemTheme.textAlignment.toString().contains("CENTRE_VERTICAL"))
@@ -248,23 +239,24 @@ class PdfPrintAdapter(
                         lineHeight
                     )
                 else
-                    textUtils.marginTop.toFloat()
+                    poemTheme.textMarginUtil.marginTop.toFloat() * (3F / 4F)
 
                 for (line in editText.text.lines()) {
-                    val textPaint = Paint()
-                    textPaint.typeface = editText.typeface
-                    textPaint.textSize = textPixelSize
-                    textPaint.color = editText.currentTextColor
-                    textPaint.textAlign = getPaintAlignment()
                     yPoint += (textPaint.descent() - textPaint.ascent() + textPaint.fontMetrics.leading).roundToInt()
                         .toFloat()
                     if (isTextCentred) {
                         val bounds = Rect()
                         textPaint.getTextBounds(line, 0, line.length, bounds)
-                        val xOffset = (this.width / 2F) - (bounds.width() / 2F)
-                        this.drawText(line, xPoint + xOffset, yPoint, textPaint)
-                    } else
+                        val xOffset =
+                            (this.width / 2F) - (bounds.width() / 2F) - (poemTheme.textMarginUtil.marginLeft.toFloat() * (3F / 4F))
+                        val xPointToUse = if (xOffset < 0)
+                            xPoint - xOffset
+                        else
+                            xPoint + xOffset
+                        this.drawText(line, xPointToUse, yPoint, textPaint)
+                    } else {
                         this.drawText(line, xPoint, yPoint, textPaint)
+                    }
                 }
             }
         }
@@ -275,7 +267,7 @@ class PdfPrintAdapter(
      */
     private fun getPaintAlignment(): Paint.Align {
         return when (poemTheme.textAlignment) {
-            TextAlignment.LEFT -> {
+            TextAlignment.LEFT, TextAlignment.CENTRE_VERTICAL_LEFT -> {
                 Paint.Align.LEFT
             }
 
@@ -284,33 +276,25 @@ class PdfPrintAdapter(
                 Paint.Align.LEFT
             }
 
-            TextAlignment.RIGHT -> {
+            TextAlignment.RIGHT, TextAlignment.CENTRE_VERTICAL_RIGHT -> {
                 Paint.Align.RIGHT
-            }
-
-            TextAlignment.CENTRE_VERTICAL_RIGHT -> {
-                Paint.Align.RIGHT
-            }
-
-            TextAlignment.CENTRE_VERTICAL_LEFT -> {
-                Paint.Align.LEFT
             }
         }
     }
 
     private fun determineXPoint(width: Int): Float {
         return when (poemTheme.textAlignment) {
-            TextAlignment.LEFT,TextAlignment.CENTRE_VERTICAL_LEFT  -> {
-                textUtils.marginLeft.toFloat() * 3 / 4
+            TextAlignment.LEFT, TextAlignment.CENTRE_VERTICAL_LEFT -> {
+                poemTheme.textMarginUtil.marginLeft.toFloat() * (3F / 4F)
             }
 
-            TextAlignment.RIGHT,TextAlignment.CENTRE_VERTICAL_RIGHT -> {
-                (width.toFloat() - textUtils.marginRight) * 3 / 4
+            TextAlignment.RIGHT, TextAlignment.CENTRE_VERTICAL_RIGHT -> {
+                (width.toFloat() - (poemTheme.textMarginUtil.marginRight.toFloat() * (3F / 4F)))
             }
 
             TextAlignment.CENTRE, TextAlignment.CENTRE_VERTICAL -> {
                 isTextCentred = true
-                textUtils.marginLeft.toFloat() * 3 / 4
+                poemTheme.textMarginUtil.marginLeft.toFloat() * (3F / 4F)
             }
         }
     }
@@ -323,7 +307,7 @@ class PdfPrintAdapter(
         numOfLines: Int,
         landscapeLineHeight: Float
     ): Float {
-        val halfOfPage = (pageHeight.toFloat() / 2f)
+        val halfOfPage = (pageHeight.toFloat() / 2F)
         val topHalf = (numOfLines.toDouble() / 2.0)
 
         return (halfOfPage - (landscapeLineHeight * topHalf)).roundToInt().toFloat()
