@@ -47,13 +47,11 @@ class TextMarginUtil(
             }
 
             OutlineTypes.LEMON.toString() -> {
-                // 2 is an offset
-                marginLeft = resources.getDimension(R.dimen.lemonCornerSizeTopLeft)
-                    .toInt() - (strokeSize * 2) - 2
+                marginLeft = (resources.getDimension(R.dimen.lemonCornerSizeTopLeft)
+                    .toInt() / 2) + (strokeSize) + 2
                 marginRight = strokeSize + 3
                 marginTop = strokeSize
-                marginBottom = resources.getDimension(R.dimen.lemonCornerSizeBottomRight)
-                    .toInt() - (strokeSize * 2) - 2
+                marginBottom = strokeSize + 3
             }
         }
     }
