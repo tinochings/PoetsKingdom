@@ -67,6 +67,7 @@
         <activity
             android:name=".CreatePoem"
             android:configChanges="orientation|screenSize"
+            android:windowSoftInputMode="adjustPan"
             android:exported="false"
             android:theme="@style/Theme.PoetsKingdom.NoActionBar" />
         <activity
