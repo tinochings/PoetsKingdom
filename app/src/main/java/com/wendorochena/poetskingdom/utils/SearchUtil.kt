@@ -4,7 +4,11 @@ import android.content.Context
 import androidx.databinding.ObservableArrayList
 import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.poemdata.PoemXMLParser
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.apache.lucene.analysis.standard.StandardAnalyzer
 import org.apache.lucene.document.Document
 import org.apache.lucene.document.Field
@@ -152,7 +156,6 @@ class SearchUtil(
                                     fileReader.close()
                                 }
                             } catch (e: IOException) {
-                                e.printStackTrace()
                                 indexWriter.close()
                                 shouldContinueSearch = false
                             }
@@ -206,15 +209,12 @@ class SearchUtil(
                                         albumName + currDocument.get("fileName")
                                             .replace(' ', '_') + ".xml"
                                     )
-                                    println(currDocument.get("fileName") + " score= ${hit.score}")
                                 }
                             } catch (e: IOException) {
-                                e.printStackTrace()
                             }
                         }
                     }
                 } catch (e: IOException) {
-                    e.printStackTrace()
                     indexWriter.close()
                 }
             }
@@ -238,7 +238,7 @@ class SearchUtil(
         stanzaIndexAndText = HashMap()
 
         val handler = CoroutineExceptionHandler { _, exception ->
-            exception.printStackTrace()
+
         }
 
         GlobalScope.launch(mainDispatcher + handler) {

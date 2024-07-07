@@ -9,7 +9,6 @@ import android.graphics.Rect
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
-import android.util.Log
 import android.util.TypedValue
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
@@ -446,8 +445,6 @@ class ThumbnailCreator(
             thumbnailBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
             outputStream.close()
         } catch (e: Exception) {
-            e.printStackTrace()
-            Log.e(this::javaClass.name, "Failed to save thumbnail")
         }
     }
 }

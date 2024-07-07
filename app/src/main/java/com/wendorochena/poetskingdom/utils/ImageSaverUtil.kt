@@ -405,8 +405,6 @@ class ImageSaverUtil(
                 // it should never be the case that there are lapping lines when there are more
                 // lines than are permitted per page
                 // if this is ever printed there is a logical problem
-                if (lappingLines != 0)
-                    println("$lappingLines why oh why ")
 
                 while (totalLinesInEditable > 0) {
 
@@ -770,7 +768,6 @@ class ImageSaverUtil(
                     }
                 }
             } catch (exception: IOException) {
-                exception.printStackTrace()
                 return@withContext -1
             }
             return@withContext -1

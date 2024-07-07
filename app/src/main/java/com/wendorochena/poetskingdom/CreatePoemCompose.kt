@@ -33,7 +33,6 @@ class CreatePoemCompose : ComponentActivity() {
                 )
 
             val exceptionHandler = CoroutineExceptionHandler { _, exception ->
-                exception.printStackTrace()
                 val builder = MaterialAlertDialogBuilder(this@CreatePoemCompose)
                 builder.setTitle(R.string.failed_poem_load_title)
                     .setMessage(R.string.failed_poem_load_message)

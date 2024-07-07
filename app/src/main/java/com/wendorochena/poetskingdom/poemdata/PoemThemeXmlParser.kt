@@ -205,8 +205,6 @@ class PoemThemeXmlParser(
                                             val margins = parser.text.split(" ")
                                             poemTheme.textMarginUtil = TextMarginUtil(margins[0].toInt(), margins[1].toInt(), margins[2].toInt(), margins[3].toInt())
                                         } catch (e : NumberFormatException) {
-                                            e.printStackTrace()
-                                            println("failed to parse margins")
                                         }
                                         parser.nextTag()
                                         parser.require(XmlPullParser.END_TAG, null, "textMargins")
@@ -219,7 +217,6 @@ class PoemThemeXmlParser(
                         return@withContext 0
                     }
                 } catch (exception: Exception) {
-                    exception.printStackTrace()
                     return@withContext -1
                 } finally {
                     inputStream.close()
@@ -364,7 +361,6 @@ class PoemThemeXmlParser(
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
 
@@ -568,7 +564,6 @@ class PoemThemeXmlParser(
                                 return@withContext 0
                             }
                     } catch (e: java.lang.Exception) {
-                        e.printStackTrace()
                         return@withContext -1
                     }
                 }

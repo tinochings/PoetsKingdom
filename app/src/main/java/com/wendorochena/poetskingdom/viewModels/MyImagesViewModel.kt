@@ -108,7 +108,6 @@ class MyImagesViewModel : ViewModel() {
             onImageLongPressed = false
             setFloatingButtonState(FloatingButtonState.ADDIMAGE)
         } catch (e: IOException) {
-            e.printStackTrace()
         }
     }
 
@@ -166,7 +165,6 @@ class MyImagesViewModel : ViewModel() {
                             file.delete()
                     }
             } catch (e: Exception) {
-                e.printStackTrace()
             }
         }
         onImageLongPressed = false
@@ -204,7 +202,6 @@ class MyImagesViewModel : ViewModel() {
                     }
                 }
             } catch (exception: IOException) {
-                exception.printStackTrace()
             }
             addAllFiles(arrayListToRet, null, false)
         }
@@ -249,7 +246,6 @@ class MyImagesViewModel : ViewModel() {
                 }
             }
         } catch (e: IOException) {
-            e.printStackTrace()
         }
     }
 

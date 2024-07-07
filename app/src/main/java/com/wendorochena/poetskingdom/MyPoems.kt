@@ -11,10 +11,17 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 import android.view.KeyEvent
 import android.view.View
-import android.widget.*
+import android.widget.CheckBox
+import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.HorizontalScrollView
+import android.widget.ImageButton
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -36,12 +43,15 @@ import com.wendorochena.poetskingdom.poemdata.PoemThemeXmlParser
 import com.wendorochena.poetskingdom.recyclerViews.MyPoemsRecyclerViewAdapter
 import com.wendorochena.poetskingdom.recyclerViews.SearchResultsRecyclerViewAdapter
 import com.wendorochena.poetskingdom.utils.SearchUtil
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 class MyPoems : AppCompatActivity() {
 
@@ -77,7 +87,6 @@ class MyPoems : AppCompatActivity() {
         if (sharedPreferences.getBoolean(getString(R.string.glide_cache_clear), false)) {
             sharedPreferences.edit().putBoolean(getString(R.string.glide_cache_clear), false).apply()
             val exceptionHandler = CoroutineExceptionHandler { _, exception ->
-                exception.printStackTrace()
             }
             lifecycleScope.launch(Dispatchers.IO + exceptionHandler) {
                 Glide.get(this@MyPoems).clearDiskCache()
@@ -117,9 +126,7 @@ class MyPoems : AppCompatActivity() {
                     recyclerView.visibility = View.VISIBLE
                 } else if (searchRecyclerView.isVisible) {
                     searchRecyclerView.visibility = View.GONE
-                    if (searchResultsViewAdapter.clearData() != 0)
-                        println("Error clearing data")
-                    else
+                    if (searchResultsViewAdapter.clearData() == 0)
                         searchResultsViewAdapter.notifyItemRangeRemoved(
                             0,
                             searchResultsViewAdapter.itemCount
@@ -165,16 +172,11 @@ class MyPoems : AppCompatActivity() {
                 thumbnail.delete()
                 if (savedImagesDirectory.exists()) {
                     if (savedImagesDirectory.listFiles() != null && savedImagesDirectory.listFiles()?.size!! > 0) {
-                        if (!savedImagesDirectory.deleteRecursively())
-                            Log.e(
-                                "Failed Images Deletion",
-                                savedImagesDirectory.name + " failed to delete"
-                            )
+                        savedImagesDirectory.deleteRecursively()
                     }
                 }
             }
         } catch (exception: Exception) {
-            exception.printStackTrace()
         }
     }
 
@@ -307,7 +309,6 @@ class MyPoems : AppCompatActivity() {
                                         }
                                     }
                                 } catch (e: Exception) {
-                                    e.printStackTrace()
                                 }
                                 val shareIntent = Intent().apply {
                                     action = Intent.ACTION_SEND_MULTIPLE
@@ -420,11 +421,8 @@ class MyPoems : AppCompatActivity() {
             if (thumbnailFile.exists()) {
                 shapeableImageView.setImageBitmap(BitmapFactory.decodeFile(thumbnailFile.absolutePath))
                 shapeableImageView.tag = thumbnailFile.absolutePath
-            } else {
-                Log.e("No Such Thumbnail", fileName)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
         }
         textView.text = fileName.replace('_', ' ').replace(".xml", "")
         val locale = Locale("en")
@@ -468,9 +466,7 @@ class MyPoems : AppCompatActivity() {
                 advancedSearchCont.visibility = View.VISIBLE
                 searchRecyclerView.visibility = View.GONE
 
-                if (searchResultsViewAdapter.clearData() != 0)
-                    println("Error clearing data")
-                else
+                if (searchResultsViewAdapter.clearData() == 0)
                     searchResultsViewAdapter.notifyItemRangeRemoved(
                         0,
                         searchResultsViewAdapter.itemCount
@@ -523,7 +519,6 @@ class MyPoems : AppCompatActivity() {
                         val subStringLocations = searchUtil.getSubStringLocations()
 
                         val handler = CoroutineExceptionHandler { _, exception ->
-                            exception.printStackTrace()
                         }
 
                         subStringLocations.addOnListChangedCallback(object :
@@ -680,7 +675,6 @@ class MyPoems : AppCompatActivity() {
                 }
             }
         } catch (exception: Exception) {
-            exception.printStackTrace()
         }
     }
 

@@ -187,7 +187,6 @@ class PdfPrintAdapter(
                         BitmapFactory.decodeFile(thumbnailFile.absolutePath), null, rect, null
                     )
                 } catch (e: Exception) {
-                    e.printStackTrace()
                 }
             } else {
                 val imageView = currentPage.getChildAt(0) as ShapeableImageView
@@ -204,7 +203,6 @@ class PdfPrintAdapter(
                         else
                             this.drawBitmap(imageView.drawToBitmap(), null, imageRect, null)
                     } catch (e: Exception) {
-                        e.printStackTrace()
                     }
                 }
 

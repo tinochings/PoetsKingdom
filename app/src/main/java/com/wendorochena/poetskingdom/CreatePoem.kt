@@ -2,14 +2,18 @@ package com.wendorochena.poetskingdom
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.*
+import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.print.PrintManager
-import android.text.*
-import android.util.Log
+import android.text.Editable
+import android.text.InputFilter
+import android.text.InputType
+import android.text.SpannableStringBuilder
+import android.text.TextWatcher
 import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.Gravity
@@ -17,8 +21,16 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.FrameLayout.LayoutParams
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.NumberPicker
+import android.widget.ProgressBar
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -41,10 +53,26 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.slider.Slider
 import com.skydoves.colorpickerview.ColorEnvelope
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
-import com.wendorochena.poetskingdom.poemdata.*
+import com.wendorochena.poetskingdom.poemdata.BackgroundType
+import com.wendorochena.poetskingdom.poemdata.Category
+import com.wendorochena.poetskingdom.poemdata.PoemDataContainer
+import com.wendorochena.poetskingdom.poemdata.PoemTheme
+import com.wendorochena.poetskingdom.poemdata.PoemThemeXmlParser
+import com.wendorochena.poetskingdom.poemdata.PoemXMLParser
+import com.wendorochena.poetskingdom.poemdata.TextAlignment
 import com.wendorochena.poetskingdom.recyclerViews.CreatePoemRecyclerViewAdapter
-import com.wendorochena.poetskingdom.utils.*
-import kotlinx.coroutines.*
+import com.wendorochena.poetskingdom.utils.CategoryUtils
+import com.wendorochena.poetskingdom.utils.ImageSaverUtil
+import com.wendorochena.poetskingdom.utils.PdfPrintAdapter
+import com.wendorochena.poetskingdom.utils.ShapeAppearanceModelHelper
+import com.wendorochena.poetskingdom.utils.TextMarginUtil
+import com.wendorochena.poetskingdom.utils.ThumbnailCreator
+import com.wendorochena.poetskingdom.utils.TypefaceHelper
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.math.roundToInt
 
@@ -86,7 +114,6 @@ class CreatePoem : AppCompatActivity() {
                 )
 
             val exceptionHandler = CoroutineExceptionHandler { _, exception ->
-                exception.printStackTrace()
                 turnOnDimmerProgressBar()
                 val builder = MaterialAlertDialogBuilder(this@CreatePoem)
                 builder.setTitle(R.string.failed_poem_load_title)
@@ -233,7 +260,6 @@ class CreatePoem : AppCompatActivity() {
 
         turnOnDimmerProgressBar()
         val exceptionHandler = CoroutineExceptionHandler { _, exception ->
-            exception.printStackTrace()
 
             showErrorToast(getString(R.string.error_type_file))
             turnOffDimmerProgressBar()
@@ -342,24 +368,15 @@ class CreatePoem : AppCompatActivity() {
                             File(thumbnailsPath + File.separator + encodedTitleName + ".png")
                         if (poemFile.renameTo(newPoemFile) && poemThemeFile.renameTo(newThemeFile)) {
                             if (poemSavedImagesFolder.exists()) {
-                                if (!poemSavedImagesFolder.renameTo(newSavedImagesFile))
-                                    Log.e(
-                                        "saved images folder failed to change name: ",
-                                        poemSavedImagesFolder.name
-                                    )
+                                poemSavedImagesFolder.renameTo(newSavedImagesFile)
                             }
                             if (poemThumbnail.exists()) {
-                                if (!poemThumbnail.renameTo(newThumbnailsFile))
-                                    Log.e(
-                                        "thumbnail failed to change name: ",
-                                        poemSavedImagesFolder.name
-                                    )
+                                !poemThumbnail.renameTo(newThumbnailsFile)
                             }
                             poemTheme.poemTitle = decodedTitleName
                             hasFileBeenEdited = true
                         }
                     } catch (e: Exception) {
-                        e.printStackTrace()
                     }
                     dialog.dismiss()
                 } else {
@@ -1393,7 +1410,6 @@ class CreatePoem : AppCompatActivity() {
      */
     private fun actuateSavePoemTheme() {
         val exceptionHandler = CoroutineExceptionHandler { _, exception ->
-            exception.printStackTrace()
 
             showErrorToast(getString(R.string.error_type_poem_theme))
         }
@@ -2099,7 +2115,6 @@ class CreatePoem : AppCompatActivity() {
 
             }
         } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
 
@@ -2296,8 +2311,6 @@ class CreatePoem : AppCompatActivity() {
             turnOffBottomDrawer()
             turnOnImagesDimmer()
             val exceptionHandler = CoroutineExceptionHandler { _, exception ->
-                exception.printStackTrace()
-
                 showErrorToast(getString(R.string.error_type_image))
                 turnOffDimmerProgressBar()
             }
@@ -2312,7 +2325,6 @@ class CreatePoem : AppCompatActivity() {
         saveAsPdf.setOnClickListener {
             turnOffBottomDrawer()
             val exceptionHandler = CoroutineExceptionHandler { _, exception ->
-                exception.printStackTrace()
 
                 showErrorToast(getString(R.string.error_type_image))
                 turnOffDimmerProgressBar()

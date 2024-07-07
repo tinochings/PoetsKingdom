@@ -178,7 +178,6 @@ class ImageViewer : AppCompatActivity() {
                 Glide.with(applicationContext).load(file.absolutePath).into(mainImage)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
 

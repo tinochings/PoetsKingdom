@@ -61,7 +61,6 @@ class FirstFragment : Fragment() {
     private fun setupListeners() {
         binding.myImages.setOnClickListener {
             val navController = Navigation.findNavController(it)
-            println(navController.currentDestination)
             navController.navigate(R.id.action_FirstFragment_toMyImages)
         }
         binding.createPoemImage.setOnClickListener {

@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,7 +33,8 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 
 /**
@@ -157,7 +157,6 @@ class MyImages : Fragment() {
                 }
             }
         } catch (exception: Exception) {
-            exception.printStackTrace()
         }
     }
 
@@ -178,11 +177,8 @@ class MyImages : Fragment() {
             )
             if (thumbnailFile.exists()) {
                 shapeableImageView.tag = thumbnailFile.absolutePath
-            } else {
-                Log.e("No Such Thumbnail", fileName)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
         }
         textView.text = fileName.replace('_', ' ')
         val locale = Locale("en")
@@ -419,8 +415,6 @@ class MyImages : Fragment() {
                             if (pair.first.delete()) {
                                 recyclerViewAdapter.deleteElem(pair.second)
                                 recyclerViewAdapter.notifyItemRemoved(pair.second)
-                            } else {
-                                Log.e("Failed to remove file: ", pair.first.name)
                             }
                         } else {
                             try {
@@ -439,12 +433,7 @@ class MyImages : Fragment() {
                                 )
                                 if (fullPathToDelete.exists())
                                     fullPathToDelete.deleteRecursively()
-                                else {
-                                    Log.e("Failed to remove file: ", pair.first.name)
-                                }
                             } catch (e: Exception) {
-                                e.printStackTrace()
-                                Log.e("Failed to remove file: ", pair.first.name)
                             }
                             myPoemsRecyclerViewAdapter.deleteElem(pair.second)
                             myPoemsRecyclerViewAdapter.notifyItemRemoved(pair.second)
@@ -453,7 +442,6 @@ class MyImages : Fragment() {
                     }
                     clearDeleteButton()
                 } catch (e: Exception) {
-                    e.printStackTrace()
                     clearDeleteButton()
                 }
             }
@@ -563,7 +551,6 @@ class MyImages : Fragment() {
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
 }

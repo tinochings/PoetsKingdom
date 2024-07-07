@@ -197,7 +197,6 @@ class MyPoemsViewModel : ViewModel() {
                     }
                 }
             } catch (exception: Exception) {
-                exception.printStackTrace()
             }
             addAllFiles(arrayListToRet, albumName != allPoemsString)
         }
@@ -256,7 +255,6 @@ class MyPoemsViewModel : ViewModel() {
                             file.delete()
                     }
             } catch (e: Exception) {
-                e.printStackTrace()
             }
         }
         onImageLongPressed = false
@@ -358,7 +356,6 @@ class MyPoemsViewModel : ViewModel() {
                                     }
                                 }
                             } catch (e: Exception) {
-                                e.printStackTrace()
                             }
                             if (poemToShare != null)
                                 return imageUris
@@ -465,7 +462,6 @@ class MyPoemsViewModel : ViewModel() {
             this.shareIntent.value = shareIntent
             onImageLongPressed = false
         } catch (e: IOException) {
-            e.printStackTrace()
         }
         return null
     }
@@ -506,7 +502,6 @@ class MyPoemsViewModel : ViewModel() {
             val subStringLocations = searchUtil.getSubStringLocations()
 
             val handler = CoroutineExceptionHandler { _, exception ->
-                exception.printStackTrace()
             }
 
             subStringLocations.addOnListChangedCallback(object :
@@ -771,7 +766,6 @@ class MyPoemsViewModel : ViewModel() {
 
     suspend fun addAlbumName(albumName: String, context: Context): Boolean {
         val handler = CoroutineExceptionHandler { _, exception ->
-            exception.printStackTrace()
         }
         return withContext(viewModelScope.coroutineContext + Dispatchers.IO + handler) {
             albumSaveResult = -1
@@ -793,7 +787,6 @@ class MyPoemsViewModel : ViewModel() {
                         return@withContext true
                     }
                 } catch (e: IOException) {
-                    e.printStackTrace()
                     return@withContext false
                 }
             }
@@ -880,7 +873,6 @@ class MyPoemsViewModel : ViewModel() {
                     }
                 }
             } catch (e: IOException) {
-                e.printStackTrace()
                 return false
             }
         } else {
@@ -902,7 +894,6 @@ class MyPoemsViewModel : ViewModel() {
      */
     suspend fun deleteAlbum(albumName: String, context: Context): Boolean {
         val handler = CoroutineExceptionHandler { _, exception ->
-            exception.printStackTrace()
         }
         return withContext(viewModelScope.coroutineContext + Dispatchers.IO + handler) {
             if (albumName == allPoemsString)
@@ -927,7 +918,6 @@ class MyPoemsViewModel : ViewModel() {
                     }
                 }
             } catch (e: IOException) {
-                e.printStackTrace()
                 return@withContext false
             }
             return@withContext false
@@ -939,7 +929,6 @@ class MyPoemsViewModel : ViewModel() {
      */
     suspend fun renameAlbum(albumName: String, albumRename: String, context: Context): Boolean {
         val handler = CoroutineExceptionHandler { _, exception ->
-            exception.printStackTrace()
         }
         return withContext(viewModelScope.coroutineContext + Dispatchers.IO + handler) {
             val poemFolder =
@@ -974,7 +963,6 @@ class MyPoemsViewModel : ViewModel() {
                         }
                     }
                 } catch (e: IOException) {
-                    e.printStackTrace()
                     albumSaveResult = -1
                     return@withContext false
                 }

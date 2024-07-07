@@ -215,7 +215,6 @@ class SearchResultsRecyclerViewAdapter(
                 holder.frameLayoutParent.background = ColorDrawable(Color.WHITE)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
         }
 
         holder.frameLayoutParent.tag = searchTitle
@@ -251,7 +250,6 @@ class SearchResultsRecyclerViewAdapter(
             searchResultsAdapter.second.clear()
             poemBackgroundTypeArrayList.clear()
         } catch (e: Exception) {
-            e.printStackTrace()
             return -1
         }
         return 0

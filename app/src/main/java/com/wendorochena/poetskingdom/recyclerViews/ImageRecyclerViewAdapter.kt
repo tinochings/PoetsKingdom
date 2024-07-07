@@ -96,7 +96,6 @@ class ImageRecyclerViewAdapter(
                 }
             }
         } catch (e : Exception) {
-            e.printStackTrace()
         }
     }
 
@@ -195,7 +194,6 @@ class ImageRecyclerViewAdapter(
             try {
                 Glide.with(context).clear(holder.imageView)
             } catch (e : java.lang.IllegalArgumentException) {
-                e.printStackTrace()
             }
     }
 }

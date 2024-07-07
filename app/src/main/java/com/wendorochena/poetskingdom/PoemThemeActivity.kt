@@ -95,7 +95,6 @@ class PoemThemeActivity : AppCompatActivity() {
                 applicationContext
             )
             val handler = CoroutineExceptionHandler { _, exception ->
-                exception.printStackTrace()
                 val builder = MaterialAlertDialogBuilder(this@PoemThemeActivity)
                 builder.setTitle(R.string.failed_poem_load_title)
                     .setMessage(R.string.failed_poem_load_message)
@@ -210,9 +209,6 @@ class PoemThemeActivity : AppCompatActivity() {
                 poemThemeXmlParser.setIsEditTheme(true)
 
                 val exceptionHandler = CoroutineExceptionHandler { _, exception ->
-                    exception.printStackTrace()
-                    //add a better wayy to manage failure
-                    println("Error saving file")
                 }
 
                 lifecycleScope.launch(Dispatchers.Main + exceptionHandler) {
@@ -280,9 +276,6 @@ class PoemThemeActivity : AppCompatActivity() {
                                 PoemThemeXmlParser(poemTheme, applicationContext)
 
                             val exceptionHandler = CoroutineExceptionHandler { _, exception ->
-                                exception.printStackTrace()
-                                // add a better wayy to manage failure
-                                println("Error saving file")
                             }
 
                             lifecycleScope.launch(Dispatchers.Main + exceptionHandler) {
@@ -548,7 +541,6 @@ class PoemThemeActivity : AppCompatActivity() {
                             imageBackground.layoutParams = layoutParams
                             previewCardView.background = colorDrawable
                         } catch (e: Exception) {
-                            e.printStackTrace()
                         }
                     }
                     outlineLayout.background =

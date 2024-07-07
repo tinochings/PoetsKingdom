@@ -80,7 +80,6 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
                     }
                 }
             } catch (exception: Exception) {
-                exception.printStackTrace()
                 return@withContext -1
             }
 
@@ -206,7 +205,6 @@ class PoemXMLParser(private val poem: PoemDataContainer, val context: Context) {
                             parser.require(XmlPullParser.END_TAG, null, "root")
                         }
                     } catch (e: Exception) {
-                        e.printStackTrace()
                     } finally {
                         inputStream.close()
                     }

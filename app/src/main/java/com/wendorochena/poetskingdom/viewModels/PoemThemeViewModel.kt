@@ -394,9 +394,6 @@ class PoemThemeViewModel : ViewModel() {
      */
     fun savePoemTheme(poemName : String, context : Context, isEditTheme : Boolean)  {
         val exceptionHandler = CoroutineExceptionHandler { _, exception ->
-            exception.printStackTrace()
-            //add a better way to manage failure
-//            println("Error saving file")
         }
         uiState.value.poemTitle = poemName
          poemTitle = poemName

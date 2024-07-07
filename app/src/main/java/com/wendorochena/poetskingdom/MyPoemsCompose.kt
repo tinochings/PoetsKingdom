@@ -35,7 +35,6 @@ class MyPoemsCompose : ComponentActivity() {
         if (sharedPreferences.getBoolean(getString(R.string.glide_cache_clear), false)) {
             sharedPreferences.edit().putBoolean(getString(R.string.glide_cache_clear), false).apply()
             val exceptionHandler = CoroutineExceptionHandler { _, exception ->
-                exception.printStackTrace()
             }
             lifecycleScope.launch(Dispatchers.IO + exceptionHandler) {
                 Glide.get(this@MyPoemsCompose).clearDiskCache()
