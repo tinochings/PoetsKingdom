@@ -22,7 +22,7 @@
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/Theme.PoetsKingdom.NoActionBar"
-        tools:targetApi="33">
+        tools:targetApi="34">
         <activity
             android:name=".CreatePoemCompose"
             android:exported="false"
