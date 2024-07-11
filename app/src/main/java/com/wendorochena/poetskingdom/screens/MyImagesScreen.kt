@@ -217,20 +217,34 @@ fun FloatingActionButton(myImagesViewModel: MyImagesViewModel) {
         if (it)
             imagePicker.launch("image/*")
     }
-    var onClick by remember {
-        mutableStateOf(false)
-    }
+
     if (myImagesViewModel.floatingButtonStateVar == FloatingButtonState.ADDIMAGE) {
         androidx.compose.material3.FloatingActionButton(
-            onClick = { },
+            onClick = {
+                if (Build.VERSION.SDK_INT < 33) {
+                    if (context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) ==
+                        PackageManager.PERMISSION_GRANTED){
+                        imagePicker.launch("image/*")
+                    } else {
+                        permissionsResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    }
+                } else {
+                    if (Build.VERSION.SDK_INT >= 33 && context.checkSelfPermission(
+                            Manifest.permission.READ_MEDIA_IMAGES
+                        ) == PackageManager.PERMISSION_GRANTED) {
+                        imagePicker.launch("image/*")
+                    } else {
+                        permissionsResultLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                    }
+                }
+            },
             containerColor = DefaultColor,
             shape = CircleShape
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_baseline_add_a_photo_24),
                 contentDescription = "",
-                colorFilter = ColorFilter.tint(color = Color.White),
-                modifier = Modifier.clickable { onClick = true }
+                colorFilter = ColorFilter.tint(color = Color.White)
             )
         }
     } else {
@@ -264,18 +278,6 @@ fun FloatingActionButton(myImagesViewModel: MyImagesViewModel) {
                 )
             }
         }
-    }
-    if (onClick) {
-        if (Build.VERSION.SDK_INT < 33 && LocalContext.current.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) ==
-            PackageManager.PERMISSION_GRANTED || Build.VERSION.SDK_INT >= 33 && LocalContext.current.checkSelfPermission(
-                Manifest.permission.READ_MEDIA_IMAGES
-            ) == PackageManager.PERMISSION_GRANTED
-        )
-            imagePicker.launch("image/*")
-        else {
-            permissionsResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-        }
-        onClick = false
     }
 
 }
