@@ -3,10 +3,10 @@
     android:shape="rectangle">
 
     <corners
-        android:topLeftRadius="90dp"
-        android:topRightRadius="5dp"
-        android:bottomLeftRadius="5dp"
-        android:bottomRightRadius="90dp"
+        android:topLeftRadius="@dimen/lemonCornerSizeTopLeft"
+        android:topRightRadius="@dimen/lemonCornerSizeTopRight"
+        android:bottomLeftRadius="@dimen/lemonCornerSizeBottomLeft"
+        android:bottomRightRadius="@dimen/lemonCornerSizeBottomRight"
         />
     <stroke
         android:width="@dimen/strokeSize"

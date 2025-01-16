@@ -63,9 +63,9 @@
     <dimen name="roundedRectCornerSize">15dp</dimen>
 
     <dimen name="lemonCornerSizeTopLeft">90dp</dimen>
-    <dimen name="lemonCornerSizeTopRight">0dp</dimen>
+    <dimen name="lemonCornerSizeTopRight">5dp</dimen>
     <dimen name="lemonCornerSizeBottomRight">90dp</dimen>
-    <dimen name="lemonCornerSizeBottomLeft">0dp</dimen>
+    <dimen name="lemonCornerSizeBottomLeft">5dp</dimen>
 
     <item name="addPageRecyclerViewId" type="id"/>
 </resources>
