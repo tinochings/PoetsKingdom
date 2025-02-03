@@ -29,7 +29,7 @@ fun RoundedRectangleOutline(
     modifier: Modifier,
     color: Int,
     onOutlineClicked: (OutlineTypes) -> Unit,
-    onOutlineLongClicked: @Composable (HeadingSelection) -> Unit
+    onOutlineLongClicked: @Composable (HeadingSelection, () -> Unit) -> Unit
 ) {
     var showColorDialog  by remember { mutableStateOf(false) }
     Column(modifier = modifier.padding()) {
@@ -45,8 +45,7 @@ fun RoundedRectangleOutline(
                     onLongClick = { showColorDialog = true })
         )
         if (showColorDialog) {
-            onOutlineLongClicked.invoke(HeadingSelection.OUTLINE)
-            showColorDialog = false
+            onOutlineLongClicked.invoke(HeadingSelection.OUTLINE){showColorDialog = false}
         }
     }
 }
@@ -57,7 +56,7 @@ fun RectangleOutline(
     modifier: Modifier,
     color: Int,
     onOutlineClicked: (OutlineTypes) -> Unit,
-    onOutlineLongClicked: @Composable (HeadingSelection) -> Unit
+    onOutlineLongClicked: @Composable (HeadingSelection, () -> Unit) -> Unit
 ) {
     var showColorDialog  by remember { mutableStateOf(false) }
     Column(modifier = modifier) {
@@ -73,8 +72,7 @@ fun RectangleOutline(
                     onLongClick = { showColorDialog = true })
         )
         if (showColorDialog) {
-            onOutlineLongClicked.invoke(HeadingSelection.OUTLINE)
-            showColorDialog = false
+            onOutlineLongClicked.invoke(HeadingSelection.OUTLINE){ showColorDialog = false }
         }
     }
 }
@@ -86,7 +84,7 @@ fun TeardropOutline(
     modifier: Modifier,
     color: Int,
     onOutlineClicked: (OutlineTypes) -> Unit,
-    onOutlineLongClicked: @Composable (HeadingSelection) -> Unit
+    onOutlineLongClicked: @Composable (HeadingSelection, () -> Unit) -> Unit
 ) {
     var showColorDialog  by remember { mutableStateOf(false) }
     Column(modifier = modifier) {
@@ -102,8 +100,8 @@ fun TeardropOutline(
                     onLongClick = { showColorDialog = true })
         )
         if (showColorDialog) {
-            onOutlineLongClicked.invoke(HeadingSelection.OUTLINE)
-            showColorDialog = false
+            onOutlineLongClicked.invoke(HeadingSelection.OUTLINE){showColorDialog = false}
+
         }
     }
 }
@@ -114,7 +112,7 @@ fun RotatedTeardropOutline(
     modifier: Modifier,
     color: Int,
     onOutlineClicked: (OutlineTypes) -> Unit,
-    onOutlineLongClicked: @Composable (HeadingSelection) -> Unit
+    onOutlineLongClicked: @Composable (HeadingSelection, () -> Unit) -> Unit
 ) {
     var showColorDialog  by remember { mutableStateOf(false) }
     Column(modifier = modifier) {
@@ -130,8 +128,7 @@ fun RotatedTeardropOutline(
                     onLongClick = { showColorDialog = true })
         )
         if (showColorDialog) {
-            onOutlineLongClicked.invoke(HeadingSelection.OUTLINE)
-            showColorDialog = false
+            onOutlineLongClicked.invoke(HeadingSelection.OUTLINE){ showColorDialog = false }
         }
     }
 }
@@ -142,7 +139,7 @@ fun LemonOutline(
     modifier: Modifier,
     color: Int,
     onOutlineClicked: (OutlineTypes) -> Unit,
-    onOutlineLongClicked: @Composable (HeadingSelection) -> Unit
+    onOutlineLongClicked: @Composable (HeadingSelection, () -> Unit) -> Unit
 ) {
     var showColorDialog  by remember { mutableStateOf(false) }
     Column(modifier = modifier) {
@@ -158,8 +155,7 @@ fun LemonOutline(
                     onLongClick = { showColorDialog = true })
         )
         if (showColorDialog) {
-            onOutlineLongClicked.invoke(HeadingSelection.OUTLINE)
-            showColorDialog = false
+            onOutlineLongClicked.invoke(HeadingSelection.OUTLINE){ showColorDialog = false }
         }
     }
 }
@@ -170,7 +166,7 @@ fun RotatedLemonOutline(
     modifier: Modifier,
     color: Int,
     onOutlineClicked: (OutlineTypes) -> Unit,
-    onOutlineLongClicked: @Composable (HeadingSelection) -> Unit
+    onOutlineLongClicked: @Composable (HeadingSelection, () -> Unit) -> Unit
 ) {
     var showColorDialog  by remember { mutableStateOf(false) }
     Column(modifier = modifier) {
@@ -186,8 +182,7 @@ fun RotatedLemonOutline(
                     onLongClick = { showColorDialog = true })
         )
         if (showColorDialog) {
-            onOutlineLongClicked.invoke(HeadingSelection.OUTLINE)
-            showColorDialog = false
+            onOutlineLongClicked.invoke(HeadingSelection.OUTLINE){ showColorDialog = false }
         }
     }
 }
