@@ -13,8 +13,7 @@ import com.wendorochena.poetskingdom.viewModels.HeadingSelection
 import com.wendorochena.poetskingdom.viewModels.models.PoemThemeViewModelModel
 
 class PoemThemeViewModelService {
-
-    private val imageBatchSize: Int = 50
+    
 
     /**
      * Parses outline from the saved string
