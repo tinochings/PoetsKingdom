@@ -1,7 +1,11 @@
 package com.wendorochena.poetskingdom
 
 import android.content.Context
-import com.wendorochena.poetskingdom.poemdata.*
+import com.wendorochena.poetskingdom.poemdata.BackgroundType
+import com.wendorochena.poetskingdom.poemdata.OutlineTypes
+import com.wendorochena.poetskingdom.poemdata.PoemTheme
+import com.wendorochena.poetskingdom.poemdata.PoemThemeXmlParser
+import com.wendorochena.poetskingdom.poemdata.TextAlignment
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -10,9 +14,11 @@ import org.mockito.Mock
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.io.File
 
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [33])
 class PoemThemeParserTest {
 
     @Mock
@@ -114,7 +120,7 @@ class PoemThemeParserTest {
         val currTheme = result.getPoemTheme()
 
         assert(currTheme.backgroundType == BackgroundType.OUTLINE)
-        assert(currTheme.backgroundColor == "#FFFFFFFF")
+        assert(currTheme.backgroundColor == "#FFFFFF")
         assert(currTheme.backgroundColorAsInt == -1)
         assert(currTheme.imagePath == "")
         assert(currTheme.outline == OutlineTypes.ROUNDED_RECTANGLE.toString())
@@ -159,7 +165,7 @@ class PoemThemeParserTest {
         val currTheme = result.getPoemTheme()
 
         assert(currTheme.backgroundType == BackgroundType.OUTLINE_WITH_IMAGE)
-        assert(currTheme.backgroundColor == "#FFFFFFFF")
+        assert(currTheme.backgroundColor == "#FFFFFF")
         assert(currTheme.backgroundColorAsInt == -1)
         assert(currTheme.outlineColor == -7821273)
         assert(currTheme.imagePath == "app/src/test/java/com/wendorochena/poetskingdom/MockFiles/test_images/createpoem.jpg")
@@ -223,7 +229,7 @@ class PoemThemeParserTest {
         val currTheme = result.getPoemTheme()
 
         assert(currTheme.backgroundType == BackgroundType.DEFAULT)
-        assert(currTheme.backgroundColor == "#FFFFFFFF")
+        assert(currTheme.backgroundColor == "#FFFFFF")
         assert(currTheme.backgroundColorAsInt == -1)
         assert(currTheme.outlineColor == -7821273)
         assert(currTheme.imagePath == "")

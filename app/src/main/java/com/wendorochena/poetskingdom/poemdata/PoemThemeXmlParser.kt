@@ -5,6 +5,7 @@ import android.util.Xml
 import android.view.View
 import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.utils.TextMarginUtil
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.xmlpull.v1.XmlPullParser
@@ -15,6 +16,7 @@ import java.io.StringWriter
 
 class PoemThemeXmlParser(
     private var poemTheme: PoemTheme,
+    private var dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     private lateinit var applicationContext: Context
     private var isEditTheme: Boolean = false
@@ -25,6 +27,10 @@ class PoemThemeXmlParser(
         this.applicationContext = context
     }
 
+    constructor(poemTheme: PoemTheme, context: Context, dispatcher: CoroutineDispatcher) : this(poemTheme) {
+        this.applicationContext = context
+        this.dispatcher = dispatcher
+    }
     fun getPoemTheme(): PoemTheme {
         return poemTheme
     }
@@ -44,7 +50,7 @@ class PoemThemeXmlParser(
      */
     suspend fun parseTheme(poemTitle: String?): Int {
 
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcher) {
             val poemThemeFolder = applicationContext.getDir(applicationContext.getString(R.string.poem_themes_folder_name), Context.MODE_PRIVATE)
             val fileToUse = File(
                 poemThemeFolder?.absolutePath + File.separator + poemTitle?.replace(
@@ -234,7 +240,7 @@ class PoemThemeXmlParser(
      */
     suspend fun parseMultipleThemes(poemFileNamePair: ArrayList<Pair<String, String>>): ArrayList<Pair<BackgroundType, Int>> {
 
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcher) {
             val poemThemes = ArrayList<Pair<BackgroundType, Int>>()
 
             for (fileNamePair in poemFileNamePair) {
@@ -401,7 +407,7 @@ class PoemThemeXmlParser(
         backgroundColorChosen: String?,
         outlineChosen: View?,
     ): Int {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcher) {
             val poemThemeFolder = applicationContext.getDir(
                 applicationContext.getString(R.string.poem_themes_folder_name),
                 Context.MODE_PRIVATE
