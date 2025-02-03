@@ -301,4 +301,6 @@
     <string name="bold_format_text">Bold format text</string>
     <string name="margin_left_description">Increase margin size of the left side</string>
     <string name="margin_right_increase_description">Increase size of the margin from the right</string>
+    <string name="coil_image_cache_name">image_loader_cache</string>
+    <string name="image_key_gen_cache_name">long_key_gen</string>
 </resources>

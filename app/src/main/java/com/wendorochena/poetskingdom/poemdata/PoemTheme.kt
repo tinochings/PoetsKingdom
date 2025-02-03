@@ -7,27 +7,26 @@ import androidx.core.content.res.ResourcesCompat
 import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.utils.TextMarginUtil
 
-data class PoemTheme(var backgroundType: BackgroundType) {
+data class PoemTheme(var backgroundType: BackgroundType = BackgroundType.DEFAULT,
+                     var backgroundColor: String = "#FFFFFF",
+                     var imagePath: String = "",
+                     var outline: String = "",
+                     var textSize : Int = 14,
+                     var textColor: String = "#000000",
+                     var textColorAsInt : Int = -16777216,
+                     var backgroundColorAsInt : Int = -1,
+                     var textAlignment: TextAlignment = TextAlignment.LEFT,
+                     var textFontFamily: String = "Default",
+                     var outlineColor: Int = -7821273,
+                     var poemTitle: String = "",
+                     var textMarginUtil : TextMarginUtil = TextMarginUtil(),
+                     var bold : Boolean = false,
+                     var italic : Boolean = false) {
 
     private lateinit var applicationContext : Context
     constructor(backgroundType: BackgroundType, applicationContext: Context) : this(backgroundType) {
         this.applicationContext = applicationContext
     }
-
-    var backgroundColor: String = "#FFFFFFFF"
-    var imagePath: String = ""
-    var outline: String = ""
-    var textSize = 14
-    var textColor: String = "#000000"
-    var textColorAsInt = -16777216
-    var backgroundColorAsInt = -1
-    var textAlignment: TextAlignment = TextAlignment.LEFT
-    var textFontFamily: String = "Default"
-    var outlineColor: Int = -7821273
-    var poemTitle: String = ""
-    var textMarginUtil = TextMarginUtil()
-    var bold = false
-    var italic = false
 
     override fun toString(): String {
         return "PoemTitle: $poemTitle, BackgroundType $backgroundType, BackgroundColor: " +
@@ -35,6 +34,50 @@ data class PoemTheme(var backgroundType: BackgroundType) {
                 " $imagePath, Outline: $outline, OutlineColor: $outlineColor TextSize: $textSize, " +
                 "TextColor: $textColor, TextColorAsInt: $textColorAsInt, TextAlignment: " +
                 "$textAlignment, Bold: $bold, Italic: $italic, TextFontFamily: $textFontFamily, TextMarginUtil: $textMarginUtil"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as PoemTheme
+
+        if (backgroundType != other.backgroundType) return false
+        if (backgroundColor != other.backgroundColor) return false
+        if (imagePath != other.imagePath) return false
+        if (outline != other.outline) return false
+        if (textSize != other.textSize) return false
+        if (textColor != other.textColor) return false
+        if (textColorAsInt != other.textColorAsInt) return false
+        if (backgroundColorAsInt != other.backgroundColorAsInt) return false
+        if (textAlignment != other.textAlignment) return false
+        if (textFontFamily != other.textFontFamily) return false
+        if (outlineColor != other.outlineColor) return false
+        if (poemTitle != other.poemTitle) return false
+        if (textMarginUtil != other.textMarginUtil) return false
+        if (bold != other.bold) return false
+        if (italic != other.italic) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = backgroundType.hashCode()
+        result = 31 * result + backgroundColor.hashCode()
+        result = 31 * result + imagePath.hashCode()
+        result = 31 * result + outline.hashCode()
+        result = 31 * result + textSize
+        result = 31 * result + textColor.hashCode()
+        result = 31 * result + textColorAsInt
+        result = 31 * result + backgroundColorAsInt
+        result = 31 * result + textAlignment.hashCode()
+        result = 31 * result + textFontFamily.hashCode()
+        result = 31 * result + outlineColor
+        result = 31 * result + poemTitle.hashCode()
+        result = 31 * result + textMarginUtil.hashCode()
+        result = 31 * result + bold.hashCode()
+        result = 31 * result + italic.hashCode()
+        return result
     }
 
     companion object PoemThemeHelper {

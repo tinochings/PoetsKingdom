@@ -1,167 +1,134 @@
 package com.wendorochena.poetskingdom.viewModels
 
 import android.content.Context
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.poemdata.BackgroundType
 import com.wendorochena.poetskingdom.poemdata.OutlineTypes
 import com.wendorochena.poetskingdom.poemdata.PoemTheme
 import com.wendorochena.poetskingdom.poemdata.PoemThemeXmlParser
 import com.wendorochena.poetskingdom.poemdata.TextAlignment
-import com.wendorochena.poetskingdom.ui.theme.MadzinzaGreen
 import com.wendorochena.poetskingdom.utils.TextMarginUtil
 import com.wendorochena.poetskingdom.utils.TypefaceHelper
+import com.wendorochena.poetskingdom.utils.images.loaders.ImageLoaderUtility
+import com.wendorochena.poetskingdom.viewModels.models.PoemThemeViewModelModel
+import com.wendorochena.poetskingdom.viewModels.services.PoemThemeViewModelService
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 enum class HeadingSelection {
     OUTLINE, BACKGROUND, TEXT
 }
 
-class PoemThemeViewModel : ViewModel() {
+class PoemThemeViewModel(private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main) :
+    ViewModel() {
 
-    private val _poemThemeState = MutableStateFlow(PoemTheme(BackgroundType.DEFAULT))
-    val uiState: StateFlow<PoemTheme> = _poemThemeState.asStateFlow()
-    var headingSelection by mutableStateOf(HeadingSelection.OUTLINE)
-        private set
-    var backgroundType by mutableStateOf(BackgroundType.DEFAULT)
-        private set
-    var backgroundImageChosen: String? by mutableStateOf(null)
-    var backgroundColorChosen: String? = null
-    var backgroundColorChosenAsInt: Int? by mutableStateOf(null)
-    var outlineType: OutlineTypes? by mutableStateOf(null)
-    var outlineColor: Int by mutableIntStateOf(MadzinzaGreen.toArgb())
-    var fontColor: Int by mutableIntStateOf(Color.Black.toArgb())
-    var textFontFamily: FontFamily by mutableStateOf(FontFamily(android.graphics.Typeface.DEFAULT))
-    var textFontFamilyString : String by mutableStateOf("default")
-    var fontSize: Float by mutableFloatStateOf(14f)
-        private set
-    var textAlignment: TextAlignment by mutableStateOf(TextAlignment.LEFT)
-    var shouldDisplayDialog by mutableStateOf(false)
-        private set
-    var poemThemeResult by mutableIntStateOf(-2)
-    var textMarginUtil = TextMarginUtil()
-    var poemTitle =  ""
-    var isBold by mutableStateOf(false)
-    var isItalic by mutableStateOf(false)
-    var isEditTheme = false
-    var savedAlbumName : String? = null
+    private val _model = MutableStateFlow(PoemThemeViewModelModel())
+    val modelState: StateFlow<PoemThemeViewModelModel> = _model.asStateFlow()
+    val viewModelService = PoemThemeViewModelService()
+
     /**
-     * Changes Background Type
+     * Clears background state if the previous state had a color background or an image background.
+     * Finally it updates the UI background type and the poem theme background type
+     * @param backgroundType the background type to set
      */
     fun changeBackgroundType(backgroundType: BackgroundType) {
-        if (this.backgroundType.toString().lowercase()
+        //clear state if need be
+        if (modelState.value.backgroundType.toString().lowercase()
                 .contains("color") && !backgroundType.toString().lowercase().contains("color")
         ) {
-            backgroundColorChosen = null
-            backgroundColorChosenAsInt = null
-        } else if (this.backgroundType.toString().lowercase()
+            updateModelState { state ->
+                state.copy(
+                    backgroundColorChosen = null, backgroundColorChosenAsInt = null,
+                    poemThemeState = state.poemThemeState.copy(
+                        backgroundColor = "#FFFFFF",
+                        backgroundColorAsInt = -1
+                    )
+                )
+            }
+        }
+        if (modelState.value.backgroundType.toString().lowercase()
                 .contains("image") && !backgroundType.toString().lowercase().contains("image")
         ) {
-            backgroundImageChosen = null
+            updateModelState { state ->
+                state.copy(
+                    backgroundImageChosen = null,
+                    poemThemeState = state.poemThemeState.copy(imagePath = "")
+                )
+            }
         }
-        this.backgroundType = backgroundType
-        _poemThemeState.value.backgroundType = backgroundType
+        if (modelState.value.backgroundType.toString().lowercase()
+                .contains("outline") && !backgroundType.toString().lowercase().contains("outline")
+        ) {
+            updateModelState { state ->
+                state.copy(
+                    outlineType = null,
+                    outlineColor = -7821273,
+                    poemThemeState = state.poemThemeState.copy(outline = "", outlineColor = -7821273)
+                )
+            }
+        }
+        updateModelState { state ->
+            state.copy(
+                backgroundType = backgroundType,
+                poemThemeState = state.poemThemeState.copy(backgroundType = backgroundType)
+            )
+        }
     }
 
-    //color background
+
     /**
-     * Updates Color Background
+     * Updates the current background to a Color Background
+     * @param backgroundType the background type to set
+     * @param backgroundColor the background color represented as a string
+     * @param backgroundColorAsInt the background color represented as an int
      */
     fun updateBackground(
         backgroundType: BackgroundType,
         backgroundColor: String,
         backgroundColorAsInt: Int
     ) {
-        if (uiState.value.textMarginUtil != textMarginUtil)
-            uiState.value.textMarginUtil = textMarginUtil
-
-        uiState.value.backgroundType = backgroundType
+        //positioning of this call more often than not is negligible due to the state of the model
+        //always being the same within the scope of this function. However it doesnt hurt just to put
+        //it before the rest of the function
         changeBackgroundType(backgroundType)
-        backgroundColorChosen = backgroundColor
-        backgroundColorChosenAsInt = backgroundColorAsInt
-        uiState.value.backgroundColor = backgroundColor
-        uiState.value.backgroundColorAsInt = backgroundColorAsInt
+
+        updateModelState { state ->
+            state.copy(
+                backgroundColorChosen = backgroundColor,
+                backgroundColorChosenAsInt = backgroundColorAsInt,
+                poemThemeState = state.poemThemeState.copy(
+                    backgroundColor = backgroundColor, backgroundColorAsInt = backgroundColorAsInt
+                )
+            )
+        }
     }
 
     /**
      * Parses outline from the saved string
+     * @param outline string value representing an outline
      */
     private fun parseOutlineType(outline: String): OutlineTypes {
-        when (outline) {
-            OutlineTypes.ROUNDED_RECTANGLE.toString() -> {
-                return OutlineTypes.ROUNDED_RECTANGLE
-            }
-
-            OutlineTypes.TEARDROP.toString() -> {
-                return OutlineTypes.TEARDROP
-            }
-
-            OutlineTypes.ROTATED_TEARDROP.toString() -> {
-                return OutlineTypes.ROTATED_TEARDROP
-            }
-
-            OutlineTypes.RECTANGLE.toString() -> {
-                return OutlineTypes.RECTANGLE
-            }
-
-            OutlineTypes.LEMON.toString() -> {
-                return OutlineTypes.LEMON
-            }
-        }
-        return OutlineTypes.RECTANGLE
+        return viewModelService.parseOutlineType(outline)
     }
 
-    /**
-     * Returns a shape from the current selected outline
-     */
-    fun shapeFromOutline(): Shape {
-        when (outlineType) {
-            OutlineTypes.RECTANGLE -> {
-                return RectangleShape
-            }
-
-            OutlineTypes.LEMON -> {
-                return com.wendorochena.poetskingdom.ui.theme.LemonOutline
-            }
-
-            OutlineTypes.ROTATED_TEARDROP -> {
-                return com.wendorochena.poetskingdom.ui.theme.RotatedTeardropOutline
-            }
-
-            OutlineTypes.TEARDROP -> {
-                return com.wendorochena.poetskingdom.ui.theme.TeardropOutline
-            }
-
-            OutlineTypes.ROUNDED_RECTANGLE -> {
-                return com.wendorochena.poetskingdom.ui.theme.RoundedRectangleOutline
-            }
-
-            null -> {
-                return RectangleShape
-            }
-        }
-    }
 
     /**
-     * Updates an OUTLINE_WITH_COLOR background
+     * Updates the background to an OUTLINE_WITH_COLOR
+     * @param backgroundType the background type to set
+     * @param outlineColor the color of the outline as an int
+     * @param outline OutlineType.name value of the outline to use
+     * @param backgroundColorAsInt the background color represented as an int
      */
     fun updateBackground(
         backgroundType: BackgroundType,
@@ -170,17 +137,27 @@ class PoemThemeViewModel : ViewModel() {
         backgroundColor: String,
         backgroundColorAsInt: Int
     ) {
-        uiState.value.backgroundType = backgroundType
-        uiState.value.outline = outline
-        uiState.value.outlineColor = outlineColor
-        this.outlineColor = outlineColor
-        outlineType = parseOutlineType(outline)
         changeBackgroundType(backgroundType)
-        uiState.value.backgroundColor = backgroundColor
-        uiState.value.backgroundColorAsInt = backgroundColorAsInt
+        updateModelState { state ->
+            state.copy(
+                outlineType = parseOutlineType(outline),
+                outlineColor = outlineColor,
+                backgroundColorChosen = backgroundColor,
+                backgroundColorChosenAsInt = backgroundColorAsInt,
+                poemThemeState = state.poemThemeState.copy(
+                    outline = outline, outlineColor = outlineColor,
+                    backgroundColor = backgroundColor, backgroundColorAsInt = backgroundColorAsInt
+                )
+            )
+        }
     }
+
     /**
-     * Updates an OUTLINE_WITH_IMAGE background
+     * Updates the background to an OUTLINE_WITH_IMAGE
+     * @param backgroundType the background type to set
+     * @param outlineColor the color of the outline as an int
+     * @param outline OutlineType.name value of the outline to use
+     * @param imagePath the path to the image for the background
      */
     fun updateBackground(
         backgroundType: BackgroundType,
@@ -189,197 +166,224 @@ class PoemThemeViewModel : ViewModel() {
         imagePath: String
     ) {
         changeBackgroundType(backgroundType)
-        uiState.value.backgroundType = backgroundType
-        uiState.value.outlineColor = outlineColor
-        this.outlineColor = outlineColor
-        backgroundImageChosen = imagePath
-        outlineType = parseOutlineType(outline)
-        uiState.value.outline = outline
-        uiState.value.imagePath = imagePath
+        updateModelState { state ->
+            state.copy(
+                outlineColor = outlineColor, outlineType = parseOutlineType(outline),
+                backgroundImageChosen = imagePath,
+                poemThemeState = state.poemThemeState.copy(
+                    outlineColor = outlineColor, outline = outline, imagePath = imagePath
+                )
+            )
+        }
     }
 
     /**
-     * Updates an OUTLINE background
+     * Updates the background to an OUTLINE
+     * @param backgroundType the background type to set
+     * @param outlineColor the color of the outline as an int
+     * @param outline OutlineType.name value of the outline to use
      */
     fun updateBackground(backgroundType: BackgroundType, outlineColor: Int, outline: OutlineTypes) {
-        uiState.value.backgroundType = backgroundType
-        uiState.value.outline = outline.name
-        outlineType = outline
-        this.outlineColor = outlineColor
         changeBackgroundType(backgroundType)
-        uiState.value.outlineColor = outlineColor
+        updateModelState { state ->
+            state.copy(
+                outlineType = outline, outlineColor = outlineColor,
+                poemThemeState = state.poemThemeState.copy(
+                    backgroundType = backgroundType,
+                    outline = outline.name, outlineColor = outlineColor
+                )
+            )
+        }
     }
+
     /**
-     * Updates an IMAGE BACKGROUND
+     * Updates the background to an IMAGE
+     * @param backgroundType the background type to set
+     *  @param imagePath the path to the image for the background
      */
     fun updateBackground(backgroundType: BackgroundType, imagePath: String) {
-        if (uiState.value.textMarginUtil != textMarginUtil)
-            uiState.value.textMarginUtil = textMarginUtil
-
-        uiState.value.backgroundType = backgroundType
         changeBackgroundType(backgroundType)
-        backgroundImageChosen = imagePath
-        uiState.value.imagePath = imagePath
+
+        updateModelState { state ->
+            state.copy(
+                backgroundImageChosen = imagePath, poemThemeState =
+                state.poemThemeState.copy(imagePath = imagePath)
+            )
+        }
     }
 
 
     /**
-     * Sets the text margin when outline clicked
+     * Sets the text margin utility
+     * @param textMarginUtility the text margin utility to set
      */
-    fun setTextMarginUtility(textMarginUtility : TextMarginUtil) {
-        uiState.value.textMarginUtil = textMarginUtility
+    fun setTextMarginUtility(textMarginUtility: TextMarginUtil) {
+        updateModelState { state ->
+            state.copy(poemThemeState = state.poemThemeState.copy(textMarginUtil = textMarginUtility),
+                textMarginUtil = textMarginUtility)
+        }
     }
 
     /**
      * Changes heading selection
+     * @param headingSelection the heading selection to set
      */
     fun changeSelection(headingSelection: HeadingSelection) {
-        this.headingSelection = headingSelection
-    }
-
-    /**
-     * Returns an arraylist containing headings not selected
-     */
-    fun unselectedHeadings(): ArrayList<HeadingSelection> {
-        return when (headingSelection) {
-            HeadingSelection.OUTLINE -> {
-                arrayListOf(HeadingSelection.BACKGROUND, HeadingSelection.TEXT)
-            }
-
-            HeadingSelection.TEXT -> {
-                arrayListOf(HeadingSelection.OUTLINE, HeadingSelection.BACKGROUND)
-            }
-
-            HeadingSelection.BACKGROUND -> {
-                arrayListOf(HeadingSelection.OUTLINE, HeadingSelection.TEXT)
-            }
+        updateModelState { state ->
+            state.copy(headingSelection = headingSelection)
         }
     }
 
+    /**
+     * Sets text size for poem theme
+     * @param textSize the text size to set
+     */
     fun setTextSize(textSize: Float) {
-        uiState.value.textSize = textSize.toInt()
-        this.fontSize = textSize
+        updateModelState { state ->
+            state.copy(
+                poemThemeState = state.poemThemeState.copy(textSize = textSize.toInt()),
+                fontSize = textSize
+            )
+        }
     }
 
+    /**
+     * Sets font family for poem theme
+     * @param fontFamily the font family to set
+     * @param fontFamilyString the font family to set as a string
+     */
     fun setFontFamily(fontFamily: FontFamily, fontFamilyString: String) {
-        this.textFontFamily = fontFamily
-        textFontFamilyString = fontFamilyString
-        uiState.value.textFontFamily = fontFamilyString
+        updateModelState { state ->
+            state.copy(
+                textFontFamily = fontFamily, textFontFamilyString = fontFamilyString,
+                poemThemeState = state.poemThemeState.copy(textFontFamily = fontFamilyString)
+            )
+        }
     }
 
-    fun setTextColor(color: Int, hexCode : String) {
-        this.fontColor = color
-        uiState.value.textColorAsInt = color
-        uiState.value.textColor = hexCode
+    /**
+     * Updates the colour of a selected outline
+     * @param color the colour selected as an int
+     */
+    fun updateOutlineColor(color: Int) {
+        updateModelState { state ->
+            state.copy(
+                outlineColor = color,
+                poemThemeState = state.poemThemeState.copy(outlineColor = color)
+            )
+        }
     }
 
+    /**
+     * Updates the text color for UI and poem theme state
+     * @param color the color represented as an int
+     * @param hexCode the color represented as a hexadecimal string
+     */
+    fun setTextColor(color: Int, hexCode: String) {
+        updateModelState { state ->
+            state.copy(
+                fontColor = color,
+                poemThemeState = state.poemThemeState.copy(
+                    textColorAsInt = color,
+                    textColor = hexCode
+                )
+            )
+        }
+    }
+
+    /**
+     * Sets text alignment of the UI and poem theme
+     * @param textAlignToAdd the text alignment to set
+     */
     fun setTextAlign(textAlignToAdd: TextAlignment) {
-        textAlignment = textAlignToAdd
-        uiState.value.textAlignment = textAlignToAdd
-    }
-
-    /**
-     * @return a Pair where the first and second values are the options to select in the removal dialog
-     */
-    fun changePreviewBackground(): Pair<String, String> {
-        return when (backgroundType) {
-            BackgroundType.OUTLINE_WITH_COLOR -> {
-                Pair("Outline", "Color")
-            }
-
-            BackgroundType.OUTLINE_WITH_IMAGE -> {
-                Pair("Outline", "Image")
-            }
-
-            BackgroundType.DEFAULT -> {
-                Pair("", "")
-            }
-
-            else -> {
-                changeBackgroundType(BackgroundType.DEFAULT)
-                Pair("", "")
-            }
+        updateModelState { state ->
+            state.copy(
+                textAlignment = textAlignToAdd,
+                poemThemeState = state.poemThemeState.copy(textAlignment = textAlignToAdd)
+            )
         }
     }
 
     /**
-     * Returns the TextAlign value of the current text alignment of the poem
+     * Sets the album name if any
+     * @param albumName a name of an album or string
      */
-    fun texAlignmentToTextAlign(): TextAlign {
-        return when (textAlignment) {
-            TextAlignment.LEFT, TextAlignment.CENTRE_VERTICAL_LEFT -> {
-                TextAlign.Start
-            }
-
-            TextAlignment.CENTRE, TextAlignment.CENTRE_VERTICAL -> {
-                TextAlign.Center
-            }
-
-            TextAlignment.CENTRE_VERTICAL_RIGHT, TextAlignment.RIGHT -> {
-                TextAlign.End
-            }
+    fun setAlbumName(albumName: String?) {
+        updateModelState { state ->
+            state.copy(savedAlbumName = albumName)
         }
     }
 
     /**
-     *
+     * @param editTheme true or false
      */
-    fun boxAlignment(): Alignment {
-        return when (textAlignment) {
-            TextAlignment.LEFT, TextAlignment.CENTRE_VERTICAL_LEFT -> {
-                Alignment.TopStart
-            }
-
-            TextAlignment.CENTRE, TextAlignment.CENTRE_VERTICAL -> {
-                Alignment.Center
-            }
-
-            TextAlignment.CENTRE_VERTICAL_RIGHT, TextAlignment.RIGHT -> {
-                Alignment.TopEnd
-            }
+    fun setEditTheme(editTheme: Boolean) {
+        updateModelState { state ->
+            state.copy(isEditTheme = editTheme)
         }
     }
 
+    /**
+     * Sets the display dialog view display
+     * @param boolean true if the dialog should be open otherwise false
+     */
     fun setDisplayDialog(boolean: Boolean) {
-        shouldDisplayDialog = boolean
+        updateModelState { state ->
+            state.copy(shouldDisplayDialog = boolean)
+        }
     }
 
     /**
      * Initialises viewModels state by copying the value of the loaded poem
+     * @param poemThemeXmlParser the object containing the parsed poem theme
      */
-     fun initialisePoemTheme(poemThemeXmlParser: PoemThemeXmlParser) {
-        uiState.value.poemTitle = poemThemeXmlParser.getPoemTheme().poemTitle
-        poemTitle =  uiState.value.poemTitle
-        uiState.value.backgroundType = poemThemeXmlParser.getPoemTheme().backgroundType
-        backgroundType =  uiState.value.backgroundType
-        uiState.value.textFontFamily = poemThemeXmlParser.getPoemTheme().textFontFamily
-        setFontFamily(TypefaceHelper.getTypeFace(uiState.value.textFontFamily), uiState.value.textFontFamily)
-        uiState.value.textAlignment = poemThemeXmlParser.getPoemTheme().textAlignment
-        setTextAlign(uiState.value.textAlignment)
-        uiState.value.outline = poemThemeXmlParser.getPoemTheme().outline
-        outlineType = parseOutlineType(uiState.value.outline)
-        uiState.value.outlineColor = poemThemeXmlParser.getPoemTheme().outlineColor
-        outlineColor = uiState.value.outlineColor
-        uiState.value.textColorAsInt = poemThemeXmlParser.getPoemTheme().textColorAsInt
-        fontColor = uiState.value.textColorAsInt
-        uiState.value.textColor = poemThemeXmlParser.getPoemTheme().textColor
-        uiState.value.textSize = poemThemeXmlParser.getPoemTheme().textSize
-        fontSize = uiState.value.textSize.toFloat()
-        uiState.value.backgroundColorAsInt = poemThemeXmlParser.getPoemTheme().backgroundColorAsInt
-        backgroundColorChosenAsInt = uiState.value.backgroundColorAsInt
-        uiState.value.backgroundColor = poemThemeXmlParser.getPoemTheme().backgroundColor
-        backgroundColorChosen = uiState.value.backgroundColor
-        uiState.value.imagePath = poemThemeXmlParser.getPoemTheme().imagePath
-        backgroundImageChosen = uiState.value.imagePath
-        uiState.value.bold = poemThemeXmlParser.getPoemTheme().bold
-        isBold = uiState.value.bold
-        uiState.value.italic = poemThemeXmlParser.getPoemTheme().italic
-        isItalic = uiState.value.italic
-        uiState.value.textMarginUtil = poemThemeXmlParser.getPoemTheme().textMarginUtil
-        textMarginUtil = uiState.value.textMarginUtil
+    fun initialisePoemTheme(poemThemeXmlParser: PoemThemeXmlParser) {
+        val parsedPoemTheme = poemThemeXmlParser.getPoemTheme()
+        updateModelState { state ->
+            state.copy(
+                poemTitle = parsedPoemTheme.poemTitle,
+                backgroundType = parsedPoemTheme.backgroundType,
+                outlineType = parseOutlineType(parsedPoemTheme.outline),
+                outlineColor = parsedPoemTheme.outlineColor,
+                fontColor = parsedPoemTheme.textColorAsInt,
+                fontSize = parsedPoemTheme.textSize.toFloat(),
+                backgroundColorChosenAsInt = parsedPoemTheme.backgroundColorAsInt,
+                backgroundColorChosen = parsedPoemTheme.backgroundColor,
+                backgroundImageChosen = parsedPoemTheme.imagePath,
+                isBold = parsedPoemTheme.bold,
+                isItalic = parsedPoemTheme.italic,
+                textMarginUtil = parsedPoemTheme.textMarginUtil,
+                textFontFamily = TypefaceHelper.getTypeFace(parsedPoemTheme.textFontFamily),
+                textFontFamilyString = parsedPoemTheme.textFontFamily,
+                textAlignment = parsedPoemTheme.textAlignment,
+                poemThemeState = state.poemThemeState.copy(
+                    poemTitle = parsedPoemTheme.poemTitle,
+                    backgroundType = parsedPoemTheme.backgroundType,
+                    textFontFamily = parsedPoemTheme.textFontFamily,
+                    textAlignment = parsedPoemTheme.textAlignment,
+                    outline = parsedPoemTheme.outline,
+                    outlineColor = parsedPoemTheme.outlineColor,
+                    textColorAsInt = parsedPoemTheme.textColorAsInt,
+                    textColor = parsedPoemTheme.textColor,
+                    textSize = parsedPoemTheme.textSize,
+                    backgroundColorAsInt = parsedPoemTheme.backgroundColorAsInt,
+                    backgroundColor = parsedPoemTheme.backgroundColor,
+                    imagePath = parsedPoemTheme.imagePath,
+                    bold = parsedPoemTheme.bold,
+                    italic = parsedPoemTheme.italic,
+                    textMarginUtil = parsedPoemTheme.textMarginUtil
+                )
+            )
+        }
     }
+
+    /**
+     * Resets the poem theme result state to default value
+     */
     fun resetResultToDefault() {
-        poemThemeResult = -2
+        updateModelState { state ->
+            state.copy(poemThemeResult = -2)
+        }
     }
 
     /**
@@ -392,48 +396,87 @@ class PoemThemeViewModel : ViewModel() {
      * @param isEditTheme true if the CreatePoemActivity called PoemThemeActivity
      *
      */
-    fun savePoemTheme(poemName : String, context : Context, isEditTheme : Boolean)  {
+    fun savePoemTheme(poemName: String, context: Context, isEditTheme: Boolean) {
         val exceptionHandler = CoroutineExceptionHandler { _, exception ->
         }
-        uiState.value.poemTitle = poemName
-         poemTitle = poemName
-        viewModelScope.launch(Dispatchers.Main + exceptionHandler) {
-            val poemTheme = _poemThemeState.value
+        viewModelScope.launch(mainDispatcher + exceptionHandler) {
+            //ensure synchronous execution
+                _model.update { state ->
+                    state.copy(
+                        poemTitle = poemName,
+                        poemThemeState = state.poemThemeState.copy(poemTitle = poemName)
+                    )
+                }
+
+            val poemTheme: PoemTheme = modelState.value.poemThemeState
             val poemThemeXmlParser =
-                PoemThemeXmlParser(poemTheme, context = context)
+                PoemThemeXmlParser(poemTheme, context = context, dispatcher = ioDispatcher)
             poemThemeXmlParser.setIsEditTheme(isEditTheme)
-            val savePoemResult =  async {
+
+            val savePoemResult = async {
                 poemThemeXmlParser.savePoemThemeToLocalFile(
-                    backgroundImageChosen,
-                    backgroundColorChosen,
+                    modelState.value.backgroundImageChosen,
+                    modelState.value.backgroundColorChosen,
                     null
                 )
             }
-            poemThemeResult = savePoemResult.await()
+            val poemThemeResult = savePoemResult.await()
+            _model.update { state ->
+                    state.copy(poemThemeResult = poemThemeResult)
+                }
         }
-    }
-
-    fun determineFirstUse(context: Context, key : String) : Boolean{
-        val sharedPreferences =
-            context.getSharedPreferences("my_shared_pref", Context.MODE_PRIVATE)
-        if (!sharedPreferences.getBoolean(key, false)) {
-            sharedPreferences.edit().putBoolean(key, true).apply()
-            return true
-        }
-        return false
     }
 
     /**
      * Bold-ens or italicises text
+     * @param boldOrItalic can only be 'bold' or 'italic'
      */
-    fun boldenOrItaliciseText(boldOrItalic : String) {
+    fun boldenOrItaliciseText(boldOrItalic: String) {
         if (boldOrItalic == "bold") {
-            isBold = !isBold
-            uiState.value.bold = isBold
+            val isBold = !modelState.value.isBold
+            updateModelState { state ->
+                state.copy(
+                    isBold = isBold,
+                    poemThemeState = state.poemThemeState.copy(bold = isBold)
+                )
+            }
+
+        } else {
+            val isItalic = !modelState.value.isItalic
+            updateModelState { state ->
+                state.copy(
+                    isItalic = isItalic,
+                    poemThemeState = state.poemThemeState.copy(italic = isItalic)
+                )
+            }
         }
-        else {
-            isItalic = !isItalic
-            uiState.value.italic = isItalic
+    }
+
+    /**
+     * @param context
+     */
+    fun loadAllPoemThemes(context: Context){
+                val imagesFolder = context.getDir(
+            context.getString(R.string.my_images_folder_name),
+            Context.MODE_PRIVATE
+        )
+        viewModelScope.launch (mainDispatcher){
+            val allImages = ImageLoaderUtility().loadAllImages(context, ioDispatcher = ioDispatcher, imagesFolder)
+
+            if (allImages != null){
+                updateModelState { state ->
+                    state.copy(imageRequests = allImages)
+                }
+            }
+        }
+    }
+    /**
+     * Updates the models mutable state flow
+     * @param function the function containing parameters to update
+     */
+    private fun updateModelState(function: (PoemThemeViewModelModel) -> PoemThemeViewModelModel) {
+        viewModelScope.launch {
+            _model.update(function)
         }
     }
 
