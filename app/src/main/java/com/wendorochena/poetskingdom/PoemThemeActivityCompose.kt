@@ -23,8 +23,8 @@ class PoemThemeActivityCompose : ComponentActivity() {
         val intentExtras = intent.extras
         val albumArg = getString(R.string.album_argument_name)
         if (intentExtras?.getString("poemThemeName") != null) {
-            poemThemeViewModel.savedAlbumName = intentExtras.getString(albumArg)
-            poemThemeViewModel.isEditTheme = true
+            poemThemeViewModel.setAlbumName(intentExtras.getString(albumArg))
+            poemThemeViewModel.setEditTheme(true)
             val poemName = intentExtras.getString("poemThemeName")
             val poemThemeXmlParser = PoemThemeXmlParser(
                 PoemTheme(BackgroundType.DEFAULT, applicationContext),
