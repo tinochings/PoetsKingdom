@@ -50,3 +50,51 @@ val TypographyPK = Typography(
         fontSize = 16.sp
     )
 )
+
+val TypographyPkMaterial3 = androidx.compose.material3.Typography(
+    titleLarge = TextStyle(
+        fontFamily = HelveticaFont,
+        fontWeight = FontWeight.Bold,
+        fontSize = 23.sp
+    ),
+    titleMedium = TextStyle(
+        fontFamily = HelveticaFont,
+        fontWeight = FontWeight.Bold,
+        fontSize = 21.sp
+    ),
+    titleSmall = TextStyle(
+        fontFamily = HelveticaFont,
+        fontWeight = FontWeight.Bold,
+        fontSize = 18.sp
+    ),
+    bodyLarge = TextStyle(
+        fontFamily = HelveticaFont,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = HelveticaFont,
+        fontWeight = FontWeight.Normal,
+        fontSize = 15.sp
+    ),
+    bodySmall = TextStyle(
+        fontFamily = HelveticaFont,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp
+    ),
+    labelLarge = TextStyle(
+        fontFamily = HelveticaFont,
+        fontWeight = FontWeight.Light,
+        fontSize = 16.sp
+    ),
+    labelMedium = TextStyle(
+        fontFamily = HelveticaFont,
+        fontWeight = FontWeight.Light,
+        fontSize = 15.sp
+    ),
+    labelSmall = TextStyle(
+        fontFamily = HelveticaFont,
+        fontWeight = FontWeight.Light,
+        fontSize = 14.sp
+    )
+)
