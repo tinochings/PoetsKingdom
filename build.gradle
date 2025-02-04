@@ -3,6 +3,9 @@ buildscript {
     ext {
         compose_compiler_version = '1.4.7'
     }
+    dependencies {
+        classpath "org.jacoco:org.jacoco.core:0.8.12"
+    }
 }
 plugins {
     id 'com.android.application' version '8.4.1' apply false
