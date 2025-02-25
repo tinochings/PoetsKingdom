@@ -113,7 +113,7 @@ class ImageCacheExecutorIntegratedTest {
 
     @Test
     fun testAllFilesGetGenerated() = runTest {
-        ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext).execute()
+        ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext, StandardTestDispatcher(testScheduler)).execute()
         testScheduler.advanceUntilIdle()
 
         val imagesFolder =
@@ -143,7 +143,7 @@ class ImageCacheExecutorIntegratedTest {
         updateImageFolderMocks("myImagesOddUpperBound", "myPoemsEmpty")
 
         val imagesCacheExecutor =
-            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext)
+            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext, StandardTestDispatcher(testScheduler))
         imagesCacheExecutor.execute()
         testScheduler.advanceUntilIdle()
 
@@ -168,7 +168,7 @@ class ImageCacheExecutorIntegratedTest {
         updateImageFolderMocks("myImagesOddLowerBound", "myPoemsEmpty")
 
         val imagesCacheExecutor =
-            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext)
+            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext, StandardTestDispatcher(testScheduler))
         imagesCacheExecutor.execute()
         testScheduler.advanceUntilIdle()
 
@@ -190,7 +190,7 @@ class ImageCacheExecutorIntegratedTest {
     fun testEmptyFolders() = runTest {
         updateImageFolderMocks("myImagesEmpty", "myPoemsEmpty")
         val imagesCacheExecutor =
-            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext)
+            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext, StandardTestDispatcher(testScheduler))
         imagesCacheExecutor.execute()
         testScheduler.advanceUntilIdle()
 
@@ -208,7 +208,7 @@ class ImageCacheExecutorIntegratedTest {
     fun testNonExistentFolder() = runTest {
         updateImageFolderMocks("blahblah", "booboo")
         val imagesCacheExecutor =
-            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext)
+            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext, StandardTestDispatcher(testScheduler))
         imagesCacheExecutor.execute()
         testScheduler.advanceUntilIdle()
 
@@ -226,7 +226,7 @@ class ImageCacheExecutorIntegratedTest {
     fun testBitmapFailedToBeCreated() = runTest {
         every { ThumbnailUtils.createImageThumbnail(any(), any(), any()) } throws (IOException())
         val imagesCacheExecutor =
-            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext)
+            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext, StandardTestDispatcher(testScheduler))
         imagesCacheExecutor.execute()
         testScheduler.advanceUntilIdle()
 

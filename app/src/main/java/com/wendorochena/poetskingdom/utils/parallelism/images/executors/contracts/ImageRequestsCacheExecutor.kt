@@ -14,6 +14,11 @@ interface ImageRequestsCacheExecutor {
     val defaultDispatcher : CoroutineDispatcher
 
     /**
+     * IO dispatcher to execute subsequent IO tasks on
+     */
+    val ioDispatcher : CoroutineDispatcher
+
+    /**
      * The applications context that will denote a folder within the application in
      * order to cache images
      */

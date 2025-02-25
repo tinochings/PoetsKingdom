@@ -17,7 +17,8 @@ import java.io.File
 
 class ImagesCacheExecutor(
     override val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default,
-    override val context: Context
+    override val context: Context,
+    override val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ImageRequestsCacheExecutor {
     private val imageThumbnailsCacheName = "compressed_image_thumbnails"
     private val myPoemsThumbnailsCacheName = "compressed_my_image_thumbnails"
@@ -52,14 +53,14 @@ class ImagesCacheExecutor(
             dataToCache = sortedList.slice(firstTaskRange),
             context = context,
             imageCacheKeyGen = imageCacheKeyGen1,
-            ioDispatcher = defaultDispatcher,
+            ioDispatcher = ioDispatcher,
             imageThumbnailsCacheName = cacheFolderName
         )
         val secondTask = DivideAndConquerTaskImpl(
             dataToCache = sortedList.slice(secondTaskRange),
             context = context,
             imageCacheKeyGen = imageCacheKeyGen2,
-            ioDispatcher = defaultDispatcher,
+            ioDispatcher = ioDispatcher,
             imageThumbnailsCacheName = cacheFolderName
         )
         return arrayOf(firstTask, secondTask)
