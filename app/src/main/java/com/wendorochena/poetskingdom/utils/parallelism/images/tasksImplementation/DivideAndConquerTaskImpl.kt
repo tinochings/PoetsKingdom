@@ -35,7 +35,7 @@ class DivideAndConquerTaskImpl(
         try {
             val requests = dataToCache.mapNotNull { file: File? ->
                     if (file != null) {
-                            if (exifSupportedFiles.contains(".".plus(file.name.split(".")[1]))) {
+                            if (exifSupportedFiles.contains("." + file.extension)) {
                                 val bitmapFile = generateBitmapThumbnail(file, context)
                                 if (bitmapFile != null) {
                                     return@mapNotNull ImageItem(
