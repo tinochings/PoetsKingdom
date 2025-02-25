@@ -6,7 +6,6 @@ import com.wendorochena.poetskingdom.poemdata.BackgroundType
 import com.wendorochena.poetskingdom.viewModels.MyPoemsViewModel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
@@ -70,12 +69,13 @@ class MyPoemsViewModelTest {
             file.delete()
         if (rename.exists())
             rename.delete()
+        reAddFiles()
         myPoemsViewModel = MyPoemsViewModel()
         myPoemsViewModel.getThumbnails(mockContext, myPoemsViewModel.allPoemsString)
     }
 
-    @After
-    fun reAddFiles() {
+
+    private fun reAddFiles() {
         //re-add poem files
         if (!File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/my_poems_folder/HELLO.xml").exists()) {
             File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/poems/HELLO.xml").copyTo(

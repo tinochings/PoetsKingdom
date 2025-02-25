@@ -2,8 +2,11 @@ package com.wendorochena.poetskingdom
 
 import android.content.Context
 import com.wendorochena.poetskingdom.utils.SearchUtil
-import kotlinx.coroutines.*
-import kotlinx.coroutines.test.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -11,6 +14,7 @@ import org.mockito.Mock
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.io.File
 
 
@@ -26,6 +30,7 @@ import java.io.File
  */
 
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [33])
 class SearchUtilTest {
 
     @Mock
@@ -68,7 +73,7 @@ class SearchUtilTest {
     fun testIWantYou(): Unit = runTest {
 
         val dispatcher = StandardTestDispatcher(testScheduler)
-        searchUtil = SearchUtil("I want you", mockContext, exactSearch, dispatcher, dispatcher)
+        searchUtil = SearchUtil("I want you", mockContext, exactSearch, dispatcher, UnconfinedTestDispatcher(testScheduler))
         searchUtil.initiateLuceneSearch()
         advanceUntilIdle()
         val results: ArrayList<String> = searchUtil.getTitleSearchResults()
@@ -142,7 +147,7 @@ class SearchUtilTest {
     fun testIWantYouWithAlbumFiles(): Unit = runTest {
 
         val dispatcher = StandardTestDispatcher(testScheduler)
-        searchUtil = SearchUtil("I want you", mockContext, exactSearch, dispatcher, dispatcher)
+        searchUtil = SearchUtil("I want you", mockContext, exactSearch, dispatcher, UnconfinedTestDispatcher(testScheduler))
         searchUtil.initiateLuceneSearch()
         advanceUntilIdle()
         val results: ArrayList<String> = searchUtil.getTitleSearchResults()
@@ -213,12 +218,13 @@ class SearchUtilTest {
     fun testLongStringExactMatch(): Unit = runTest {
 
         val dispatcher = StandardTestDispatcher(testScheduler)
+        val ioDispatcher = UnconfinedTestDispatcher(testScheduler)
         searchUtil = SearchUtil(
             "This is an example of a very long exact search string that will be tested in the same manner as the previous tests",
             mockContext,
             exactSearch,
             dispatcher,
-            dispatcher
+            ioDispatcher = ioDispatcher
         )
         searchUtil.initiateLuceneSearch()
         advanceUntilIdle()
@@ -290,7 +296,7 @@ class SearchUtilTest {
             mockContext,
             exactSearch,
             dispatcher,
-            dispatcher
+            UnconfinedTestDispatcher(testScheduler)
         )
         searchUtil.initiateLuceneSearch()
         advanceUntilIdle()
