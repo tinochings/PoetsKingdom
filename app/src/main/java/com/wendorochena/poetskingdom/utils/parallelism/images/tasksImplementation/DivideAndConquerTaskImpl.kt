@@ -30,6 +30,7 @@ class DivideAndConquerTaskImpl(
 ) : ImageCachingTask<ImageRequest>{
 
     private lateinit var reusableBitmap : Bitmap
+    private val fileCacheUtility = FileCacheUtility()
 
     override fun execute(): List<ImageRequest>? {
         try {
@@ -71,7 +72,7 @@ class DivideAndConquerTaskImpl(
      */
     private fun generateBitmapThumbnail(file: File, context: Context): File? {
         val compressedImageThumbnailFolder =
-            FileCacheUtility().retrieveCacheDirectory(context, imageThumbnailsCacheName)
+            fileCacheUtility.retrieveCacheDirectory(context, imageThumbnailsCacheName)
                 ?: return null
         val bitmapFileToBeCreated = File(compressedImageThumbnailFolder, "${file.nameWithoutExtension}.jpg")
         return try {
