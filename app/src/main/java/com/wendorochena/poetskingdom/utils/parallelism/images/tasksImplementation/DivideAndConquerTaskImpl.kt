@@ -24,7 +24,7 @@ import java.io.IOException
 class DivideAndConquerTaskImpl(
     override val dataToCache: List<File>,
     override val context: Context,
-    private val imageCacheKeyGen: ImageCacheKeyGen = ImageCacheKeyGen(),
+    private val imageCacheKeyGen: ImageCacheKeyGen,
     override val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     override val imageThumbnailsCacheName: String
 ) : ImageCachingTask<ImageRequest>{

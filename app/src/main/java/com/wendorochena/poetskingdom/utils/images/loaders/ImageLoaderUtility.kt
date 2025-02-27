@@ -7,13 +7,19 @@ import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import com.wendorochena.poetskingdom.exceptions.images.ImageFileNotFoundException
 import com.wendorochena.poetskingdom.utils.generators.ImageCacheKeyGen
+import com.wendorochena.poetskingdom.utils.generators.contracts.ImageFolderType
 import com.wendorochena.poetskingdom.utils.images.loaders.contracts.ImageLoaderResourceManager
 import com.wendorochena.poetskingdom.utils.images.models.ImageItem
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.io.File
 
-class ImageLoaderUtility : ImageLoaderResourceManager {
+/**
+ * Loads an image using a LONG ImageCacheKeyGenerator
+ */
+class ImageLoaderUtility(val ioDispatcher: CoroutineDispatcher,
+                         override val imageFolderType: ImageFolderType
+) : ImageLoaderResourceManager {
 
     private val imageCacheKeyGen : ImageCacheKeyGen = ImageCacheKeyGen()
 

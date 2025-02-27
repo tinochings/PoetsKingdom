@@ -8,6 +8,7 @@ import java.io.File
 
 interface ImageLoaderResourceManager {
 
+    val imageFolderType : ImageFolderType
     /**
      * Clear memory and disk caches
      * @param context the application context

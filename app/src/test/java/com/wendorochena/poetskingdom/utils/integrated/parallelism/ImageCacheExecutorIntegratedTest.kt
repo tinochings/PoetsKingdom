@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.media.ThumbnailUtils
 import com.wendorochena.poetskingdom.R
+import com.wendorochena.poetskingdom.utils.generators.contracts.ImageFolderType
 import com.wendorochena.poetskingdom.utils.parallelism.images.executors.ImagesCacheExecutor
 import io.mockk.every
 import io.mockk.mockkStatic
@@ -89,7 +90,13 @@ class ImageCacheExecutorIntegratedTest {
         } doReturn File("../app/src/test/java/com/wendorochena/poetskingdom/cacheDirectory")
         on {
             this.getSharedPreferences(
-                this.getString(R.string.image_key_gen_cache_name),
+                ImageFolderType.IMAGES.name.lowercase() + "_" +this.getString(R.string.image_key_gen_cache_name),
+                Context.MODE_PRIVATE
+            )
+        } doReturn sharedPreferences
+        on {
+            this.getSharedPreferences(
+                ImageFolderType.POEM_THUMBNAILS.name.lowercase() + "_" +this.getString(R.string.image_key_gen_cache_name),
                 Context.MODE_PRIVATE
             )
         } doReturn sharedPreferences
@@ -237,6 +244,20 @@ class ImageCacheExecutorIntegratedTest {
 
         assert(cachedPoemsFolder.listFiles()!!.isEmpty())
         assert(cachedImagesFolder.listFiles()!!.isEmpty())
+    }
+
+    @Test
+    fun loadDeterministicPreloadedFiles() = runTest {
+        val imagesCacheExecutor =
+            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext, StandardTestDispatcher(testScheduler))
+        val file1 = File("../app/src/test/java/com/wendorochena/poetskingdom/images/myImages").listFiles()!![0]
+        val file2 = File("../app/src/test/java/com/wendorochena/poetskingdom/images/myImages").listFiles()!![1]
+        val imageRequestResults = imagesCacheExecutor.executePreloadedFiles(arrayOf(file1, file2), ImageFolderType.IMAGES)
+        val cachedImagesFolder =
+            File("../app/src/test/java/com/wendorochena/poetskingdom/cacheDirectory/$imageThumbnailsCacheName")
+
+        assert(imageRequestResults[0].data == File(cachedImagesFolder, file1.nameWithoutExtension + ".jpg").absolutePath)
+        assert(imageRequestResults[1].data == File(cachedImagesFolder, file2.nameWithoutExtension + ".jpg").absolutePath)
     }
 
     private fun updateImageFolderMocks(imagesFolder : String, myPoemsFolder : String){

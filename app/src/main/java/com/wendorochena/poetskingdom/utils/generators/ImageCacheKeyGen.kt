@@ -3,9 +3,12 @@ package com.wendorochena.poetskingdom.utils.generators
 import android.content.Context
 import android.content.SharedPreferences
 import com.wendorochena.poetskingdom.R
+import com.wendorochena.poetskingdom.utils.generators.contracts.ImageFolderType
 import com.wendorochena.poetskingdom.utils.generators.contracts.NonRandomKeyGenContract
 
-class ImageCacheKeyGen(private val keyRange : Pair<Int, Int>? = null) : NonRandomKeyGenContract<Int> {
+class ImageCacheKeyGen(private val keyRange : Pair<Int, Int>? = null,
+                       override val imageFolderType: ImageFolderType
+) : NonRandomKeyGenContract<Int> {
     private var currentGeneratedKey : Int = -1
     private val sharedPreferencesKey = "int_key"
 
@@ -59,7 +62,7 @@ class ImageCacheKeyGen(private val keyRange : Pair<Int, Int>? = null) : NonRando
 
     private fun getSharedPreferences(context: Context) : SharedPreferences {
        return  context.getSharedPreferences(
-            context.getString(R.string.image_key_gen_cache_name),
+            imageFolderType.name.lowercase() + "_" + context.getString(R.string.image_key_gen_cache_name),
             Context.MODE_PRIVATE
         )
     }

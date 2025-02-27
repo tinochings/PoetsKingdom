@@ -2,8 +2,12 @@ package com.wendorochena.poetskingdom.utils.generators.contracts
 
 import android.content.Context
 
+/**
+ * A deterministic key generator that keeps track of generated keys
+ */
 interface NonRandomKeyGenContract<T> {
 
+    val imageFolderType : ImageFolderType
     /**
      * Generates a key of type <T>. Retrieves the last cached key if the this method is called
      * with the default values
@@ -37,4 +41,8 @@ interface NonRandomKeyGenContract<T> {
      * @return last known cached key
      */
     fun retrieveLastKnownCachedKey(context: Context) : T
+}
+
+enum class ImageFolderType {
+    IMAGES, POEM_THUMBNAILS
 }
