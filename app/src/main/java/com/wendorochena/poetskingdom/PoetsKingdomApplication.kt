@@ -15,12 +15,12 @@ open class PoetsKingdomApplication : Application(), SingletonImageLoader.Factory
         return ImageLoader.Builder(context).crossfade(true)
             .memoryCache {
                 MemoryCache.Builder()
-                    .maxSizePercent(context,0.25).build()
+                    .maxSizePercent(context,0.45).build()
             }
             .diskCache {
                 DiskCache.Builder()
                     .directory(context.cacheDir.resolve(getString(R.string.coil_image_cache_name)))
-                    .maxSizeBytes(500 * 1024).build()
+                    .maxSizeBytes(500L * 1024 * 1024).build()
             }.build()
     }
 
