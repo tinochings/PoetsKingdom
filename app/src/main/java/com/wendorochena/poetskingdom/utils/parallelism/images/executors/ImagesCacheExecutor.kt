@@ -112,7 +112,7 @@ class ImagesCacheExecutor(
     /**
      *
      */
-    suspend fun executePreloadedFiles(filesToCache : Array<File>, imageFolderType: ImageFolderType): List<ImageRequest> {
+    override suspend fun executePreloadedFiles(filesToCache : Array<File>, imageFolderType: ImageFolderType): List<ImageRequest> {
         val keyRange = ImageCacheKeyGen(imageFolderType = imageFolderType).generateKeys(context, filesToCache.size)
         val minimisedImageRequest = ArrayList<ImageRequest>()
         if (keyRange != null) {
