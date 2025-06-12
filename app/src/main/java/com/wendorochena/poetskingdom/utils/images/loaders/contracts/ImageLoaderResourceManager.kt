@@ -2,6 +2,8 @@ package com.wendorochena.poetskingdom.utils.images.loaders.contracts
 
 import android.content.Context
 import coil3.request.ImageRequest
+import com.wendorochena.poetskingdom.utils.generators.contracts.ImageFolderType
+import com.wendorochena.poetskingdom.utils.parallelism.images.executors.contracts.ImageRequestsCacheExecutor
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import java.io.File
@@ -22,16 +24,25 @@ interface ImageLoaderResourceManager {
    fun removeFromCache(cacheKey : String, context: Context)
 
     /**
-     * Reads all files from the images directory and transform them to a cacheable Coil ImageRequest
+     * Insert image into cache
+     * @param context application context
+     * @param imageRequest request to cache
+     * @param imageRequestsCacheExecutor the cache executor to load images into cache
+     */
+   suspend fun insertIntoCache(context: Context, filesToCache: Array<File>, imageRequestsCacheExecutor: ImageRequestsCacheExecutor) : List<ImageRequest>
+
+    /**
+     * Reads all files from cache and transform them to a Coil ImageRequest. In the event
+     * of a cache miss then images are loaded from disk and made cacheable
      * @param context application context
      * @param ioDispatcher the dispatcher to run the operations on. The default is the IO dispatcher
-     * @param imagesDirectory the directory containing all images
+     * @param imagesDirectoryFolderSize the directory containing all images sorted in ascending order
      *
      * @return a list of image requests else null if there are none
      */
     suspend fun loadAllImages(
         context: Context,
         ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-        imagesDirectory: File
+        imagesDirectoryFolderSize: Int
     ): List<ImageRequest>?
 }
