@@ -9,7 +9,7 @@ import android.os.Build
 import android.util.Size
 import coil3.request.ImageRequest
 import com.wendorochena.poetskingdom.utils.files.cache.FileCacheUtility
-import com.wendorochena.poetskingdom.utils.generators.ImageCacheKeyGen
+import com.wendorochena.poetskingdom.utils.generators.contracts.NonRandomKeyGenContract
 import com.wendorochena.poetskingdom.utils.images.loaders.ImageLoaderUtility
 import com.wendorochena.poetskingdom.utils.images.models.ImageItem
 import com.wendorochena.poetskingdom.utils.parallelism.images.task.ImageCachingTask
@@ -18,10 +18,10 @@ import kotlinx.coroutines.Dispatchers
 import java.io.File
 import java.io.IOException
 
-class DivideAndConquerTaskImpl(
+class DivideAndConquerTaskImpl<T>(
     override val dataToCache: List<File>,
     override val context: Context,
-    private val imageCacheKeyGen: ImageCacheKeyGen,
+    private val imageCacheKeyGen: NonRandomKeyGenContract<T>,
     override val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     override val imageThumbnailsCacheName: String
 ) : ImageCachingTask<ImageRequest> {
@@ -47,7 +47,7 @@ class DivideAndConquerTaskImpl(
                     return@mapNotNull ImageItem(imageCacheKeyGen.generateKey(context), file)
                 } else
                     null
-            }.map { imageItem: ImageItem ->
+            }.map { imageItem: ImageItem<T> ->
                 return@map ImageLoaderUtility.buildImageRequest(
                     context = context,
                     data = imageItem.imageFile.absolutePath,
