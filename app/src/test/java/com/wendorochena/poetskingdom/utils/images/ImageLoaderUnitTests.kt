@@ -42,7 +42,7 @@ class ImageLoaderUnitTests {
         val dispatcher = StandardTestDispatcher(testScheduler)
         every { anyConstructed<ImageCacheKeyGen>().retrieveLastKnownCachedKey(any()) } returns 0
         val imageLoaderUtility = ImageLoaderUtility(dispatcher, ImageFolderType.IMAGES)
-        val imageRequests = imageLoaderUtility.loadAllImages(mockedContext, dispatcher, -100)
+        val imageRequests = imageLoaderUtility.loadAllImages(mockedContext, dispatcher)
 
         assert(imageRequests.isEmpty())
         testScheduler.advanceUntilIdle()
@@ -57,7 +57,7 @@ class ImageLoaderUnitTests {
         assert(!invalidContext.cacheDir.exists())
         val dispatcher = StandardTestDispatcher(testScheduler)
         val imageLoaderUtility = ImageLoaderUtility(dispatcher, ImageFolderType.IMAGES)
-        val imageRequests = imageLoaderUtility.loadAllImages(invalidContext, dispatcher, 5)
+        val imageRequests = imageLoaderUtility.loadAllImages(invalidContext, dispatcher)
 
         assert(imageRequests.isEmpty())
     }
@@ -71,7 +71,7 @@ class ImageLoaderUnitTests {
         every { anyConstructed<ImageCacheKeyGen>().retrieveLastKnownCachedKey(any()) } returns sortedImagesFolderFiles.size - 1
         setupMemoryCache(imageThumbnailsCacheName, 0 until imagesFolder.listFiles()!!.size, false, sortedImagesFolderFiles.size - 1)
         val imageLoaderUtility = ImageLoaderUtility(dispatcher, ImageFolderType.IMAGES)
-        val imageRequests = imageLoaderUtility.loadAllImages(mockedContext, dispatcher, imagesFolder.listFiles()!!.size)
+        val imageRequests = imageLoaderUtility.loadAllImages(mockedContext, dispatcher)
         testScheduler.advanceUntilIdle()
         assert(imageRequests.size == sortedImagesFolderFiles.size)
         for ((imageRequestsCounter, i) in (sortedImagesFolderFiles.size - 1 downTo 0).withIndex()){
@@ -93,7 +93,7 @@ class ImageLoaderUnitTests {
         every { anyConstructed<ImageCacheKeyGen>().retrieveLastKnownCachedKey(any()) } returns 10000
         setupMemoryCache(imageThumbnailsCacheName, 10000 - sortedImagesFolderFiles.size + 1 .. 10000, false, 10000)
         val imageLoaderUtility = ImageLoaderUtility(dispatcher, ImageFolderType.IMAGES)
-        val imageRequests = imageLoaderUtility.loadAllImages(mockedContext, dispatcher, imagesFolder.listFiles()!!.size)
+        val imageRequests = imageLoaderUtility.loadAllImages(mockedContext, dispatcher)
 
         assert(imageRequests.size == sortedImagesFolderFiles.size)
         testScheduler.advanceUntilIdle()
@@ -113,7 +113,7 @@ class ImageLoaderUnitTests {
         every { anyConstructed<ImageCacheKeyGen>().retrieveLastKnownCachedKey(any()) } returns sortedImagesFolderFiles.size - 1
         setupMemoryCache(imageThumbnailsCacheName, 0 until imagesFolder.listFiles()!!.size, true, sortedImagesFolderFiles.size - 1)
         val imageLoaderUtility = ImageLoaderUtility(dispatcher, ImageFolderType.IMAGES)
-        val imageRequests = imageLoaderUtility.loadAllImages(mockedContext, dispatcher, imagesFolder.listFiles()!!.size)
+        val imageRequests = imageLoaderUtility.loadAllImages(mockedContext, dispatcher)
         testScheduler.advanceUntilIdle()
 
         assert(imageRequests.size == sortedImagesFolderFiles.size)
@@ -135,7 +135,7 @@ class ImageLoaderUnitTests {
         every { anyConstructed<ImageCacheKeyGen>().retrieveLastKnownCachedKey(any()) } returns 20000
         setupMemoryCache(imageThumbnailsCacheName, 20000 - imagesFolder.listFiles()!!.size + 1 .. 20000, true, 20000)
         val imageLoaderUtility = ImageLoaderUtility(dispatcher, ImageFolderType.IMAGES)
-        val imageRequests = imageLoaderUtility.loadAllImages(mockedContext, dispatcher, imagesFolder.listFiles()!!.size)
+        val imageRequests = imageLoaderUtility.loadAllImages(mockedContext, dispatcher)
         testScheduler.advanceUntilIdle()
 
         assert(imageRequests.size == sortedImagesFolderFiles.size)
@@ -159,7 +159,7 @@ class ImageLoaderUnitTests {
         setupMemoryCache(imageThumbnailsCacheName, 20000 .. 20000, true, 20000)
         setupMemoryCache(imageThumbnailsCacheName, 19997 .. 19997, true, 20000)
         val imageLoaderUtility = ImageLoaderUtility(dispatcher, ImageFolderType.IMAGES)
-        val imageRequests = imageLoaderUtility.loadAllImages(mockedContext, dispatcher, imagesFolder.listFiles()!!.size)
+        val imageRequests = imageLoaderUtility.loadAllImages(mockedContext, dispatcher)
         testScheduler.advanceUntilIdle()
 
         assert(imageRequests.size == sortedImagesFolderFiles.size)
