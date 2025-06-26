@@ -33,14 +33,14 @@ abstract class ImageLoaderResourceManager(val imageFolderType: ImageFolderType) 
             ImageFolderType.IMAGES -> {
                 fileCacheUtility.invalidateCacheFolder(
                     context = context,
-                    cacheName = imageThumbnailsCacheName
+                    cacheName = IMAGE_THUMBNAILS_CACHE_NAME
                 )
             }
 
             ImageFolderType.POEM_THUMBNAILS -> {
                 fileCacheUtility.invalidateCacheFolder(
                     context = context,
-                    cacheName = myPoemsThumbnailsCacheName
+                    cacheName = MY_POEMS_THUMBNAILS_CACHE_NAME
                 )
             }
         }
@@ -58,7 +58,7 @@ abstract class ImageLoaderResourceManager(val imageFolderType: ImageFolderType) 
             ImageFolderType.IMAGES -> {
                 fileCacheUtility.deleteEntriesFromCacheFolder(
                     context = context,
-                    cacheName = imageThumbnailsCacheName,
+                    cacheName = IMAGE_THUMBNAILS_CACHE_NAME,
                     filesToDelete = arrayOf(cacheFilePath)
                 )
             }
@@ -66,7 +66,7 @@ abstract class ImageLoaderResourceManager(val imageFolderType: ImageFolderType) 
             ImageFolderType.POEM_THUMBNAILS -> {
                 fileCacheUtility.deleteEntriesFromCacheFolder(
                     context = context,
-                    cacheName = myPoemsThumbnailsCacheName,
+                    cacheName = MY_POEMS_THUMBNAILS_CACHE_NAME,
                     filesToDelete = arrayOf(cacheFilePath)
                 )
             }
@@ -76,11 +76,11 @@ abstract class ImageLoaderResourceManager(val imageFolderType: ImageFolderType) 
     protected fun cacheFolderFromImageType(context: Context) : File? {
         return when (imageFolderType) {
             ImageFolderType.IMAGES -> {
-                FileCacheUtility().retrieveCacheDirectory(context, imageThumbnailsCacheName)
+                FileCacheUtility().retrieveCacheDirectory(context, IMAGE_THUMBNAILS_CACHE_NAME)
             }
 
             ImageFolderType.POEM_THUMBNAILS -> {
-                FileCacheUtility().retrieveCacheDirectory(context, myPoemsThumbnailsCacheName)
+                FileCacheUtility().retrieveCacheDirectory(context, MY_POEMS_THUMBNAILS_CACHE_NAME)
             }
         }
     }
@@ -120,12 +120,12 @@ abstract class ImageLoaderResourceManager(val imageFolderType: ImageFolderType) 
             sortedCacheFiles = when (imageFolderType) {
                 ImageFolderType.IMAGES -> sortedCacheDirectory(folder = FileCacheUtility().retrieveCacheDirectory(
                     context = context,
-                    imageThumbnailsCacheName
+                    IMAGE_THUMBNAILS_CACHE_NAME
                 ), imageFolderSortType = imageFolderSortType)
 
                 ImageFolderType.POEM_THUMBNAILS -> sortedCacheDirectory(imageFolderSortType = imageFolderSortType, folder = FileCacheUtility().retrieveCacheDirectory(
                     context = context,
-                    myPoemsThumbnailsCacheName
+                    MY_POEMS_THUMBNAILS_CACHE_NAME
                 ))
             }
         }
@@ -148,20 +148,20 @@ abstract class ImageLoaderResourceManager(val imageFolderType: ImageFolderType) 
     ): List<ImageRequest>
 
     companion object {
-        private val imageThumbnailsCacheName: String = "compressed_image_thumbnails"
-        private val myPoemsThumbnailsCacheName = "compressed_my_image_thumbnails"
+        private const val IMAGE_THUMBNAILS_CACHE_NAME: String = "compressed_image_thumbnails"
+        private const val MY_POEMS_THUMBNAILS_CACHE_NAME = "compressed_my_image_thumbnails"
 
         fun getImageThumbnailsCacheName() : String {
-            return imageThumbnailsCacheName
+            return IMAGE_THUMBNAILS_CACHE_NAME
         }
         fun  getMyPoemsThumbnailsCacheName() : String {
-            return myPoemsThumbnailsCacheName
+            return MY_POEMS_THUMBNAILS_CACHE_NAME
         }
 
         fun getCacheNameFromImageFolderType(imageFolderType: ImageFolderType) : String{
            return when(imageFolderType) {
-                ImageFolderType.IMAGES -> return imageThumbnailsCacheName
-                ImageFolderType.POEM_THUMBNAILS -> myPoemsThumbnailsCacheName
+                ImageFolderType.IMAGES -> return IMAGE_THUMBNAILS_CACHE_NAME
+                ImageFolderType.POEM_THUMBNAILS -> MY_POEMS_THUMBNAILS_CACHE_NAME
             }
         }
     }
