@@ -17,6 +17,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import java.io.File
 import java.io.IOException
+import kotlin.math.min
 
 class DivideAndConquerTaskImpl<T>(
     override val dataToCache: List<File>,
@@ -33,7 +34,6 @@ class DivideAndConquerTaskImpl<T>(
         try {
             val requests = dataToCache.mapNotNull { file: File? ->
                 if (file != null) {
-                    if (exifSupportedFiles.contains("." + file.extension)) {
                         val bitmapFile = generateBitmapThumbnail(file, context)
                         if (bitmapFile != null) {
                             return@mapNotNull ImageItem(
@@ -43,7 +43,6 @@ class DivideAndConquerTaskImpl<T>(
                                 bitmapFile,
                             )
                         }
-                    }
                     return@mapNotNull ImageItem(imageCacheKeyGen.generateKey(context), file)
                 } else
                     null
@@ -82,11 +81,7 @@ class DivideAndConquerTaskImpl<T>(
                 reusableBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                     ThumbnailUtils.createImageThumbnail(file, Size(250, 250), null)
                 else
-                    ThumbnailUtils.extractThumbnail(
-                        BitmapFactory.decodeFile(file.absolutePath),
-                        250,
-                        250
-                    )
+                    createImageThumbnail(file.absolutePath)
 
                 if (reusableBitmap.compress(
                         Bitmap.CompressFormat.JPEG,
@@ -106,7 +101,22 @@ class DivideAndConquerTaskImpl<T>(
             return null
         }
     }
-
+    
+    private fun createImageThumbnail(filePath : String) : Bitmap{
+        val options = BitmapFactory.Options()
+        options.inJustDecodeBounds = true
+        BitmapFactory.decodeFile(filePath, options)
+        if (options.outHeight != 0){
+            val widthSample = options.outWidth / 250
+            val heightSample = options.outWidth / 250
+            val sample = min(widthSample, heightSample)
+            if(sample > 1) {
+                options.inSampleSize = sample
+            }
+        }
+        options.inJustDecodeBounds = false
+        return BitmapFactory.decodeFile(filePath, options)
+    }
 
     private fun resetBitmap() {
         if (::reusableBitmap.isInitialized) {
