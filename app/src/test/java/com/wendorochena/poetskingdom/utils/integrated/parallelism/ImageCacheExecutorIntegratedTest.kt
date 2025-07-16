@@ -7,6 +7,7 @@ import android.media.ThumbnailUtils
 import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.utils.generators.contracts.ImageFolderType
 import com.wendorochena.poetskingdom.utils.parallelism.images.executors.ImagesCacheExecutor
+import com.wendorochena.poetskingdom.utils.parallelism.images.tasksImplementation.NoOpTaskSupervisor
 import io.mockk.every
 import io.mockk.mockkStatic
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -120,7 +121,7 @@ class ImageCacheExecutorIntegratedTest {
 
     @Test
     fun testAllFilesGetGenerated() = runTest {
-        ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext, StandardTestDispatcher(testScheduler)).execute()
+        ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext, StandardTestDispatcher(testScheduler), NoOpTaskSupervisor()).execute()
         testScheduler.advanceUntilIdle()
 
         val imagesFolder =
@@ -150,7 +151,7 @@ class ImageCacheExecutorIntegratedTest {
         updateImageFolderMocks("myImagesOddUpperBound", "myPoemsEmpty")
 
         val imagesCacheExecutor =
-            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext, StandardTestDispatcher(testScheduler))
+            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext, StandardTestDispatcher(testScheduler), NoOpTaskSupervisor())
         imagesCacheExecutor.execute()
         testScheduler.advanceUntilIdle()
 
@@ -175,7 +176,7 @@ class ImageCacheExecutorIntegratedTest {
         updateImageFolderMocks("myImagesOddLowerBound", "myPoemsEmpty")
 
         val imagesCacheExecutor =
-            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext, StandardTestDispatcher(testScheduler))
+            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext, StandardTestDispatcher(testScheduler), NoOpTaskSupervisor())
         imagesCacheExecutor.execute()
         testScheduler.advanceUntilIdle()
 
@@ -197,7 +198,7 @@ class ImageCacheExecutorIntegratedTest {
     fun testEmptyFolders() = runTest {
         updateImageFolderMocks("myImagesEmpty", "myPoemsEmpty")
         val imagesCacheExecutor =
-            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext, StandardTestDispatcher(testScheduler))
+            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext, StandardTestDispatcher(testScheduler), NoOpTaskSupervisor())
         imagesCacheExecutor.execute()
         testScheduler.advanceUntilIdle()
 
@@ -215,7 +216,7 @@ class ImageCacheExecutorIntegratedTest {
     fun testNonExistentFolder() = runTest {
         updateImageFolderMocks("blahblah", "booboo")
         val imagesCacheExecutor =
-            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext, StandardTestDispatcher(testScheduler))
+            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext, StandardTestDispatcher(testScheduler), NoOpTaskSupervisor())
         imagesCacheExecutor.execute()
         testScheduler.advanceUntilIdle()
 
@@ -233,7 +234,7 @@ class ImageCacheExecutorIntegratedTest {
     fun testBitmapFailedToBeCreated() = runTest {
         every { ThumbnailUtils.createImageThumbnail(any(), any(), any()) } throws (IOException())
         val imagesCacheExecutor =
-            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext, StandardTestDispatcher(testScheduler))
+            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext, StandardTestDispatcher(testScheduler), NoOpTaskSupervisor())
         imagesCacheExecutor.execute()
         testScheduler.advanceUntilIdle()
 
@@ -249,7 +250,7 @@ class ImageCacheExecutorIntegratedTest {
     @Test
     fun loadDeterministicPreloadedFiles() = runTest {
         val imagesCacheExecutor =
-            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext, StandardTestDispatcher(testScheduler))
+            ImagesCacheExecutor(StandardTestDispatcher(testScheduler), mockContext, StandardTestDispatcher(testScheduler),NoOpTaskSupervisor())
         val file1 = File("../app/src/test/java/com/wendorochena/poetskingdom/images/myImages").listFiles()!![0]
         val file2 = File("../app/src/test/java/com/wendorochena/poetskingdom/images/myImages").listFiles()!![1]
         val imageRequestResults = imagesCacheExecutor.executePreloadedFiles(arrayOf(file1, file2), ImageFolderType.IMAGES)
