@@ -13,6 +13,7 @@ import com.wendorochena.poetskingdom.utils.generators.contracts.NonRandomKeyGenC
 import com.wendorochena.poetskingdom.utils.images.loaders.ImageLoaderUtility
 import com.wendorochena.poetskingdom.utils.images.models.ImageItem
 import com.wendorochena.poetskingdom.utils.parallelism.images.task.ImageCachingTask
+import com.wendorochena.poetskingdom.utils.parallelism.images.task.TaskSupervisor
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import java.io.File
@@ -24,7 +25,8 @@ class DivideAndConquerTaskImpl<T>(
     override val context: Context,
     private val imageCacheKeyGen: NonRandomKeyGenContract<T>,
     override val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    override val imageThumbnailsCacheName: String
+    override val imageThumbnailsCacheName: String,
+    override val taskSupervisor: TaskSupervisor
 ) : ImageCachingTask<ImageRequest> {
 
     private lateinit var reusableBitmap: Bitmap
@@ -47,6 +49,7 @@ class DivideAndConquerTaskImpl<T>(
                 } else
                     null
             }.map { imageItem: ImageItem<T> ->
+                taskSupervisor.updateTotalImagesProcessed()
                 return@map ImageLoaderUtility.buildImageRequest(
                     context = context,
                     data = imageItem.imageFile.absolutePath,
@@ -101,7 +104,7 @@ class DivideAndConquerTaskImpl<T>(
             return null
         }
     }
-    
+
     private fun createImageThumbnail(filePath : String) : Bitmap{
         val options = BitmapFactory.Options()
         options.inJustDecodeBounds = true
