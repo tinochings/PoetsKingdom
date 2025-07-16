@@ -31,6 +31,7 @@ interface ImageCachingTask<T> {
      * Dispatcher used for ImageLoaders caching context
      */
     val ioDispatcher : CoroutineDispatcher
+    val taskSupervisor : TaskSupervisor
 
     /**
      * Iterate over every file in the dataToCache variable and cache the subsequent image file

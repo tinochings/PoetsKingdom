@@ -8,6 +8,7 @@ import com.wendorochena.poetskingdom.utils.generators.ImageCacheKeyGen
 import com.wendorochena.poetskingdom.utils.generators.contracts.ImageFolderType
 import com.wendorochena.poetskingdom.utils.parallelism.images.executors.contracts.ImageRequestsCacheExecutor
 import com.wendorochena.poetskingdom.utils.parallelism.images.task.ImageCachingTask
+import com.wendorochena.poetskingdom.utils.parallelism.images.task.TaskSupervisor
 import com.wendorochena.poetskingdom.utils.parallelism.images.tasksImplementation.DivideAndConquerTaskImpl
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Deferred
@@ -20,6 +21,7 @@ class ImagesCacheExecutor(
     override val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default,
     override val context: Context,
     override val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    override val taskSupervisor: TaskSupervisor
 ) : ImageRequestsCacheExecutor {
     private val imageThumbnailsCacheName = "compressed_image_thumbnails"
     private val myPoemsThumbnailsCacheName = "compressed_my_image_thumbnails"
@@ -56,14 +58,16 @@ class ImagesCacheExecutor(
             context = context,
             imageCacheKeyGen = imageCacheKeyGen1,
             ioDispatcher = ioDispatcher,
-            imageThumbnailsCacheName = cacheFolderName
+            imageThumbnailsCacheName = cacheFolderName,
+            taskSupervisor = taskSupervisor
         )
         val secondTask = DivideAndConquerTaskImpl(
             dataToCache = sortedList.slice(secondTaskRange),
             context = context,
             imageCacheKeyGen = imageCacheKeyGen2,
             ioDispatcher = ioDispatcher,
-            imageThumbnailsCacheName = cacheFolderName
+            imageThumbnailsCacheName = cacheFolderName,
+            taskSupervisor = taskSupervisor
         )
         return arrayOf(firstTask, secondTask)
     }

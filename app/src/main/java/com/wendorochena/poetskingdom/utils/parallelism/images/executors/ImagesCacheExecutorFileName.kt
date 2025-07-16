@@ -10,18 +10,22 @@ import com.wendorochena.poetskingdom.utils.generators.contracts.ImageFolderType
 import com.wendorochena.poetskingdom.utils.images.loaders.contracts.ImageLoaderResourceManager
 import com.wendorochena.poetskingdom.utils.parallelism.images.executors.contracts.ImageRequestsCacheExecutor
 import com.wendorochena.poetskingdom.utils.parallelism.images.task.ImageCachingTask
+import com.wendorochena.poetskingdom.utils.parallelism.images.task.TaskSupervisor
 import com.wendorochena.poetskingdom.utils.parallelism.images.tasksImplementation.DivideAndConquerTaskImpl
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.io.File
 
 class ImagesCacheExecutorFileName(
     override val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default,
     override val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    override val context: Context
+    override val context: Context,
+    override val taskSupervisor: TaskSupervisor
 ) : ImageRequestsCacheExecutor {
 
     private fun divideWork(
@@ -42,7 +46,8 @@ class ImagesCacheExecutorFileName(
                 files = firstListToCache
             ),
             ioDispatcher = ioDispatcher,
-            imageThumbnailsCacheName = cacheFolderName
+            imageThumbnailsCacheName = cacheFolderName,
+            taskSupervisor = taskSupervisor
         )
         val secondTask = DivideAndConquerTaskImpl(
             dataToCache = secondListToCache,
@@ -52,7 +57,8 @@ class ImagesCacheExecutorFileName(
                 files = secondListToCache
             ),
             ioDispatcher = ioDispatcher,
-            imageThumbnailsCacheName = cacheFolderName
+            imageThumbnailsCacheName = cacheFolderName,
+            taskSupervisor = taskSupervisor
         )
 
         return arrayOf(firstTask, secondTask)
@@ -71,6 +77,14 @@ class ImagesCacheExecutorFileName(
             )
         }
 
+        if (poemThumbnails.isNotEmpty()){
+            executeInParallel(
+                imagesFiles = imagesFiles,
+                cacheFolderName = ImageLoaderResourceManager.getMyPoemsThumbnailsCacheName(),
+                imageFolderType = ImageFolderType.POEM_THUMBNAILS
+            )
+        }
+
     }
 
     override suspend fun executePreloadedFiles(
@@ -78,6 +92,9 @@ class ImagesCacheExecutorFileName(
         imageFolderType: ImageFolderType,
     ): List<ImageRequest> {
         val minimisedImageRequest = ArrayList<ImageRequest>()
+        if (filesToCache.isEmpty())
+            return minimisedImageRequest
+
         executeInParallel(
             imagesFiles = filesToCache.toList(),
             cacheFolderName = ImageLoaderResourceManager.getCacheNameFromImageFolderType(
@@ -95,26 +112,29 @@ class ImagesCacheExecutorFileName(
         imageFolderType: ImageFolderType,
         tasks: ArrayList<ImageRequest>? = null,
     ) {
-        val dividedWork = divideWork(
-            imagesFiles = imagesFiles.toTypedArray(),
-            cacheFolderName = cacheFolderName,
-            imageFolderType = imageFolderType
-        )
         coroutineScope {
-            val resultsList: ArrayList<Deferred<List<ImageRequest>?>> = ArrayList()
-            dividedWork.forEach {
-                resultsList.add(async(defaultDispatcher) {
-                    it.execute()
-                })
-            }
-
-            resultsList.forEach {
-                val res = it.await()
-                res?.forEach { s ->
-                    context.imageLoader.enqueue(s)
+            launch(defaultDispatcher){
+                val dividedWork = divideWork(
+                    imagesFiles = imagesFiles.toTypedArray(),
+                    cacheFolderName = cacheFolderName,
+                    imageFolderType = imageFolderType
+                )
+                val resultsList: ArrayList<Deferred<List<ImageRequest>?>> = ArrayList()
+                dividedWork.forEach {
+                    resultsList.add(async(defaultDispatcher) {
+                        it.execute()
+                    })
                 }
-                if (res != null && tasks != null) {
-                    tasks.addAll(res.toTypedArray())
+
+                val parallelFinishedTasks = resultsList.awaitAll()
+
+                parallelFinishedTasks.forEach {
+                    it?.forEach { s ->
+                        context.imageLoader.enqueue(s)
+                    }
+                    if (it != null && tasks != null) {
+                        tasks.addAll(it.toTypedArray())
+                    }
                 }
             }
         }

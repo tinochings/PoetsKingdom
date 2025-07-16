@@ -3,6 +3,7 @@ package com.wendorochena.poetskingdom.utils.parallelism.images.executors.contrac
 import android.content.Context
 import coil3.request.ImageRequest
 import com.wendorochena.poetskingdom.utils.generators.contracts.ImageFolderType
+import com.wendorochena.poetskingdom.utils.parallelism.images.task.TaskSupervisor
 import kotlinx.coroutines.CoroutineDispatcher
 import java.io.File
 
@@ -26,6 +27,7 @@ interface ImageRequestsCacheExecutor {
      * order to cache images
      */
     val context : Context
+    val taskSupervisor : TaskSupervisor
 
     /**
      * Read files from the applications context and insert them into Coils in memory Cache
