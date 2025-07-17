@@ -13,7 +13,6 @@ import com.wendorochena.poetskingdom.viewModels.HeadingSelection
 import com.wendorochena.poetskingdom.viewModels.models.PoemThemeViewModelModel
 
 class PoemThemeViewModelService {
-    
 
     /**
      * Parses outline from the saved string
@@ -99,7 +98,6 @@ class PoemThemeViewModelService {
     ): Pair<String, String> {
         return when (backgroundType) {
             BackgroundType.OUTLINE_WITH_COLOR -> {
-                println("This is it")
                 Pair("Outline", "Color")
             }
 
