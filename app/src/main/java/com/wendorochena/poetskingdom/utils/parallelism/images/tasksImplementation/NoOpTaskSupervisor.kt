@@ -18,7 +18,6 @@ class NoOpTaskSupervisor(
     }
 
     override suspend fun observeTaskSupervisorModel(
-        dispatcherToRunOn: CoroutineDispatcher,
         onModelObserved: (TaskSupervisorModel) -> Unit
     ) {
         /* no-op */
