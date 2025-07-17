@@ -40,10 +40,9 @@ class TaskSupervisorImpl(
     }
 
     override suspend fun observeTaskSupervisorModel(
-        dispatcherToRunOn: CoroutineDispatcher,
         onModelObserved: (TaskSupervisorModel) -> Unit
     ){
-        coroutineScope.launch(dispatcherToRunOn) {
+        coroutineScope.launch(dispatcher) {
             modelChannel.consumeEach {
                 onModelObserved.invoke(it)
             }

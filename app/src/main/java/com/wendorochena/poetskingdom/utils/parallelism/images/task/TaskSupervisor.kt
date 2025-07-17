@@ -16,5 +16,5 @@ interface TaskSupervisor{
     /**
      *
      */
-    suspend fun observeTaskSupervisorModel(dispatcherToRunOn : CoroutineDispatcher,onModelObserved : (TaskSupervisorModel) -> Unit)
+    suspend fun observeTaskSupervisorModel(onModelObserved : (TaskSupervisorModel) -> Unit)
 }
