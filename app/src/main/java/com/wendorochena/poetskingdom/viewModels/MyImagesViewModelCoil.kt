@@ -693,4 +693,18 @@ class MyImagesViewModelCoil(
             _imagesNotificationModel.update(function)
         }
     }
+
+    companion object {
+        /**
+         * Finds the full local image folder file path
+         */
+        fun fullResolutionImageFilePath(context: Context, fileNameWithoutExtension: String, defaultStringToReturn : String = ""): String {
+            val resolvedFileName =
+                ImagesFolderOperations(ImageSortType.NONE).findImageFilePathFromFileName(
+                    context,
+                    fileNameWithoutExtension
+                )
+            return resolvedFileName?.absolutePath ?: defaultStringToReturn
+        }
+    }
 }
