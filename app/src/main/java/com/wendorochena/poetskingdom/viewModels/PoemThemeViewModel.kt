@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.compose.ui.text.font.FontFamily
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.poemdata.BackgroundType
 import com.wendorochena.poetskingdom.poemdata.OutlineTypes
 import com.wendorochena.poetskingdom.poemdata.PoemTheme
@@ -463,10 +462,6 @@ class PoemThemeViewModel(private val ioDispatcher: CoroutineDispatcher = Dispatc
      * @param context
      */
     fun loadAllPoemThemes(context: Context){
-                val imagesFolder = context.getDir(
-            context.getString(R.string.my_images_folder_name),
-            Context.MODE_PRIVATE
-        )
         viewModelScope.launch (mainDispatcher){
             val allImages = ImageLoaderUtilityFileName(imageFolderType = ImageFolderType.IMAGES).loadAllImages(context, ioDispatcher = ioDispatcher)
 

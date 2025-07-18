@@ -86,7 +86,10 @@ import com.wendorochena.poetskingdom.ui.theme.OffWhite
 import com.wendorochena.poetskingdom.ui.theme.PoetsKingdomTheme
 import com.wendorochena.poetskingdom.utils.TextMarginUtil
 import com.wendorochena.poetskingdom.utils.TypefaceHelper
+import com.wendorochena.poetskingdom.utils.files.images.ImageSortType
+import com.wendorochena.poetskingdom.utils.files.images.ImagesFolderOperations
 import com.wendorochena.poetskingdom.viewModels.HeadingSelection
+import com.wendorochena.poetskingdom.viewModels.MyImagesViewModelCoil
 import com.wendorochena.poetskingdom.viewModels.PoemThemeViewModel
 import com.wendorochena.poetskingdom.viewModels.models.PoemThemeViewModelModel
 import java.io.File
@@ -95,7 +98,7 @@ import kotlin.math.roundToInt
 @Composable
 fun ThemePoemApp(
     poemThemeViewModel: PoemThemeViewModel,
-    onStartActivity : (String, String?) -> Unit
+    onStartActivity: (String, String?) -> Unit
 ) {
     val isFirstUse = poemThemeViewModel.viewModelService.determineFirstUse(
         LocalContext.current.applicationContext,
@@ -240,10 +243,21 @@ fun ThemePoemApp(
                 BackgroundType.OUTLINE_WITH_IMAGE,
                 modelState.outlineColor,
                 modelState.outlineType?.name!!,
-                it.absolutePath
+                MyImagesViewModelCoil.fullResolutionImageFilePath(
+                    context = composableContext,
+                    it.nameWithoutExtension,
+                    defaultStringToReturn = it.absolutePath
+                )
             )
         } else {
-            onUpdateBackgroundImage(BackgroundType.IMAGE, it.absolutePath)
+            onUpdateBackgroundImage(
+                BackgroundType.IMAGE,
+                MyImagesViewModelCoil.fullResolutionImageFilePath(
+                    context = composableContext,
+                    it.nameWithoutExtension,
+                    defaultStringToReturn = it.absolutePath
+                )
+            )
         }
     }
 
@@ -346,7 +360,7 @@ fun ThemePoemApp(
             onDismiss.invoke()
         }
     }
-    val onLoadAllImages : (Context) -> Unit = { context->
+    val onLoadAllImages: (Context) -> Unit = { context ->
         poemThemeViewModel.loadAllPoemThemes(context)
     }
 
@@ -784,7 +798,7 @@ fun ThemeOptions(
     onTextAlignClicked: (TextAlignment) -> Unit,
     onFormatFontItem: (String) -> String,
     onColorPickerInvoked: @Composable (HeadingSelection, () -> Unit) -> Unit,
-    imageRequests: List<ImageRequest>, onLoadAllImages : (Context) -> Unit,
+    imageRequests: List<ImageRequest>, onLoadAllImages: (Context) -> Unit,
     onImageItemClick: (File) -> Unit,
     onOutlineClicked: (OutlineTypes) -> Unit
 ) {
@@ -965,7 +979,7 @@ fun BackgroundLayout(
     colorPickerDialog: @Composable (HeadingSelection, () -> Unit) -> Unit,
     onImageItemClick: (File) -> Unit,
     imageRequests: List<ImageRequest>,
-    onLoadAllImages : (Context) -> Unit
+    onLoadAllImages: (Context) -> Unit
 ) {
     var shouldDisplayColorDialog by remember { mutableStateOf(false) }
     Row(
@@ -1030,7 +1044,11 @@ fun BackgroundLayout(
     if (shouldDisplayColorDialog) {
         colorPickerDialog.invoke(HeadingSelection.BACKGROUND) { shouldDisplayColorDialog = false }
     }
-    ImagesGrid(onImageItemClick = onImageItemClick, onLoadAllImages = onLoadAllImages, imageRequests = imageRequests)
+    ImagesGrid(
+        onImageItemClick = onImageItemClick,
+        onLoadAllImages = onLoadAllImages,
+        imageRequests = imageRequests
+    )
 }
 
 @Composable
@@ -1263,23 +1281,34 @@ fun FontFaceItem(
 
 @Composable
 fun ImageItem(imageRequest: ImageRequest, modifier: Modifier, onImageItemClick: (File) -> Unit) {
+    val context = LocalContext.current.applicationContext
     AsyncImage(
         model = imageRequest, contentDescription = "",
         modifier = modifier
             .width(80.dp)
             .height(80.dp)
             .shadow(elevation = 5.dp)
-            .clickable { onImageItemClick.invoke(File(imageRequest.data as String)) },
+            .clickable {
+                val imagesFolder =
+                    ImagesFolderOperations(imageSortType = ImageSortType.DESCENDING).retrieveImagesFolder(
+                        context = context
+                    )
+                onImageItemClick.invoke(File(imagesFolder, imageRequest.memoryCacheKey as String))
+            },
         contentScale = ContentScale.Crop
     )
 }
 
 @Composable
-fun ImagesGrid(onImageItemClick: (File) -> Unit, imageRequests: List<ImageRequest>, onLoadAllImages : (Context) -> Unit) {
+fun ImagesGrid(
+    onImageItemClick: (File) -> Unit,
+    imageRequests: List<ImageRequest>,
+    onLoadAllImages: (Context) -> Unit
+) {
     var hasLoadedAllImages by remember {
         mutableStateOf(false)
     }
-    if (!hasLoadedAllImages){
+    if (!hasLoadedAllImages) {
         onLoadAllImages.invoke(LocalContext.current.applicationContext)
         hasLoadedAllImages = true
     }
@@ -1290,9 +1319,9 @@ fun ImagesGrid(onImageItemClick: (File) -> Unit, imageRequests: List<ImageReques
         verticalArrangement = Arrangement.spacedBy(5.dp),
         horizontalArrangement = Arrangement.spacedBy(5.dp)
     ) {
-            items(count = imageRequests.size, key = {it}) {
-                ImageItem(imageRequests[it], modifier = Modifier.padding(3.dp), onImageItemClick)
-            }
+        items(count = imageRequests.size, key = { it }) {
+            ImageItem(imageRequests[it], modifier = Modifier.padding(3.dp), onImageItemClick)
+        }
     }
 }
 
@@ -1465,16 +1494,16 @@ fun SavePoemThemeDialog(
 //        onResetResultToDefault.invoke()
 ////        onStartActivity(modelState.poemTitle, null)
 //    } else
-        if (modelState.poemThemeResult == -1) {
+    if (modelState.poemThemeResult == -1) {
         dialogTitle = R.string.retry
         buttonText = R.string.retry
         inputMessage = R.string.file_already_exists
         onResetResultToDefault.invoke()
     }
-    val onChangePoemName : (String) -> Unit = {
+    val onChangePoemName: (String) -> Unit = {
         poemName = it
     }
-    val onShouldChangeText : (Boolean) -> Unit = {
+    val onShouldChangeText: (Boolean) -> Unit = {
         shouldChangeText = it
     }
     DialogLayout(
@@ -1492,7 +1521,7 @@ fun SavePoemThemeDialog(
         onPositiveAction = {
             onShouldChangeText.invoke(true)
             false
-        }, onDismiss = { onSetDisplayDialog.invoke(false)})
+        }, onDismiss = { onSetDisplayDialog.invoke(false) })
 
     if (shouldChangeText) {
         if (dialogTitle == R.string.retry) {
@@ -1558,8 +1587,10 @@ fun AppBar(
  * @param onChangePoemName method to invoke when the poem name changes
  */
 @Composable
-fun SavePoemTheDialogBody(dialogTitle : Int, inputMessage : Int, poemName: String,
-                          onChangePoemName : (String) -> Unit){
+fun SavePoemTheDialogBody(
+    dialogTitle: Int, inputMessage: Int, poemName: String,
+    onChangePoemName: (String) -> Unit
+) {
     val maxChars = 60
     Column(
         modifier = Modifier
@@ -1602,10 +1633,11 @@ fun SavePoemTheDialogBody(dialogTitle : Int, inputMessage : Int, poemName: Strin
 
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun PoemThemeScreenPreview() {
     PoetsKingdomTheme {
-        ThemePoemApp(poemThemeViewModel = viewModel(), {x, s ->})
+        ThemePoemApp(poemThemeViewModel = viewModel(), { x, s -> })
     }
 }
