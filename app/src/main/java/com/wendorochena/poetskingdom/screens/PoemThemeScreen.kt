@@ -1,8 +1,6 @@
 package com.wendorochena.poetskingdom.screens
 
 import android.content.Context
-import android.content.Intent
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -74,7 +72,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
-import com.wendorochena.poetskingdom.CreatePoem
 import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.poemdata.BackgroundType
 import com.wendorochena.poetskingdom.poemdata.OutlineTypes
@@ -97,7 +94,8 @@ import kotlin.math.roundToInt
 
 @Composable
 fun ThemePoemApp(
-    poemThemeViewModel: PoemThemeViewModel
+    poemThemeViewModel: PoemThemeViewModel,
+    onStartActivity : (String, String?) -> Unit
 ) {
     val isFirstUse = poemThemeViewModel.viewModelService.determineFirstUse(
         LocalContext.current.applicationContext,
@@ -184,7 +182,7 @@ fun ThemePoemApp(
     }
     val onSavePoemTheme: (poemName: String, context: Context, isEditTheme: Boolean) -> Unit =
         { poemName, context, isEditTheme ->
-            poemThemeViewModel.savePoemTheme(poemName, context, isEditTheme)
+            poemThemeViewModel.savePoemTheme(poemName, context, isEditTheme, onStartActivity)
         }
     val onResetResultToDefault: () -> Unit = {
         poemThemeViewModel.resetResultToDefault()
@@ -348,7 +346,6 @@ fun ThemePoemApp(
             onDismiss.invoke()
         }
     }
-
     val onLoadAllImages : (Context) -> Unit = { context->
         poemThemeViewModel.loadAllPoemThemes(context)
     }
@@ -359,29 +356,12 @@ fun ThemePoemApp(
                 poemThemeViewModel.savePoemTheme(
                     modelState.poemTitle,
                     LocalContext.current.applicationContext,
-                    modelState.isEditTheme
+                    modelState.isEditTheme,
+                    onStartActivity
                 )
             } else {
                 poemThemeViewModel.setDisplayDialog(it)
             }
-        }
-        if (modelState.poemThemeResult == 0) {
-            val activity = LocalContext.current as ComponentActivity
-            val newActivityIntent =
-                Intent(activity, CreatePoem::class.java)
-            newActivityIntent.putExtra("loadPoem", true)
-            newActivityIntent.putExtra(
-                "poemTitle",
-                modelState.poemTitle
-            )
-            if (modelState.savedAlbumName != null)
-                newActivityIntent.putExtra(
-                    activity.getString(R.string.album_argument_name),
-                    modelState.savedAlbumName
-                )
-            poemThemeViewModel.resetResultToDefault()
-            activity.finish()
-            activity.startActivity(newActivityIntent)
         }
         AppBar(setDisplayDialog = setDisplayDialog, isEditTheme = modelState.isEditTheme)
     }) {
@@ -1461,7 +1441,7 @@ fun SavePoemThemeDialog(
     onSavePoemTheme: (poemName: String, context: Context, isEditTheme: Boolean) -> Unit,
     onResetResultToDefault: () -> Unit,
     onSetDisplayDialog: (Boolean) -> Unit,
-    onIsValidatedInput: (String) -> Boolean
+    onIsValidatedInput: (String) -> Boolean,
 ) {
     var poemName by remember { mutableStateOf("") }
     var dialogTitle by remember { mutableIntStateOf(R.string.create_poem_title) }
@@ -1481,19 +1461,11 @@ fun SavePoemThemeDialog(
             false
         }
     }
-    if (modelState.poemThemeResult == 0) {
-        val activity = LocalContext.current as ComponentActivity
-        val newActivityIntent =
-            Intent(activity, CreatePoem::class.java)
-        newActivityIntent.putExtra("loadPoem", true)
-        newActivityIntent.putExtra(
-            "poemTitle",
-            modelState.poemTitle
-        )
-        onResetResultToDefault.invoke()
-        activity.finish()
-        activity.startActivity(newActivityIntent)
-    } else if (modelState.poemThemeResult == -1) {
+//    if (modelState.poemThemeResult == 0) {
+//        onResetResultToDefault.invoke()
+////        onStartActivity(modelState.poemTitle, null)
+//    } else
+        if (modelState.poemThemeResult == -1) {
         dialogTitle = R.string.retry
         buttonText = R.string.retry
         inputMessage = R.string.file_already_exists
@@ -1634,6 +1606,6 @@ fun SavePoemTheDialogBody(dialogTitle : Int, inputMessage : Int, poemName: Strin
 @Composable
 fun PoemThemeScreenPreview() {
     PoetsKingdomTheme {
-        ThemePoemApp(poemThemeViewModel = viewModel())
+        ThemePoemApp(poemThemeViewModel = viewModel(), {x, s ->})
     }
 }

@@ -1,5 +1,6 @@
 package com.wendorochena.poetskingdom
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -54,9 +55,27 @@ class PoemThemeActivityCompose : ComponentActivity() {
                 }
             }
         }
+
+        val onStartNewActivity : (String, String?) -> Unit = { poemTitle, albumPoemTitle ->
+            val newActivityIntent =  Intent(this, CreatePoem::class.java)
+            newActivityIntent.putExtra("loadPoem", true)
+            newActivityIntent.putExtra(
+                "poemTitle",
+                poemTitle
+            )
+            if (albumPoemTitle != null) {
+                newActivityIntent.putExtra(
+                   getString(R.string.album_argument_name),
+                    albumPoemTitle
+                )
+            }
+            this.finish()
+            this.startActivity(newActivityIntent)
+        }
+
         setContent {
                 PoetsKingdomTheme {
-                    ThemePoemApp(poemThemeViewModel = poemThemeViewModel)
+                    ThemePoemApp(poemThemeViewModel = poemThemeViewModel, onStartNewActivity)
                 }
         }
     }

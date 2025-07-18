@@ -12,7 +12,8 @@ import com.wendorochena.poetskingdom.poemdata.PoemThemeXmlParser
 import com.wendorochena.poetskingdom.poemdata.TextAlignment
 import com.wendorochena.poetskingdom.utils.TextMarginUtil
 import com.wendorochena.poetskingdom.utils.TypefaceHelper
-import com.wendorochena.poetskingdom.utils.images.loaders.ImageLoaderUtility
+import com.wendorochena.poetskingdom.utils.generators.contracts.ImageFolderType
+import com.wendorochena.poetskingdom.utils.images.loaders.ImageLoaderUtilityFileName
 import com.wendorochena.poetskingdom.viewModels.models.PoemThemeViewModelModel
 import com.wendorochena.poetskingdom.viewModels.services.PoemThemeViewModelService
 import kotlinx.coroutines.CoroutineDispatcher
@@ -396,7 +397,7 @@ class PoemThemeViewModel(private val ioDispatcher: CoroutineDispatcher = Dispatc
      * @param isEditTheme true if the CreatePoemActivity called PoemThemeActivity
      *
      */
-    fun savePoemTheme(poemName: String, context: Context, isEditTheme: Boolean) {
+    fun savePoemTheme(poemName: String, context: Context, isEditTheme: Boolean, onStartActivity : (String, String?) -> Unit) {
         val exceptionHandler = CoroutineExceptionHandler { _, exception ->
         }
         viewModelScope.launch(mainDispatcher + exceptionHandler) {
@@ -421,9 +422,15 @@ class PoemThemeViewModel(private val ioDispatcher: CoroutineDispatcher = Dispatc
                 )
             }
             val poemThemeResult = savePoemResult.await()
-            _model.update { state ->
+            if (poemThemeResult == 0){
+                resetResultToDefault()
+                onStartActivity(modelState.value.poemTitle, modelState.value.savedAlbumName)
+            }
+            else {
+                _model.update { state ->
                     state.copy(poemThemeResult = poemThemeResult)
                 }
+            }
         }
     }
 
@@ -461,13 +468,11 @@ class PoemThemeViewModel(private val ioDispatcher: CoroutineDispatcher = Dispatc
             Context.MODE_PRIVATE
         )
         viewModelScope.launch (mainDispatcher){
-            val allImages = ImageLoaderUtility().loadAllImages(context, ioDispatcher = ioDispatcher, imagesFolder)
+            val allImages = ImageLoaderUtilityFileName(imageFolderType = ImageFolderType.IMAGES).loadAllImages(context, ioDispatcher = ioDispatcher)
 
-            if (allImages != null){
                 updateModelState { state ->
                     state.copy(imageRequests = allImages)
                 }
-            }
         }
     }
     /**

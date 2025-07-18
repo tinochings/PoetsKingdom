@@ -285,17 +285,18 @@ class PoemThemeViewModelTest {
 
         poemThemeViewModel = PoemThemeViewModel(mainDispatcher = mainDispatcher, ioDispatcher = mainDispatcher)
 
+        var counter = 0
         val blackBackgroundColor = LightBlack.toArgb()
         poemThemeViewModel.updateBackground(BackgroundType.IMAGE, imagePath = dummyImagePath)
         poemThemeViewModel.setTextAlign(TextAlignment.CENTRE_VERTICAL)
         poemThemeViewModel.setTextColor(blackBackgroundColor, "#454545")
         poemThemeViewModel.setTextSize(25f)
         poemThemeViewModel.setTextMarginUtility(TextMarginUtil(5,5,5,5))
-        poemThemeViewModel.savePoemTheme(poemName, mockContext, false)
+        poemThemeViewModel.savePoemTheme(poemName, mockContext, false, { a, b -> counter++ })
 
         testScheduler.advanceUntilIdle()
-
-        assert(poemThemeViewModel.modelState.value.poemThemeResult == 0)
+        //asserts start activity was invoked
+        assert(counter == 1)
         val savedFileTheme = File("../app/src/test/java/com/wendorochena/poetskingdom/MockFiles/themes/$poemName.xml")
         assert(savedFileTheme.exists())
         savedFileTheme.delete()
