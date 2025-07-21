@@ -1,6 +1,8 @@
 package com.wendorochena.poetskingdom.utils.images.loaders
 
 import android.content.Context
+import android.graphics.Bitmap
+import coil3.BitmapImage
 import coil3.imageLoader
 import coil3.memory.MemoryCache
 import coil3.request.ImageRequest
@@ -10,6 +12,7 @@ import com.wendorochena.poetskingdom.utils.images.loaders.ImageLoaderUtility.Com
 import com.wendorochena.poetskingdom.utils.images.loaders.contracts.ImageLoaderResourceManager
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 import java.io.File
 
 /**
@@ -24,11 +27,17 @@ class ImageLoaderUtilityFileName(imageFolderType: ImageFolderType) : ImageLoader
         val imageRequests = ArrayList<ImageRequest>()
         return withContext(ioDispatcher) {
             val imagesDirectoryFolder = retrieveCacheDirectoryFiles(context, imageFolderSortType = ImageSortType.DESCENDING)
-            for (file in imagesDirectoryFolder){
+            for ((index,file) in imagesDirectoryFolder.withIndex()){
                 val cacheKey = file.name
                 val cachedValue = context.imageLoader.memoryCache?.get(MemoryCache.Key(cacheKey))
                 if (cachedValue != null){
-                    val imageRequest = buildImageRequest(context = context, data = cachedValue.image, key = cacheKey, ioDispatcher = ioDispatcher)
+                    val cachedImage = cachedValue.image as BitmapImage
+                    val imageBitmap = cachedImage.bitmap
+                    val byteStream = ByteArrayOutputStream()
+                    imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteStream)
+                    val byteArray = byteStream.toByteArray()
+
+                    val imageRequest = buildImageRequest(context = context, data = byteArray, key = cacheKey, ioDispatcher = ioDispatcher)
                     imageRequests.add(imageRequest)
                 } else {
                     imageRequests.add(buildImageRequestFromDisk(context = context, fileName = cacheKey, filePath = file.absolutePath))
