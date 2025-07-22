@@ -38,6 +38,7 @@ class DivideAndConquerTaskImpl<T>(
                 if (file != null) {
                         val bitmapFile = generateBitmapThumbnail(file, context)
                         if (bitmapFile != null) {
+                            taskSupervisor.updateTotalImagesProcessed()
                             return@mapNotNull ImageItem(
                                 imageCacheKeyGen.generateKey(
                                     context
@@ -45,11 +46,11 @@ class DivideAndConquerTaskImpl<T>(
                                 bitmapFile,
                             )
                         }
+                    taskSupervisor.updateTotalImagesProcessed()
                     return@mapNotNull ImageItem(imageCacheKeyGen.generateKey(context), file)
                 } else
                     null
             }.map { imageItem: ImageItem<T> ->
-                taskSupervisor.updateTotalImagesProcessed()
                 return@map ImageLoaderUtility.buildImageRequest(
                     context = context,
                     data = imageItem.imageFile.absolutePath,
