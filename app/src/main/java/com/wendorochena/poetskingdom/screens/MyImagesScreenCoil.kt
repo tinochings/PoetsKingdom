@@ -70,6 +70,7 @@ fun MyImagesScreenAppCoil(
     val viewModelState by myImagesViewModel.modelState.collectAsStateWithLifecycle()
     var isFirstUse = myImagesViewModel.determineFirstUse(LocalContext.current, "myImagesFirstUse")
     val topLevelContext = LocalContext.current
+    myImagesViewModel.performImagePreChecks(topLevelContext)
     val onImageItemClick: (Int) -> Unit = {
         myImagesViewModel.onImageItemClick(index = it, context = topLevelContext)
     }
@@ -145,7 +146,8 @@ fun MyImagesScreenAppCoil(
                         onLongClick = onImageLongClick,
                         coilImageItems = viewModelState.imageThumbnails,
                         onImageLongPressed = viewModelState.onImageLongPressed,
-                        retrieveImageFiles = retrieveImageFiles
+                        retrieveImageFiles = retrieveImageFiles,
+                        isPerformingPreChecks = viewModelState.isPerformingPreChecks
                     )
                 }
 
@@ -374,13 +376,13 @@ fun ImagesViewCoil(
     onImageItemClick: (Int) -> Unit,
     coilImageItems: List<CoilImageItem>,
     onImageLongPressed: Boolean,
-    retrieveImageFiles: () -> Unit
+    retrieveImageFiles: () -> Unit,
+    isPerformingPreChecks : Boolean,
 ) {
-    var initialLoading by remember { mutableStateOf(true) }
-
-    if (initialLoading) {
+    var performInitialLoad by remember { mutableStateOf(true) }
+    if (performInitialLoad && !isPerformingPreChecks) {
         retrieveImageFiles.invoke()
-        initialLoading = false
+        performInitialLoad = false
     }
 
     LazyVerticalGrid(

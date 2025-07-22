@@ -16,10 +16,12 @@ import com.wendorochena.poetskingdom.ImageViewer
 import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.screens.reusables.loaders.ImagesNotificationModel
 import com.wendorochena.poetskingdom.utils.UriUtils
+import com.wendorochena.poetskingdom.utils.files.cache.FileCacheUtility
 import com.wendorochena.poetskingdom.utils.files.images.ImageSortType
 import com.wendorochena.poetskingdom.utils.files.images.ImagesFolderOperations
 import com.wendorochena.poetskingdom.utils.generators.contracts.ImageFolderType
 import com.wendorochena.poetskingdom.utils.images.loaders.ImageLoaderUtilityFileName
+import com.wendorochena.poetskingdom.utils.images.loaders.contracts.ImageLoaderResourceManager
 import com.wendorochena.poetskingdom.utils.parallelism.images.executors.ImagesCacheExecutorFileName
 import com.wendorochena.poetskingdom.utils.parallelism.images.task.TaskSupervisorModel
 import com.wendorochena.poetskingdom.utils.parallelism.images.tasksImplementation.TaskSupervisorImpl
@@ -57,6 +59,50 @@ class MyImagesViewModelCoil(
 
     private lateinit var myPoemsViewModel: MyPoemsViewModel
 
+    fun performImagePreChecks(context: Context){
+        val imagesFolderOperations = ImagesFolderOperations(ImageSortType.NONE)
+        val myImagesFolderFiles = imagesFolderOperations.retrieveImagesFolderFiles(context)
+        val myImagesCacheFolder = FileCacheUtility().retrieveCacheDirectory(context, ImageLoaderResourceManager.getImageThumbnailsCacheName())
+        val myImagesCacheFolderSize = myImagesCacheFolder?.listFiles()?.size ?: 0
+        val myPoemsThumbnailFolderFiles = imagesFolderOperations.retrievePoemThumbnailFolderFiles(context)
+        val myPoemsThumbnailCacheFolder = FileCacheUtility().retrieveCacheDirectory(context, ImageLoaderResourceManager.getMyPoemsThumbnailsCacheName())
+        val myPoemsThumbnailCacheFolderSize = myPoemsThumbnailCacheFolder?.listFiles()?.size ?: 0
+
+        if (myImagesFolderFiles.size != myImagesCacheFolderSize || myPoemsThumbnailFolderFiles.size != myPoemsThumbnailCacheFolderSize){
+            viewModelScope.launch(mainDispatcher) {
+                val customDispatcher = Executors.newFixedThreadPool(1).asCoroutineDispatcher()
+
+                val taskSupervisor = TaskSupervisorImpl(taskSupervisorModel = TaskSupervisorModel(totalImages = (myImagesFolderFiles.size + myPoemsThumbnailFolderFiles.size)), coroutineScope = viewModelScope, customDispatcher)
+                val cacheExecutor = ImagesCacheExecutorFileName(taskSupervisor = taskSupervisor, context = context)
+                updateImagesNotificationModelState {
+                    it.copy(
+                        notificationHeader = "Creating image thumbnails... ",
+                        percentage = mutableIntStateOf(0),
+                        progress = mutableFloatStateOf(0f),
+                        totalImagesProcessed = mutableIntStateOf(0),
+                        totalImages = myImagesFolderFiles.size + myPoemsThumbnailFolderFiles.size,
+                        shouldDisplayNotification = mutableStateOf(true)
+                    )
+                }
+                taskSupervisor.observeTaskSupervisorModel { valueCollected ->
+                    updateImagesNotificationModelState {
+                        it.copy(
+                            progress = mutableFloatStateOf(
+                                valueCollected.progress
+                            ),
+                            totalImagesProcessed = mutableIntStateOf(valueCollected.currentImagesProcessed),
+                            percentage = mutableIntStateOf(valueCollected.percentage)
+                        )
+                    }
+                }
+                cacheExecutor.execute()
+                updateImagesNotificationModelState { it.copy(shouldDisplayNotification = mutableStateOf(false)) }
+                updateModelState { it.copy(isPerformingPreChecks = false) }
+            }
+        } else {
+            updateModelState { it.copy(isPerformingPreChecks = false) }
+        }
+    }
 
     /**
      * Resets notification to the default state
@@ -510,7 +556,7 @@ class MyImagesViewModelCoil(
                 val imagesToMinify = nonBlockingTransfer(uriList, context)
                 updateImagesNotificationModelState {
                     it.copy(
-                        notificationHeader = "Creating image thumbnails.. ",
+                        notificationHeader = "Creating image thumbnails... ",
                         percentage = mutableIntStateOf(0),
                         progress = mutableFloatStateOf(0f),
                         totalImagesProcessed = mutableIntStateOf(0),

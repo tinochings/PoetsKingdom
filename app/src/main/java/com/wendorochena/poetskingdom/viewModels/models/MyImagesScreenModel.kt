@@ -9,6 +9,7 @@ data class MyImagesScreenModel(
     val currentSelection: CurrentSelection = CurrentSelection.IMAGES,
     val floatingButtonStateVar: FloatingButtonState = FloatingButtonState.ADDIMAGE,
     val onImageLongPressed: Boolean = false,
+    val isPerformingPreChecks : Boolean = true,
     val poemThumbnails : SnapshotStateList<CoilImageItem> = mutableStateListOf(),
     val imageThumbnails : SnapshotStateList<CoilImageItem> = mutableStateListOf()
 ){
@@ -21,6 +22,7 @@ data class MyImagesScreenModel(
         if (currentSelection != other.currentSelection) return false
         if (floatingButtonStateVar != other.floatingButtonStateVar) return false
         if (onImageLongPressed != other.onImageLongPressed) return false
+        if (isPerformingPreChecks != other.isPerformingPreChecks) return false
 
         return true
     }
