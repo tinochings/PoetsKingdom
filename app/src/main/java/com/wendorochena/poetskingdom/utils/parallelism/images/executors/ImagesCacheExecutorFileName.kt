@@ -79,7 +79,7 @@ class ImagesCacheExecutorFileName(
 
         if (poemThumbnails.isNotEmpty()){
             executeInParallel(
-                imagesFiles = imagesFiles,
+                imagesFiles = poemThumbnails,
                 cacheFolderName = ImageLoaderResourceManager.getMyPoemsThumbnailsCacheName(),
                 imageFolderType = ImageFolderType.POEM_THUMBNAILS
             )
