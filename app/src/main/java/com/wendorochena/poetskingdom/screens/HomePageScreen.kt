@@ -13,9 +13,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material.ripple
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -92,8 +93,8 @@ fun QuadrantRowTwo(
 
                 Column(
                     modifier = Modifier.clickable(
-                        interactionSource = MutableInteractionSource(),
-                        indication = rememberRipple(color = DefaultStatusBarColor, bounded = true),
+                        interactionSource = remember {MutableInteractionSource()},
+                        indication = ripple(color = DefaultStatusBarColor, bounded = true),
                         onClick = { onImagesClick.invoke() })
                 ) {
                     Image(
@@ -126,8 +127,8 @@ fun QuadrantRowTwo(
 
                 Column(
                     modifier = Modifier.clickable(
-                        interactionSource = MutableInteractionSource(),
-                        indication = rememberRipple(color = DefaultStatusBarColor, bounded = true),
+                        interactionSource = remember {MutableInteractionSource()},
+                        indication = ripple(color = DefaultStatusBarColor, bounded = true),
                         onClick = { onPersonalisationClick.invoke() })
                 ) {
                     Image(
@@ -173,8 +174,8 @@ fun QuadrantRowOne(
             ) {
                 Column(
                     modifier = Modifier.clickable(
-                        interactionSource = MutableInteractionSource(),
-                        indication = rememberRipple(color = DefaultStatusBarColor, bounded = true),
+                        interactionSource = remember {MutableInteractionSource()},
+                        indication = ripple(color = DefaultStatusBarColor, bounded = true),
                         onClick = { onCreatePoemClick.invoke() })
                 ) {
                     Image(
@@ -207,8 +208,8 @@ fun QuadrantRowOne(
 
                 Column(
                     modifier = Modifier.clickable(
-                        interactionSource = MutableInteractionSource(),
-                        indication = rememberRipple(color = DefaultStatusBarColor, bounded = true),
+                        interactionSource = remember {MutableInteractionSource()},
+                        indication = ripple(color = DefaultStatusBarColor, bounded = true),
                         onClick = { onMyPoemsClick.invoke() })
                 ) {
                     Image(
