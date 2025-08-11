@@ -54,7 +54,7 @@ class PoemThemeComposeTest {
             context = LocalContext.current
             ensureOnFirstUse(context!!)
             PoetsKingdomTheme {
-                ThemePoemApp(poemThemeViewModel = poemThemeViewModel)
+                ThemePoemApp(poemThemeViewModel = poemThemeViewModel, {a,b ->})
             }
         }
 
@@ -83,7 +83,7 @@ class PoemThemeComposeTest {
             context = LocalContext.current
             skipOnFirstUse(LocalContext.current)
             PoetsKingdomTheme {
-                ThemePoemApp(poemThemeViewModel = poemThemeViewModel)
+                ThemePoemApp(poemThemeViewModel = poemThemeViewModel, {a,b ->})
             }
         }
 
@@ -110,7 +110,7 @@ class PoemThemeComposeTest {
             context = LocalContext.current
             skipOnFirstUse(LocalContext.current)
             PoetsKingdomTheme {
-                ThemePoemApp(poemThemeViewModel = poemThemeViewModel)
+                ThemePoemApp(poemThemeViewModel = poemThemeViewModel, {a,b ->})
             }
         }
         assert(
@@ -154,7 +154,7 @@ class PoemThemeComposeTest {
             context = LocalContext.current
             skipOnFirstUse(LocalContext.current)
             PoetsKingdomTheme {
-                ThemePoemApp(poemThemeViewModel = poemThemeViewModel)
+                ThemePoemApp(poemThemeViewModel = poemThemeViewModel, {a,b ->})
             }
         }
         val previewText = context!!.resources.getString(R.string.preview_text)
@@ -206,7 +206,7 @@ class PoemThemeComposeTest {
             context = LocalContext.current
             skipOnFirstUse(LocalContext.current)
             PoetsKingdomTheme {
-                ThemePoemApp(poemThemeViewModel = poemThemeViewModel)
+                ThemePoemApp(poemThemeViewModel = poemThemeViewModel, {a,b ->})
             }
         }
         val previewText = context!!.resources.getString(R.string.preview_text)
@@ -257,7 +257,7 @@ class PoemThemeComposeTest {
             context = LocalContext.current
             skipOnFirstUse(LocalContext.current)
             PoetsKingdomTheme {
-                ThemePoemApp(poemThemeViewModel = poemThemeViewModel)
+                ThemePoemApp(poemThemeViewModel = poemThemeViewModel, {a,b ->})
             }
         }
         composeTestRule.onNodeWithText("Create Poem").performClick()
