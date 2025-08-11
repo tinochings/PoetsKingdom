@@ -4,16 +4,20 @@ import android.content.Context
 import com.wendorochena.poetskingdom.R
 import java.io.File
 
+/**
+ * Centralised access to Images folder.
+ * @param imageSortType ASCENDING, DESCENDING, or NO sorting order for listing image files
+ */
 class ImagesFolderOperations(private val imageSortType: ImageSortType) {
 
-    private fun retrieveImagesFolder(context: Context): File {
+    fun retrieveImagesFolder(context: Context): File {
         return context.getDir(
             context.getString(R.string.my_images_folder_name),
             Context.MODE_PRIVATE
         )
     }
 
-    private fun retrievePoemThumbnailImagesFolder(context: Context): File {
+    fun retrievePoemThumbnailImagesFolder(context: Context): File {
         return context.getDir(
             context.getString(R.string.thumbnails_folder_name),
             Context.MODE_PRIVATE
