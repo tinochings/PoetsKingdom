@@ -48,10 +48,8 @@ class FileCacheUtility : FileCacheUtil {
         cacheName: String,
         filesToDelete: Array<String>
     ) {
-        val listOfFilesToDelete = context.cacheDir.resolve(cacheName).listFiles()?.filter { file ->
-            filesToDelete.contains(file.name)
+        filesToDelete.forEach {
+            File(it).delete()
         }
-
-        listOfFilesToDelete?.forEach { it.delete() }
     }
 }
