@@ -79,6 +79,7 @@ import com.wendorochena.poetskingdom.poemdata.TextAlignment
 import com.wendorochena.poetskingdom.screens.reusables.CircleColorPicker
 import com.wendorochena.poetskingdom.screens.reusables.layouts.DialogLayout
 import com.wendorochena.poetskingdom.screens.reusables.layouts.SimpleTextDialogBody
+import com.wendorochena.poetskingdom.screens.reusables.loaders.ImagesLoading
 import com.wendorochena.poetskingdom.ui.theme.DefaultColor
 import com.wendorochena.poetskingdom.ui.theme.DefaultStatusBarColor
 import com.wendorochena.poetskingdom.ui.theme.MadzinzaGreen
@@ -1312,7 +1313,8 @@ fun ImagesGrid(
         onLoadAllImages.invoke(LocalContext.current.applicationContext)
         hasLoadedAllImages = true
     }
-
+    if(imageRequests.isEmpty())
+        ImagesLoading(gridRowWidth = 5)
 
     LazyVerticalGrid(
         modifier = Modifier.padding(top = 5.dp), columns = GridCells.Fixed(4),

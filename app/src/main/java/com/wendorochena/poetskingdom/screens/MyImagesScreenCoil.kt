@@ -8,7 +8,6 @@ import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -52,6 +51,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import com.wendorochena.poetskingdom.R
+import com.wendorochena.poetskingdom.screens.reusables.loaders.ImagesLoading
 import com.wendorochena.poetskingdom.screens.reusables.loaders.ImagesNotification
 import com.wendorochena.poetskingdom.screens.reusables.loaders.ImagesNotificationModel
 import com.wendorochena.poetskingdom.ui.theme.DefaultColor
@@ -318,7 +318,6 @@ fun PoemImagesViewCoil(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ImagesItemCoil(
     imageRequestPair: Pair<ImageRequest, Boolean>,
@@ -384,6 +383,9 @@ fun ImagesViewCoil(
         retrieveImageFiles.invoke()
         performInitialLoad = false
     }
+
+    if (coilImageItems.isEmpty() && !isPerformingPreChecks)
+        ImagesLoading()
 
     LazyVerticalGrid(
         modifier = modifier.padding(top = 5.dp), columns = GridCells.Fixed(3),
