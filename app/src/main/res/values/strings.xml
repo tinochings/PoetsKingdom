@@ -303,5 +303,6 @@
     <string name="margin_right_increase_description">Increase size of the margin from the right</string>
     <string name="coil_image_cache_name">image_loader_cache</string>
     <string name="image_key_gen_cache_name">int_key_gen</string>
-    <string name="jpeg_image_thumbnails">compressed_image_thumbnails</string>
+    <string name="cache_image_thumbnails_folder">compressed_image_thumbnails</string>
+    <string name="cache_poem_thumbnails_folder">compressed_my_image_thumbnails</string>
 </resources>
