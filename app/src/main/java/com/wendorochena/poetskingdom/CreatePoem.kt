@@ -71,7 +71,6 @@ import com.wendorochena.poetskingdom.utils.TypefaceHelper
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.math.roundToInt
@@ -266,7 +265,7 @@ class CreatePoem : AppCompatActivity() {
         }
 
         if (isExitingActivity) {
-            GlobalScope.launch(Dispatchers.Main + exceptionHandler) {
+            lifecycleScope.launch(Dispatchers.Main + exceptionHandler) {
                 createDataContainer(category, createThumbnail, shouldGenerateBackground)
                 turnOffDimmerProgressBar()
             }
