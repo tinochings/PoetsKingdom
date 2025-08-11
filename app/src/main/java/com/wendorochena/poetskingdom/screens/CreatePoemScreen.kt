@@ -138,7 +138,7 @@ fun PortraitPoemView(modifier: Modifier, createPoemViewModel: CreatePoemViewMode
                         createPoemViewModel.parseOutlineType(createPoemViewModel.poemTheme.outline),
                         createPoemViewModel.poemTheme.outlineColor,
                         createPoemViewModel.poemTheme.backgroundColorAsInt
-                    ) {}
+                    ) {a,b ->}
 
                 }
 
@@ -148,7 +148,7 @@ fun PortraitPoemView(modifier: Modifier, createPoemViewModel: CreatePoemViewMode
                         createPoemViewModel.parseOutlineType(createPoemViewModel.poemTheme.outline),
                         createPoemViewModel.poemTheme.outlineColor,
                         createPoemViewModel.poemTheme.backgroundColorAsInt
-                    ) {}
+                    ) {a,b ->}
                 }
 
                 BackgroundType.OUTLINE_WITH_IMAGE -> {
