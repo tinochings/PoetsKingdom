@@ -17,6 +17,11 @@ import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.poemdata.BackgroundType
 import com.wendorochena.poetskingdom.poemdata.PoemTheme
 import com.wendorochena.poetskingdom.poemdata.TextAlignment
+import com.wendorochena.poetskingdom.utils.files.images.ImageSortType
+import com.wendorochena.poetskingdom.utils.files.images.ImagesFolderOperations
+import com.wendorochena.poetskingdom.utils.generators.contracts.ImageFolderType
+import com.wendorochena.poetskingdom.utils.parallelism.images.executors.ImagesCacheExecutorFileName
+import com.wendorochena.poetskingdom.utils.parallelism.images.tasksImplementation.NoOpTaskSupervisor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -186,6 +191,7 @@ class ThumbnailCreator(
             setPaintAlignment(poemTheme.textAlignment)
             validateLines()
             drawToBitmap()
+            cacheThumbnailImage()
         }
     }
 
@@ -446,5 +452,20 @@ class ThumbnailCreator(
             outputStream.close()
         } catch (e: Exception) {
         }
+    }
+
+    private suspend fun cacheThumbnailImage(){
+        val thumbnailFolder = ImagesFolderOperations(ImageSortType.NONE).retrievePoemThumbnailImagesFolder(context)
+        val thumbnailFile = File(
+            thumbnailFolder.absolutePath + File.separator + poemTheme.poemTitle.replace(
+                ' ',
+                '_'
+            ) + ".png"
+        )
+        val imageCacheExecutor = ImagesCacheExecutorFileName(context = context, taskSupervisor = NoOpTaskSupervisor())
+        imageCacheExecutor.executePreloadedFiles(
+            filesToCache = arrayOf(thumbnailFile),
+            imageFolderType = ImageFolderType.POEM_THUMBNAILS
+        )
     }
 }
