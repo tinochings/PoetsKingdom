@@ -24,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -32,6 +33,7 @@ import com.wendorochena.poetskingdom.PersonalisationActivity
 import com.wendorochena.poetskingdom.PoemThemeActivityCompose
 import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.ui.theme.PoetsKingdomTheme
+import com.wendorochena.poetskingdom.viewModels.MyImagesViewModelCoil
 
 enum class HomeScreen {
     HOME, MYIMAGES
@@ -89,7 +91,7 @@ fun HomeScreenAppBar(
 }
 
 @Composable
-fun HomeScreenApp() {
+fun HomeScreenApp(myImagesViewModel: MyImagesViewModelCoil) {
     val navController = rememberNavController()
     Scaffold(
         topBar = {
@@ -140,7 +142,7 @@ fun HomeScreenApp() {
                 )
             }
             composable(route = HomeScreen.MYIMAGES.name) {
-                MyImagesScreenApp()
+                MyImagesScreenAppCoil(myImagesViewModel = myImagesViewModel)
             }
         }
 
@@ -151,6 +153,6 @@ fun HomeScreenApp() {
 @Composable
 fun HomeScreenPreview() {
     PoetsKingdomTheme {
-        HomeScreenApp()
+        HomeScreenApp(viewModel())
     }
 }

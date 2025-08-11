@@ -3,8 +3,10 @@ package com.wendorochena.poetskingdom
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import com.wendorochena.poetskingdom.screens.HomeScreenApp
 import com.wendorochena.poetskingdom.ui.theme.PoetsKingdomTheme
+import com.wendorochena.poetskingdom.viewModels.MyImagesViewModelCoil
 
 class MainActivityCompose : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -14,9 +16,10 @@ class MainActivityCompose : ComponentActivity() {
             MODE_PRIVATE
         ).getString("orientation", null) == null)
             setupDefaultSettings()
+        val myImagesViewModelImageRequests : MyImagesViewModelCoil by viewModels()
         setContent {
                 PoetsKingdomTheme {
-                    HomeScreenApp()
+                    HomeScreenApp(myImagesViewModelImageRequests)
                 }
         }
     }
