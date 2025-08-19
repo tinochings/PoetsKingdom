@@ -281,6 +281,7 @@ class MyImagesViewModelCoil(
     fun getImageFilesAsImageRequest(context: Context): List<CoilImageItem> {
 
         if (modelState.value.imageThumbnails.isEmpty()) {
+            updateModelState { it.copy(isFinishedLoading = false) }
             val imageLoaderUtility = ImageLoaderUtilityFileName(ImageFolderType.IMAGES)
 
             viewModelScope.launch(mainDispatcher) {
@@ -289,6 +290,7 @@ class MyImagesViewModelCoil(
                     ioDispatcher,
                 )
                 addAllFiles(imageRequests, true)
+                updateModelState { it.copy(isFinishedLoading = true) }
             }
         }
         return modelState.value.imageThumbnails
@@ -473,6 +475,7 @@ class MyImagesViewModelCoil(
     fun getThumbnails(context: Context): List<CoilImageItem> {
 
         if (modelState.value.poemThumbnails.isEmpty()) {
+            updateModelState { it.copy(isFinishedLoading = false) }
             val savedImagesFolder =
                 context.getDir(
                     context.getString(R.string.saved_images_folder_name),
@@ -498,6 +501,7 @@ class MyImagesViewModelCoil(
 
                 val filteredImages = filterImages.await()
                 addAllFiles(filteredImages, isImages = false)
+                updateModelState { it.copy(isFinishedLoading = true) }
             }
         }
 

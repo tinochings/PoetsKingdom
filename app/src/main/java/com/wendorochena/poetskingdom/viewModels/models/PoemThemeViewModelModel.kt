@@ -34,7 +34,8 @@ data class PoemThemeViewModelModel(
     val isEditTheme : Boolean = false,
     val savedAlbumName: String? = null,
     val poemThemeState : PoemTheme = PoemTheme(),
-    val imageRequests : List<ImageRequest> = ArrayList()
+    val imageRequests : List<ImageRequest> = ArrayList(),
+    val isImagesLoading : Boolean = false
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -64,6 +65,7 @@ data class PoemThemeViewModelModel(
         if (savedAlbumName != other.savedAlbumName) return false
         if (poemThemeState != other.poemThemeState) return false
         if (imageRequests != other.imageRequests) return false
+        if (isImagesLoading != other.isImagesLoading) return false
 
         return true
     }

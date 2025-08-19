@@ -463,10 +463,10 @@ class PoemThemeViewModel(private val ioDispatcher: CoroutineDispatcher = Dispatc
      */
     fun loadAllPoemThemes(context: Context){
         viewModelScope.launch (mainDispatcher){
+            updateModelState { it.copy(isImagesLoading = true) }
             val allImages = ImageLoaderUtilityFileName(imageFolderType = ImageFolderType.IMAGES).loadAllImages(context, ioDispatcher = ioDispatcher)
-
                 updateModelState { state ->
-                    state.copy(imageRequests = allImages)
+                    state.copy(imageRequests = allImages, isImagesLoading = false)
                 }
         }
     }

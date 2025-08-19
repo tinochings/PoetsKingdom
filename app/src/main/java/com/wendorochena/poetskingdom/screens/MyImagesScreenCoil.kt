@@ -11,7 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -147,7 +148,8 @@ fun MyImagesScreenAppCoil(
                         coilImageItems = viewModelState.imageThumbnails,
                         onImageLongPressed = viewModelState.onImageLongPressed,
                         retrieveImageFiles = retrieveImageFiles,
-                        isPerformingPreChecks = viewModelState.isPerformingPreChecks
+                        isPerformingPreChecks = viewModelState.isPerformingPreChecks,
+                        isFinishedLoading = viewModelState.isFinishedLoading
                     )
                 }
 
@@ -327,7 +329,7 @@ fun ImagesItemCoil(
     isLongClicked: Boolean,
     index: Int
 ) {
-    var imageClicked by remember { mutableStateOf(false) }
+
     Box(modifier = Modifier) {
         if (isLongClicked) {
             if (imageRequestPair.second) {
@@ -355,16 +357,15 @@ fun ImagesItemCoil(
             contentDescription = "",
             modifier = modifier
                 .fillMaxWidth()
-                .combinedClickable(
-                    enabled = true,
-                    onClick = { imageClicked = true },
-                    onLongClick = { onLongClick.invoke(index) }),
+                .pointerInput(Unit){
+                    detectTapGestures(onLongPress = {
+                        onLongClick.invoke(index)
+                    }, onTap = {
+                        onImageItemClick.invoke(index)
+                    })
+                },
             contentScale = ContentScale.Crop
         )
-        if (imageClicked) {
-            onImageItemClick.invoke(index)
-            imageClicked = false
-        }
     }
 }
 
@@ -377,6 +378,7 @@ fun ImagesViewCoil(
     onImageLongPressed: Boolean,
     retrieveImageFiles: () -> Unit,
     isPerformingPreChecks : Boolean,
+    isFinishedLoading : Boolean
 ) {
     var performInitialLoad by remember { mutableStateOf(true) }
     if (performInitialLoad && !isPerformingPreChecks) {
@@ -384,7 +386,7 @@ fun ImagesViewCoil(
         performInitialLoad = false
     }
 
-    if (coilImageItems.isEmpty() && !isPerformingPreChecks)
+    if (!isFinishedLoading && !isPerformingPreChecks)
         ImagesLoading()
 
     LazyVerticalGrid(

@@ -11,7 +11,8 @@ data class MyImagesScreenModel(
     val onImageLongPressed: Boolean = false,
     val isPerformingPreChecks : Boolean = true,
     val poemThumbnails : SnapshotStateList<CoilImageItem> = mutableStateListOf(),
-    val imageThumbnails : SnapshotStateList<CoilImageItem> = mutableStateListOf()
+    val imageThumbnails : SnapshotStateList<CoilImageItem> = mutableStateListOf(),
+    val isFinishedLoading : Boolean = false
 ){
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -23,6 +24,7 @@ data class MyImagesScreenModel(
         if (floatingButtonStateVar != other.floatingButtonStateVar) return false
         if (onImageLongPressed != other.onImageLongPressed) return false
         if (isPerformingPreChecks != other.isPerformingPreChecks) return false
+        if (isFinishedLoading != other.isFinishedLoading) return false
 
         return true
     }

@@ -2,7 +2,6 @@ package com.wendorochena.poetskingdom.screens
 
 import android.content.Context
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -407,7 +406,8 @@ fun ThemePoemApp(
                 modelState.imageRequests,
                 onLoadAllImages,
                 onImageItemClick,
-                onOutlineClicked
+                onOutlineClicked,
+                modelState.isImagesLoading
             )
 
             if (modelState.shouldDisplayDialog)
@@ -430,7 +430,6 @@ fun ThemePoemApp(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ThemePreview(
     paddingValues: PaddingValues,
@@ -801,7 +800,8 @@ fun ThemeOptions(
     onColorPickerInvoked: @Composable (HeadingSelection, () -> Unit) -> Unit,
     imageRequests: List<ImageRequest>, onLoadAllImages: (Context) -> Unit,
     onImageItemClick: (File) -> Unit,
-    onOutlineClicked: (OutlineTypes) -> Unit
+    onOutlineClicked: (OutlineTypes) -> Unit,
+    isImagesLoading : Boolean
 ) {
 
     Column(
@@ -951,7 +951,8 @@ fun ThemeOptions(
                     colorPickerDialog = onColorPickerInvoked,
                     onImageItemClick = onImageItemClick,
                     imageRequests = imageRequests,
-                    onLoadAllImages = onLoadAllImages
+                    onLoadAllImages = onLoadAllImages,
+                    isImagesLoading = isImagesLoading
                 )
             }
 
@@ -980,7 +981,8 @@ fun BackgroundLayout(
     colorPickerDialog: @Composable (HeadingSelection, () -> Unit) -> Unit,
     onImageItemClick: (File) -> Unit,
     imageRequests: List<ImageRequest>,
-    onLoadAllImages: (Context) -> Unit
+    onLoadAllImages: (Context) -> Unit,
+    isImagesLoading : Boolean
 ) {
     var shouldDisplayColorDialog by remember { mutableStateOf(false) }
     Row(
@@ -1048,7 +1050,8 @@ fun BackgroundLayout(
     ImagesGrid(
         onImageItemClick = onImageItemClick,
         onLoadAllImages = onLoadAllImages,
-        imageRequests = imageRequests
+        imageRequests = imageRequests,
+        isImagesLoading = isImagesLoading
     )
 }
 
@@ -1304,7 +1307,8 @@ fun ImageItem(imageRequest: ImageRequest, modifier: Modifier, onImageItemClick: 
 fun ImagesGrid(
     onImageItemClick: (File) -> Unit,
     imageRequests: List<ImageRequest>,
-    onLoadAllImages: (Context) -> Unit
+    onLoadAllImages: (Context) -> Unit,
+    isImagesLoading : Boolean
 ) {
     var hasLoadedAllImages by remember {
         mutableStateOf(false)
@@ -1313,7 +1317,7 @@ fun ImagesGrid(
         onLoadAllImages.invoke(LocalContext.current.applicationContext)
         hasLoadedAllImages = true
     }
-    if(imageRequests.isEmpty())
+    if(isImagesLoading)
         ImagesLoading(gridRowWidth = 5)
 
     LazyVerticalGrid(
