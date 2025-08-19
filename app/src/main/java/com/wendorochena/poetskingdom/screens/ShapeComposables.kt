@@ -1,7 +1,6 @@
 package com.wendorochena.poetskingdom.screens
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -23,7 +22,6 @@ import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.poemdata.OutlineTypes
 import com.wendorochena.poetskingdom.viewModels.HeadingSelection
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RoundedRectangleOutline(
     modifier: Modifier,
@@ -50,7 +48,6 @@ fun RoundedRectangleOutline(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RectangleOutline(
     modifier: Modifier,
@@ -78,7 +75,6 @@ fun RectangleOutline(
 }
 
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TeardropOutline(
     modifier: Modifier,
@@ -106,7 +102,6 @@ fun TeardropOutline(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RotatedTeardropOutline(
     modifier: Modifier,
@@ -133,7 +128,6 @@ fun RotatedTeardropOutline(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LemonOutline(
     modifier: Modifier,
@@ -160,7 +154,6 @@ fun LemonOutline(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RotatedLemonOutline(
     modifier: Modifier,
