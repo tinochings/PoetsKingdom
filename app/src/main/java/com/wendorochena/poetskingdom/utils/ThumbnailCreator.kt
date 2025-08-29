@@ -17,9 +17,13 @@ import com.wendorochena.poetskingdom.R
 import com.wendorochena.poetskingdom.poemdata.BackgroundType
 import com.wendorochena.poetskingdom.poemdata.PoemTheme
 import com.wendorochena.poetskingdom.poemdata.TextAlignment
+import com.wendorochena.poetskingdom.utils.files.cache.FileCacheUtility
 import com.wendorochena.poetskingdom.utils.files.images.ImageSortType
 import com.wendorochena.poetskingdom.utils.files.images.ImagesFolderOperations
+import com.wendorochena.poetskingdom.utils.generators.FileNameImageCacheKeyGen
 import com.wendorochena.poetskingdom.utils.generators.contracts.ImageFolderType
+import com.wendorochena.poetskingdom.utils.images.loaders.ImageLoaderUtilityFileName
+import com.wendorochena.poetskingdom.utils.images.loaders.contracts.ImageLoaderResourceManager
 import com.wendorochena.poetskingdom.utils.parallelism.images.executors.ImagesCacheExecutorFileName
 import com.wendorochena.poetskingdom.utils.parallelism.images.tasksImplementation.NoOpTaskSupervisor
 import kotlinx.coroutines.Dispatchers
@@ -462,6 +466,10 @@ class ThumbnailCreator(
                 '_'
             ) + ".png"
         )
+        val cacheThumbnailFile = File(FileCacheUtility().retrieveCacheDirectory(context, ImageLoaderResourceManager.getMyPoemsThumbnailsCacheName()), thumbnailFile.nameWithoutExtension + ".jpg")
+        if (cacheThumbnailFile.exists())
+            ImageLoaderUtilityFileName(ImageFolderType.POEM_THUMBNAILS).removeFromCache(cacheKey = FileNameImageCacheKeyGen(ImageFolderType.POEM_THUMBNAILS, listOf(thumbnailFile)).generateKey(context), context = context, cacheFilePath = cacheThumbnailFile.absolutePath)
+
         val imageCacheExecutor = ImagesCacheExecutorFileName(context = context, taskSupervisor = NoOpTaskSupervisor())
         imageCacheExecutor.executePreloadedFiles(
             filesToCache = arrayOf(thumbnailFile),
