@@ -61,7 +61,7 @@
     <string name="text_color">Text Color</string>
     <string name="text_color_image">Text Color Image</string>
     <string name="text_size_default">Text Size: 14sp</string>
-    <string name="text_size_changeable">Text Size: %0$dsp</string>
+    <string name="text_size_changeable">Text Size: %dsp</string>
     <string name="casual_font_family" translatable="false">Casual</string>
     <string name="cursive_font_family" translatable="false">Cursive</string>
     <string name="monospace_font_family" translatable="false">Monospace</string>
