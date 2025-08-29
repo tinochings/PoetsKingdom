@@ -58,7 +58,7 @@ class PoemThemeActivityCompose : ComponentActivity() {
 
         val onStartNewActivity : (String, String?) -> Unit = { poemTitle, albumPoemTitle ->
             val newActivityIntent =  Intent(this, CreatePoem::class.java)
-            newActivityIntent.putExtra("loadPoem", true)
+            newActivityIntent.putExtra("loadPoem", poemThemeViewModel.modelState.value.isEditTheme)
             newActivityIntent.putExtra(
                 "poemTitle",
                 poemTitle
